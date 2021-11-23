@@ -4,7 +4,7 @@
 		{
 			"name": "Home",
 			"path": "/iot/home",
-			"src": "home.html",
+			"src": "/iot/home.html",
 			"tag": "home"
 		},
 		{
@@ -88,6 +88,6 @@
 	],
 	"pagesFallback": {
 		"name": "404",
-		"src": "./home.html"
+		"src": "./iot/home.html"
 	}
 }
