@@ -6,7 +6,7 @@ export default class ListDevicesController extends WebcController {
     constructor(element, history) {
         super(element, history);
 
-        this.model = {allDevice: []};
+        this.model = {allDevices: []};
         this.DeviceService = new DeviceService();
 
         this.attachModelHandlers();
@@ -23,15 +23,15 @@ export default class ListDevicesController extends WebcController {
                 return console.error(err);
             }
 
-            this.model.allDevice = devices;
+            this.model.allDevices = devices;
         });
     }
 
     attachModelHandlers() {
         this.model.addExpression(
             'deviceListNotEmpty',
-            () => this.model.allDevice && this.model.allDevice.length > 0,
-            'participants');
+            () => this.model.allDevices && this.model.allDevices.length > 0,
+            'allDevices');
     }
 
     attachHandlerGoBack() {
