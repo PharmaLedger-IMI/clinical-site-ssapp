@@ -1,6 +1,6 @@
 const {WebcController} = WebCardinal.controllers;
 
-import DeviceService from "../services/DeviceService.js"
+import DeviceService from "../../../services/DeviceService.js"
 
 export default class ListDevicesController extends WebcController {
     constructor(element, history) {

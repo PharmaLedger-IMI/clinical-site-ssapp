@@ -1,7 +1,7 @@
 const {WebcController} = WebCardinal.controllers;
-import {participantsService} from '../services/participants.service.js';
-import TrialRepository from '../repositories/TrialRepository.js';
-import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
+import {participantsService} from '../../../services/participants.service.js';
+import TrialRepository from '../../../repositories/TrialRepository.js';
+import TrialParticipantRepository from '../../../repositories/TrialParticipantRepository.js';
 
 export default class ListPatientsController extends WebcController {
     constructor(element, history) {

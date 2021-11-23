@@ -1,9 +1,9 @@
 const {WebcController} = WebCardinal.controllers;
-import CommunicationService from '../services/CommunicationService.js';
-import ResponsesService from '../services/ResponsesService.js';
-import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
-import TrialRepository from '../repositories/TrialRepository.js';
-import IotAdaptorApi from "../services/IotAdaptorApi.js";
+import CommunicationService from '../../services/CommunicationService.js';
+import ResponsesService from '../../services/ResponsesService.js';
+import TrialParticipantRepository from '../../repositories/TrialParticipantRepository.js';
+import TrialRepository from '../../repositories/TrialRepository.js';
+import IotAdaptorApi from "../../services/IotAdaptorApi.js";
 
 export default class HomeController extends WebcController {
     constructor(element, history) {
