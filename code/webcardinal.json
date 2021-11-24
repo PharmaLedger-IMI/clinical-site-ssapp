@@ -1,10 +1,11 @@
 {
+	"logLevel": "none",
 	"theme": "clinical-site-theme",
 	"pages": [
 		{
-			"name": "Home",
-			"path": "/iot/home",
-			"src": "/iot/home.html",
+			"name": "Landing",
+			"path": "/landing",
+			"src": "/landing.html",
 			"tag": "home"
 		},
 		{
@@ -88,6 +89,6 @@
 	],
 	"pagesFallback": {
 		"name": "404",
-		"src": "./iot/home.html"
+		"src": "./landing.html"
 	}
 }
