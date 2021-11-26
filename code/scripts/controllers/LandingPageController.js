@@ -4,20 +4,33 @@ import ResponsesService from '../services/ResponsesService.js';
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import TrialRepository from '../repositories/TrialRepository.js';
 
+// TODO: Landing Controller will listen to all messages: incoming trials, questionnaires, consent updates, withdraws and so on...
 export default class LandingPageController extends WebcController {
     constructor(element, history) {
         super(element, history);
 
         this.model = {};
 
-        this.attachHandlerManageDevices();
-        this.attachHandlerTrialManagement();
-        this.attachHandlerListOfPatients();
+        this.initServices();
+        this.initHandlers();
+    }
 
+    initServices(){
         this.ResponsesService = new ResponsesService(this.DSUStorage);
         this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
         this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
         this.CommunicationService = CommunicationService.getInstance(CommunicationService.identities.IOT.PROFESSIONAL_IDENTITY);
+    }
+
+    initHandlers(){
+        this.attachHandlerManageDevices();
+        this.attachHandlerTrialManagement();
+        this.attachHandlerListOfPatients();
+        this.attachHandlerVisits();
+        this.attachDidMessagesListener();
+    }
+
+    attachDidMessagesListener(){
         this.CommunicationService.listenForMessages((err, data) => {
             if (err) {
                 return console.error(err);
@@ -37,21 +50,26 @@ export default class LandingPageController extends WebcController {
     }
 
     attachHandlerManageDevices() {
-        this.onTagClick('home:manage-devices', () => {
-            this.navigateToPageTag('manage-devices');
+        this.onTagClick('navigation:iot-manage-devices', () => {
+            this.navigateToPageTag('iot-manage-devices');
         });
     }
 
     attachHandlerTrialManagement() {
-        this.onTagClick('home:trial-management', () => {
+        this.onTagClick('navigation:trial-management', () => {
             this.navigateToPageTag('trial-management');
         });
     }
 
     attachHandlerListOfPatients() {
-        this.onTagClick('home:list-of-patients', () => {
-            console.log("List of Patients button pressed");
-            this.navigateToPageTag('list-of-patients');
+        this.onTagClick('navigation:econsent-notifications', () => {
+            this.navigateToPageTag('econsent-notifications');
+        });
+    }
+
+    attachHandlerVisits() {
+        this.onTagClick('navigation:econsent-visits', () => {
+            this.navigateToPageTag('econsent-visits');
         });
     }
 

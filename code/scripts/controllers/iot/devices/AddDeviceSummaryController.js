@@ -14,7 +14,7 @@ export default class AddDeviceSummaryController extends WebcController {
     attachHandlerEditButton() {
         this.onTagClick('summary:edit', () => {
             console.log("Edit button pressed");
-            this.navigateToPageTag('add-device', this.model.toObject());
+            this.navigateToPageTag('iot-add-device', this.model.toObject());
         });
     }
 

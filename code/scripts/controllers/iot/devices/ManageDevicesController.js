@@ -13,13 +13,13 @@ export default class ManageDevicesController extends WebcController {
 
     attachHandlerAddDevice() {
         this.onTagClick('devices:add', () => {
-            this.navigateToPageTag('add-device');
+            this.navigateToPageTag('iot-add-device');
         });
     }
 
     attachHandlerSearchDevice() {
         this.onTagClick('devices:search', () => {
-            this.navigateToPageTag('list-all-devices');
+            this.navigateToPageTag('iot-list-all-devices');
         });
     }
 

@@ -1,0 +1,27 @@
+<webc-container controller="econsent/notifications/NotificationsListController">
+
+    <div class="container main-container">
+
+        <h4 class="title">Notifications list</h4>
+
+        <div class="general-table">
+            <psk-layout class="justify-content-center align-items-center table-row" columns="2">
+                <psk-label class="table-cell-title">Notification</psk-label>
+                <psk-label class="table-cell-title">Recommended Action</psk-label>
+            </psk-layout>
+            <hr/>
+        </div>
+
+        <div class="general-table body" data-for="@notifications">
+            <psk-layout class="justify-content-center align-items-center table-row"
+                        columns="2">
+                <psk-label class="table-cell">{{@name}}</psk-label>
+                <button class="link-button"
+                        data="@id" data-tag="goToAction">{{@recommendedAction}}
+                </button>
+            </psk-layout>
+        </div>
+
+        <button class="back-button" data-tag="go-back">Back</button>
+    </div>
+</webc-container>

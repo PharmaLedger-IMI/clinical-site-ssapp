@@ -1,0 +1,68 @@
+<webc-container controller="econsent/notifications/NotificationsController">
+
+    <div class="container main-container">
+
+        <h4 class="title">Notifications</h4>
+
+        <div class="centered">
+            <div class="button-container">
+                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+                    Trial Updates
+                    <div data-if="@notTypes.trialUpdates">
+                        <div slot="true">
+                            <psk-img class="table-cell" height='30'
+                                     src="assets/images/bell.png" width='34'></psk-img>
+                        </div>
+                    </div>
+                </button>
+            </div>
+            <div class="button-container">
+                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+                    Withdraws
+                    <div data-if="@notTypes.withdraws">
+                        <div slot="true">
+                            <psk-img class="table-cell" height='30'
+                                     src="assets/images/bell.png" width='34'></psk-img>
+                        </div>
+                    </div>
+                </button>
+            </div>
+            <div class="button-container">
+                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+                    Consent Updates
+                    <div data-if="@notTypes.consentUpdates">
+                        <div slot="true">
+                            <psk-img class="table-cell" height='30'
+                                     src="assets/images/bell.png" width='34'></psk-img>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <div class="centered">
+            <div class="button-container">
+                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+                    Milestones Reminders
+                    <div data-if="@notTypes.milestones">
+                        <div slot="true">
+                            <psk-img class="table-cell" height='30'
+                                     src="assets/images/bell.png" width='34'></psk-img>
+                        </div>
+                    </div>
+                </button>
+            </div>
+            <div class="button-container">
+                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+                    Trial Subject Questions
+                    <div data-if="@notTypes.questions">
+                        <div slot="true">
+                            <psk-img class="table-cell" height='30'
+                                     src="assets/images/bell.png" width='34'></psk-img>
+                        </div>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <button class="back-button" data-tag="go-back">Back</button>
+    </div>
+</webc-container>

@@ -16,14 +16,14 @@ export default class AddDeviceController extends WebcController {
     attachHandlerGoBackButton() {
         this.onTagClick('devices:go-back', () => {
             console.log("Go back button pressed");
-            this.navigateToPageTag('manage-devices');
+            this.navigateToPageTag('iot-manage-devices');
         });
     }
 
     attachHandlerSaveButton() {
         this.onTagClick('devices:save', () => {
             const deviceData = this.prepareDeviceData();
-            this.navigateToPageTag("add-device-summary", deviceData);
+            this.navigateToPageTag("iot-add-device-summary", deviceData);
         });
     }
 

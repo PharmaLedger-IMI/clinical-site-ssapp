@@ -10,81 +10,93 @@
 		},
 		{
 			"name": "confirmation-page",
-			"path": "/confirmation-page",
-			"src": "confirmation-page.html",
+			"path": "/general/confirmation-page",
+			"src": "general/confirmation-page.html",
 			"tag": "confirmation-page"
+		},
+		{
+			"name": "list-of-patients",
+			"path": "/general/patients/list-of-patients",
+			"src": "general/patients/list-of-patients.html",
+			"tag": "list-of-patients"
+		},
+		{
+			"name": "patient-status",
+			"path": "/general/patients/patient-status",
+			"src": "general/patients/patient-status.html",
+			"tag": "patient-status"
+		},
+		{
+			"name": "patient-device-history",
+			"path": "/general/patients/patient-device-history",
+			"src": "general/patients/patient-device-history.html",
+			"tag": "patient-device-history"
+		},
+		{
+			"name": "patient-consent-status",
+			"path": "/general/patients/patient-consent-status",
+			"src": "general/patients/patient-consent-status.html",
+			"tag": "patient-consent-status"
+		},
+		{
+			"name": "patient-alert-history",
+			"path": "/general/patients/patient-alert-history",
+			"src": "general/patients/patient-alert-history.html",
+			"tag": "patient-alert-history"
+		},
+		{
+			"name": "trial-management",
+			"path": "/general/trial-management/trial-management",
+			"src": "general/trial-management/trial-management.html",
+			"tag": "trial-management"
+		},
+		{
+			"name": "patient-device-match",
+			"path": "/general/trial-management/patient-device-match",
+			"src": "general/trial-management/patient-device-match.html",
+			"tag": "patient-device-match"
+		},
+		{
+			"name": "patient-device-match-summary",
+			"path": "/general/trial-management/patient-device-match-summary",
+			"src": "general/trial-management/patient-device-match-summary.html",
+			"tag": "patient-device-match-summary"
+		},
+		{
+			"name": "notifications",
+			"path": "/econsent/notifications/notifications",
+			"src": "econsent/notifications/notifications.html",
+			"tag": "econsent-notifications"
+		},
+		{
+			"name": "notifications-list",
+			"path": "/econsent/notifications/notifications-list",
+			"src": "econsent/notifications/notifications-list.html",
+			"tag": "econsent-notifications-list"
 		},
 		{
 			"name": "manage-devices",
 			"path": "/iot/devices/manage-devices",
 			"src": "iot/devices/manage-devices.html",
-			"tag": "manage-devices"
+			"tag": "iot-manage-devices"
 		},
 		{
 			"name": "add-device",
 			"path": "/iot/devices/add-device",
 			"src": "iot/devices/add-device.html",
-			"tag": "add-device"
+			"tag": "iot-add-device"
 		},
 		{
 			"name": "add-device-summary",
 			"path": "/iot/devices/add-device-summary",
 			"src": "iot/devices/add-device-summary.html",
-			"tag": "add-device-summary"
+			"tag": "iot-add-device-summary"
 		},
 		{
 			"name": "list-all-devices",
 			"path": "/iot/devices/list-all-devices",
 			"src": "iot/devices/list-all-devices.html",
-			"tag": "list-all-devices"
-		},
-		{
-			"name": "list-of-patients",
-			"path": "/iot/patients/list-of-patients",
-			"src": "iot/patients/list-of-patients.html",
-			"tag": "list-of-patients"
-		},
-		{
-			"name": "patient-status",
-			"path": "/iot/patients/patient-status",
-			"src": "iot/patients/patient-status.html",
-			"tag": "patient-status"
-		},
-		{
-			"name": "patient-device-history",
-			"path": "/iot/patients/patient-device-history",
-			"src": "iot/patients/patient-device-history.html",
-			"tag": "patient-device-history"
-		},
-		{
-			"name": "patient-consent-status",
-			"path": "/iot/patients/patient-consent-status",
-			"src": "iot/patients/patient-consent-status.html",
-			"tag": "patient-consent-status"
-		},
-		{
-			"name": "patient-alert-history",
-			"path": "/iot/patients/patient-alert-history",
-			"src": "iot/patients/patient-alert-history.html",
-			"tag": "patient-alert-history"
-		},
-		{
-			"name": "trial-management",
-			"path": "/iot/trial-management/trial-management",
-			"src": "iot/trial-management/trial-management.html",
-			"tag": "trial-management"
-		},
-		{
-			"name": "patient-device-match",
-			"path": "/iot/trial-management/patient-device-match",
-			"src": "iot/trial-management/patient-device-match.html",
-			"tag": "patient-device-match"
-		},
-		{
-			"name": "patient-device-match-summary",
-			"path": "/iot/trial-management/patient-device-match-summary",
-			"src": "iot/trial-management/patient-device-match-summary.html",
-			"tag": "patient-device-match-summary"
+			"tag": "iot-list-all-devices"
 		}
 	],
 	"pagesFallback": {
