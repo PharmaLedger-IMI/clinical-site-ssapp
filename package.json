@@ -1,7 +1,7 @@
 {
-  "name": "ssapp-template",
+  "name": "clinical-site-ssapp",
   "version": "1.0.0",
-  "description": "SSApp Template",
+  "description": "Clinical Site SSApp - UC 6, 7-9",
   "main": "index.js",
   "scripts": {
     "postinstall": "node ./node_modules/octopus/scripts/run",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PrivateSky/ssapp-template.git"
+    "url": "git+https://github.com/PharmaLedger-IMI/clinical-site-ssapp.git"
   },
   "dependencies": {
     "octopus": "git+https://github.com/PrivateSky/octopus.git"
@@ -24,7 +24,7 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PrivateSky/ssapp-template/issues"
+    "url": "https://github.com/PharmaLedger-IMI/clinical-site-ssapp/issues"
   },
-  "homepage": "https://github.com/PrivateSky/ssapp-template#readme"
+  "homepage": "https://github.com/PharmaLedger-IMI/clinical-site-ssapp#readme"
 }
