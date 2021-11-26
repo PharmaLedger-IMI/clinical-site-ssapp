@@ -64,14 +64,14 @@
 		},
 		{
 			"name": "notifications",
-			"path": "/econsent/notifications/notifications",
-			"src": "econsent/notifications/notifications.html",
+			"path": "/econsent/e-notifications/notifications",
+			"src": "econsent/e-notifications/notifications.html",
 			"tag": "econsent-notifications"
 		},
 		{
 			"name": "notifications-list",
-			"path": "/econsent/notifications/notifications-list",
-			"src": "econsent/notifications/notifications-list.html",
+			"path": "/econsent/e-notifications/notifications-list",
+			"src": "econsent/e-notifications/notifications-list.html",
 			"tag": "econsent-notifications-list"
 		},
 		{

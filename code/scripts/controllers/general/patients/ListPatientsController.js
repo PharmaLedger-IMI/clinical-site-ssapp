@@ -45,7 +45,7 @@ export default class ListPatientsController extends WebcController {
             'participants'
         );
 
-        this.onTagClick('go-back', () => {
+        this.onTagClick('navigation:go-back', () => {
             this.navigateToPageTag('home');
         });
 

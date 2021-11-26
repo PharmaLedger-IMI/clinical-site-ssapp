@@ -32,8 +32,8 @@ export default class NotificationsController extends WebcController {
             if (err) {
                 return console.log(err);
             }
-            this.model.notifications = data;
 
+            this.model.notifications = data;
             this.model.notTypes.trialUpdates = this.model.notifications.filter(not => not.type === Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES)?.length > 0;
             this.model.notTypes.withdraws = this.model.notifications.filter(not => not.type === Constants.NOTIFICATIONS_TYPE.WITHDRAWS)?.length > 0;
             this.model.notTypes.consentUpdates = this.model.notifications.filter(not => not.type === Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES)?.length > 0;
@@ -43,15 +43,13 @@ export default class NotificationsController extends WebcController {
     }
 
     attachHandlerNotificationsList() {
-        this.onTagClick('navigation:econsent-notifications-list', () => {
-            this.navigateToPageTag('econsent-notifications-list', {
-                notType: target.textContent,
-            });
+        this.onTagClick('navigation:econsent-notifications-list', (model, target) => {
+            this.navigateToPageTag('econsent-notifications-list', {notType: target.textContent});
         });
     }
 
     attachHandlerBack() {
-        this.onTagClick('go-back', () => {
+        this.onTagClick('navigation:go-back', () => {
             this.history.goBack();
         });
     }

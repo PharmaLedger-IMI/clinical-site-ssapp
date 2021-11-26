@@ -14,7 +14,7 @@ export default class PatientDeviceMatchController extends WebcController {
     }
 
     attachHandlerGoBackButton() {
-        this.onTagClick('go-back', () => {
+        this.onTagClick('navigation:go-back', () => {
             console.log("Go back button pressed");
             this.navigateToPageTag('trial-management');
         });

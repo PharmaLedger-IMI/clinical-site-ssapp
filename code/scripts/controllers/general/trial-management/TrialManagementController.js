@@ -9,7 +9,7 @@ export default class TrialManagementController extends WebcController {
     }
 
     attachHandlerGoBack() {
-        this.onTagClick('go-back', () => {
+        this.onTagClick('navigation:go-back', () => {
             this.navigateToPageTag('home');
         });
     }

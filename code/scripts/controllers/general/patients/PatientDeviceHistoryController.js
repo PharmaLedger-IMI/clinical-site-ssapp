@@ -9,7 +9,7 @@ export default class PatientDeviceHistoryController extends WebcController {
     }
 
     attachHandlerGoBack() {
-        this.onTagClick('go-back', () => {
+        this.onTagClick('navigation:go-back', () => {
             this.history.goBack();
         });
     }

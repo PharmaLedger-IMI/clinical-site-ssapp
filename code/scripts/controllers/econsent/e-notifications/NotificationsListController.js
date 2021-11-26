@@ -35,7 +35,7 @@ export default class NotificationsListController extends WebcController {
     }
 
     attachHandlerBack() {
-        this.onTagClick('go-back', () => {
+        this.onTagClick('navigation:go-back', () => {
             this.history.goBack();
         });
     }

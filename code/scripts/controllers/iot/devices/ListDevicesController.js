@@ -35,7 +35,7 @@ export default class ListDevicesController extends WebcController {
     }
 
     attachHandlerGoBack() {
-        this.onTagClick('go-back', () => {
+        this.onTagClick('navigation:go-back', () => {
             console.log("Go Back button pressed");
             this.navigateToPageTag('iot-manage-devices');
         });
