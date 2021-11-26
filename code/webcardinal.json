@@ -97,6 +97,98 @@
 			"path": "/iot/devices/list-all-devices",
 			"src": "iot/devices/list-all-devices.html",
 			"tag": "iot-list-all-devices"
+		},
+
+
+		{
+			"name": "Trial Management",
+			"path": "/econsent/trial-management",
+			"src": "econsent/trial-management.html",
+			"tag": "econsent-trial-management"
+		},
+		{
+			"name": "Trial Details",
+			"path": "/econsent/trial-details",
+			"src": "econsent/trial-details.html",
+			"tag": "trial-details"
+		},
+		{
+			"name": "Trial Participants",
+			"path": "/econsent/trial-participants",
+			"src": "econsent/trial-participants.html",
+			"tag": "trial-participants"
+		},
+		{
+			"name": "Patients",
+			"path": "/econsent/patients-list",
+			"src": "econsent/patients-list.html",
+			"tag": "patients-list"
+		},
+		{
+			"name": "Visits And Procedures List",
+			"path": "/econsent/visits-procedures",
+			"src": "econsent/visits-procedures.html",
+			"tag": "visits-procedures"
+		},
+		{
+			"name": "Visit Edit",
+			"path": "/econsent/visit-edit",
+			"src": "econsent/visit-edit.html",
+			"tag": "visit-edit"
+		},
+		{
+			"name": "Visits",
+			"path": "/econsent/visits",
+			"src": "econsent/visits.html",
+			"tag": "visits"
+		},
+		{
+			"name": "Visits Details Procedures List",
+			"path": "/econsent/visits-details-procedures",
+			"src": "econsent/visits-details-procedures.html",
+			"tag": "visits-details-procedures"
+		},
+		{
+			"name": "Trial",
+			"path": "/econsent/trial",
+			"src": "econsent/trial.html",
+			"tag": "trial"
+		},
+		{
+			"name": "Trial Participant",
+			"path": "/econsent/trial-participant",
+			"src": "econsent/trial-participant.html",
+			"tag": "trial-participant"
+		},
+		{
+			"name": "Trial Participant Details",
+			"path": "/econsent/trial-participant-details",
+			"src": "econsent/trial-participant-details.html",
+			"tag": "trial-participant-details"
+		},
+		{
+			"name": "Econsent Versions",
+			"path": "/econsent/econsent-versions",
+			"src": "econsent/econsent-versions.html",
+			"tag": "econsent-versions"
+		},
+		{
+			"name": "Econsent Sign",
+			"path": "/econsent/econsent-sign",
+			"src": "econsent/econsent-sign.html",
+			"tag": "econsent-sign"
+		},
+		{
+			"name": "Questions",
+			"path": "/econsent/questions",
+			"src": "econsent/questions.html",
+			"tag": "questions"
+		},
+		{
+			"name": "ProceduresView",
+			"path": "/econsent/procedures-view",
+			"src": "econsent/procedures-view.html",
+			"tag": "procedures-view"
 		}
 	],
 	"pagesFallback": {

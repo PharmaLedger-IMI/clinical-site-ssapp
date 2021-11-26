@@ -15,22 +15,23 @@ export default class LandingPageController extends WebcController {
         this.initHandlers();
     }
 
-    initServices(){
+    initServices() {
         this.ResponsesService = new ResponsesService(this.DSUStorage);
         this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
         this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
         this.CommunicationService = CommunicationService.getInstance(CommunicationService.identities.IOT.PROFESSIONAL_IDENTITY);
     }
 
-    initHandlers(){
+    initHandlers() {
         this.attachHandlerManageDevices();
         this.attachHandlerTrialManagement();
         this.attachHandlerListOfPatients();
         this.attachHandlerVisits();
+        this.attachHandlerEconsentTrialManagement();
         this.attachDidMessagesListener();
     }
 
-    attachDidMessagesListener(){
+    attachDidMessagesListener() {
         this.CommunicationService.listenForMessages((err, data) => {
             if (err) {
                 return console.error(err);
@@ -70,6 +71,12 @@ export default class LandingPageController extends WebcController {
     attachHandlerVisits() {
         this.onTagClick('navigation:econsent-visits', () => {
             this.navigateToPageTag('econsent-visits');
+        });
+    }
+
+    attachHandlerEconsentTrialManagement() {
+        this.onTagClick('navigation:econsent-trial-management', () => {
+            this.navigateToPageTag('econsent-trial-management');
         });
     }
 
