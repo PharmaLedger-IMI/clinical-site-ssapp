@@ -1,4 +1,5 @@
-import AbstractAPI from "./AbstractAPI.js";
+const commonServices = require("common-services");
+const AbstractAPI = commonServices.AbstractAPI;
 
 export default class IotAdaptorApi extends AbstractAPI {
 
@@ -15,14 +16,16 @@ export default class IotAdaptorApi extends AbstractAPI {
         }
         this.makeRequest('GET', path, headers, callback);
     }
+
     createDevice(data, keySSI, callback) {
         let path = `${this.ADAPTER_PATH}/create-device`;
         let headers = {
-            'X-KeySSI': keySSI, 
+            'X-KeySSI': keySSI,
             'Content-Type': 'application/json'
         }
         this.makeRequest('POST', path, headers, data, callback);
     }
+
     searchDevice(keySSI, callback) {
         let path = `${this.ADAPTER_PATH}/search-device`;
         let headers = {
@@ -30,16 +33,16 @@ export default class IotAdaptorApi extends AbstractAPI {
         }
         this.makeRequest('GET', path, headers, callback);
     }
+
     searchResource(resourceType, callback) {
         let path = `${this.ADAPTER_PATH}/resource/${resourceType}`;
         let headers = {}
         this.makeRequest('GET', path, headers, callback);
     }
+
     observationByPatientId(patientId, callback) {
         let path = `${this.ADAPTER_PATH}/Observation/Patient/${patientId}`;
         let headers = {}
         this.makeRequest('GET', path, headers, callback);
     }
-
-    
 } 

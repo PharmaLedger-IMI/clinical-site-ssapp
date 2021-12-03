@@ -1,4 +1,5 @@
-import DSUService from "./DSUService.js";
+const commonServices = require("common-services");
+const DSUService = commonServices.DSUService;
 
 export default class ResponsesService extends DSUService {
 
@@ -6,9 +7,9 @@ export default class ResponsesService extends DSUService {
         super(DSUStorage, '/responses');
     }
 
-    mount = (keySSI, callback) => this.mountEntity(keySSI, callback)
+    mount = (keySSI, callback) => this.mountEntity(keySSI, callback);
 
-    saveResponse = (response, callback) => this.saveEntity(response, callback)
+    saveResponse = (response, callback) => this.saveEntity(response, callback);
 
     getResponses = (callback) => this.getEntities(callback);
 }

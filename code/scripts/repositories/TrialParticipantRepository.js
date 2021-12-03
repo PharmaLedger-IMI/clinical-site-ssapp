@@ -1,4 +1,5 @@
-import SharedStorage from "../services/SharedStorage.js";
+const commonServices = require("common-services");
+const SharedStorage = commonServices.SharedStorage;
 
 class TrialParticipantRepository {
 

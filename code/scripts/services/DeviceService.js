@@ -1,4 +1,5 @@
-import AbstractAPI from "./AbstractAPI.js";
+const commonServices = require("common-services");
+const AbstractAPI = commonServices.AbstractAPI;
 
 export default class DeviceService extends AbstractAPI {
 
@@ -10,23 +11,19 @@ export default class DeviceService extends AbstractAPI {
 
     getDeviceById(id, callback) {
         let path = this.GET_DEVICE + '/' + id;
-        let headers = {
-            
-        }
+        let headers = {};
         this.makeRequest('GET', path, headers, callback);
     }
+
     createDevice(data, callback) {
         let headers = {
             'Content-Type': 'application/json'
-        }
+        };
         this.makeRequest('POST', this.GET_DEVICE, headers, data, callback);
     }
-    searchDevice(callback) {
-        let headers = {
 
-        }
+    searchDevice(callback) {
+        let headers = {};
         this.makeRequest('GET', this.GET_DEVICE, headers, callback);
     }
-
-    
 } 

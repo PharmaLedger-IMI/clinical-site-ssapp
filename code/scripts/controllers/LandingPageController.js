@@ -1,5 +1,6 @@
 const {WebcController} = WebCardinal.controllers;
-import CommunicationService from '../services/CommunicationService.js';
+const commonServices = require("common-services");
+const CommunicationService = commonServices.CommunicationService;
 import ResponsesService from '../services/ResponsesService.js';
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import TrialRepository from '../repositories/TrialRepository.js';
