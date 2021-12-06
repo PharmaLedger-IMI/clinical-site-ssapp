@@ -1,14 +1,7 @@
 
-.trial-table{
-    width: 100%;
-}
-
-trial-table tr:nth-child(even){background-color: #00345B;}
-
 .table-cell {
     font-size: 16px;
     color: #000000;
-    font-size: 16px;
 }
 
 .table-cell-title {
@@ -32,10 +25,6 @@ trial-table tr:nth-child(even){background-color: #00345B;}
     width: 100px;
 }
 
-.body{
-    height: 300px;
-    overflow: auto;
-}
 .red {
     color: red !important;
     font-weight: bold;

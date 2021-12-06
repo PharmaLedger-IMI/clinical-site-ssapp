@@ -1,44 +1,43 @@
 <webc-container controller="econsent/EconsentVersionsController">
     <link href="/assets/css/pages/trial-management.css" rel="stylesheet">
-    <div class="main-background">
+    <div class="container main-container">
         <div class="container flex-container">
             <h4 class="title">Trial History: {{@trial.name}}</h4>
         </div>
+        <main>
+            <table class="general-table">
+                <thead>
+                <tr>
+                    <th class="table-cell">VERSION</th>
+                    <th class="table-cell">TS SIGNATURE</th>
+                    <th class="table-cell">HCP SIGNATURE</th>
+                    <th class="table-cell">WITHDREW</th>
+                    <th class="table-cell">OPTIONS</th>
+                </tr>
+                </thead>
 
-        <div class="front">
-
-            <div class="trial-table">
-                <psk-layout class="justify-content-center align-items-center table-row" columns="5">
-                    <psk-label class="table-cell">VERSION</psk-label>
-                    <psk-label class="table-cell">TS SIGNATURE</psk-label>
-                    <psk-label class="table-cell">HCP SIGNATURE</psk-label>
-                    <psk-label class="table-cell">WITHDREW</psk-label>
-                    <psk-label class="table-cell">OPTIONS</psk-label>
-                </psk-layout>
-                <hr/>
-            </div>
-
-            <div class="trial-table body" data-for="@versions">
-                <psk-layout class="justify-content-center align-items-center table-row econsent-row-blue"
-                            columns="5">
-                    <psk-label class="table-cell">{{@version}} - {{@versionDateAsString}}</psk-label>
-                    <div data-if="@tsDeclined">
+                <tbody class="trial-table" data-for="@versions">
+                <tr>
+                    <td class="table-cell">{{@version}} - {{@versionDateAsString}}</td>
+                    <td data-if="@tsDeclined">
                         <div slot="true">
                             <psk-label class="table-cell red">{{@tsDeclined}}</psk-label>
                         </div>
                         <div slot="false">
                             <psk-label class="table-cell">{{@tpApproval}}</psk-label>
                         </div>
-                    </div>
-                    <psk-label class="table-cell">{{@hcpApproval}}</psk-label>
-                    <psk-label class="table-cell">{{@tpWithdraw}}</psk-label>
-                    <button class="link-button" data="@id" data-tag="consent:view">View</button>
-                </psk-layout>
-                <hr/>
-
-            </div>
-
-            <button class="back-button" data-tag="back">Back</button>
+                    </td>
+                    <td class="table-cell">{{@hcpApproval}}</td>
+                    <td class="table-cell">{{@tpWithdraw}}</td>
+                    <td>
+                        <button class="link-button" data="@id" data-tag="consent:view">View</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </main>
+        <div class="button-group-wrapper">
+            <button data-tag="back">Back</button>
         </div>
     </div>
 </webc-container>

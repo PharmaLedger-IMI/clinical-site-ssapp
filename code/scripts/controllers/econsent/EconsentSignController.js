@@ -33,6 +33,10 @@ export default class EconsentSignController extends WebcController {
             showPageDown: true
         });
 
+        if (this.model.controlsShouldBeVisible === undefined) {
+            this.model.controlsShouldBeVisible = true;
+        }
+
         this._initServices();
         this._initHandlers();
     }

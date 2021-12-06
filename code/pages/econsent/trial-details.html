@@ -1,41 +1,33 @@
 <webc-container controller="econsent/TrialDetailsController">
     <link href="/assets/css/pages/trial-details.css" rel="stylesheet">
 
-    <div class="main-background">
+    <div class="container main-container">
         <div class="container flex-container">
             <h4 class="title">{{@trial.id}} {{@trial.name}}</h4>
         </div>
 
-        <div class="front">
+        <main>
             <div class="subtitle-container">
                 <div data-if="@trial.recruitmentPeriod.toShowDate">
-                    <div slot="true">
-                        <psk-label class="subtitle">Recruitment period: {{@trial.recruitmentPeriod.toShowDate}}
-                        </psk-label>
-                    </div>
-                    <div slot="false">
-                        <psk-label class="subtitle">Recruitment period not set yet - Click edit to set it
-                        </psk-label>
-                    </div>
+                        <label slot="true" class="subtitle">Recruitment period: {{@trial.recruitmentPeriod.toShowDate}}</label>
+                        <label slot="false" class="subtitle">Recruitment period not set yet - Click edit to set it</label>
                 </div>
             </div>
+
             <div class="subtitle-container">
                 <div data-if="@site.status">
-                    <div slot="true">
-                        <psk-label class="subtitle">Site status: {{@site.status}}
-                        </psk-label>
-                    </div>
+                    <label slot="true" class="subtitle">Site status: {{@site.status}}
+                    </label>
                 </div>
             </div>
             <div class="subtitle-container">
 
                 <div data-if="@site.status">
-                    <div slot="true">
-                        <div class="button-container">
+                        <div slot="true" class="button-container">
                             <button class="main-button" data-tag="change-status">Change Status</button>
                         </div>
-                    </div>
                 </div>
+
                 <div class="button-container">
                     <button class="main-button" data-tag="edit-period">Edit Period</button>
                 </div>
@@ -46,55 +38,54 @@
             </div>
 
 
-            <psk-label class="table-title">Trial Subjects</psk-label>
-            <div class="trial-table">
+            <h5 class="table-title">Trial Subjects</h5>
 
-                <psk-layout class="justify-content-center align-items-center table-row" columns="6">
+            <table class="general-table">
+                <thead>
+                <tr>
+                    <th class="table-cell-title">Planned</th>
+                    <th class="table-cell-title">Screened</th>
+                    <th class="table-cell-title">Enrolled</th>
+                    <th class="table-cell-title">Percentage of enrollment</th>
+                    <th class="table-cell-title">Withdrawed</th>
+                    <th class="table-cell-title">Declined Trial</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="table-cell">{{@subjects.planned}}</td>
+                        <td class="table-cell">{{@subjects.screened}}</td>
+                        <td class="table-cell">{{@subjects.enrolled}}</td>
+                        <td class="table-cell">{{@subjects.percentage}}</td>
+                        <td class="table-cell">{{@subjects.withdrew}}</td>
+                        <td class="table-cell">{{@subjects.declined}}</td>
+                    </tr>
+                </tbody>
+            </table>
 
-                    <psk-label class="table-cell-title">Planned</psk-label>
-                    <psk-label class="table-cell-title">Screened</psk-label>
-                    <psk-label class="table-cell-title">Enrolled</psk-label>
-                    <psk-label class="table-cell-title">Percentage of enrollment</psk-label>
-                    <psk-label class="table-cell-title">Withdrawed</psk-label>
-                    <psk-label class="table-cell-title">Declined Trial</psk-label>
+            <h5 class="table-title">Consents (and versions released)</h5>
+            <table class="general-table">
+                <tbody data-for="@econsents">
+                    <tr>
+                        <td class="table-cell-title">{{@name}} (Type: {{@type}})</td>
+                        <td>
+                        <table>
+                            <tbody class="version-row" data-for="@versions">
+                            <tr>
+                                <td class="clickable" data-tag="navigate-to-version">
+                                    <span class="badge badge-primary">{{@version}} - {{@versionDateAsString}}</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
 
-                </psk-layout>
-                <hr/>
-            </div>
-
-            <div class="trial-table">
-                <psk-layout class="justify-content-center align-items-center table-row" columns="6">
-                    <psk-label class="table-cell">{{@subjects.planned}}</psk-label>
-                    <psk-label class="table-cell">{{@subjects.screened}}</psk-label>
-                    <psk-label class="table-cell">{{@subjects.enrolled}}</psk-label>
-                    <psk-label class="table-cell">{{@subjects.percentage}}</psk-label>
-                    <psk-label class="table-cell">{{@subjects.withdrew}}</psk-label>
-                    <psk-label class="table-cell">{{@subjects.declined}}</psk-label>
-
-                </psk-layout>
-            </div>
-
-            <hr>
-
-            <div>
-                <label class="table-title">Consents (and versions released)</label>
-            </div>
-            <div class="trial-table econsent-and-versions-table">
-                <psk-layout class="justify-content-center table-row" columns="@econsentsSize" data-for="@econsents">
-                    <div>
-                        <psk-label class="table-cell-title">{{@name}} (Type: {{@type}})</psk-label>
-                        <div class="version-row" data-for="@versions">
-                            <hr>
-                            <psk-label class="clickable" data-tag="navigate-to-version">
-                                {{@version}} - {{@versionDateAsString}}
-                            </psk-label>
-                        </div>
-                    </div>
-                </psk-layout>
-            </div>
-
-            <button class="back-button" data-tag="back">Back</button>
+        <div class="button-group-wrapper">
+            <button data-tag="back">Back</button>
         </div>
-
     </div>
 </webc-container>
