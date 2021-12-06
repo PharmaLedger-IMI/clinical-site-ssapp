@@ -1,80 +1,55 @@
-<psk-page title="Home">
-    <link rel="stylesheet" href="/assets/css/pages/visits.css">
-    <webc-container controller="econsent/ProceduresViewController">
+<webc-container controller="econsent/ProceduresViewController">
+    <link href="/assets/css/pages/visits.css" rel="stylesheet">
 
-        <div class="main-background">
-            <div class="front">
+    <div class="main-background">
+        <div class="container flex-container">
+            <h4 class="title">#1 Screening V0</h4>
+        </div>
+        <div class="front">
 
-                <div class="top-container">
-                    <div class="pharma-logo">
-                        <psk-img class="ed-control-image" src="assets/images/pharmalogo.png"
-                                 height='47' width='110'></psk-img>
-                    </div>
-                    <div>
-                        <psk-label class="main-title" label="#1 Screening V0"></psk-label>
-                    </div>
-                    <button class="logout-button" data-tag="logout">Logout</button>
+
+            <psk-layout class="justify-content-center align-items-center table-row" columns="2" data="@keySSI"
+                        data-tag="go-to-visit"
+                        template-columns="15% 85%">
+                <div>
+                    <psk-img class="left-image" height='40' src="themes/clinical-site-theme/images/calendar.png"
+                             width='40'></psk-img>
                 </div>
-
-
-                <psk-layout columns="2" template-columns="15% 85%" data="@keySSI" data-tag="go-to-visit"
-                            class="justify-content-center align-items-center table-row">
-                    <div>
-                        <psk-img class="left-image" height='40' width='40'
-                                 src="assets/images/calendar.png"></psk-img>
+                <div class="layout-content green-row">
+                    <div class="display-flex-row">
+                        {{@toShowDate}}
                     </div>
-                    <div class="layout-content green-row">
-                        <div class="display-flex-row">
-                            {{@toShowDate}}
-                        </div>
-                    </div>
-                    <hr class="layout-hr">
+                </div>
+                <hr class="layout-hr">
+            </psk-layout>
+
+            <div class="general-table">
+                <psk-layout class="justify-content-center align-items-center table-row" columns="2"
+                            template-columns="60% 40%">
+                    <psk-label class="table-cell-title">Procedures</psk-label>
+                    <psk-label class="table-cell-title">Status</psk-label>
+
                 </psk-layout>
+                <hr/>
+            </div>
 
-                <div class="general-table">
-                    <psk-layout columns="2" template-columns="60% 40%"
-                                class="justify-content-center align-items-center table-row">
-                        <psk-label class="table-cell-title">Procedures</psk-label>
-                        <psk-label class="table-cell-title">Status</psk-label>
-
-                    </psk-layout>
-                    <hr/>
-                </div>
-
-                <div class="general-table body" data-for="@procedures">
-                    <psk-layout columns="2" template-columns="60% 40%"
-                                class="justify-content-center align-items-center table-row">
-                        <psk-label class="table-cell">{{@name}}</psk-label>
-                        <div data-if="@status">
-                            <button slot="false" class="link-button view-adjust-margin" data="@id"
-                                    data-tag="procedure:confirm">Complete
-                            </button>
-                            <div slot="true">
-                                <psk-label class="table-cell">{{@status}}</psk-label>
-                            </div>
+            <div class="general-table body" data-for="@procedures">
+                <psk-layout class="justify-content-center align-items-center table-row" columns="2"
+                            template-columns="60% 40%">
+                    <psk-label class="table-cell">{{@name}}</psk-label>
+                    <div data-if="@status">
+                        <button class="link-button view-adjust-margin" data="@id" data-tag="procedure:confirm"
+                                slot="false">Complete
+                        </button>
+                        <div slot="true">
+                            <psk-label class="table-cell">{{@status}}</psk-label>
                         </div>
-                    </psk-layout>
-                </div>
-
-
-                <button class="back-button" data-tag="back">Back</button>
+                    </div>
+                </psk-layout>
             </div>
 
-            <div class="eu-container">
-                <div class="left-image-eu">
-                    <psk-img class="ed-control-image" src="assets/images/flageu.png"
-                             height='80' width='123'></psk-img>
-                </div>
-                <div class="right-text-eu">
-                    <strong>
-                        <psk-label class="eu-text">This project has received funding from the European Union’s Horizon
-                            2020 research and innovation programme under <br/>
-                            grant agreement No 853992 Copyright <br/>
-                            <span>&copy;  PharmaLedger Consortium 2020 –2023</span>
-                        </psk-label>
-                    </strong>
-                </div>
 
-            </div>
-    </webc-container>
-</psk-page>
+            <button class="back-button" data-tag="back">Back</button>
+        </div>
+    </div>
+</webc-container>

@@ -1,6 +1,5 @@
-<link rel="stylesheet" href="/assets/css/pages/trial-participant.css">
 <webc-container controller="econsent/TrialParticipantController">
-
+    <link href="/assets/css/pages/trial-participant.css" rel="stylesheet">
 
     <div class="container main-container">
         <div class="container flex-container">
@@ -61,23 +60,23 @@
                     <td class="table-cell">
                         <div class="cell-options">
                             <div data-if="@showSignButton">
-                                <button data-if="@showSignButton" class="link-button" data="@id"
+                                <button class="link-button" data="@id" data-if="@showSignButton"
                                         data-tag="consent:sign">Sign
                                 </button>
                             </div>
                             <div data-if="@showViewButton">
-                                <button data-if="@showViewButton" class="link-button" data="@id"
+                                <button class="link-button" data="@id" data-if="@showViewButton"
                                         data-tag="consent:view">View
                                 </button>
                             </div>
                             <div data-if="@showContactButton">
-                                <button data-if="@showContactButton" class="link-button" data="@id"
+                                <button class="link-button" data="@id" data-if="@showContactButton"
                                         data-tag="consent:contactTS">Contact TS
                                 </button>
                             </div>
                             <div>
                                 <label> | </label>
-                                <button class="link-button" data-tag="consent:history" data="@id">History</button>
+                                <button class="link-button" data="@id" data-tag="consent:history">History</button>
                             </div>
                         </div>
                     </td>

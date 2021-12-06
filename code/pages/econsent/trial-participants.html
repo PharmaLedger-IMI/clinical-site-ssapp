@@ -1,10 +1,11 @@
-    <link rel="stylesheet" href="/assets/css/pages/trial-participants.css">
-    <webc-container controller="econsent/TrialParticipantsController">
-        <div class="container main-container">
-            <div class="container flex-container">
-                    <h2 class="main-title">{{@trial.id}} {{@trial.name}}</h2>
-            </div>
-            <main>
+<webc-container controller="econsent/TrialParticipantsController">
+    <link href="/assets/css/pages/trial-participants.css" rel="stylesheet">
+
+    <div class="container main-container">
+        <div class="container flex-container">
+            <h2 class="main-title">{{@trial.id}} {{@trial.name}}</h2>
+        </div>
+        <main>
             <div class="subtitle-container">
                 <div data-if="@trial.recruitmentPeriod.toShowDate">
                     <div slot="true">
@@ -46,19 +47,17 @@
                     <td class="table-cell">{{@status}}</td>
                     <td class="table-cell">{{@actionNeeded}}</td>
                     <td class="table-cell">
-                        <button class="link-button" data-tag="tp:status" data="@id">Status</button>
+                        <button class="link-button" data="@id" data-tag="tp:status">Status</button>
                         <label> | </label>
-                        <button class="link-button" data-tag="tp:details" data="@id">Consents</button>
+                        <button class="link-button" data="@id" data-tag="tp:details">Consents</button>
                     </td>
                 </tr>
                 </tbody>
             </table>
-            </main>
-            <div class="button-group-wrapper">
-                <button data-tag="back">Back</button>
-            </div>
+        </main>
+        <div class="button-group-wrapper">
+            <button data-tag="back">Back</button>
         </div>
+    </div>
 
-    </webc-container>
-
-
+</webc-container>

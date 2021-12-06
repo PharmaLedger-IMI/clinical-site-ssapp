@@ -1,68 +1,56 @@
 <webc-container controller="econsent/e-notifications/NotificationsController">
-    <link href="/assets/css/pages/notifications.css" rel="stylesheet">
     <div class="container main-container">
 
-        <h4 class="title">Notifications</h4>
+        <div class="container flex-container">
+            <h4 class="title">Notifications</h4>
+        </div>
 
-        <div class="centered">
-            <div class="button-container">
-                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+        <main class="notification-container">
+            <div class="notification-button-wrapper">
+                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Trial Updates
                     <div data-if="@notTypes.trialUpdates">
-                        <div slot="true">
-                            <psk-img class="table-cell" height='30'
-                                     src="assets/images/bell.png" width='34'></psk-img>
-                        </div>
+                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
                     </div>
                 </button>
             </div>
-            <div class="button-container">
-                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+            <div class="notification-button-wrapper">
+                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Withdraws
                     <div data-if="@notTypes.withdraws">
-                        <div slot="true">
-                            <psk-img class="table-cell" height='30'
-                                     src="assets/images/bell.png" width='34'></psk-img>
-                        </div>
+                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
                     </div>
                 </button>
             </div>
-            <div class="button-container">
-                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+            <div class="notification-button-wrapper">
+                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Consent Updates
                     <div data-if="@notTypes.consentUpdates">
-                        <div slot="true">
-                            <psk-img class="table-cell" height='30'
-                                     src="assets/images/bell.png" width='34'></psk-img>
-                        </div>
+                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
                     </div>
                 </button>
             </div>
-        </div>
-        <div class="centered">
-            <div class="button-container">
-                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+
+            <div class="notification-button-wrapper">
+                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Milestones Reminders
                     <div data-if="@notTypes.milestones">
-                        <div slot="true">
-                            <psk-img class="table-cell" height='30'
-                                     src="assets/images/bell.png" width='34'></psk-img>
-                        </div>
+                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
                     </div>
                 </button>
             </div>
-            <div class="button-container">
-                <button class="main-button" data-tag="navigation:econsent-notifications-list">
+            <div class="notification-button-wrapper">
+                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Trial Subject Questions
                     <div data-if="@notTypes.questions">
-                        <div slot="true">
-                            <psk-img class="table-cell" height='30'
-                                     src="assets/images/bell.png" width='34'></psk-img>
-                        </div>
+                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
                     </div>
                 </button>
             </div>
+        </main>
+
+        <div class="button-group-wrapper">
+            <button data-tag="navigation:go-back">Back</button>
         </div>
-        <button class="back-button" data-tag="navigation:go-back">Back</button>
     </div>
 </webc-container>

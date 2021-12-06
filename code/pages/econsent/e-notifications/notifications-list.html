@@ -1,27 +1,31 @@
 <webc-container controller="econsent/e-notifications/NotificationsListController">
-    <link href="/assets/css/pages/notifications.css" rel="stylesheet">
     <div class="container main-container">
 
-        <h4 class="title">Notifications list</h4>
-
-        <div class="general-table">
-            <psk-layout class="justify-content-center align-items-center table-row" columns="2">
-                <psk-label class="table-cell-title">Notification</psk-label>
-                <psk-label class="table-cell-title">Recommended Action</psk-label>
-            </psk-layout>
-            <hr/>
+        <div class="container flex-container">
+            <h4 class="title">Notifications list</h4>
         </div>
 
-        <div class="general-table body" data-for="@notifications">
-            <psk-layout class="justify-content-center align-items-center table-row"
-                        columns="2">
-                <psk-label class="table-cell">{{@name}}</psk-label>
-                <button class="link-button"
-                        data="@id" data-tag="goToAction">{{@recommendedAction}}
-                </button>
-            </psk-layout>
+        <div class="container flex-container small-container" data-if="@notificationsListEmpty">
+            <label class="no-data" slot="false">No available notifications</label>
+
+            <header slot="true">
+                <div class="row-wrapper grid-equal">
+                    <label>Notification</label>
+                    <label>Recommended Action</label>
+                </div>
+            </header>
+
+            <main data-for="@notifications" slot="true">
+                <div class="row-wrapper grid-equal">
+                    <label>{{@name}}</label>
+                    <button class="link-button" data-tag="navigation:goToAction">{{@recommendedAction}}
+                    </button>
+                </div>
+            </main>
         </div>
 
-        <button class="back-button" data-tag="navigation:go-back">Back</button>
+        <footer class="button-group-wrapper">
+            <button data-tag="navigation:go-back">Go Back</button>
+        </footer>
     </div>
 </webc-container>

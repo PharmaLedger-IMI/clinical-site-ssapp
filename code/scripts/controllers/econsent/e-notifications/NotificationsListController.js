@@ -1,4 +1,5 @@
 const {WebcController} = WebCardinal.controllers;
+
 const commonServices = require('common-services');
 const BaseRepository = commonServices.BaseRepository;
 
@@ -15,6 +16,7 @@ export default class NotificationsListController extends WebcController {
     }
 
     initHandlers() {
+        this.attachModelHandlers();
         this.attachHandlerBack();
         this.attachHandlerTrialParticipants();
     }
@@ -24,14 +26,20 @@ export default class NotificationsListController extends WebcController {
     }
 
     initNotifications() {
-
         this.NotificationsRepository.findAll((err, data) => {
             if (err) {
                 return console.log(err);
             }
 
-            this.model.notifications = data.filter(not => not.type.trim() === this.model.notificationType.trim())
+            this.model.notifications = data.filter(not => not.type.trim() === this.model.notificationType.trim());
         });
+    }
+
+    attachModelHandlers() {
+        this.model.addExpression(
+            'notificationsListEmpty',
+            () => this.model.notifications && this.model.notifications.length > 0,
+            'notifications');
     }
 
     attachHandlerBack() {
@@ -41,10 +49,7 @@ export default class NotificationsListController extends WebcController {
     }
 
     attachHandlerTrialParticipants() {
-        this.onTagClick('goToAction', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
+        this.onTagClick('navigation:goToAction', (model) => {
             if (model.recommendedAction === 'view trial') {
                 this.navigateToPageTag('trial-participants', model.ssi);
             }
@@ -63,13 +68,13 @@ export default class NotificationsListController extends WebcController {
             if (model.recommendedAction === 'view questions') {
                 this.navigateToPageTag('questions');
             }
-
         });
     }
 
     getInitModel() {
         return {
             notifications: [],
+            notificationsListEmpty: true,
             notType: ''
         };
     }
