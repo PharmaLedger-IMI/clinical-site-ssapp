@@ -1,7 +1,6 @@
 
 .trial-table{
-    width: 80%;
-    margin-left: 10%;
+    width: 100%;
 }
 
 trial-table tr:nth-child(even){background-color: #00345B;}

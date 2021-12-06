@@ -50,13 +50,14 @@
     margin-right: 20px ;
 }
 .link-button {
-    background-color: white !important;
-    border: white !important;
+    background: none;
+    border:none;
     box-shadow: none !important;
     border-radius: 0 !important;
     text-align: left;
     font-size: 16px;
     color: #2F80ED;
+    margin: 0.25rem;
 }
 
 .top-buttons {
@@ -74,12 +75,6 @@
 .table-cell {
     font-size: 16px;
     color: #000000;
-    display: flex;
-    font-size: 16px;
-}
-.body{
-    height: 300px;
-    overflow: auto;
 }
 
 .red {
@@ -95,9 +90,7 @@
     justify-content: space-evenly;
 }
 
-.sign-adjust-margin {
-    margin-right: 45px;
-}
-.view-adjust-margin {
-    margin-right: 40px;
+.cell-options{
+    display: flex;
+    flex-direction: row;
 }

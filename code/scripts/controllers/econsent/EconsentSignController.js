@@ -24,7 +24,7 @@ export default class EconsentSignController extends WebcController {
         this.setModel({
             ...getInitModel(),
             ...this.history.win.history.state.state,
-            showControls: false,
+            documentWasNotRead: true,
             pdf: {
                 currentPage: 1,
                 pagesNo: 0
@@ -32,10 +32,6 @@ export default class EconsentSignController extends WebcController {
             showPageUp: false,
             showPageDown: true
         });
-
-        if (this.model.controlsShouldBeVisible === undefined) {
-            this.model.controlsShouldBeVisible = true;
-        }
 
         this._initServices();
         this._initHandlers();
@@ -171,9 +167,10 @@ export default class EconsentSignController extends WebcController {
 
         window.addEventListener("scroll", (event) => {
             let myDiv = event.target;
-            if (myDiv.id === 'canvas-wrapper'
-                && myDiv.offsetHeight + myDiv.scrollTop >= myDiv.scrollHeight) {
-                this.model.showControls = true;
+            console.log(myDiv.offsetHeight + myDiv.scrollTop, myDiv.scrollHeight);
+            if (myDiv.id === 'pdf-wrapper'
+                && Math.ceil(myDiv.offsetHeight + myDiv.scrollTop) >= myDiv.scrollHeight) {
+                this.model.documentWasNotRead = false;
             }
         }, {capture: true});
     }

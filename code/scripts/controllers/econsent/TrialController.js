@@ -80,14 +80,13 @@ export default class TrialController extends WebcController {
                 },
                 (event) => {
                     const response = event.detail;
-                }
-            ),
+                },
                 {
                     controller: 'modals/AddTrialParticipantController',
                     disableExpanding: false,
                     disableBackdropClosing: false,
                     title: 'Add Trial Participant',
-                };
+                });
         });
     }
 
