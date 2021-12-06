@@ -167,7 +167,6 @@ export default class EconsentSignController extends WebcController {
 
         window.addEventListener("scroll", (event) => {
             let myDiv = event.target;
-            console.log(myDiv.offsetHeight + myDiv.scrollTop, myDiv.scrollHeight);
             if (myDiv.id === 'pdf-wrapper'
                 && Math.ceil(myDiv.offsetHeight + myDiv.scrollTop) >= myDiv.scrollHeight) {
                 this.model.documentWasNotRead = false;
