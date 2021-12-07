@@ -1,6 +1,4 @@
 <webc-container controller="econsent/QuestionsController">
-    <link href="/assets/css/pages/trial-management.css" rel="stylesheet">
-
     <div class="main-background">
         <div class="container flex-container">
             <h4 class="title">Patients Questions</h4>
@@ -32,32 +30,17 @@
                             <strong>Answered</strong>
                         </div>
                         <div slot="false">
-                            <button class="link-button" data="@id" data-tag="question:answer">Answer</button>
+                            <button class="link-button" data-tag="question:answer">Answer</button>
                         </div>
                     </div>
 
                 </psk-layout>
                 <hr/>
             </div>
-
-            <button class="back-button" data-tag="back">Back</button>
         </div>
 
-        <div class="eu-container">
-            <div class="left-image-eu">
-                <psk-img class="ed-control-image" height='80'
-                         src="themes/clinical-site-theme/images/flageu.png" width='123'></psk-img>
-            </div>
-            <div class="right-text-eu">
-                <strong>
-                    <psk-label class="eu-text">This project has received funding from the European Union’s Horizon
-                        2020 research and innovation programme under <br/>
-                        grant agreement No 853992 Copyright <br/>
-                        <span>&copy;  PharmaLedger Consortium 2020 – 2023</span>
-                    </psk-label>
-                </strong>
-            </div>
-
+        <div class="button-group-wrapper">
+            <button data-tag="navigation:go-back">Back</button>
         </div>
 
     </div>

@@ -1,9 +1,9 @@
 <webc-container controller="econsent/EconsentVersionsController">
-    <link href="/assets/css/pages/trial-management.css" rel="stylesheet">
     <div class="container main-container">
         <div class="container flex-container">
             <h4 class="title">Trial History: {{@trial.name}}</h4>
         </div>
+
         <main>
             <table class="general-table">
                 <thead>
@@ -21,7 +21,7 @@
                     <td class="table-cell">{{@version}} - {{@versionDateAsString}}</td>
                     <td data-if="@tsDeclined">
                         <div slot="true">
-                            <psk-label class="table-cell red">{{@tsDeclined}}</psk-label>
+                            <psk-label class="table-cell color-red">{{@tsDeclined}}</psk-label>
                         </div>
                         <div slot="false">
                             <psk-label class="table-cell">{{@tpApproval}}</psk-label>
@@ -30,12 +30,13 @@
                     <td class="table-cell">{{@hcpApproval}}</td>
                     <td class="table-cell">{{@tpWithdraw}}</td>
                     <td>
-                        <button class="link-button" data="@id" data-tag="consent:view">View</button>
+                        <button class="link-button" data-tag="consent:view">View</button>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </main>
+
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>
         </div>

@@ -1,15 +1,14 @@
-<link rel="stylesheet" href="/assets/css/pages/econsent-sign.css">
+<link href="/assets/css/pages/econsent-sign.css" rel="stylesheet">
 <webc-container controller="econsent/EconsentSignController">
     <div class="container main-container">
         <div class="container flex-container">
+            <h4 class="title">Trial Participant</h4>
         </div>
+
         <main id="pdf-wrapper">
-
-            <h2 class="main-title">Trial Participant</h2>
-
             <div class="middle">
                 <div class="width-50">
-                    <div id="canvas-wrapper" class="display-flex">
+                    <div class="display-flex" id="canvas-wrapper">
                         <div id="canvas-parent">
                         </div>
                     </div>
@@ -19,20 +18,17 @@
         </main>
 
         <div class="button-group-wrapper">
-            <div class="width-25 align-end">
-                <button class="action-button" data-tag="back">Back</button>
-            </div>
+            <button data-tag="back">Back</button>
 
-                <div class="width-25 align-start" data-if="@controlsShouldBeVisible">
-                        <button class="action-button block-button m-1" disabled="@documentWasNotRead" data-tag="econsent:sign">Sign</button>
-                        <button class="action-button block-button m-1" disabled="@documentWasNotRead" data-tag="econsent:decline">Decline</button>
-                </div>
+            <div class="width-25 align-start" data-if="@controlsShouldBeVisible">
+                <button class="action-button block-button m-1" data-tag="econsent:sign" disabled="@documentWasNotRead">
+                    Sign
+                </button>
+                <button class="action-button block-button m-1" data-tag="econsent:decline"
+                        disabled="@documentWasNotRead">Decline
+                </button>
+            </div>
 
         </div>
     </div>
-
-    <psk-list-feedbacks messages-to-display="5" time-alive="3000"></psk-list-feedbacks>
 </webc-container>
-
-
-

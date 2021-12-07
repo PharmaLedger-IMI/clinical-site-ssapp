@@ -1,41 +1,35 @@
 const {WebcController} = WebCardinal.controllers;
-import TrialService from '../../services/TrialService.js';
+import TrialService from "../../services/TrialService.js";
 
 const commonServices = require("common-services");
 const DateTimeService = commonServices.DateTimeService;
 
-let getInitModel = () => {
-    return {
-        econsent: {},
-        versions: [],
-    };
-};
-
 export default class EconsentVersionsController extends WebcController {
     constructor(...props) {
         super(...props);
-        this.setModel({
-            ...getInitModel(),
-            ...this.history.win.history.state.state,
-        });
-        this._initServices();
-        this._initHandlers();
-        this._initTrialAndConsent();
+
+        this.model = {
+            econsent: {},
+            versions: [],
+            ...this.getState(),
+        };
+
+        this.initServices();
+        this.initHandlers();
+        this.initTrialAndConsent();
     }
 
-    _initServices() {
+    initServices() {
         this.TrialService = new TrialService();
     }
 
-    _initHandlers() {
-        this._attachHandlerEconsentSign();
-        this._attachHandlerBack();
-        this.on('openFeedback', (e) => {
-            this.feedbackEmitter = e.detail;
-        });
+    initHandlers() {
+        this.attachHandlerEconsentSign();
+        this.attachHandlerBack();
+        this.attachHandlerView();
     }
 
-    _initTrialAndConsent() {
+    initTrialAndConsent() {
         this.TrialService.getTrial(this.model.trialSSI, (err, trial) => {
             if (err) {
                 return console.log(err);
@@ -50,32 +44,31 @@ export default class EconsentVersionsController extends WebcController {
             this.model.versions = data.versions?.map(econsentVersion => {
                 econsentVersion = {
                     ...econsentVersion,
-                    tpApproval: '-',
-                    hcpApproval: '-',
-                    tpWithdraw: '-',
+                    tpApproval: "-",
+                    hcpApproval: "-",
+                    tpWithdraw: "-",
                     versionDateAsString: DateTimeService.convertStringToLocaleDate(econsentVersion.versionDate)
                 };
                 econsentVersion.actions?.forEach((action) => {
                     switch (action.name) {
-                        case 'sign': {
+                        case "sign": {
                             econsentVersion.tpApproval = action.toShowDate;
-                            econsentVersion.hcpApproval = 'Required';
+                            econsentVersion.hcpApproval = "Required";
                             break;
                         }
-                        case 'withdraw': {
-                            econsentVersion.tpWithdraw = 'TP Withdraw';
+                        case "withdraw": {
+                            econsentVersion.tpWithdraw = "TP Withdraw";
                             break;
                         }
-                        case 'withdraw-intention': {
-                            econsentVersion.hcpApproval = 'Contact TP';
-                            econsentVersion.tpWithdraw = 'Intention';
+                        case "withdraw-intention": {
+                            econsentVersion.hcpApproval = "Contact TP";
+                            econsentVersion.tpWithdraw = "Intention";
                             break;
                         }
-                        case 'Declined': {
-                            econsentVersion.tsDeclined = 'Declined';
+                        case "Declined": {
+                            econsentVersion.tsDeclined = "Declined";
                             break;
                         }
-
                     }
                 });
                 if (econsentVersion.hcoSign) {
@@ -87,11 +80,9 @@ export default class EconsentVersionsController extends WebcController {
         });
     }
 
-    _attachHandlerEconsentSign() {
-        this.onTagEvent('econsent:sign', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-sign', {
+    attachHandlerEconsentSign() {
+        this.onTagClick("econsent:sign", (model) => {
+            this.navigateToPageTag("econsent-sign", {
                 trialSSI: this.model.trialSSI,
                 econsentSSI: this.model.econsentSSI,
                 tpUid: this.model.tpUid,
@@ -101,26 +92,15 @@ export default class EconsentVersionsController extends WebcController {
         });
     }
 
-    _showFeedbackToast(title, message, alertType) {
-        if (typeof this.feedbackEmitter === 'function') {
-            this.feedbackEmitter(message, title, alertType);
-        }
-    }
-
-    _attachHandlerBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
+    attachHandlerBack() {
+        this.onTagClick("back", () => {
+            this.history.goBack();
         });
     }
 
-    _attachHandlerView() {
-        this.onTagEvent('consent:view', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            this.navigateToPageTag('econsent-sign', {
+    attachHandlerView() {
+        this.onTagClick("consent:view", (model) => {
+            this.navigateToPageTag("econsent-sign", {
                 trialSSI: this.model.trialSSI,
                 econsentSSI: model.econsentSSI,
                 ecoVersion: model.lastVersion,

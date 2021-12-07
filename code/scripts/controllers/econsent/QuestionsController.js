@@ -8,19 +8,24 @@ const {WebcController} = WebCardinal.controllers;
 export default class QuestionsController extends WebcController {
     constructor(...props) {
         super(...props);
-        this.setModel({});
-        this._initServices();
-        this._attachQuestionAnswer();
-        this._initQuestions();
-        this._attachHandlerBack();
+
+        this.model = {};
+
+        this.initServices();
+        this.attachQuestionAnswer();
+        this.initQuestions();
+        this.attachHandlerBack();
     }
 
-    _initServices() {
+    emptyCallback() {
+    }
+
+    initServices() {
         this.QuestionsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.QUESTIONS);
         this.CommunicationService = CommunicationService.getInstance(CommunicationService.identities.ECO.HCO_IDENTITY);
     }
 
-    _initQuestions() {
+    initQuestions() {
         this.model.questions = [];
         this.QuestionsRepository.findAll((err, data) => {
             if (err) {
@@ -31,49 +36,52 @@ export default class QuestionsController extends WebcController {
         });
     }
 
-    _attachQuestionAnswer() {
-        this.onTagEvent('question:answer', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
+    attachHandlerBack() {
+        this.onTagClick("back", () => {
+            this.goBack();
+        });
+    }
+
+    attachQuestionAnswer() {
+        this.onTagClick("question:answer", (model) => {
+            const modalConfig = {
+                controller: "modals/AnswerQuestionController",
+                disableExpanding: false,
+                disableBackdropClosing: false,
+                title: model.question,
+            };
 
             this.showModalFromTemplate(
-                'answer-question',
+                "answer-question",
                 (event) => {
                     const response = event.detail;
                     if (response) {
                         model.answer = response;
-                        this._updateQuestion(model);
+                        this.updateQuestion(model);
                     }
-                },
-                (event) => {
-                    const response = event.detail;
-                },
-                {
-                    controller: 'modals/AnswerQuestionController',
-                    disableExpanding: false,
-                    disableBackdropClosing: false,
-                    title: model.question,
-                });
+                }, this.emptyCallback, modalConfig);
         });
     }
 
-    _updateQuestion(response) {
+    updateQuestion(response) {
         this.QuestionsRepository.update(response.pk, response, (err, data) => {
             if (err) {
                 return console.log(err);
             }
+
             this.TrialParticipantRepository.findAll((err, tps) => {
                 if (err) {
                     return console.log(err);
                 }
+
                 tps.forEach(tp => {
-                    this._sendMessageToPatient(tp.did, data);
-                })
+                    this.sendMessageToPatient(tp.did, data);
+                });
             })
         })
     }
 
-    _sendMessageToPatient(did, question) {
+    sendMessageToPatient(did, question) {
         this.CommunicationService.sendMessage(did, {
             operation: Constants.MESSAGES.PATIENT.QUESTION_RESPONSE,
             useCaseSpecifics: {
@@ -81,16 +89,7 @@ export default class QuestionsController extends WebcController {
                     ...question
                 },
             },
-            shortDescription: 'Hco answered to question ',
-        });
-
-    }
-
-    _attachHandlerBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
+            shortDescription: "Hco answered to question ",
         });
     }
 }
