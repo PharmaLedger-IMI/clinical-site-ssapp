@@ -47,20 +47,6 @@
     border: 1px solid #008798 !important;
 }
 
-.tp-button {
-    background-color: #00345b;
-    border: none;
-    color: white;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    text-transform: uppercase;
-    vertical-align: center;
-    font-size: 16px;
-    margin-right: 30px;
-}
-
 .bottom {
     padding: 0 0 0 10%;
 }
