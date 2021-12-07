@@ -1,41 +1,44 @@
 <webc-container controller="econsent/TrialParticipantDetailsController">
     <link href="/assets/css/pages/trial-participants.css" rel="stylesheet">
 
-    <div class="main-background">
+    <div class="container main-container">
         <div class="container flex-container">
             <h4 class="title">{{@trialParticipant.name}} {{@trialParticipant.lastName}}</h4>
         </div>
 
-        <div class="front">
-
+        <main>
             <div class="subtitle-container">
-                <psk-label class="subtitle">{{@lastAction}}</psk-label>
-            </div>
-            <div class="trial-table">
-                <psk-layout class="justify-content-center align-items-center table-row" columns="4">
-                    <psk-label class="table-cell">Status</psk-label>
-                    <psk-label class="table-cell">Withdraw / Discontinued / Screen Failed</psk-label>
-                    <psk-label class="table-cell">Completed</psk-label>
-                    <psk-label class="table-cell">Consents Signed</psk-label>
-                </psk-layout>
-                <hr/>
-            </div>
-            <div class="trial-table">
-                <psk-layout class="justify-content-center align-items-center table-row" columns="4">
-                    <div class="table-like-elements" data-for="@userActionsToShow">
-                        <psk-label class="table-cell">{{@name}} - {{@date}}</psk-label>
-                    </div>
-                    <psk-label class="table-cell">{{@lastBadAction}}</psk-label>
-                    <psk-label class="table-cell">MOCK: N/A</psk-label>
-                    <div class="table-cell">
-                        <div class="rows-as-list" data-for="@consentsSigned">
-                            <psk-label>{{@}}</psk-label>
-                        </div>
-                    </div>
-                </psk-layout>
+                <label class="subtitle">{{@lastAction}}</label>
             </div>
 
-            <button class="back-button" data-tag="back">Back</button>
+            <table class="general-table">
+                <thead>
+                <tr>
+                    <th class="table-cell">Status</th>
+                    <th class="table-cell">Withdraw / Discontinued / Screen Failed</th>
+                    <th class="table-cell">Completed</th>
+                    <th class="table-cell">Consents Signed</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <tr>
+                    <td class="table-like-elements" data-for="@userActionsToShow">
+                        <label class="table-cell">{{@name}} - {{@date}}</label>
+                    </td>
+                    <td class="table-cell">{{@lastBadAction}}</td>
+                    <td class="table-cell">MOCK: N/A</td>
+                    <td class="table-cell">
+                        <div class="rows-as-list" data-for="@consentsSigned">
+                            <label>{{@}}</label>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </main>
+        <div class="button-group-wrapper">
+            <button data-tag="back">Back</button>
         </div>
 
     </div>

@@ -174,13 +174,12 @@ export default class VisitsAndProceduresController extends WebcController {
                 },
                 (event) => {
                     const response = event.detail;
-                }
-            ),
+                },
                 {
                     controller: 'modals/SetProcedureDateController',
                     disableExpanding: false,
-                    disableBackdropClosing: false
-                };
+                    disableBackdropClosing: false,
+                });
         });
     }
 
@@ -212,13 +211,12 @@ export default class VisitsAndProceduresController extends WebcController {
                 },
                 (event) => {
                     const response = event.detail;
-                }
-            ),
+                },
                 {
                     controller: 'modals/SetProcedureDateController',
                     disableExpanding: false,
                     disableBackdropClosing: false
-                };
+                });
         });
     }
 

@@ -57,8 +57,7 @@
                     </td>
 
                     <td class="table-cell">{{@hcoDate}}</td>
-                    <td class="table-cell">
-                        <div class="cell-options">
+                    <td class="cell-options">
                             <div data-if="@showSignButton">
                                 <button class="link-button" data="@id" data-if="@showSignButton"
                                         data-tag="consent:sign">Sign
@@ -74,11 +73,10 @@
                                         data-tag="consent:contactTS">Contact TS
                                 </button>
                             </div>
-                            <div>
-                                <label> | </label>
-                                <button class="link-button" data="@id" data-tag="consent:history">History</button>
-                            </div>
-                        </div>
+
+                            <label> | </label>
+                            <button class="link-button" data="@id" data-tag="consent:history">History</button>
+
                     </td>
                 </tr>
                 </tbody>

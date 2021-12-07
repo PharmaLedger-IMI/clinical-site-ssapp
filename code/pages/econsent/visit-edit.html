@@ -1,12 +1,12 @@
 <webc-container controller="econsent/VisitEditController">
     <link href="/assets/css/pages/visit-edit.css" rel="stylesheet">
 
-    <div class="main-background">
+    <div class="container main-container">
         <div class="container flex-container">
             <h4 class="title">Edit Visit</h4>
         </div>
 
-        <div class="front">
+        <main>
             <div class="general-table body">
                 <div class="display-flex">
                     Visit date:
@@ -39,7 +39,9 @@
                     </div>
                 </div>
             </div>
-            <button class="back-button" data-tag="back">Back</button>
+        </main>
+        <div class="button-group-wrapper">
+            <button data-tag="back">Back</button>
         </div>
     </div>
 </webc-container>

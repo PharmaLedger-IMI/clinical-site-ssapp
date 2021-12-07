@@ -1,44 +1,36 @@
 <webc-container controller="econsent/VisitsAndProceduresController">
     <link href="/assets/css/pages/visits-procedures.css" rel="stylesheet">
 
-    <div class="main-background">
+    <div class="container main-container">
         <div class="container flex-container">
             <h4 class="title">Visits & Procedures</h4>
         </div>
 
-        <div class="front">
+        <main>
+            <table class="general-table">
+                <thead>
+                <tr>
+                    <th class="table-cell-title">Visits</th>
+                    <th class="table-cell-title">From (weak no)</th>
+                    <th class="table-cell-title">To (weak no)</th>
+                    <th class="table-cell-title">Plus (days)</th>
+                    <th class="table-cell-title">Minus (days)</th>
+                    <th class="table-cell-title">Proposed date</th>
+                    <th class="table-cell-title">Ts Acceptance</th>
+                    <th class="table-cell-title">Planned Date</th>
+                    <th class="table-cell-title">Actions</th>
+                </tr>
+                </thead>
 
-            <div class="general-table">
-                <psk-layout class="justify-content-center align-items-center table-row" columns="9"
-                            template-columns="10% 10% 10% 10% 10% 10% 10% 10% 20%">
-                    <psk-label class="table-cell-title">Visits</psk-label>
-                    <psk-label class="table-cell-title">From (weak no)</psk-label>
-                    <psk-label class="table-cell-title">To (weak no)</psk-label>
-                    <!--                        <psk-label class="table-cell-title">Procedures</psk-label>-->
-                    <psk-label class="table-cell-title">Plus (days)</psk-label>
-                    <!--                        <psk-label class="table-cell-title">Consent Reference</psk-label>-->
-                    <psk-label class="table-cell-title">Minus (days)</psk-label>
-                    <psk-label class="table-cell-title">Proposed date</psk-label>
-                    <psk-label class="table-cell-title">Ts Acceptance</psk-label>
-                    <psk-label class="table-cell-title">Planned Date</psk-label>
-                    <psk-label class="table-cell-title">Actions</psk-label>
-                </psk-layout>
-                <hr/>
-            </div>
+                <tbody>
+                <tr>
+                    <td class="table-cell">{{@name}}</td>
+                    <td class="table-cell">{{@weakFrom}}</td>
+                    <td class="table-cell">{{@weakTo}}</td>
+                    <td class="table-cell">{{@plus}}</td>
+                    <td class="table-cell">{{@minus}}</td>
 
-            <div class="general-table body" data-for="@visits">
-                <psk-layout class="justify-content-center align-items-center table-row" columns="9"
-                            template-columns="10% 10% 10% 10% 10% 10% 10% 10% 20%">
-                    <psk-label class="table-cell">{{@name}}</psk-label>
-                    <psk-label class="table-cell">{{@weakFrom}}</psk-label>
-                    <psk-label class="table-cell">{{@weakTo}}</psk-label>
-                    <psk-label class="table-cell">{{@plus}}</psk-label>
-                    <psk-label class="table-cell">{{@minus}}</psk-label>
-                    <!--                        <psk-label class="table-cell">{{@name}}</psk-label>-->
-                    <!--                        <psk-label class="table-cell">{{@period}} {{@unit}}</psk-label>-->
-                    <!--                        <button class="link-button" data-tag="viewConsent" data="@id">{{@econsent.name}}</button>-->
-
-                    <div data-if="@toShowDate">
+                    <td data-if="@toShowDate">
                         <div slot="true">
                             {{@toShowDate}} -
                             <button class="link-button view-adjust-margin" data="@id"
@@ -48,34 +40,20 @@
                         <div slot="false">
                             dd/mm/yyyy
                         </div>
-                    </div>
+                    </td>
 
-                    <psk-label class="table-cell">{{@tsAcceptance}}</psk-label>
-                    <!--                        <div class="confirmation">-->
-                    <!--                            <div data-if="@confirmed">-->
-                    <!--                                <div slot="true" class="box green"></div>-->
-                    <!--                                <button slot="false" class="link-button view-adjust-margin" data="@id"-->
-                    <!--                                        data-tag="visit:confirm">Confirm TS-->
-                    <!--                                </button>-->
-                    <!--                            </div>-->
-                    <!--                            <div class="confirmation-item" data-if="@accepted">-->
-                    <!--                                <div slot="true" class="box green"></div>-->
-                    <!--                            </div>-->
-                    <!--                            <div class="confirmation-item" data-if="@declined">-->
-                    <!--                                <div slot="true" class="box red"></div>-->
-                    <!--                            </div>-->
-                    <!--                        </div>-->
+                    <td class="table-cell">{{@tsAcceptance}}</td>
 
-                    <div data-if="@toShowDate">
+                    <td data-if="@toShowDate">
                         <div slot="true">
                             {{@toShowDate}}
                         </div>
                         <div slot="false">
                             dd/mm/yyyy
                         </div>
-                    </div>
+                    </td>
 
-                    <div class="special-row-two">
+                    <td class="cell-options">
                         <div data-if="@toShowDate">
                             <button class="link-button view-adjust-margin" data="@id"
                                     data-tag="procedure:setDate" slot="false">Schedule
@@ -85,16 +63,19 @@
                                 data-tag="visit:edit">View
                         </button>
 
-                        <div data-if="@confirmed">-->
+                        <div data-if="@confirmed">
                             <button class="link-button view-adjust-margin" data="@id" data-tag="visit:confirm"
                                     slot="false">Confirm Date
                             </button>
                         </div>
-                    </div>
-                </psk-layout>
-            </div>
-
-            <button class="back-button" data-tag="back">Back</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </main>
+        <div class="button-group-wrapper">
+            <button data-tag="back">Back</button>
         </div>
+    </div>
     </div>
 </webc-container>

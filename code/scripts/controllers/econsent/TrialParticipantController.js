@@ -169,14 +169,13 @@ export default class TrialParticipantController extends WebcController {
                 },
                 (event) => {
                     const response = event.detail;
-                }
-            ),
+                },
                 {
                     controller: 'modals/AddTrialParticipantNumber',
                     disableExpanding: false,
                     disableBackdropClosing: false,
                     title: 'Attach Trial Participant Number',
-                };
+                });
         });
     }
 

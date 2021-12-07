@@ -1,18 +1,14 @@
-
 .top {
     display: block;
-
     width: 100%;
 }
 
 .line {
     display: flex;
-
+    flex-direction: column;
+    margin: 10px;
 }
 
-.tp-input{
-    width: 90%;
-}
 .tp-input-small{
     width: 90%;
 }
@@ -35,7 +31,6 @@
 .scanQr {
     argin-right: -1px!important;
     float: right;
-    align-content: center;
     margin: 0 20px;
     padding: 10px;
     width: 100px;
@@ -89,14 +84,3 @@ div.form-group {
     margin-top: 1rem;
 }
 
-/*.gender-input psk-label {*/
-/*    width: 115px;*/
-/*}*/
-
-.datetime-label {
-    margin: 10px 15px 10px 30px;
-}
-
-.line {
-    margin: 10px;
-}

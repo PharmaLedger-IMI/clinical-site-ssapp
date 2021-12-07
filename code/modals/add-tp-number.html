@@ -2,17 +2,16 @@
 
     <h2 slot="header" class="alert-title">Set Ts Number</h2>
 
-<webc-container class="maxw" controller="AddTrialParticipantNumber">
+<div class="maxw">
     <div class="top">
         <div class="line">
-            <psk-input class="tp-input" view-model="@number"/>
+            <label>{{@number.label}}</label>
+            <input type="text" class="form-control" data-view-model="@number" />
         </div>
-
     </div>
 
     <div class="bottom">
         <button class="tp-button wide-button inverted-colors" slot="footer" data-tag="tp:submit">Done</button>
         <button class="tp-button wide-button inverted-colors" slot="footer" data-tag="tp:cancel">Cancel</button>
     </div>
-</webc-container>
-</webc-skin>
+</div>

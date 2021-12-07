@@ -49,32 +49,13 @@
     margin-left: 50%;
     margin-right: 20px ;
 }
-.link-button {
-    background: none;
-    border:none;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    text-align: left;
-    font-size: 16px;
-    color: #2F80ED;
-    margin: 0.25rem;
-}
+
 
 .top-buttons {
     display: inline-block;
     margin-left: 10%;
     width: 80%;
     text-align: right;
-}
-.table-cell-title {
-    font-size: 16px;
-    color: #000000;
-    font-weight: bold;
-}
-
-.table-cell {
-    font-size: 16px;
-    color: #000000;
 }
 
 .red {
@@ -88,9 +69,4 @@
 
 .justify-buttons {
     justify-content: space-evenly;
-}
-
-.cell-options{
-    display: flex;
-    flex-direction: row;
 }
