@@ -1,87 +1,73 @@
 <webc-container controller="econsent/TrialDetailsController">
-    <link href="/assets/css/pages/trial-details.css" rel="stylesheet">
-
     <div class="container main-container">
-        <div class="container flex-container">
+        <div>
             <h4 class="title">{{@trial.id}} {{@trial.name}}</h4>
+            <div data-if="@trial.recruitmentPeriod.toShowDate">>
+                <h5 class="title" slot="true">Recruitment period: {{@trial.recruitmentPeriod.toShowDate}}</h5>
+                <h5 class="title" slot="false">Recruitment period not set yet - Click edit to set it</h5>
+            </div>
+            <div data-if="@site.status">
+                <h5 class="title" slot="true">Site status: {{@site.status}} </h5>
+            </div>
         </div>
 
         <main>
-            <div class="subtitle-container">
-                <div data-if="@trial.recruitmentPeriod.toShowDate">
-                        <label slot="true" class="subtitle">Recruitment period: {{@trial.recruitmentPeriod.toShowDate}}</label>
-                        <label slot="false" class="subtitle">Recruitment period not set yet - Click edit to set it</label>
-                </div>
-            </div>
-
-            <div class="subtitle-container">
+            <div class="button-group-wrapper">
                 <div data-if="@site.status">
-                    <label slot="true" class="subtitle">Site status: {{@site.status}}
-                    </label>
+                    <button data-tag="change-status">Change Status</button>
                 </div>
-            </div>
-            <div class="subtitle-container">
-
-                <div data-if="@site.status">
-                        <div slot="true" class="button-container">
-                            <button class="main-button" data-tag="change-status">Change Status</button>
-                        </div>
-                </div>
-
-                <div class="button-container">
-                    <button class="main-button" data-tag="edit-period">Edit Period</button>
-                </div>
-                <div class="button-container">
-                    <button class="main-button" data-tag="add:ts">Add Trial Subject</button>
-                </div>
-
+                <button data-tag="edit-period">Edit Period</button>
+                <button data-tag="add:ts">Add Trial Subject</button>
             </div>
 
+            <h5 class="subtitle">Trial Subjects</h5>
+            <header>
+                <div class="row-wrapper grid-equal">
+                    <label>Planned</label>
+                    <label>Screened</label>
+                    <label>Enrolled</label>
+                    <label>Percentage of enrollment</label>
+                    <label>Withdrawn</label>
+                    <label>Declined Trial</label>
+                    <label>Options</label>
+                </div>
+            </header>
+            <main>
+                <div class="row-wrapper grid-equal">
+                    <label>{{@subjects.planned}}</label>
+                    <label>{{@subjects.screened}}</label>
+                    <label>{{@subjects.enrolled}}</label>
+                    <label>{{@subjects.percentage}}</label>
+                    <label>{{@subjects.withdrew}}</label>
+                    <label>{{@subjects.declined}}</label>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <label class="link option" data-tag="navigation:participants">Subjects</label>
+                    </div>
+                </div>
+            </main>
 
-            <h5 class="table-title">Trial Subjects</h5>
-
-            <table class="general-table">
-                <thead>
-                <tr>
-                    <th class="table-cell-title">Planned</th>
-                    <th class="table-cell-title">Screened</th>
-                    <th class="table-cell-title">Enrolled</th>
-                    <th class="table-cell-title">Percentage of enrollment</th>
-                    <th class="table-cell-title">Withdrawed</th>
-                    <th class="table-cell-title">Declined Trial</th>
-                </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="table-cell">{{@subjects.planned}}</td>
-                        <td class="table-cell">{{@subjects.screened}}</td>
-                        <td class="table-cell">{{@subjects.enrolled}}</td>
-                        <td class="table-cell">{{@subjects.percentage}}</td>
-                        <td class="table-cell">{{@subjects.withdrew}}</td>
-                        <td class="table-cell">{{@subjects.declined}}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h5 class="table-title">Consents (and versions released)</h5>
-            <table class="general-table">
-                <tbody data-for="@econsents">
-                    <tr>
-                        <td class="table-cell-title">{{@name}} (Type: {{@type}})</td>
-                        <td>
-                        <table>
-                            <tbody class="version-row" data-for="@versions">
-                            <tr>
-                                <td class="clickable" data-tag="navigate-to-version">
-                                    <span class="badge badge-primary">{{@version}} - {{@versionDateAsString}}</span>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <h5 class="title">Consents (and versions released)</h5>
+            <div data-for="@econsents">
+                <h5 class="subtitle">{{@name}} (Type: {{@type}})</h5>
+                <header>
+                    <div class="row-wrapper grid-equal">
+                        <label>Assent Form 1 (Adolescent >/=12)</label>
+                        <label>Assent Form 1 (Adolescent <12)</label>
+                        <label>Sub-study consent (Optional consent)</label>
+                        <label>Adult consent</label>
+                        <label>Parental consent</label>
+                    </div>
+                </header>
+                <main data-for="@versions">
+                    <div class="row-wrapper grid-equal">
+                        <label>-</label>
+                        <label>-</label>
+                        <label>-</label>
+                        <label data-tag="navigate-to-version">{{@version}} - {{@versionDateAsString}}</label>
+                        <label>-</label>
+                    </div>
+                </main>
+            </div>
         </main>
 
         <div class="button-group-wrapper">
