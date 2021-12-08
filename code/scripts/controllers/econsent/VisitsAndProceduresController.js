@@ -168,8 +168,8 @@ export default class VisitsAndProceduresController extends WebcController {
                 'set-procedure-date',
                 (event) => {
                     let date = new Date(event.detail);
-                    model.date = event.detail;
-                    model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
+                    this.model.date = event.detail;
+                    this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
                     this._updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
                 },
                 (event) => {
