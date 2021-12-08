@@ -75,7 +75,6 @@ export default class TrialDetailsController extends WebcController {
                     })
                 }
             });
-            this.model.econsentsSize = econsents.length;
         })
     }
 
@@ -183,7 +182,6 @@ export default class TrialDetailsController extends WebcController {
                 declined: "",
             },
             econsents: [],
-            econsentsSize: 0
         }
     }
 }
