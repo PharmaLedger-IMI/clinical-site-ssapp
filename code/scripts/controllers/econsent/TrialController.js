@@ -59,7 +59,7 @@ export default class TrialController extends WebcController {
         this.onTagEvent('navigate:tp', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.navigateToPageTag('trial-participant', {
+            this.navigateToPageTag('econsent-trial-participant', {
                 trialSSI: this.model.trialSSI,
                 tpUid: model.uid,
                 trialParticipantNumber: model.number,

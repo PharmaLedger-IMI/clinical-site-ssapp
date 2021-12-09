@@ -51,22 +51,22 @@ export default class NotificationsListController extends WebcController {
     attachHandlerTrialParticipants() {
         this.onTagClick('navigation:goToAction', (model) => {
             if (model.recommendedAction === 'view trial') {
-                this.navigateToPageTag('trial-participants', model.ssi);
+                this.navigateToPageTag('econsent-trial-participants', model.ssi);
             }
 
             if (model.recommendedAction === 'view trial participants') {
-                this.navigateToPageTag('trial-participants', model.ssi);
+                this.navigateToPageTag('econsent-trial-participants', model.ssi);
             }
 
             if (model.recommendedAction === 'view visits') {
-                this.navigateToPageTag('visits-procedures', {
+                this.navigateToPageTag('econsent-visits-procedures', {
                     trialSSI: this.model.ssi,
                     tpUid: this.model.tpUid,
                 });
             }
 
             if (model.recommendedAction === 'view questions') {
-                this.navigateToPageTag('questions');
+                this.navigateToPageTag('econsent-questions');
             }
         });
     }

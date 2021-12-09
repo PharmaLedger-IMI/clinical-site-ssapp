@@ -1,34 +1,24 @@
-<link href="/assets/css/pages/econsent-sign.css" rel="stylesheet">
 <webc-container controller="econsent/EconsentSignController">
     <div class="container main-container">
+
         <div class="container flex-container">
-            <h4 class="title">Trial Participant</h4>
+            <h4 class="title">Trial E-Consent</h4>
         </div>
 
         <main id="pdf-wrapper">
-            <div class="middle">
-                <div class="width-50">
-                    <div class="display-flex" id="canvas-wrapper">
-                        <div id="canvas-parent">
-                        </div>
-                    </div>
+            <div id="canvas-wrapper">
+                <div id="canvas-parent">
                 </div>
             </div>
-
         </main>
 
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>
-
-            <div class="width-25 align-start" data-if="@controlsShouldBeVisible">
-                <button class="action-button block-button m-1" data-tag="econsent:sign" disabled="@documentWasNotRead">
-                    Sign
-                </button>
-                <button class="action-button block-button m-1" data-tag="econsent:decline"
-                        disabled="@documentWasNotRead">Decline
-                </button>
+            <div data-if="@controlsShouldBeVisible">
+                <button data-tag="econsent:sign" disabled="@documentWasNotRead">Sign</button>
+                <button data-tag="econsent:decline" disabled="@documentWasNotRead">Decline</button>
             </div>
-
         </div>
+
     </div>
 </webc-container>

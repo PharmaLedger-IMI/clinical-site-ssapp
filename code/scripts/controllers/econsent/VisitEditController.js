@@ -71,7 +71,7 @@ export default class VisitEditController extends WebcController {
         this.onTagEvent('procedures:view', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.navigateToPageTag('procedures-view', {
+            this.navigateToPageTag('econsent-procedures-view', {
                 visitId: model.visit.id,
                 tpUid: this.model.tpUid,
                 visitUuid: model.visit.uuid

@@ -297,7 +297,7 @@ export default class VisitsAndProceduresController extends WebcController {
         this.onTagEvent('visit:edit', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.navigateToPageTag('visit-edit', {
+            this.navigateToPageTag('econsent-visit-edit', {
                 tpUid: this.model.tpUid,
                 existingVisit: model
             });
@@ -312,7 +312,7 @@ export default class VisitsAndProceduresController extends WebcController {
         this.onTagEvent('visit:view', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.navigateToPageTag('visits-details-procedures', {
+            this.navigateToPageTag('econsent-visits-details-procedures', {
                 tpUid: this.model.tpUid,
                 visitUuid: model.uuid
             });

@@ -110,43 +110,43 @@
 			"name": "Trial Details",
 			"path": "/econsent/trial-details",
 			"src": "econsent/trial-details.html",
-			"tag": "trial-details"
+			"tag": "econsent-trial-details"
 		},
 		{
 			"name": "Trial Participants",
 			"path": "/econsent/trial-participants",
 			"src": "econsent/trial-participants.html",
-			"tag": "trial-participants"
+			"tag": "econsent-trial-participants"
 		},
 		{
 			"name": "Patients",
 			"path": "/econsent/patients-list",
 			"src": "econsent/patients-list.html",
-			"tag": "patients-list"
+			"tag": "econsent-patients-list"
 		},
 		{
 			"name": "Visits And Procedures List",
 			"path": "/econsent/visits-procedures",
 			"src": "econsent/visits-procedures.html",
-			"tag": "visits-procedures"
+			"tag": "econsent-visits-procedures"
 		},
 		{
 			"name": "Visit Edit",
 			"path": "/econsent/visit-edit",
 			"src": "econsent/visit-edit.html",
-			"tag": "visit-edit"
+			"tag": "econsent-visit-edit"
 		},
 		{
 			"name": "Visits",
 			"path": "/econsent/visits",
 			"src": "econsent/visits.html",
-			"tag": "visits"
+			"tag": "econsent-visits"
 		},
 		{
 			"name": "Visits Details Procedures List",
 			"path": "/econsent/visits-details-procedures",
 			"src": "econsent/visits-details-procedures.html",
-			"tag": "visits-details-procedures"
+			"tag": "econsent-visits-details-procedures"
 		},
 		{
 			"name": "Trial",
@@ -158,13 +158,13 @@
 			"name": "Trial Participant",
 			"path": "/econsent/trial-participant",
 			"src": "econsent/trial-participant.html",
-			"tag": "trial-participant"
+			"tag": "econsent-trial-participant"
 		},
 		{
 			"name": "Trial Participant Details",
 			"path": "/econsent/trial-participant-details",
 			"src": "econsent/trial-participant-details.html",
-			"tag": "trial-participant-details"
+			"tag": "econsent-trial-participant-details"
 		},
 		{
 			"name": "Econsent Versions",
@@ -182,13 +182,13 @@
 			"name": "Questions",
 			"path": "/econsent/questions",
 			"src": "econsent/questions.html",
-			"tag": "questions"
+			"tag": "econsent-questions"
 		},
 		{
 			"name": "ProceduresView",
 			"path": "/econsent/procedures-view",
 			"src": "econsent/procedures-view.html",
-			"tag": "procedures-view"
+			"tag": "econsent-procedures-view"
 		}
 	],
 	"pagesFallback": {

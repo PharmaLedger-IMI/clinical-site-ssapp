@@ -1,42 +1,27 @@
 <webc-container controller="econsent/QuestionsController">
     <div class="main-background">
-        <div class="container flex-container">
-            <h4 class="title">Patients Questions</h4>
-        </div>
+        <h4 class="title">Patients Questions</h4>
 
-        <div class="front">
-
-            <div class="trial-table">
-                <psk-layout class="justify-content-center align-items-center table-row" columns="4">
-                    <psk-label class="table-cell-title">Patient</psk-label>
-
-                    <psk-label class="table-cell-title">Ecosent</psk-label>
-                    <psk-label class="table-cell-title">Question</psk-label>
-                    <psk-label class="table-cell-title">Options</psk-label>
-                </psk-layout>
-                <hr/>
-            </div>
-
-            <div class="trial-table body" data-for="@questions">
-                <psk-layout class="justify-content-center align-items-center table-row"
-                            columns="4">
-                    <psk-label class="table-cell">{{@patient}}</psk-label>
-
-                    <psk-label class="table-cell">{{@ecoVersion}}</psk-label>
-                    <psk-label class="table-cell">{{@question}}</psk-label>
-
-                    <div class="table-cell" data-if="@answer">
-                        <div slot="true">
-                            <strong>Answered</strong>
-                        </div>
-                        <div slot="false">
-                            <button class="link-button" data-tag="question:answer">Answer</button>
-                        </div>
+        <div>
+            <header slot="true">
+                <div class="row-wrapper grid-equal">
+                    <label>Patient</label>
+                    <label>E-Consent</label>
+                    <label>Question</label>
+                    <label>Options</label>
+                </div>
+            </header>
+            <main slot="true">
+                <div class="row-wrapper grid-equal" data-for="@trialParticipants">
+                    <label>{{@patient}}</label>
+                    <label>{{@ecoVersion}}</label>
+                    <label>{{@question}}</label>
+                    <div class="d-flex justify-content-center align-items-center" data-if="@answer">
+                        <strong slot="true">Answered</strong>
+                        <label class="link option" data-tag="question:answer" slot="false">Answer</label>
                     </div>
-
-                </psk-layout>
-                <hr/>
-            </div>
+                </div>
+            </main>
         </div>
 
         <div class="button-group-wrapper">

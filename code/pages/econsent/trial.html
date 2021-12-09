@@ -1,9 +1,23 @@
 <webc-container controller="econsent/TrialController">
-    <link href="/assets/css/pages/trial.css" rel="stylesheet">
 
-    <div class="subheader">
-        <psk-label class="trial-title" label="Trial"></psk-label>
+    <div class="container main-container">
+        <h4 class="title">Trial</h4>
+
+        <div>
+            <header>
+                <div class="row-wrapper grid-equal">
+                    <label></label>
+                </div>
+            </header>
+
+        </div>
+
+        <div class="button-group-wrapper">
+            <button data-tag="navigation:go-back">Back</button>
+            <button data-tag="add:tp">Add trial participant</button>
+        </div>
     </div>
+
     <psk-card class="bpd-dashboard">
 
         <div class="top-divided">
@@ -66,5 +80,4 @@
             <button class="trial-button" data-tag="add:tp">Add trial participant</button>
         </div>
     </div>
-    <psk-list-feedbacks messages-to-display="5" time-alive="3000"></psk-list-feedbacks>
 </webc-container>

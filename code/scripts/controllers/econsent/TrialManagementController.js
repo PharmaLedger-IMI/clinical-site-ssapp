@@ -53,7 +53,7 @@ export default class TrialManagementController extends WebcController {
         this.onTagEvent('trials:details', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.navigateToPageTag('trial-details', model.keySSI);
+            this.navigateToPageTag('econsent-trial-details', model.keySSI);
         });
     }
 
@@ -61,7 +61,7 @@ export default class TrialManagementController extends WebcController {
         this.onTagEvent('trials:participants', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.navigateToPageTag('trial-participants', model.keySSI);
+            this.navigateToPageTag('econsent-trial-participants', model.keySSI);
         });
     }
 

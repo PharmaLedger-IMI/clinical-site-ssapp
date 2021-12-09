@@ -1,55 +1,32 @@
 <webc-container controller="econsent/ProceduresViewController">
-    <link href="/assets/css/pages/visits.css" rel="stylesheet">
 
-    <div class="main-background">
-        <div class="container flex-container">
-            <h4 class="title">#1 Screening V0</h4>
-        </div>
-        <div class="front">
+    <div class="container main-container">
+        <h4 class="title">#1 Screening V0</h4>
 
+        <div class="d-flex justify-content-center align-items-center w-100">
+            <img alt="calendar" height='40' src="themes/clinical-site-theme/images/calendar.png"
+                 width='40'/>
+            <h5 class="subtitle">{{@toShowDate}}</h5>
 
-            <psk-layout class="justify-content-center align-items-center table-row" columns="2" data="@keySSI"
-                        data-tag="go-to-visit"
-                        template-columns="15% 85%">
-                <div>
-                    <psk-img class="left-image" height='40' src="themes/clinical-site-theme/images/calendar.png"
-                             width='40'></psk-img>
+            <header class="small-container">
+                <div class="row-wrapper grid-equal">
+                    <label>Procedures</label>
+                    <label>Status</label>
                 </div>
-                <div class="layout-content green-row">
-                    <div class="display-flex-row">
-                        {{@toShowDate}}
-                    </div>
-                </div>
-                <hr class="layout-hr">
-            </psk-layout>
-
-            <div class="general-table">
-                <psk-layout class="justify-content-center align-items-center table-row" columns="2"
-                            template-columns="60% 40%">
-                    <psk-label class="table-cell-title">Procedures</psk-label>
-                    <psk-label class="table-cell-title">Status</psk-label>
-
-                </psk-layout>
-                <hr/>
-            </div>
-
-            <div class="general-table body" data-for="@procedures">
-                <psk-layout class="justify-content-center align-items-center table-row" columns="2"
-                            template-columns="60% 40%">
-                    <psk-label class="table-cell">{{@name}}</psk-label>
+            </header>
+            <main class="small-container">
+                <div class="row-wrapper grid-equal">
+                    <label>{{@name}}</label>
                     <div data-if="@status">
-                        <button class="link-button view-adjust-margin" data="@id" data-tag="procedure:confirm"
-                                slot="false">Complete
-                        </button>
-                        <div slot="true">
-                            <psk-label class="table-cell">{{@status}}</psk-label>
-                        </div>
+                        <label slot="true">{{@status}}</label>
+                        <button class="option link" data-tag="procedure:confirm" slot="false">Complete</button>
                     </div>
-                </psk-layout>
-            </div>
+                </div>
+            </main>
+        </div>
 
-
-            <button class="back-button" data-tag="back">Back</button>
+        <div class="button-group-wrapper">
+            <button data-tag="navigation:go-back">Back</button>
         </div>
     </div>
 </webc-container>

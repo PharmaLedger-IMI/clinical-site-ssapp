@@ -11,56 +11,40 @@ const Constants = commonServices.Constants;
 const FileDownloaderService = commonServices.FileDownloaderService;
 const BaseRepository = commonServices.BaseRepository;
 
-let getInitModel = () => {
-    return {
-        econsent: {},
-    };
-};
-
 export default class EconsentSignController extends WebcController {
     constructor(...props) {
         super(...props);
 
-        this.setModel({
-            ...getInitModel(),
-            ...this.history.win.history.state.state,
-            documentWasNotRead: true,
-            pdf: {
-                currentPage: 1,
-                pagesNo: 0
-            },
-            showPageUp: false,
-            showPageDown: true
-        });
+        this.model = this.getInitModel();
 
         if (this.model.controlsShouldBeVisible === undefined) {
             this.model.controlsShouldBeVisible = true;
         }
 
-        this._initServices();
-        this._initHandlers();
+        this.initServices();
+        this.initHandlers();
     }
 
-    async _initServices() {
+    async initServices() {
         this.TrialService = new TrialService();
         this.CommunicationService = CommunicationService.getInstance(CommunicationService.identities.ECO.HCO_IDENTITY);
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this._initSite();
-        this._initTrialParticipant();
-        this._initConsent();
+        this.initSite();
+        this.initTrialParticipant();
+        this.initConsent();
     }
 
-    _initHandlers() {
-        this._attachHandlerEconsentSign();
-        this._attachHandlerBack();
+    initHandlers() {
+        this.attachHandlerEconsentSign();
+        this.attachHandlerBack();
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
         });
     }
 
-    _initConsent() {
+    initConsent() {
         let econsent = this.model.hcoDSU.volatile.icfs.find(consent => consent.uid == this.model.econsentSSI);
         if (econsent === undefined) {
             return console.log('Error while loading econsent.');
@@ -84,13 +68,13 @@ export default class EconsentSignController extends WebcController {
                 if (err) {
                     return console.log(err);
                 }
-                let econsentFilePath = this._getEconsentManualFilePath(this.model.econsent.id, data.keySSI, this.model.manualAttachment);
-                this._downloadFile(econsentFilePath, this.model.manualAttachment);
+                let econsentFilePath = this.getEconsentManualFilePath(this.model.econsent.id, data.keySSI, this.model.manualAttachment);
+                this.downloadFile(econsentFilePath, this.model.manualAttachment);
             })
 
         } else {
-            let econsentFilePath = this._getEconsentFilePath(econsent, currentVersion);
-            this._downloadFile(econsentFilePath, currentVersion.attachment);
+            let econsentFilePath = this.getEconsentFilePath(econsent, currentVersion);
+            this.downloadFile(econsentFilePath, currentVersion.attachment);
         }
     }
 
@@ -116,16 +100,16 @@ export default class EconsentSignController extends WebcController {
         this.CommunicationService.sendMessage(this.model.site.sponsorIdentity, sendObject);
     }
 
-    _getEconsentFilePath(econsent, currentVersion) {
+    getEconsentFilePath(econsent, currentVersion) {
         return this.HCOService.PATH + '/' + this.model.hcoDSU.uid + '/icfs/' + this.model.trialSSI + "/"
             + econsent.uid + '/versions/' + currentVersion.version
     }
 
-    _getEconsentManualFilePath(ecoID, consentSSI, fileName) {
+    getEconsentManualFilePath(ecoID, consentSSI, fileName) {
         return '/econsents/' + ecoID + '/' + consentSSI;
     }
 
-    _attachHandlerEconsentSign() {
+    attachHandlerEconsentSign() {
         this.onTagEvent('econsent:sign', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
@@ -134,14 +118,14 @@ export default class EconsentSignController extends WebcController {
                 date: currentDate.toISOString(),
                 toShowDate: currentDate.toLocaleDateString(),
             };
-            this._updateEconsentWithDetails();
+            this.updateEconsentWithDetails();
             this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.SIGN_ECOSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.SIGN_ECONSENT);
             this.navigateToPageTag('home');
         });
     }
 
 
-    _downloadFile = async (filePath, fileName) => {
+    downloadFile = async (filePath, fileName) => {
         await this.fileDownloaderService.prepareDownloadFromDsu(filePath, fileName);
         let fileBlob = this.fileDownloaderService.getFileBlob(fileName);
         this.rawBlob = fileBlob.rawBlob;
@@ -149,10 +133,10 @@ export default class EconsentSignController extends WebcController {
         this.blob = new Blob([this.rawBlob], {
             type: this.mimeType,
         });
-        this._displayFile();
+        this.displayFile();
     };
 
-    _loadPdfOrTextFile = () => {
+    loadPdfOrTextFile = () => {
         const reader = new FileReader();
         reader.readAsDataURL(this.blob);
         reader.onloadend = () => {
@@ -202,7 +186,7 @@ export default class EconsentSignController extends WebcController {
         }
     };
 
-    _displayFile = () => {
+    displayFile = () => {
         if (window.navigator && window.navigator.msSaveOrOpenBlob) {
             const file = new File([this.rawBlob], this.fileName);
             window.navigator.msSaveOrOpenBlob(file);
@@ -214,18 +198,18 @@ export default class EconsentSignController extends WebcController {
         const fileType = this.mimeType.split('/')[0];
         switch (fileType) {
             case 'image': {
-                this._loadImageFile();
+                this.loadImageFile();
                 break;
             }
             default: {
-                this._loadPdfOrTextFile();
+                this.loadPdfOrTextFile();
                 break;
             }
         }
     };
 
 
-    _updateEconsentWithDetails(message) {
+    updateEconsentWithDetails(message) {
         let currentVersionIndex = this.model.econsent.versions.findIndex(eco => eco.version === this.model.ecoVersion);
         if (currentVersionIndex === -1) {
             return console.log(`Version ${message.useCaseSpecifics.version} of the econsent ${message.ssi} does not exist.`)
@@ -251,11 +235,11 @@ export default class EconsentSignController extends WebcController {
             if (err) {
                 return console.log(err);
             }
-            this._updateTrialParticipantStatus();
+            this.updateTrialParticipantStatus();
         });
     }
 
-    _initTrialParticipant() {
+    initTrialParticipant() {
         this.TrialParticipantRepository.filter(`did == ${this.model.trialParticipantNumber}`, 'ascending', 30, (err, tps) => {
 
             if (tps && tps.length > 0) {
@@ -264,7 +248,7 @@ export default class EconsentSignController extends WebcController {
         });
     }
 
-    _updateTrialParticipantStatus() {
+    updateTrialParticipantStatus() {
         this.model.trialParticipant.actionNeeded = 'HCO SIGNED -no action required';
         this.model.trialParticipant.tpSigned = true;
         this.model.trialParticipant.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
@@ -276,7 +260,7 @@ export default class EconsentSignController extends WebcController {
         });
     }
 
-    _attachHandlerBack() {
+    attachHandlerBack() {
         this.onTagEvent('back', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
@@ -284,10 +268,24 @@ export default class EconsentSignController extends WebcController {
         });
     }
 
-    async _initSite() {
+    async initSite() {
         let sites = this.model.hcoDSU.volatile.site;
         if (sites && sites.length > 0) {
             this.model.site = sites[sites.length - 1];
+        }
+    }
+
+    getInitModel() {
+        return {
+            econsent: {},
+            ...this.getState(),
+            documentWasNotRead: true,
+            pdf: {
+                currentPage: 1,
+                pagesNo: 0
+            },
+            showPageUp: false,
+            showPageDown: true
         }
     }
 

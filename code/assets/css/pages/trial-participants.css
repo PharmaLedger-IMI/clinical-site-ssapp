@@ -1,24 +1,7 @@
-.search-header {
-    width: 80%;
-    margin-left: 10%;
-    display: flex;
-    align-items: center;
-}
-
-.search-item{
-    margin-right: 25px;
-}
-
 .subtitle-container {
     display: flex;
     margin-bottom: 20px;
     justify-content: center;
-}
-
-.subtitle {
-    font-size: 24px;
-    color: #008798;
-    font-weight: bold;
 }
 
 .add-ts {
@@ -35,27 +18,3 @@
     position: absolute;
     right: 10%;
 }
-
-.display-flex {
-    display: flex;
-}
-
-.no-bottom-margin .image_container {
-    margin-bottom: 0 !important;
-}
-
-.clear-button {
-    background-color: #008798;
-    border: none;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    font-size: 16px;
-    border-radius: 5px;
-    margin-left: 25px;
-    height: 45px;
-    width: 150px;
-
-}
-
-

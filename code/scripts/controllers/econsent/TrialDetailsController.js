@@ -79,14 +79,14 @@ export default class TrialDetailsController extends WebcController {
     }
 
     attachHandlerBack() {
-        this.onTagClick("back", () => {
+        this.onTagClick("navigation:back", () => {
             this.history.goBack();
         });
     }
 
     attachHandlerTrialParticipants() {
-        this.onTagClick("trials:participants", (model) => {
-            this.navigateToPageTag("trial-participants", model.keySSI);
+        this.onTagClick("navigation:participants", (model) => {
+            this.navigateToPageTag("econsent-trial-participants", model.keySSI);
         });
     }
 

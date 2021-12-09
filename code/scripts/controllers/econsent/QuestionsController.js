@@ -37,7 +37,7 @@ export default class QuestionsController extends WebcController {
     }
 
     attachHandlerBack() {
-        this.onTagClick("back", () => {
+        this.onTagClick("navigation:go-back", () => {
             this.goBack();
         });
     }

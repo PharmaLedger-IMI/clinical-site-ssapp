@@ -160,7 +160,7 @@ export default class TrialParticipantsController extends WebcController {
         this.onTagEvent('navigate:tp', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.navigateToPageTag('trial-participant', {
+            this.navigateToPageTag('econsent-trial-participant', {
                 trialSSI: this.model.trialSSI,
                 tpUid: model.uid,
                 trialParticipantNumber: model.number,
@@ -229,7 +229,7 @@ export default class TrialParticipantsController extends WebcController {
         this.onTagEvent('tp:status', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.navigateToPageTag('trial-participant-details', {
+            this.navigateToPageTag('econsent-trial-participant-details', {
                 trialSSI: this.model.trialSSI,
                 tpUid: model.uid
             });
@@ -240,7 +240,7 @@ export default class TrialParticipantsController extends WebcController {
         this.onTagEvent('tp:details', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.navigateToPageTag('trial-participant', {
+            this.navigateToPageTag('econsent-trial-participant', {
                 trialSSI: this.model.trialSSI,
                 tpUid: model.uid
             });

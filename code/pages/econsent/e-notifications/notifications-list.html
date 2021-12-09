@@ -5,7 +5,7 @@
             <h4 class="title">Notifications list</h4>
         </div>
 
-        <div class="container flex-container small-container" data-if="@notificationsListEmpty">
+        <div class="small-container" data-if="@notificationsListEmpty">
             <label class="no-data" slot="false">No available notifications</label>
 
             <header slot="true">
@@ -18,8 +18,9 @@
             <main data-for="@notifications" slot="true">
                 <div class="row-wrapper grid-equal">
                     <label>{{@name}}</label>
-                    <button class="link-button" data-tag="navigation:goToAction">{{@recommendedAction}}
-                    </button>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <button class="link-button" data-tag="navigation:goToAction">{{@recommendedAction}}</button>
+                    </div>
                 </div>
             </main>
         </div>

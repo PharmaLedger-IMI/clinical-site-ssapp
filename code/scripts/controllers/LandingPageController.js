@@ -9,6 +9,7 @@ import TrialParticipantRepository from '../repositories/TrialParticipantReposito
 import TrialRepository from '../repositories/TrialRepository.js';
 import SiteService from "../services/SiteService.js";
 import HCOService from "../services/HCOService.js";
+
 const DIDService = commonServices.DIDService;
 const BaseRepository = commonServices.BaseRepository;
 const SharedStorage = commonServices.SharedStorage;
@@ -97,6 +98,12 @@ export default class LandingPageController extends WebcController {
         });
     }
 
+    attachHandlerPatients() {
+        this.onTagEvent('navigation:econsent-patients-list', () => {
+            this.navigateToPageTag('econsent-patients-list');
+        });
+    }
+
     async handleIotMessages(data) {
         switch (data.message.operation) {
             case 'questionnaire-response': {
@@ -173,7 +180,7 @@ export default class LandingPageController extends WebcController {
             case Constants.MESSAGES.HCO.ADD_SITE: {
 
                 this._saveNotification(data.message, 'Your site was added to the trial ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
-                const mountSiteAndUpdateEntity =  new Promise((resolve => {
+                const mountSiteAndUpdateEntity = new Promise((resolve => {
                     this.HCOService.mountSite(data.message.ssi, (err, site) => {
                         if (err) {
                             return console.log(err);
@@ -312,7 +319,7 @@ export default class LandingPageController extends WebcController {
             actionNeeded: actionNeeded
         });
 
-        if(this.model.hcoDSU.volatile.tps){
+        if (this.model.hcoDSU.volatile.tps) {
             let tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
             if (tp === undefined) {
                 return console.error('Cannot find tp.');
