@@ -1,43 +1,39 @@
 <webc-container controller="econsent/VisitsController">
 
-    <div class="main-background">
-        <div class="container flex-container">
-            <h4 class="title">Upcoming Visits</h4>
-        </div>
+    <div class="container main-container">
+        <h4 class="title">Upcoming Visits</h4>
 
-        <div class="front">
-
-            <div class="general-table body">
-                <div data-for="@schedule">
-                    <div class="schedule-day">
-                        <div class="day-title">
-                            {{@dayOfTheWeek}}, {{@date}}
+        <div data-for="@schedule">
+            <div class="schedule-day">
+                <div class="day-title">
+                    {{@dayOfTheWeek}}, {{@date}}
+                </div>
+                <div class="visits" data-for="@visits">
+                    <div class="visit">
+                        <div>
+                            <strong>Patient: </strong>
+                            {{@tp.name}}
                         </div>
-                        <div class="visits" data-for="@visits">
-                            <div class="visit">
-                                <div>
-                                    <strong>Patient: </strong>
-                                    {{@tp.name}}
-                                </div>
-                                <div>
-                                    <strong>Procedure: </strong>
-                                    {{@name}}
-                                </div>
-                                <div>
-                                    <strong>Time: </strong>
-                                    {{@time}}
-                                </div>
-                                <div>
-                                    <strong>Period: </strong>
-                                    {{@period}} {{@unit}}
-                                </div>
-                            </div>
+                        <div>
+                            <strong>Procedure: </strong>
+                            {{@name}}
+                        </div>
+                        <div>
+                            <strong>Time: </strong>
+                            {{@time}}
+                        </div>
+                        <div>
+                            <strong>Period: </strong>
+                            {{@period}} {{@unit}}
                         </div>
                     </div>
-
                 </div>
             </div>
 
+            <label class="no-data" slot="no-data">No upcoming visits.</label>
+        </div>
+
+        <div class="button-group-wrapper">
             <button class="back-button" data-tag="back">Back</button>
         </div>
 
