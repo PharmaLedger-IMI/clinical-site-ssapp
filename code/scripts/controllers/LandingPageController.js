@@ -174,7 +174,7 @@ export default class LandingPageController extends WebcController {
             }
             case Constants.MESSAGES.HCO.UPDATE_BASE_PROCEDURES: {
                 this._saveNotification(data.message, 'New procedure was added ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
-                this._saveVisit(data.message.ssi);
+                await this._saveVisit(data.message.ssi);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_SITE: {
@@ -391,7 +391,6 @@ export default class LandingPageController extends WebcController {
                         uuid: item.uuid,
                         visitWindow: item.visitWindow,
                         trialSSI: message,
-                        consentsSSI: []
                     }
 
                     //visitToBeAdded.consentsSSI.push(consent.keySSI);
@@ -408,6 +407,11 @@ export default class LandingPageController extends WebcController {
                     let minus = item.visitWindow?.filter(weak => weak.type === 'windowTo');
                     if (plus)
                         visitToBeAdded.minus = minus[0]?.value;
+
+                    item.procedures.forEach((procedure)=>{
+                        procedure.consent.consentSSI = this.model.hcoDSU.volatile.site[0].consents.find((consent => consent.name === procedure.consent.name)).keySSI;
+                    })
+
                     this.VisitsAndProceduresRepository.findBy(visitToBeAdded.uuid, (err, existingVisit) => {
                         if (err || !existingVisit) {
 

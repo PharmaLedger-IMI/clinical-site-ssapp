@@ -178,7 +178,7 @@ export default class VisitsAndProceduresController extends WebcController {
                 {
                     controller: 'modals/SetProcedureDateController',
                     disableExpanding: false,
-                    disableBackdropClosing: false,
+                    disableBackdropClosing: true,
                 });
         });
     }
