@@ -71,8 +71,7 @@ export default class ProceduresViewController extends WebcController {
             });
         });
     }
-
-
+    
     updateProcedure(procedure) {
         let objIndex = this.model.procedures.findIndex((obj => obj.id == procedure.id));
         this.model.procedures[objIndex] = procedure;
