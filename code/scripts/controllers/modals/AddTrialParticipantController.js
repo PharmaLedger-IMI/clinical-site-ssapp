@@ -22,10 +22,10 @@ let getInitModel = () => {
             name: 'date',
             required: true,
             dataFormat: 'MM YYYY',
-            placeholder: 'MM YYYY',
             type: 'month',
             value: '',
         },
+        isUnder14:false,
         didParent1: {
             label: 'Parent 1 Public Identifier',
             name: 'did',
@@ -40,13 +40,6 @@ let getInitModel = () => {
             placeholder: 'Parent 2 Public Identifier',
             value: '',
         },
-        attachment: {
-            label: 'Documents',
-            listFiles: true,
-            filesAppend: false,
-            files: [],
-        },
-
         gender: {
             label: 'Select your gender',
             required: true,

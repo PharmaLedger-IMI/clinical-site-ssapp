@@ -189,7 +189,7 @@ export default class TrialParticipantsController extends WebcController {
                 {
                     controller: 'modals/AddTrialParticipantController',
                     disableExpanding: false,
-                    disableBackdropClosing: false,
+                    disableBackdropClosing: true,
                     title: 'Add Trial Participant',
                 });
         });
@@ -215,7 +215,7 @@ export default class TrialParticipantsController extends WebcController {
                 {
                     controller: 'modals/EditRecruitmentPeriodController',
                     disableExpanding: false,
-                    disableBackdropClosing: false,
+                    disableBackdropClosing: true,
                     title: 'Edit Recruitment Period',
                     recruitmentPeriod: this.model.trial.recruitmentPeriod
                 }

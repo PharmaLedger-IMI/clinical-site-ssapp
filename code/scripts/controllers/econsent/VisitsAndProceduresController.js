@@ -215,7 +215,7 @@ export default class VisitsAndProceduresController extends WebcController {
                 {
                     controller: 'modals/SetProcedureDateController',
                     disableExpanding: false,
-                    disableBackdropClosing: false
+                    disableBackdropClosing: true
                 });
         });
     }
@@ -286,7 +286,7 @@ export default class VisitsAndProceduresController extends WebcController {
                 {
                     controller: 'modals/ConfirmationAlertController',
                     disableExpanding: false,
-                    disableBackdropClosing: false,
+                    disableBackdropClosing: true,
                     question: 'Are you sure you want to confirm this visit, The patient attended to visit ? ',
                     title: 'Confirm visit',
                 });

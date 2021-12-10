@@ -109,7 +109,7 @@ export default class TrialDetailsController extends WebcController {
             const modalConfig = {
                 controller: "modals/ConfirmationAlertController",
                 disableExpanding: false,
-                disableBackdropClosing: false,
+                disableBackdropClosing: true,
                 question: question,
                 title: "Confirm visit",
             };
@@ -129,7 +129,7 @@ export default class TrialDetailsController extends WebcController {
             const modalConfig = {
                 controller: "modals/EditRecruitmentPeriodController",
                 disableExpanding: false,
-                disableBackdropClosing: false,
+                disableBackdropClosing: true,
                 title: "Edit Recruitment Period",
                 recruitmentPeriod: this.model.trial.recruitmentPeriod
             };

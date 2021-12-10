@@ -87,7 +87,7 @@ export default class ProceduresViewController extends WebcController {
             const modalConfig = {
                 controller: "modals/ConfirmationAlertController",
                 disableExpanding: false,
-                disableBackdropClosing: false,
+                disableBackdropClosing: true,
                 question: "Are you sure that this procedure is completed for patient ? ",
                 title: "Complete procedure",
             };

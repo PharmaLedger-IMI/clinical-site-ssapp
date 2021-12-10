@@ -47,7 +47,7 @@ export default class QuestionsController extends WebcController {
             const modalConfig = {
                 controller: "modals/AnswerQuestionController",
                 disableExpanding: false,
-                disableBackdropClosing: false,
+                disableBackdropClosing: true,
                 title: model.question,
             };
 

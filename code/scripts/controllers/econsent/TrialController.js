@@ -84,7 +84,7 @@ export default class TrialController extends WebcController {
                 {
                     controller: 'modals/AddTrialParticipantController',
                     disableExpanding: false,
-                    disableBackdropClosing: false,
+                    disableBackdropClosing: true,
                     title: 'Add Trial Participant',
                 });
         });

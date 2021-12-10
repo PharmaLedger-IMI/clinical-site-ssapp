@@ -1,52 +1,88 @@
-<link rel="stylesheet" href="/assets/css/pages/addtp.css">
-<webc-skin href="/assets/css/pages/addtp.css">
-    <div class="maxw">
-        <div class="top">
-            <div class="line">
-                <div class="left-div">
-                    <div>
-                        <psk-input  view-model="@name"/>
-                    </div>
-                    <div>
-                        <psk-input  view-model="@did"/>
-                    </div>
-                    <div>
-                        <psk-radio-group class="gender-input" view-model="@gender"></psk-radio-group>
-                        <div>
-                            <label for="birthdate">{{@birthdate.label}}</label>
-                            <input id="birthdate" type="month" data-view-model="@birthdate">
-                        </div>
-                    </div>
-
-                </div>
-                <div class="right-div">
-                    <button class="scanQr" data-tag="tp:scanQr">Scan QR</button>
-                </div>
-            </div>
-            <hr>
-            <div class="line">
-                <div class="left-div">
-                    <psk-input  view-model="@didParent1"/>
-                </div>
-                <div class="right-div">
-                    <button class="scanQr" data-tag="parent1:scanQr">Scan QR</button>
-                </div>
-            </div>
-            <hr>
-            <div class="line">
-                <div class="left-div">
-                    <psk-input view-model="@didParent2"/>
-                </div>
-                <div class="right-div">
-                    <button class="scanQr" data-tag="parent2:scanQr">Scan QR</button>
-                </div>
+<link rel="stylesheet" href="/assets/css/pages/general_modal.css">
+<h2 slot="header" class="alert-title">Add New Trial Subject</h2>
+<div class="top">
+    <div class="line">
+        <div class="left-div">
+            <div class="form-group">
+                <label for="patientFullName">{{@name.label}}</label>
+                <input id="patientFullName" class="form-control" value="@name.value" placeholder="@name.placeholder"/>
             </div>
 
-            <psk-files-chooser style="margin: 10px" view-model="@attachment" event-name="add-file"></psk-files-chooser>
-        </div>
-        <div class="bottom">
-            <button class="tp-button wide-button inverted-colors" slot="footer" data-tag="tp:submit">Done</button>
-            <button class="tp-button wide-button inverted-colors" slot="footer" data-tag="tp:cancel">Cancel</button>
+
+            <div class="form-group">
+                <label for="patientDID">{{@did.label}}</label>
+                <div class="input-group">
+                    <input id="patientDID" class="form-control" value="@did.value" placeholder="@did.placeholder"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary share-did-btn" type="button">
+                            <i class="fa fa-qrcode"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <psk-radio-group class="gender-input" view-model="@gender"></psk-radio-group>
+            </div>
+
+            <div class="form-group">
+                <label for="birthdate">{{@birthdate.label}}</label>
+                <input id="birthdate" class="form-control" type="month" data-view-model="@birthdate">
+            </div>
+
+            <div class="form-group">
+                <label for="documents">Documents</label>
+                <input type="file" class="form-control-file" id="documents">
+            </div>
+
+            <div class="form-group">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="@isUnder14" id="isUnder14">
+                    <label class="form-check-label" for="isUnder14">
+                        Trial Subject is under 14
+                    </label>
+                </div>
+            </div>
+
         </div>
     </div>
-</webc-skin>
+
+    <div class="line" data-if="@isUnder14">
+        <hr>
+        <small class="form-text text-muted">*to be completed if trial subject is under 14.</small>
+        <div class="left-div">
+            <div class="form-group">
+                <label for="parent1DID">{{@didParent1.label}}</label>
+                <div class="input-group">
+                    <input id="parent1DID" class="form-control" value="@didParent1.value"
+                           placeholder="@didParent1.placeholder"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary share-did-btn" type="button">
+                            <i class="fa fa-qrcode"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="parent1DID">{{@didParent2.label}}</label>
+                <div class="input-group">
+                    <input id="parent2DID" class="form-control" value="@didParent2.value"
+                           placeholder="@didParent2.placeholder"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary share-did-btn" type="button">
+                            <i class="fa fa-qrcode"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <hr/>
+</div>
+<div class="bottom">
+    <button class="tp-button wide-button inverted-colors" slot="footer" data-tag="tp:submit">Add Subject</button>
+    <button class="tp-button wide-button inverted-colors" slot="footer" data-close>Cancel</button>
+</div>
