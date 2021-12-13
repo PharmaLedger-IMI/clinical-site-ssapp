@@ -58,7 +58,7 @@ export default class ProceduresViewController extends WebcController {
 
     attachHandlerBack() {
         this.onTagClick("navigation:go-back", () => {
-            this.goBack();
+            this.history.goBack();
         });
     }
 

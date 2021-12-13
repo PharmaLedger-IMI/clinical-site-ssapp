@@ -9,77 +9,64 @@ const BaseRepository = commonServices.BaseRepository;
 
 const {WebcController} = WebCardinal.controllers;
 
-let getInitModel = () => {
-    return {
-        visits: []
-    };
-};
-
 export default class VisitsAndProceduresController extends WebcController {
     constructor(...props) {
         super(...props);
-        this.setModel({
-            ...getInitModel(),
-            ...this.history.win.history.state.state,
-            visits: [],
-            generalVisits: []
-        });
 
-        this._initServices();
+        this.model = this.getInitModel();
+
+        this.initServices();
     }
 
-    _initHandlers() {
-        this._attachHandlerBack();
-        this._attachHandlerDetails();
-        this._attachHandlerSetDate();
-        this._attachHandlerConfirm();
-        this._attachHandlerEditDate();
-        this._attachHandlerEditVisit();
-        this._attachHandlerProcedures();
+    initHandlers() {
+        this.attachHandlerBack();
+        this.attachHandlerDetails();
+        this.attachHandlerSetDate();
+        this.attachHandlerConfirm();
+        this.attachHandlerEditDate();
+        this.attachHandlerViewVisit();
+        this.attachHandlerEditVisit();
     }
 
-    async _initServices() {
+    async initServices() {
         this.TrialService = new TrialService();
         this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS);
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.CommunicationService = CommunicationService.getInstance(CommunicationService.identities.ECO.HCO_IDENTITY);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this._initHandlers();
-        this._initSite();
-        this._initVisits();
+        this.initHandlers();
+        this.initSite();
+        this.initVisits();
     }
 
-    async _initVisits() {
+    async initVisits() {
         this.model.visits = this.model.hcoDSU.volatile.visit[0].visits.visits;
-        this._extractDataVisit();
-        this._matchTpVisits();
+        this.extractDataVisit();
+        this.matchTpVisits();
     }
 
-    _extractDataVisit() {
-
+    extractDataVisit() {
         if (this.model.visits) {
             this.model.visits.forEach(visit => {
-
-                let weaksFrom = visit.weeks?.filter(weak => weak.type === 'weekFrom' || weak.type === 'week');
+                let weaksFrom = visit.weeks?.filter(weak => weak.type === "weekFrom" || weak.type === "week");
                 if (weaksFrom)
                     visit.weakFrom = weaksFrom[0]?.value;
-                let weaksTo = visit.weeks?.filter(weak => weak.type === 'weekTo');
+                let weaksTo = visit.weeks?.filter(weak => weak.type === "weekTo");
                 if (weaksTo)
                     visit.weakTo = weaksTo[0]?.value;
 
-                let plus = visit.visitWindow?.filter(weak => weak.type === 'windowFrom');
+                let plus = visit.visitWindow?.filter(weak => weak.type === "windowFrom");
                 if (plus)
                     visit.plus = plus[0]?.value;
-                let minus = visit.visitWindow?.filter(weak => weak.type === 'windowTo');
+                let minus = visit.visitWindow?.filter(weak => weak.type === "windowTo");
                 if (plus)
                     visit.minus = minus[0]?.value;
             });
-
         }
     }
 
-    async _matchTpVisits() {
+    async matchTpVisits() {
         if (this.model.visits && this.model.visits.length > 0) {
             let tpIndex = this.model.hcoDSU.volatile.tps.findIndex(tp => tp.uid === this.model.tpUid);
             if (tpIndex === undefined) {
@@ -101,12 +88,12 @@ export default class VisitsAndProceduresController extends WebcController {
                         visit.accepted = visitTp.accepted;
                         visit.declined = visitTp.declined;
                         if (!visit.accepted && !visit.declined) {
-                            visit.tsAcceptance = 'Required';
+                            visit.tsAcceptance = "Required";
                         } else {
                             if (visit.accepted) {
-                                visit.tsAcceptance = 'Agreed';
+                                visit.tsAcceptance = "Agreed";
                             } else {
-                                visit.tsAcceptance = 'Declined';
+                                visit.tsAcceptance = "Declined";
                             }
                         }
                         visit.date = visitTp.date;
@@ -117,7 +104,7 @@ export default class VisitsAndProceduresController extends WebcController {
         }
     }
 
-    async _updateTrialParticipantVisit(visit, operation) {
+    async updateTrialParticipantVisit(visit, operation) {
         if (!this.model.tp.visits) {
             this.model.tp.visits = this.visits;
         }
@@ -139,20 +126,15 @@ export default class VisitsAndProceduresController extends WebcController {
         })
     }
 
-    _attachHandlerBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
+    attachHandlerBack() {
+        this.onTagClick("back", () => {
+            this.history.goBack();
         });
     }
 
-    _attachHandlerDetails() {
-        this.onTagEvent('viewConsent', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-
-            this.navigateToPageTag('econsent-sign', {
+    attachHandlerDetails() {
+        this.onTagClick("viewConsent", (model) => {
+            this.navigateToPageTag("econsent-sign", {
                 trialSSI: model.trialSSI,
                 econsentSSI: model.consentSSI,
                 controlsShouldBeVisible: false
@@ -160,39 +142,35 @@ export default class VisitsAndProceduresController extends WebcController {
         });
     }
 
-    _attachHandlerSetDate() {
-        this.onTagEvent('procedure:setDate', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
+    attachHandlerSetDate() {
+        this.onTagClick("procedure:setDate", (model) => {
             this.showModalFromTemplate(
-                'set-procedure-date',
+                "set-procedure-date",
                 (event) => {
                     let date = new Date(event.detail);
                     this.model.date = event.detail;
                     this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
-                    this._updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
+                    this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
                 },
                 (event) => {
                     const response = event.detail;
                 },
                 {
-                    controller: 'modals/SetProcedureDateController',
+                    controller: "modals/SetProcedureDateController",
                     disableExpanding: false,
                     disableBackdropClosing: true,
                 });
         });
     }
 
-    async _updateTrialParticipantRepository(uid, tp) {
+    async updateTrialParticipantRepository(uid, tp) {
         await this.TrialParticipantRepository.updateAsync(uid, tp);
     }
 
-    _attachHandlerEditDate() {
-        this.onTagEvent('procedure:editDate', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
+    attachHandlerEditDate() {
+        this.onTagClick("procedure:editDate", (model) => {
             this.showModalFromTemplate(
-                'set-procedure-date',
+                "set-procedure-date",
                 (event) => {
                     let visitIndex = this.model.tp.visits.findIndex(v => v.pk === model.pk);
                     let date = new Date(event.detail);
@@ -200,7 +178,7 @@ export default class VisitsAndProceduresController extends WebcController {
                     this.model.tp.visits[visitIndex].toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
                     // this.model.existingVisit.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
                     // this.model.visit = model.tp.visits[visitIndex];
-                    this._updateTrialParticipantRepository(this.model.tp.uid, this.model.tp);
+                    this.updateTrialParticipantRepository(this.model.tp.uid, this.model.tp);
                     this.model.visits = this.model.tp.visits;
                     let v = this.model.hcoDSU.volatile.visit[0];
                     v.visits.visits = this.model.tp.visits;
@@ -213,26 +191,11 @@ export default class VisitsAndProceduresController extends WebcController {
                     const response = event.detail;
                 },
                 {
-                    controller: 'modals/SetProcedureDateController',
+                    controller: "modals/SetProcedureDateController",
                     disableExpanding: false,
                     disableBackdropClosing: true
                 });
         });
-    }
-
-    _updateVisit(visit) {
-        let objIndex = this.model.visits.findIndex((obj => obj.keySSI == visit.keySSI));
-        this.model.visits[objIndex] = visit;
-        let toBeChangedVisits = this.model.visits.filter(v => v.keySSI === visit.keySSI);
-        toBeChangedVisits.forEach(v => {
-            let auxV = {
-                ...v,
-                accepted: v.accepted,
-                declined: v.declined,
-                confirmed: v.confirmed
-            };
-            this._updateVisitRepository(v.pk, auxV)
-        })
     }
 
     sendMessageToPatient(visit, operation) {
@@ -261,12 +224,10 @@ export default class VisitsAndProceduresController extends WebcController {
         });
     }
 
-    _attachHandlerConfirm() {
-        this.onTagEvent('visit:confirm', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
+    attachHandlerConfirm() {
+        this.onTagClick("visit:confirm", (model) => {
             this.showModalFromTemplate(
-                'confirmation-alert',
+                "confirmation-alert",
                 (event) => {
                     const response = event.detail;
                     if (response) {
@@ -284,39 +245,35 @@ export default class VisitsAndProceduresController extends WebcController {
                     const response = event.detail;
                 },
                 {
-                    controller: 'modals/ConfirmationAlertController',
+                    controller: "modals/ConfirmationAlertController",
                     disableExpanding: false,
                     disableBackdropClosing: true,
-                    question: 'Are you sure you want to confirm this visit, The patient attended to visit ? ',
-                    title: 'Confirm visit',
+                    question: "Are you sure you want to confirm this visit, The patient attended to visit ? ",
+                    title: "Confirm visit",
                 });
         });
     }
 
-    _attachHandlerEditVisit() {
-        this.onTagEvent('visit:edit', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-visit-edit', {
+    attachHandlerEditVisit() {
+        this.onTagClick("visit:edit", (model) => {
+            this.navigateToPageTag("econsent-visit-edit", {
                 tpUid: this.model.tpUid,
                 existingVisit: model
             });
         });
     }
 
-    async _initSite() {
-        this.model.site = this.model.hcoDSU.volatile.site[0];
-    }
-
-    _attachHandlerProcedures() {
-        this.onTagEvent('visit:view', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-visits-details-procedures', {
+    attachHandlerViewVisit() {
+        this.onTagClick("visit:view", (model) => {
+            this.navigateToPageTag('econsent-procedures-view', {
                 tpUid: this.model.tpUid,
                 visitUuid: model.uuid
             });
         });
+    }
+
+    async initSite() {
+        this.model.site = this.model.hcoDSU.volatile.site[0];
     }
 
     sendMessageToSponsor(visit) {
@@ -338,6 +295,14 @@ export default class VisitsAndProceduresController extends WebcController {
             shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.VISIT_CONFIRMED,
         };
         this.CommunicationService.sendMessage(this.model.site.sponsorIdentity, sendObject);
+    }
+
+    getInitModel() {
+        return {
+            ...this.getState(),
+            visits: [],
+            generalVisits: []
+        };
     }
 
 }

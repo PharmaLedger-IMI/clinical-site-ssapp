@@ -29,43 +29,33 @@
                     <td class="table-cell">{{@minus}}</td>
 
                     <td data-if="@toShowDate">
-                        <div slot="true">
-                            {{@toShowDate}} -
-                            <button class="link-button view-adjust-margin" data="@id"
-                                    data-tag="procedure:editDate">Edit
-                            </button>
-                        </div>
-                        <div slot="false">
-                            dd/mm/yyyy
-                        </div>
+                        <div slot="true">{{@toShowDate}}</div>
+                        <div slot="false">dd/mm/yyyy</div>
                     </td>
 
                     <td class="table-cell">{{@tsAcceptance}}</td>
 
                     <td data-if="@toShowDate">
-                        <div slot="true">
-                            {{@toShowDate}}
-                        </div>
-                        <div slot="false">
-                            dd/mm/yyyy
-                        </div>
+                        <div slot="true">{{@toShowDate}}</div>
+                        <div slot="false">dd/mm/yyyy</div>
                     </td>
 
                     <td class="cell-options">
-                        <div data-if="@toShowDate">
-                            <button class="link-button view-adjust-margin" data="@id"
-                                    data-tag="procedure:setDate" slot="false">Schedule
-                            </button>
-                        </div>
-                        <button class="link-button view-adjust-margin" data="@id"
-                                data-tag="visit:edit">View
-                        </button>
-
                         <div data-if="@confirmed">
-                            <button class="link-button view-adjust-margin" data="@id" data-tag="visit:confirm"
-                                    slot="false">Confirm Date
+                            <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="false">Confirm
+                                Date
                             </button>
                         </div>
+                        <div data-if="@toShowDate">
+                            <button class="link-button view-adjust-margin" data-tag="procedure:editDate" slot="true">
+                                Reschedule
+                            </button>
+                            <button class="link-button view-adjust-margin" data-tag="procedure:setDate" slot="false">
+                                Schedule
+                            </button>
+                        </div>
+                        <button class="link-button view-adjust-margin" data-tag="visit:view">View</button>
+                        <button class="link-button view-adjust-margin" data-tag="visit:edit">Edit</button>
                     </td>
                 </tr>
                 </tbody>
@@ -74,6 +64,5 @@
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>
         </div>
-    </div>
     </div>
 </webc-container>

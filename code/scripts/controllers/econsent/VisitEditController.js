@@ -34,7 +34,6 @@ export default class VisitEditController extends WebcController {
 
     _initHandlers() {
         this._attachHandlerBack();
-        this._attachHandlerViewProcedures();
         this._attachHandlerSaveDetails();
     }
 
@@ -65,18 +64,6 @@ export default class VisitEditController extends WebcController {
             return 'General details and description of the trial in case it provided by the Sponsor/Site regarding specific particularities of the Trial or general message for Trial Subject';
         }
         return text;
-    }
-
-    _attachHandlerViewProcedures() {
-        this.onTagEvent('procedures:view', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-procedures-view', {
-                visitId: model.visit.id,
-                tpUid: this.model.tpUid,
-                visitUuid: model.visit.uuid
-            });
-        });
     }
 
     _attachHandlerBack() {

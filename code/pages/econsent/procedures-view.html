@@ -1,12 +1,14 @@
 <webc-container controller="econsent/ProceduresViewController">
 
     <div class="container main-container">
-        <h4 class="title">#1 Screening V0</h4>
+        <h4 class="title">Visit: {{@visit.name}}</h4>
 
-        <div class="d-flex justify-content-center align-items-center w-100">
-            <img alt="calendar" height='40' src="themes/clinical-site-theme/images/calendar.png"
-                 width='40'/>
-            <h5 class="subtitle">{{@toShowDate}}</h5>
+        <div>
+            <div class="d-flex justify-content-center align-items-center w-100 py-1 px-2">
+                <img alt="calendar" height='40' src="themes/clinical-site-theme/images/calendar.png"
+                     width='40'/>
+                <h5 class="subtitle">{{@toShowDate}}</h5>
+            </div>
 
             <header class="small-container">
                 <div class="row-wrapper grid-equal">

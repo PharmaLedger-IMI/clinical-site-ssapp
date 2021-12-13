@@ -136,9 +136,10 @@ export default class TrialDetailsController extends WebcController {
 
             this.showModalFromTemplate(
                 "edit-recruitment-period", (event) => {
-                    const startDate = new Date(model.trial.recruitmentPeriod.startDate).toLocaleDateString();
-                    const endDate = new Date(model.trial.recruitmentPeriod.endDate).toLocaleDateString();
-                    this.model.trial.recruitmentPeriod = event.detail;
+                    let recruitmentPeriod = event.detail;
+                    const startDate = new Date(recruitmentPeriod.startDate).toLocaleDateString();
+                    const endDate = new Date(recruitmentPeriod.endDate).toLocaleDateString();
+                    this.model.trial.recruitmentPeriod = recruitmentPeriod;
                     this.model.trial.recruitmentPeriod.toShowDate = `${startDate} - ${endDate}`;
                     this.TrialService.updateTrialAsync(this.model.trial)
                 }, this.emptyCallback, modalConfig);

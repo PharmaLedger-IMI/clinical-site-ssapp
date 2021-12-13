@@ -15,8 +15,10 @@
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>
             <div data-if="@controlsShouldBeVisible">
-                <button data-tag="econsent:sign" disabled="@documentWasNotRead">Sign</button>
-                <button data-tag="econsent:decline" disabled="@documentWasNotRead">Decline</button>
+                <div class="button-group-wrapper">
+                    <button data-tag="econsent:sign" disabled="@documentWasNotRead">Sign</button>
+                    <button data-tag="econsent:decline" disabled="@documentWasNotRead">Decline</button>
+                </div>
             </div>
         </div>
 
