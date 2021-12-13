@@ -1,5 +1,5 @@
 const {WebcController} = WebCardinal.controllers;
-
+const LEGAL_ENTITY_MAX_AGE = 14;
 let getInitModel = () => {
     return {
         name: {
@@ -45,6 +45,12 @@ let getInitModel = () => {
             required: true,
             options: [
                 {
+                    label: 'Select Gender',
+                    value: '',
+                    selected:true,
+                    hidden:true
+                },
+                {
                     label: 'Male',
                     value: 'M',
                 },
@@ -71,6 +77,17 @@ export default class AddTrialParticipantController extends WebcController {
     }
 
     _attachHandlerSubmit() {
+
+        this.model.onChange("birthdate",()=>{
+            let currentDate = Date.now()
+            let birthDate = new Date(this.model.birthdate.value).getTime();
+
+            let daysSinceBirth = (currentDate - birthDate) / (1000 * 3600 * 24);
+            let legalEntityMaxAge = LEGAL_ENTITY_MAX_AGE * 365
+
+            this.model.isUnder14 = legalEntityMaxAge > daysSinceBirth;
+        })
+
         this.onTagEvent('tp:submit', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
