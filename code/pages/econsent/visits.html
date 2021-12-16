@@ -3,7 +3,7 @@
     <div class="container main-container">
         <h4 class="title">Upcoming Visits</h4>
 
-        <div data-for="@schedule">
+        <main data-for="@schedule">
             <div class="schedule-day">
                 <div class="day-title">
                     {{@dayOfTheWeek}}, {{@date}}
@@ -31,7 +31,7 @@
             </div>
 
             <label class="no-data" slot="no-data">No upcoming visits.</label>
-        </div>
+        </main>
 
         <div class="button-group-wrapper">
             <button class="back-button" data-tag="back">Back</button>
