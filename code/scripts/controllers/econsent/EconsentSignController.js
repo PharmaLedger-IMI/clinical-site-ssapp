@@ -16,11 +16,6 @@ export default class EconsentSignController extends WebcController {
         super(...props);
 
         this.model = this.getInitModel();
-
-        if (this.model.controlsShouldBeVisible === undefined) {
-            this.model.controlsShouldBeVisible = true;
-        }
-
         this.initServices();
         this.initHandlers();
     }
@@ -278,6 +273,7 @@ export default class EconsentSignController extends WebcController {
     getInitModel() {
         return {
             econsent: {},
+            controlsShouldBeVisible:true,
             ...this.getState(),
             documentWasNotRead: true,
             pdf: {
