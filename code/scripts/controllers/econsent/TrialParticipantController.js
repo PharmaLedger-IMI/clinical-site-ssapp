@@ -30,7 +30,7 @@ export default class TrialParticipantController extends WebcController {
     async _initServices() {
         this.TrialService = new TrialService();
         this.SiteService = new SiteService();
-        this.CommunicationService = CommunicationService.getInstance(CommunicationService.identities.ECO.HCO_IDENTITY);
+        this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
@@ -216,10 +216,14 @@ export default class TrialParticipantController extends WebcController {
                 signDate: wantedAction.toShowDate
             }
         }
-        this.CommunicationService.sendMessage(CommunicationService.identities.IOT.PROFESSIONAL_IDENTITY, {
-            operation: Constants.MESSAGES.PATIENT.ADD_TRIAL_SUBJECT,
-            useCaseSpecifics: messageForIot
-        });
+
+        throw new Error("SET IOT IDENTITY!");
+        //TODO: IOT-identity?
+        // this.CommunicationService.sendMessage(CommunicationService.identities.IOT.PROFESSIONAL_IDENTITY, {
+        //     operation: Constants.MESSAGES.PATIENT.ADD_TRIAL_SUBJECT,
+        //     useCaseSpecifics: messageForIot
+        // });
+
 
     }
 

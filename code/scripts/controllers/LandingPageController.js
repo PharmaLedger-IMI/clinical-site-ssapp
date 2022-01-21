@@ -9,8 +9,9 @@ import TrialParticipantRepository from '../repositories/TrialParticipantReposito
 import TrialRepository from '../repositories/TrialRepository.js';
 import SiteService from "../services/SiteService.js";
 import HCOService from "../services/HCOService.js";
+const {getCommunicationServiceInstance} = commonServices.CommunicationService;
+const {getProfileServiceInstance } = commonServices.ProfileService;
 
-const DIDService = commonServices.DIDService;
 const BaseRepository = commonServices.BaseRepository;
 const SharedStorage = commonServices.SharedStorage;
 
@@ -24,7 +25,12 @@ export default class LandingPageController extends WebcController {
     }
 
     async initServices() {
-        this.model.did = await DIDService.getDidAsync(this);
+
+        this.profileService = getProfileServiceInstance();
+        this.profileService.getDID().then((did)=>{
+            this.model.did = did;
+        })
+
         this.ResponsesService = new ResponsesService(this.DSUStorage);
         this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
         //this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
@@ -35,7 +41,7 @@ export default class LandingPageController extends WebcController {
         this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS);
         this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS);
         this.SiteService = new SiteService();
-        this.CommunicationService = await DIDService.getCommunicationServiceInstanceAsync(this);
+        this.CommunicationService = getCommunicationServiceInstance();
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.attachDidMessagesListener();
@@ -130,6 +136,7 @@ export default class LandingPageController extends WebcController {
     }
 
     async handleEcoMessages(data) {
+        debugger;
         switch (data.did) {
             case CommunicationService.identities.ECO.HCO_IDENTITY.did: {
                 switch (data.message.operation) {

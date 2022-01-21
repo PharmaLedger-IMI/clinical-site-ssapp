@@ -33,7 +33,7 @@ export default class VisitsController extends WebcController {
     _initServices() {
         this.TrialService = new TrialService();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
-        this.CommunicationService = CommunicationService.getInstance(CommunicationService.identities.ECO.HCO_IDENTITY);
+        this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
     }
 
     async _initVisits() {

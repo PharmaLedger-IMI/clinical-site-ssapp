@@ -30,7 +30,7 @@ export default class TrialParticipantsController extends WebcController {
     async _initServices() {
         this.HCOService = new HCOService();
         this.TrialService = new TrialService();
-        this.CommunicationService = CommunicationService.getInstance(CommunicationService.identities.ECO.HCO_IDENTITY);
+        this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         await this.initializeData();
     }
