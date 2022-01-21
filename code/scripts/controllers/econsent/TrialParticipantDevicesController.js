@@ -1,6 +1,6 @@
 const {WebcController} = WebCardinal.controllers;
-const commonServices = require("common-services");
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
+import DeviceServices from "../../services/DeviceServices.js";
 
 
 export default class TrialParticipantDevicesController extends WebcController {
@@ -11,6 +11,12 @@ export default class TrialParticipantDevicesController extends WebcController {
         const prevState = this.getState() || {};
         this.model = this.getFormViewModel(prevState);
         console.log(this.model);
+
+
+        // 1. search for assigned devices in DSU assignation service
+        // 2. list available devices
+
+        this.checkAvailableDevicesInGivenTrial();
 
         this._attachHandlerGoBack();
         this._attachHandlerSave();
@@ -71,6 +77,19 @@ export default class TrialParticipantDevicesController extends WebcController {
             deviceId: this.model.device.value,
             patientDID: this.model.participantDID,
         };
+    }
+
+    checkAvailableDevicesInGivenTrial(){
+        let trial_ssi = this.model.trialSSI;
+        this.deviceServices = new DeviceServices();
+        this.deviceServices.searchDevice((err, devices) => {
+            if (err) {
+                return console.error(err);
+            }
+            console.log(devices);
+            this.model.allDevices = devices;
+        });
+        console.log(this.model.allDevices);
     }
 
     _initHandlers() {

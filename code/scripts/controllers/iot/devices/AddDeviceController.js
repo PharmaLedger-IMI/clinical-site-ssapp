@@ -17,14 +17,18 @@ export default class AddDeviceController extends WebcController {
             for(let trial in listTrials){
                 let trialFormat={
                     label: "",
-                    value: ""
+                    value: "",
+                    ssi: ""
                 };
                 trialFormat.label = listTrials[trial].name + "-" + listTrials[trial].id;
-                trialFormat.value = listTrials[trial].name + "-" + listTrials[trial].id;
+                trialFormat.value = listTrials[trial].id;
+                trialFormat.ssi  = listTrials[trial].uid;
+                trialFormat.name = listTrials[trial].name;
                 allTrials.push(trialFormat);
-                // console.log(trialFormat);
             }
+
             this.model = this.getFormViewModel(prevState, allTrials);
+            this.model.trials = allTrials;
 
         });
         
@@ -41,7 +45,9 @@ export default class AddDeviceController extends WebcController {
 
     attachHandlerSaveButton() {
         this.onTagClick('devices:save', () => {
-            const deviceData = this.prepareDeviceData();
+
+            const deviceData = this.prepareDeviceData(this.model.trials);
+            console.log(deviceData);
             this.deviceServices.saveDevice(deviceData, (err) => {
                 if (err) {
                     console.error(err);
@@ -55,10 +61,15 @@ export default class AddDeviceController extends WebcController {
         });
     }
 
-    prepareDeviceData() {
+    prepareDeviceData(trial_list) {
+
+        let selected_trial = trial_list.find(t => t.value === this.model.trial.value);
+
         return {
             brand: this.model.brand.value,
-            trial: this.model.trial.value,
+            trialSSI: selected_trial.ssi,
+            trialName: selected_trial.name,
+            trialID: this.model.trial.value,
             modelNumber: this.model.model.value,
             status: this.model.status.value,
             manufacturer: this.model.manufacturer.value,
