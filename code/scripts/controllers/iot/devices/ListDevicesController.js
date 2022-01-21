@@ -1,13 +1,13 @@
 const {WebcController} = WebCardinal.controllers;
 
-import DeviceService from "../../../services/DeviceService.js"
+import DeviceServices from "../../../services/DeviceServices.js"
 
 export default class ListDevicesController extends WebcController {
     constructor(element, history) {
         super(element, history);
 
         this.model = {allDevices: []};
-        this.DeviceService = new DeviceService();
+        this.deviceServices = new DeviceServices();
 
         this.attachModelHandlers();
         this.attachHandlerGoBack();
@@ -18,11 +18,11 @@ export default class ListDevicesController extends WebcController {
     }
 
     init() {
-        this.DeviceService.searchDevice((err, devices) => {
+        this.deviceServices.searchDevice((err, devices) => {
             if (err) {
                 return console.error(err);
             }
-
+            console.log(devices);
             this.model.allDevices = devices;
         });
     }

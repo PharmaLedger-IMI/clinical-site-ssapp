@@ -1,4 +1,6 @@
 const {WebcController} = WebCardinal.controllers;
+import HCOService from "../../../services/HCOService.js"
+import DeviceServices from "../../../services/DeviceServices.js";
 
 export default class AddDeviceController extends WebcController {
     constructor(element, history) {
@@ -6,8 +8,26 @@ export default class AddDeviceController extends WebcController {
         super(element, history);
 
         const prevState = this.getState() || {};
-        this.model = this.getFormViewModel(prevState);
+        this.deviceServices = new DeviceServices();
+        let test = new HCOService();
+        let test1 =  test.getOrCreateAsync();
+        test1.then(value => {
+            let allTrials = [];
+           let listTrials = value.volatile.trial;
+            for(let trial in listTrials){
+                let trialFormat={
+                    label: "",
+                    value: ""
+                };
+                trialFormat.label = listTrials[trial].name + "-" + listTrials[trial].id;
+                trialFormat.value = listTrials[trial].name + "-" + listTrials[trial].id;
+                allTrials.push(trialFormat);
+                // console.log(trialFormat);
+            }
+            this.model = this.getFormViewModel(prevState, allTrials);
 
+        });
+        
         this.attachHandlerGoBackButton();
         this.attachHandlerSaveButton();
 
@@ -15,7 +35,6 @@ export default class AddDeviceController extends WebcController {
 
     attachHandlerGoBackButton() {
         this.onTagClick('devices:go-back', () => {
-            console.log("Go back button pressed");
             this.navigateToPageTag('iot-manage-devices');
         });
     }
@@ -23,7 +42,16 @@ export default class AddDeviceController extends WebcController {
     attachHandlerSaveButton() {
         this.onTagClick('devices:save', () => {
             const deviceData = this.prepareDeviceData();
-            this.navigateToPageTag("iot-add-device-summary", deviceData);
+            this.deviceServices.saveDevice(deviceData, (err) => {
+                if (err) {
+                    console.error(err);
+                }
+
+                this.navigateToPageTag('confirmation-page', {
+                    confirmationMessage: "Device included!",
+                    redirectPage: "iot-manage-devices"
+                });
+            });
         });
     }
 
@@ -51,7 +79,7 @@ export default class AddDeviceController extends WebcController {
         };
     }
 
-    getFormViewModel(prevState) {
+    getFormViewModel(prevState, allTrials) {
         return {
             deviceId: {
                 name: 'deviceid',
@@ -59,7 +87,7 @@ export default class AddDeviceController extends WebcController {
                 label: "Device ID",
                 placeholder: 'QC1265389',
                 required: true,
-                value: prevState.serialNumber || ""
+                value: prevState.serialNumber || ''
             },
             model: {
                 name: 'model',
@@ -114,26 +142,13 @@ export default class AddDeviceController extends WebcController {
                         value: 'Unknown'
                     }
                 ],
-                value: prevState.status || ""
+                value: prevState.status || "Active"
             },
             trial: {
                 label: "Clinical trial Number",
                 required: true,
-                options: [
-                    {
-                        label: "Trial 1",
-                        value: 'Trial 1'
-                    },
-                    {
-                        label: "Trial 2",
-                        value: 'Trial 2'
-                    },
-                    {
-                        label: "Trial 3",
-                        value: 'Trial 3'
-                    }
-                ],
-                value: prevState.trial || ""
+                options: allTrials,
+                value: allTrials[0].value
             }
         }
     }
