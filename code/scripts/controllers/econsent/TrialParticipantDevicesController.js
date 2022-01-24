@@ -9,24 +9,15 @@ export default class TrialParticipantDevicesController extends WebcController {
         super(...props);
 
         const prevState = this.getState() || {};
-        this.model = this.getFormViewModel(prevState);
-        console.log(this.model);
+        this.checkIfDeviceAlreadyAssigned(prevState);
 
-
-        // 1. search for assigned devices in DSU assignation service
-        // 2. list available devices
-
-        this.checkAvailableDevicesInGivenTrial();
-
-        this._attachHandlerGoBack();
+        this._attachHandlerGoBack(prevState);
         this._attachHandlerSave();
         this._initHandlers();
     }
 
-    getFormViewModel(prevState) {
+    getFormViewModel(prevState, deviceOptions) {
         return {
-
-            assigning: true,
 
             trialSSI: prevState.trialSSI,
             trialNumber: prevState.trialNumber,
@@ -37,13 +28,8 @@ export default class TrialParticipantDevicesController extends WebcController {
             device: {
                 label: "Device ID",
                 required: true,
-                options: [
-                    {
-                        label: "QC12345",
-                        value: 'QC12345'
-                    }
-                ],
-                value:  "QC12345"
+                options: deviceOptions,
+                value: deviceOptions[0].value
             },
             patient: {
                 label: "Patient Name",
@@ -79,17 +65,55 @@ export default class TrialParticipantDevicesController extends WebcController {
         };
     }
 
-    checkAvailableDevicesInGivenTrial(){
-        let trial_ssi = this.model.trialSSI;
+    getDevices(prevState){
         this.deviceServices = new DeviceServices();
         this.deviceServices.searchDevice((err, devices) => {
             if (err) {
                 return console.error(err);
             }
-            console.log(devices);
             this.model.allDevices = devices;
+            this.model.foundRegisteredDevices = this.model.allDevices.filter(t => t.trialSSI === prevState.trialSSI);
+            if (this.model.foundRegisteredDevices.length>0){
+                this.model.assigning = true;
+                let deviceOptions = []
+                for (const [key, value] of Object.entries(this.model.foundRegisteredDevices)) {
+                    deviceOptions.push(
+                        {
+                            label: value.deviceName,
+                            value: value.sk
+                        }
+                    )
+                }
+                this.model = this.getFormViewModel(prevState, deviceOptions);
+            }
+            if (this.model.foundRegisteredDevices.length == 0){
+                this.model.message = "Error: There are no registered devices in this trial."
+                this.model.assigning = false;
+            }
         });
-        console.log(this.model.allDevices);
+    }
+
+    findAvailableDevicesInGivenTrial(){
+        return this.model.allDevices.filter(t => t.trialSSI === this.model.trialSSI);
+    }
+
+    checkIfDeviceAlreadyAssigned(prevState){
+        this.DeviceAssignationService = new DeviceAssignationService();
+        this.DeviceAssignationService.getAssignedDevices( (err, assignedDevices) => {
+            if (err) {
+                return console.error(err);
+            }
+            this.model.foundAssignedDevices = assignedDevices.filter(ad => ad.patientDID === prevState.participantDID);
+            if (this.model.foundAssignedDevices.length>0) {
+                console.log(this.model.foundAssignedDevices);
+                this.model.message = "Error: The user has already an assigned device."
+                this.model.assigning = false;
+            }
+            else{
+                this.model.assigning = true;
+                this.getDevices(prevState);
+            }
+        } );
     }
 
     _initHandlers() {
@@ -99,30 +123,28 @@ export default class TrialParticipantDevicesController extends WebcController {
         });
     }
 
-    _attachHandlerGoBack() {
+    _attachHandlerGoBack(prevState) {
         this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-trial-management');
+            // this.navigateToPageTag('econsent-trial-management');
+            this.navigateToPageTag('econsent-trial-participants', prevState.trialSSI);
         });
     }
 
     _attachHandlerSave() {
         this.onTagEvent('save', 'click', (model, target, event) => {
-            console.log(this.preparePatientDeviceData())
+
             this.DeviceAssignationService = new DeviceAssignationService();
-            this.DeviceAssignationService.saveDevice(this.preparePatientDeviceData(), (err, data) => {
+            this.DeviceAssignationService.assignDevice(this.preparePatientDeviceData(), (err, data) => {
                 if (err) {
                     this.navigateToPageTag('confirmation-page', {
                         confirmationMessage: "An error has been occurred!",
-                        redirectPage: "home"
+                        redirectPage: "econsent-trial-management"
                     });
                     return console.log(err);
                 }
-                console.log(data.uid);
                 this.navigateToPageTag('confirmation-page', {
                     confirmationMessage: "The device has been assigned to the patient successfully.",
-                    redirectPage: "home"
+                    redirectPage: "econsent-trial-management"
                 });
             });
         });

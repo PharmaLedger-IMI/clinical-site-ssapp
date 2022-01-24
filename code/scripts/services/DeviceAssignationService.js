@@ -9,8 +9,8 @@ export default class DeviceAssignationService extends DSUService {
 
     mount = (keySSI, callback) => this.mountEntity(keySSI, callback);
 
-    getDevices = (callback) => this.getEntities(callback);
+    getAssignedDevices = (callback) => this.getEntities(callback);
 
-    saveDevice = (data, callback) => this.saveEntity(data, callback);
+    assignDevice = (data, callback) => this.saveEntity(data, callback);
 
 }

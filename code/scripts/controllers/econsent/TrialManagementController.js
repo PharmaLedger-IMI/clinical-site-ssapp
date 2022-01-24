@@ -67,9 +67,7 @@ export default class TrialManagementController extends WebcController {
 
     _attachHandlerBack() {
         this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
+            this.navigateToPageTag('home');
         });
     }
 

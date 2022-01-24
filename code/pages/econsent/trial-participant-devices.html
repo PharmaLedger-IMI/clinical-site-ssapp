@@ -2,10 +2,12 @@
     <link href="./assets/css/pages/trial-participants.css" rel="stylesheet">
 
     <div class="container main-container">
-        <div class="container flex-container">
-            <h2 class="title">Assign "{{@patient.value}}" with a monitoring device</h2>
-            <h4 class="title">User DID: {{@patient.did}} </h4>
 
+        <div class="container flex-container" data-if="@assigning">
+            <container slot="true">
+                <h2 class="title">Assign "{{@patient.value}}" with a monitoring device</h2>
+                <h4 class="title">User DID: {{@patient.did}} </h4>
+            </container>
         </div>
 
             <main class="form-container" data-if="@assigning">
@@ -28,14 +30,18 @@
                 </container>
                 <container slot="false">
                     <div>
-                        <h4 class="title">A device has already been assigned.<br>Please delete it if you want to re-assign.</h4>
+                        <h4 class="title">{{@message}}</h4>
                     </div>
                 </container>
             </main>
 
 
         <div class="button-group-wrapper">
-            <button data-tag="save">Save</button>
+            <div data-if="@assigning">
+                <container slot="true">
+                    <button data-tag="save">Save</button>
+                </container>>
+            </div>
             <button data-tag="back">Back</button>
         </div>
 

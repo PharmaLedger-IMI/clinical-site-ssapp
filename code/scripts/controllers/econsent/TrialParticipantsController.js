@@ -356,9 +356,10 @@ export default class TrialParticipantsController extends WebcController {
 
     _attachHandlerGoBack() {
         this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
+            // event.preventDefault();
+            // event.stopImmediatePropagation();
+            // window.history.back();
+            this.navigateToPageTag('econsent-trial-management');
         });
     }
 

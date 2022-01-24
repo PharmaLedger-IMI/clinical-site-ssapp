@@ -67,6 +67,7 @@ export default class AddDeviceController extends WebcController {
 
         return {
             brand: this.model.brand.value,
+            value: this.model.name.value,
             trialSSI: selected_trial.ssi,
             trialName: selected_trial.name,
             trialID: this.model.trial.value,
