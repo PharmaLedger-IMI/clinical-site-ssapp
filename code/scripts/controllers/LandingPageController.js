@@ -132,10 +132,12 @@ export default class LandingPageController extends WebcController {
 
     async handleEcoMessages(data) {
 
-        let senderIdentity = {
-            did: data.did,
-            domain: data.domain
+        let senderIdentity = data.senderIdentity;
+
+        if (typeof senderIdentity === "undefined") {
+            throw new Error("Sender identity is undefined. Did you forgot to add it?")
         }
+
         switch (data.operation) {
 
             case 'add-trial-subject': {
