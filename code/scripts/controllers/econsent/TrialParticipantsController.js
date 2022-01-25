@@ -45,6 +45,7 @@ export default class TrialParticipantsController extends WebcController {
         this._attachHandlerNavigateToParticipant();
         this._attachHandlerViewTrialParticipantDetails();
         this._attachHandlerViewTrialParticipantStatus();
+        this._attachHandlerViewTrialParticipantDevices();
         this._attachHandlerGoBack();
         this._attachHandlerEditRecruitmentPeriod();
         this.on('openFeedback', (e) => {
@@ -229,9 +230,24 @@ export default class TrialParticipantsController extends WebcController {
         this.onTagEvent('tp:status', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
+            console.log(this.model.trialSSI, model.uid);
             this.navigateToPageTag('econsent-trial-participant-details', {
                 trialSSI: this.model.trialSSI,
                 tpUid: model.uid
+            });
+        });
+    }
+
+    _attachHandlerViewTrialParticipantDevices() {
+        this.onTagEvent('tp:devices', 'click', (model, target, event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.navigateToPageTag('econsent-trial-participant-devices', {
+                trialSSI: model.trialSSI,
+                trialNumber: model.trialNumber,
+                tpUid: model.uid,
+                participantName: model.name,
+                participantDID: model.did
             });
         });
     }
@@ -340,9 +356,10 @@ export default class TrialParticipantsController extends WebcController {
 
     _attachHandlerGoBack() {
         this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
+            // event.preventDefault();
+            // event.stopImmediatePropagation();
+            // window.history.back();
+            this.navigateToPageTag('econsent-trial-management');
         });
     }
 

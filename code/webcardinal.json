@@ -156,6 +156,12 @@
 			"tag": "econsent-trial-participant-details"
 		},
 		{
+			"name": "Trial Participant Devices",
+			"path": "/econsent/trial-participant-devices",
+			"src": "econsent/trial-participant-devices.html",
+			"tag": "econsent-trial-participant-devices"
+		},
+		{
 			"name": "Econsent Versions",
 			"path": "/econsent/econsent-versions",
 			"src": "econsent/econsent-versions.html",

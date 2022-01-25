@@ -1,5 +1,5 @@
-import TrialService from "../services/TrialService.js";
 
+import TrialService from "../services/TrialService.js";
 const {WebcController} = WebCardinal.controllers;
 const commonServices = require("common-services");
 const Constants = commonServices.Constants;
