@@ -21,7 +21,7 @@ export default class NotificationsController extends WebcController {
     }
 
     initServices() {
-        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS);
+        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
     }
 
     initNotifications() {

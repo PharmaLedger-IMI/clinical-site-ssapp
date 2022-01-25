@@ -36,16 +36,15 @@ export default class LandingPageController extends WebcController {
         //this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
 
         this.TrialService = new TrialService();
-        this.StorageService = SharedStorage.getInstance();
-        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
-        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS);
-        this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS);
+        this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
+        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
+        this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
         this.SiteService = new SiteService();
-        this.CommunicationService = getCommunicationServiceInstance();
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this.attachDidMessagesListener();
-
+        //TODO temporary fix
+        setTimeout(this.attachDidMessagesListener.bind(this),1000);
     }
 
     initHandlers() {
@@ -57,11 +56,13 @@ export default class LandingPageController extends WebcController {
     }
 
     attachDidMessagesListener() {
+        this.CommunicationService = getCommunicationServiceInstance();
         this.CommunicationService.listenForMessages(async (err, data) => {
-            data = JSON.parse(data);
             if (err) {
                 return console.error(err);
             }
+
+            data = JSON.parse(data);
 
             await this.handleIotMessages(data);
             await this.handleEcoMessages(data);
