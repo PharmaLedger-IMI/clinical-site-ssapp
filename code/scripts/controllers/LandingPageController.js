@@ -3,14 +3,13 @@ import TrialService from "../services/TrialService.js";
 const {WebcController} = WebCardinal.controllers;
 const commonServices = require("common-services");
 const Constants = commonServices.Constants;
-const CommunicationService = commonServices.CommunicationService;
 import ResponsesService from '../services/ResponsesService.js';
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
-import TrialRepository from '../repositories/TrialRepository.js';
 import SiteService from "../services/SiteService.js";
 import HCOService from "../services/HCOService.js";
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
 const {getProfileServiceInstance } = commonServices.ProfileService;
+const MessageHandlerService = commonServices.MessageHandlerService;
 
 const BaseRepository = commonServices.BaseRepository;
 const SharedStorage = commonServices.SharedStorage;
@@ -42,9 +41,8 @@ export default class LandingPageController extends WebcController {
         this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
         this.SiteService = new SiteService();
         this.HCOService = new HCOService();
+        this.CommunicationService = getCommunicationServiceInstance();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        //TODO temporary fix
-        setTimeout(this.attachDidMessagesListener.bind(this),1000);
     }
 
     initHandlers() {
@@ -53,11 +51,11 @@ export default class LandingPageController extends WebcController {
         this.attachHandlerListOfPatients();
         this.attachHandlerVisits();
         this.attachHandlerEconsentTrialManagement();
+        this._attachMessageHandlers();
     }
 
-    attachDidMessagesListener() {
-        this.CommunicationService = getCommunicationServiceInstance();
-        this.CommunicationService.listenForMessages(async (err, data) => {
+    _attachMessageHandlers() {
+        MessageHandlerService.init(async (err, data) => {
             if (err) {
                 return console.error(err);
             }
@@ -67,7 +65,7 @@ export default class LandingPageController extends WebcController {
             await this.handleIotMessages(data);
             await this.handleEcoMessages(data);
 
-        });
+        })
     }
 
     attachHandlerManageDevices() {
