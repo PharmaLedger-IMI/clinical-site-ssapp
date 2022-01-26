@@ -4,7 +4,7 @@ const SharedStorage = commonServices.SharedStorage;
 class TrialRepository {
 
     constructor(DSUStorage) {
-        this.StorageService = SharedStorage.getInstance(DSUStorage);
+        this.StorageService = SharedStorage.getSharedStorage(DSUStorage);
         this.tableName = 'trials';
     }
 

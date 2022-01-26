@@ -3,14 +3,14 @@ import TrialService from "../services/TrialService.js";
 const {WebcController} = WebCardinal.controllers;
 const commonServices = require("common-services");
 const Constants = commonServices.Constants;
-const CommunicationService = commonServices.CommunicationService;
 import ResponsesService from '../services/ResponsesService.js';
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
-import TrialRepository from '../repositories/TrialRepository.js';
 import SiteService from "../services/SiteService.js";
 import HCOService from "../services/HCOService.js";
+const {getCommunicationServiceInstance} = commonServices.CommunicationService;
+const {getProfileServiceInstance } = commonServices.ProfileService;
+const MessageHandlerService = commonServices.MessageHandlerService;
 
-const DIDService = commonServices.DIDService;
 const BaseRepository = commonServices.BaseRepository;
 const SharedStorage = commonServices.SharedStorage;
 
@@ -24,22 +24,25 @@ export default class LandingPageController extends WebcController {
     }
 
     async initServices() {
-        this.model.did = await DIDService.getDidAsync(this);
+
+        this.profileService = getProfileServiceInstance();
+        this.profileService.getDID().then((did)=>{
+            this.model.did = did;
+        })
+
         this.ResponsesService = new ResponsesService(this.DSUStorage);
         this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
         //this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
 
         this.TrialService = new TrialService();
-        this.StorageService = SharedStorage.getInstance();
-        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
-        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS);
-        this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS);
+        this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
+        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
+        this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
         this.SiteService = new SiteService();
-        this.CommunicationService = await DIDService.getCommunicationServiceInstanceAsync(this);
         this.HCOService = new HCOService();
+        this.CommunicationService = getCommunicationServiceInstance();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this.attachDidMessagesListener();
-
     }
 
     initHandlers() {
@@ -48,24 +51,21 @@ export default class LandingPageController extends WebcController {
         this.attachHandlerListOfPatients();
         this.attachHandlerVisits();
         this.attachHandlerEconsentTrialManagement();
+        this._attachMessageHandlers();
     }
 
-    attachDidMessagesListener() {
-        this.CommunicationService.listenForMessages(async (err, data) => {
+    _attachMessageHandlers() {
+        MessageHandlerService.init(async (err, data) => {
             if (err) {
                 return console.error(err);
             }
-            switch (data.domain) {
-                case 'iot': {
-                    await this.handleIotMessages(data);
-                    break;
-                }
-                case 'eco': {
-                    await this.handleEcoMessages(data);
-                    break;
-                }
-            }
-        });
+
+            data = JSON.parse(data);
+
+            await this.handleIotMessages(data);
+            await this.handleEcoMessages(data);
+
+        })
     }
 
     attachHandlerManageDevices() {
@@ -105,10 +105,10 @@ export default class LandingPageController extends WebcController {
     }
 
     async handleIotMessages(data) {
-        switch (data.message.operation) {
+        switch (data.operation) {
             case 'questionnaire-response': {
-                console.log('Received message', data.message);
-                this.ResponsesService.mount(data.message.ssi, (err, data) => {
+                console.log('Received message', data);
+                this.ResponsesService.mount(data.ssi, (err, data) => {
                     if (err) {
                         return console.log(err);
                     }
@@ -130,58 +130,54 @@ export default class LandingPageController extends WebcController {
     }
 
     async handleEcoMessages(data) {
-        switch (data.did) {
-            case CommunicationService.identities.ECO.HCO_IDENTITY.did: {
-                switch (data.message.operation) {
-                    case 'add-trial-subject': {
-                        let useCaseSpecifics = data.message.useCaseSpecifics;
-                        let trial = useCaseSpecifics.trial;
-                        let participant = useCaseSpecifics.participant;
-                        let trials = await this.TrialRepository.filterAsync(`id == ${trial.id}`, 'ascending', 30);
-                        if (trials.length === 0) {
-                            await this.TrialRepository.createAsync(trial);
-                        }
-                        participant.trialId = trial.id;
-                        await this.TrialParticipantRepository.createAsync(participant);
-                        break;
-                    }
+
+        let senderIdentity = data.senderIdentity;
+
+        if (typeof senderIdentity === "undefined") {
+            throw new Error("Sender identity is undefined. Did you forgot to add it?")
+        }
+
+        switch (data.operation) {
+
+            case 'add-trial-subject': {
+                let useCaseSpecifics = data.useCaseSpecifics;
+                let trial = useCaseSpecifics.trial;
+                let participant = useCaseSpecifics.participant;
+                let trials = await this.TrialRepository.filterAsync(`id == ${trial.id}`, 'ascending', 30);
+                if (trials.length === 0) {
+                    await this.TrialRepository.createAsync(trial);
                 }
+                participant.trialId = trial.id;
+                await this.TrialParticipantRepository.createAsync(participant);
                 break;
             }
-        }
 
-
-        let senderIdentity = {
-            did: data.did,
-            domain: data.domain
-        }
-        switch (data.message.operation) {
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
-                this._saveNotification(data.message, 'New ecosent version was added', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 await this._reMountTrialAndSendRefreshMessageToAllParticipants(data);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_CONSENT: {
-                this._saveNotification(data.message, 'New ecosent  was added', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                this._saveNotification(data, 'New ecosent  was added', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 await this._reMountTrialAndSendRefreshMessageToAllParticipants(data);
                 break;
             }
             case Constants.MESSAGES.HCO.SITE_STATUS_CHANGED: {
-                this._refreshSite(data.message);
-                this._saveNotification(data.message, 'The status of site was changed', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                this._refreshSite(data);
+                this._saveNotification(data, 'The status of site was changed', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
 
                 break;
             }
             case Constants.MESSAGES.HCO.UPDATE_BASE_PROCEDURES: {
-                this._saveNotification(data.message, 'New procedure was added ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
-                await this._saveVisit(data.message.ssi);
+                this._saveNotification(data, 'New procedure was added ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this._saveVisit(data.ssi);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_SITE: {
 
-                this._saveNotification(data.message, 'Your site was added to the trial ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 const mountSiteAndUpdateEntity = new Promise((resolve => {
-                    this.HCOService.mountSite(data.message.ssi, (err, site) => {
+                    this.HCOService.mountSite(data.ssi, (err, site) => {
                         if (err) {
                             return console.log(err);
                         }
@@ -209,23 +205,23 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case 'ask-question': {
-                this._saveQuestion(data.message);
+                this._saveQuestion(data);
                 break;
             }
             case Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_RESPONSE: {
-                this._updateVisit(data.message);
+                this._updateVisit(data);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_TRIAl_CONSENT: {
-                this._saveNotification(data.message, 'New consent was added to trial  ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                this._saveNotification(data, 'New consent was added to trial  ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 break;
             }
             case Constants.MESSAGES.HCO.UPDATE_ECOSENT: {
-                this._updateEconsentWithDetails(data.message);
+                this._updateEconsentWithDetails(data);
                 break;
             }
             case Constants.MESSAGES.PATIENT.SEND_TRIAL_CONSENT_DSU_TO_HCO: {
-                this.HCOService.mountTC(data.message.ssi, (err, data) => {
+                this.HCOService.mountTC(data.ssi, (err, data) => {
                 })
                 break;
             }
@@ -239,7 +235,7 @@ export default class LandingPageController extends WebcController {
     _reMountTrialAndSendRefreshMessageToAllParticipants(data) {
         //TODO change it to async function
         return new Promise((resolve => {
-            this.HCOService.cloneIFCs(data.message.trialSSI, async () => {
+            this.HCOService.cloneIFCs(data.trialSSI, async () => {
                 this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
 
                 this.TrialParticipantRepository.findAll((err, tps) => {
@@ -247,7 +243,7 @@ export default class LandingPageController extends WebcController {
                         return console.log(err);
                     }
                     tps.forEach(tp => this.sendMessageToPatient(tp,
-                        Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, data.message.ssi, null))
+                        Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, data.ssi, null))
                     resolve();
                 })
             });
