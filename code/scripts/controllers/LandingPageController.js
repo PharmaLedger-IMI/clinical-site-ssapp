@@ -41,7 +41,6 @@ export default class LandingPageController extends WebcController {
         this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
         this.SiteService = new SiteService();
         this.HCOService = new HCOService();
-        this.CommunicationService = getCommunicationServiceInstance();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
     }
 
@@ -51,10 +50,13 @@ export default class LandingPageController extends WebcController {
         this.attachHandlerListOfPatients();
         this.attachHandlerVisits();
         this.attachHandlerEconsentTrialManagement();
-        this._attachMessageHandlers();
+
+        //temporary to avoid 428 error on the did initialization
+        setTimeout(this._attachMessageHandlers.bind(this),1000);
     }
 
     _attachMessageHandlers() {
+        this.CommunicationService = getCommunicationServiceInstance();
         MessageHandlerService.init(async (err, data) => {
             if (err) {
                 return console.error(err);
