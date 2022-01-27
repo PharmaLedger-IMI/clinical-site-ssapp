@@ -1,0 +1,45 @@
+<webc-container controller="econsent/TrialParticipantDevicesListController">
+
+    <div class="container main-container">
+        <div class="container flex-container">
+            <h4 class="title">Assigned Devices for patient: {{@participantName}} </h4>
+            <h6 class="title">User DID: {{@participantDID}} </h6>
+        </div>
+
+        <div class="container" data-if="@deviceListAvailable">
+            <label class="no-data" slot="false">No devices assigned for this patient.</label>
+
+            <header slot="true">
+                <div class="row-wrapper grid-equal">
+                    <label>Device ID</label>
+                    <label>Brand</label>
+                    <label>Model</label>
+                    <label>Status</label>
+                    <label>Trial Name</label>
+                    <label>Trial ID</label>
+                    <label>Options</label>
+                </div>
+            </header>
+
+            <main data-for="@assigned_devices" slot="true">
+                <div class="row-wrapper grid-equal">
+                    <label>{{@serialNumber}}</label>
+                    <label>{{@brand}}</label>
+                    <label>{{@modelNumber}}</label>
+                    <label>{{@status}}</label>
+                    <label>{{@trialName}}</label>
+                    <label>{{@trialID}}</label>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <label class="link option" data-tag="view">View</label>
+                        <label class="link option" data-tag="edit">Edit</label>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <footer class="button-group-wrapper">
+            <button data-tag="back">Back</button>
+            <button data-tag="assign-device">Assign Device</button>
+        </footer>
+    </div>
+</webc-container>

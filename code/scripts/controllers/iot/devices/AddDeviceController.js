@@ -20,7 +20,7 @@ export default class AddDeviceController extends WebcController {
                     value: "",
                     ssi: ""
                 };
-                trialFormat.label = listTrials[trial].name + "-" + listTrials[trial].id;
+                trialFormat.label = listTrials[trial].name + " - " + listTrials[trial].id;
                 trialFormat.value = listTrials[trial].id;
                 trialFormat.ssi  = listTrials[trial].uid;
                 trialFormat.name = listTrials[trial].name;
