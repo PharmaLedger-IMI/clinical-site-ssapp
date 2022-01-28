@@ -8,7 +8,7 @@ import TrialParticipantRepository from '../repositories/TrialParticipantReposito
 import SiteService from "../services/SiteService.js";
 import HCOService from "../services/HCOService.js";
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
-const {getProfileServiceInstance } = commonServices.ProfileService;
+const {getDidServiceInstance } = commonServices.DidService;
 const MessageHandlerService = commonServices.MessageHandlerService;
 
 const BaseRepository = commonServices.BaseRepository;
@@ -25,8 +25,8 @@ export default class LandingPageController extends WebcController {
 
     async initServices() {
 
-        this.profileService = getProfileServiceInstance();
-        this.profileService.getDID().then((did)=>{
+        this.didService = getDidServiceInstance();
+        this.didService.getDID().then((did)=>{
             this.model.did = did;
         })
 
