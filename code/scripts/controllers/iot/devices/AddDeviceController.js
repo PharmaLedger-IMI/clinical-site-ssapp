@@ -9,11 +9,11 @@ export default class AddDeviceController extends WebcController {
 
         const prevState = this.getState() || {};
         this.deviceServices = new DeviceServices();
-        let test = new HCOService();
-        let test1 =  test.getOrCreateAsync();
-        test1.then(value => {
+        let hcoService = new HCOService();
+        let hcoDSUPromise = hcoService.getOrCreateAsync();
+        hcoDSUPromise.then(hcoDSU => {
             let allTrials = [];
-           let listTrials = value.volatile.trial;
+           let listTrials = hcoDSU.volatile.trial;
             for(let trial in listTrials){
                 let trialFormat={
                     label: "",
