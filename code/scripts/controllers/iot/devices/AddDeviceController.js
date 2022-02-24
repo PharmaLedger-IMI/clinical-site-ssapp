@@ -160,8 +160,9 @@ export default class AddDeviceController extends WebcController {
                 label: "Clinical trial Number",
                 required: true,
                 options: allTrials,
-                value: allTrials[0].value
-            }
+                value: allTrials.length?allTrials[0].value:""
+            },
+            hasTrials:allTrials.length>0
         }
     }
 }
