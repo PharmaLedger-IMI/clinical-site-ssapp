@@ -7,7 +7,11 @@
         </div>
 
         <div class="container" data-if="@deviceListNotEmpty">
-            <label class="no-data" slot="false">No devices registered</label>
+
+            <div slot="false" class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">No devices registered!</h4>
+                <p>After devices registrations you will be able to see them here</p>
+            </div>
 
             <header slot="true">
                 <div class="row-wrapper grid-equal">
