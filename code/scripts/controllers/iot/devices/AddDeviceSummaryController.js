@@ -6,6 +6,16 @@ export default class AddDeviceSummaryController extends WebcController {
         super(element, history);
 
         this.model = this.getState();
+        const prevState = this.getState() || {};
+        const {breadcrumb, ...state} = prevState;
+        this.model = prevState;        
+
+        this.model.breadcrumb.push({
+            label:"Add Device Summary",
+            tag:"iot-add-device",
+            state: state
+        });
+
         this.deviceServices = new DeviceServices();
         this.attachHandlerEditButton();
         this.attachHandlerAcceptButton();

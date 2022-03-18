@@ -20,6 +20,17 @@ export default class VisitsController extends WebcController {
             ...getInitModel(),
             ...this.history.win.history.state.state,
         });
+        
+        const prevState = this.getState() || {};
+        const {breadcrumb, ...state} = prevState;
+        
+        this.model = prevState;        
+
+        this.model.breadcrumb.push({
+            label:"Visits",
+            tag:"econsent-visits",
+            state: state
+        });
 
         this._initServices();
         this._initHandlers();

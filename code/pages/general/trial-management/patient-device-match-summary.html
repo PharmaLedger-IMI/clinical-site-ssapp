@@ -1,6 +1,7 @@
 <webc-container controller="general/trial-management/PatientDeviceMatchSummaryController">
     <div class="container main-container">
         <div class="container flex-container">
+            <breadcrumb-navigator></breadcrumb-navigator>
             <img alt="PharmaLedger Blockchain Enabled Healthcare" src="themes/clinical-site-theme/images/pharmaledger-logo.jpg"
                   class="img-m"/>
             <h4 class="title">Summary</h4>
@@ -18,10 +19,10 @@
 
             <main>
                 <div class="row-wrapper grid-equal">
-                    <label>{{@patientId}}</label>
-                    <label>{{@deviceId}}</label>
-                    <label>{{@trial}}</label>
-                    <label>{{@status}}</label>
+                    <label>{{@patientDeviceData.patientId}}</label>
+                    <label>{{@patientDeviceData.deviceId}}</label>
+                    <label>{{@patientDeviceData.trial}}</label>
+                    <label>{{@patientDeviceData.status}}</label>
                 </div>
             </main>
         </div>

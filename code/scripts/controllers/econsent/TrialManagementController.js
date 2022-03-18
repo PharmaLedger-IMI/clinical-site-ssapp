@@ -30,6 +30,17 @@ export default class TrialManagementController extends WebcController {
         super(...props);
 
         this.setModel(getInitModel());
+        
+        const prevState = this.getState() || {};
+        const {breadcrumb, ...state} = prevState;
+
+        this.model = prevState;        
+        this.model.breadcrumb.push({
+            label:"E-Consent Trial Management",
+            tag:"econsent-trial-management",
+            state: state
+        });
+
         this._initServices();
         this._initHandlers();
     }

@@ -9,6 +9,16 @@ export default class ListDevicesController extends WebcController {
         this.model = {allDevices: []};
         this.deviceServices = new DeviceServices();
 
+        const prevState = this.getState() || {};
+        const {breadcrumb, ...state} = prevState;
+        
+        this.model = prevState;        
+        this.model.breadcrumb.push({
+            label:"Search Device",
+            tag:"iot-list-all-devices",
+            state: state
+        });
+
         this.attachModelHandlers();
         this.attachHandlerGoBack();
         this.attachHandlerViewDevice();
@@ -37,7 +47,7 @@ export default class ListDevicesController extends WebcController {
     attachHandlerGoBack() {
         this.onTagClick('navigation:go-back', () => {
             console.log("Go Back button pressed");
-            this.navigateToPageTag('iot-manage-devices');
+            this.navigateToPageTag('iot-manage-devices',{breadcrumb: this.model.toObject('breadcrumb')});
         });
     }
 

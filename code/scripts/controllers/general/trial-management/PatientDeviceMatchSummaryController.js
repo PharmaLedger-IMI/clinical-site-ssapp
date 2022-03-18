@@ -5,6 +5,15 @@ export default class PatientDeviceMatchSummaryController extends WebcController 
         super(element, history);
 
         this.model = this.getState();
+        const prevState = this.getState() || {};
+        const {breadcrumb, ...state} = prevState;
+        this.model.patientDeviceData = prevState.patientDeviceData;
+
+        this.model.breadcrumb.push({
+            label:"Summary",
+            tag:"patient-device-match-summary",
+            state: state
+        });
 
         this.attachHandlerEditButton();
         this.attachHandlerAcceptButton();
@@ -19,10 +28,12 @@ export default class PatientDeviceMatchSummaryController extends WebcController 
 
     attachHandlerAcceptButton() {
         this.onTagClick('summary:accept', () => {
-            this.navigateToPageTag('confirmation-page', {
+            let trialState = { 
                 confirmationMessage: "Match Completed!",
-                redirectPage: "trial-management"
-            });
+                redirectPage: "trial-management",
+                breadcrumb: this.model.toObject('breadcrumb')
+            }
+            this.navigateToPageTag('confirmation-page', trialState);
         });
     }
 }

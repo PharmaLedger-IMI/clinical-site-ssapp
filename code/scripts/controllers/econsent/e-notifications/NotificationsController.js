@@ -10,6 +10,16 @@ export default class NotificationsController extends WebcController {
 
         this.model = this.getInitModel();
 
+        const prevState = this.getState() || {};
+        const {breadcrumb, ...state} = prevState;
+        
+        this.model = prevState;        
+        this.model.breadcrumb.push({
+            label:"Notifications",
+            tag:"econsent-notifications",
+            state: state
+        });
+
         this.initServices();
         this.initNotifications();
         this.initHandlers();

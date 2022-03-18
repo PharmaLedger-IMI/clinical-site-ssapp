@@ -18,7 +18,9 @@ const SharedStorage = commonServices.SharedStorage;
 export default class LandingPageController extends WebcController {
     constructor(element, history) {
         super(element, history);
-        this.model = {};
+
+        this.model = this.getInitialModel();
+
         this.initServices();
         this.initHandlers();
     }
@@ -72,39 +74,39 @@ export default class LandingPageController extends WebcController {
 
     attachHandlerManageDevices() {
         this.onTagClick('navigation:iot-manage-devices', () => {
-            this.navigateToPageTag('iot-manage-devices');
+            this.navigateToPageTag('iot-manage-devices', { breadcrumb: this.model.toObject('breadcrumb') } );
         });
     }
 
     attachHandlerTrialManagement() {
         this.onTagClick('navigation:trial-management', () => {
-            this.navigateToPageTag('trial-management');
+            this.navigateToPageTag('trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
     attachHandlerListOfPatients() {
         this.onTagClick('navigation:econsent-notifications', () => {
-            this.navigateToPageTag('econsent-notifications');
+            this.navigateToPageTag('econsent-notifications', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
     attachHandlerVisits() {
         this.onTagClick('navigation:econsent-visits', () => {
-            this.navigateToPageTag('econsent-visits');
+            this.navigateToPageTag('econsent-visits', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
     attachHandlerEconsentTrialManagement() {
         this.onTagClick('navigation:econsent-trial-management', () => {
-            this.navigateToPageTag('econsent-trial-management');
+            this.navigateToPageTag('econsent-trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
-    attachHandlerPatients() {
-        this.onTagEvent('navigation:econsent-patients-list', () => {
-            this.navigateToPageTag('econsent-patients-list');
-        });
-    }
+    // attachHandlerPatients() {
+    //     this.onTagEvent('navigation:econsent-patients-list', () => {
+    //         this.navigateToPageTag('econsent-patients-list', { breadcrumb: this.model.toObject('breadcrumb') });
+    //     });
+    // }
 
     async handleIotMessages(data) {
         switch (data.operation) {
@@ -468,6 +470,16 @@ export default class LandingPageController extends WebcController {
 
 
         });
+    }
+
+    getInitialModel() {
+        return {
+            breadcrumb : [{
+                label:"Dashboard",
+                tag:"home",
+                state:{}
+            }]
+        };
     }
 
 

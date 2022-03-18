@@ -8,6 +8,15 @@ export default class AddDeviceController extends WebcController {
         super(element, history);
 
         const prevState = this.getState() || {};
+        const {breadcrumb, ...state} = prevState;
+        this.model = prevState;        
+
+        this.model.breadcrumb.push({
+            label:"Add Device",
+            tag:"iot-add-device",
+            state: state
+        });
+
         this.deviceServices = new DeviceServices();
         let hcoService = new HCOService();
         let hcoDSUPromise = hcoService.getOrCreateAsync();
@@ -39,7 +48,7 @@ export default class AddDeviceController extends WebcController {
 
     attachHandlerGoBackButton() {
         this.onTagClick('devices:go-back', () => {
-            this.navigateToPageTag('iot-manage-devices');
+            this.navigateToPageTag('iot-manage-devices',{breadcrumb: this.model.toObject('breadcrumb')});
         });
     }
 

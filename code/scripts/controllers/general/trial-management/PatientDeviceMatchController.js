@@ -7,6 +7,14 @@ export default class PatientDeviceMatchController extends WebcController {
 
         const prevState = this.getState() || {};
         this.model = this.getFormViewModel(prevState);
+        const {breadcrumb, ...state} = prevState;
+
+        this.model = prevState;        
+        this.model.breadcrumb.push({
+            label:"Match Patient/Device",
+            tag:"patient-device-match",
+            state: state
+        });
 
         this.attachHandlerGoBackButton();
         this.attachHandlerSaveButton();
@@ -16,14 +24,14 @@ export default class PatientDeviceMatchController extends WebcController {
     attachHandlerGoBackButton() {
         this.onTagClick('navigation:go-back', () => {
             console.log("Go back button pressed");
-            this.navigateToPageTag('trial-management');
+            this.navigateToPageTag('trial-management', {breadcrumb: this.model.toObject('breadcrumb')});
         });
     }
 
     attachHandlerSaveButton() {
         this.onTagClick('save', () => {
             const patientDeviceData = this.preparePatientDeviceData();
-            this.navigateToPageTag("patient-device-match-summary", patientDeviceData);
+            this.navigateToPageTag("patient-device-match-summary", {patientDeviceData: patientDeviceData, breadcrumb: this.model.toObject('breadcrumb')});
         });
     }
 
