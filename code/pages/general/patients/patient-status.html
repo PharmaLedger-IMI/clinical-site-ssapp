@@ -1,6 +1,7 @@
 <webc-container controller="general/patients/PatientStatusController">
     <div class="container main-container">
         <div class="container flex-container">
+            <breadcrumb-navigator></breadcrumb-navigator>
             <h4 class="title">Patient Status</h4>
         </div>
 
@@ -23,11 +24,11 @@
                 </header>
                 <main>
                     <div class="row-wrapper grid-equal">
-                        <label>{{@patientId}}</label>
-                        <label>{{@deviceId}}</label>
-                        <label>{{@deviceStatus}}</label>
-                        <label>{{@patientSigned}}</label>
-                        <label>{{@consentStatus}}</label>
+                        <label>{{@data.patientId}}</label>
+                        <label>{{@data.deviceId}}</label>
+                        <label>{{@data.deviceStatus}}</label>
+                        <label>{{@data.patientSigned}}</label>
+                        <label>{{@data.consentStatus}}</label>
                     </div>
                 </main>
             </div>

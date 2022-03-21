@@ -5,43 +5,40 @@
             <h2 class="main-title">Trial Management</h2>
         </div>
         <main>
-            <table class="general-table">
-                <thead>
-                <tr>
-                    <th class="table-cell-title">Sponsor</th>
-                    <th class="table-cell-title">Trial Number/Id</th>
-                    <th class="table-cell-title">Trial Name</th>
-                    <th class="table-cell-title">Status</th>
-                    <th class="table-cell-title">Stage</th>
-                    <th class="table-cell-title">Notifications</th>
-                    <th class="table-cell-title">Action Required</th>
-                    <th class="table-cell-title">Options</th>
-                </tr>
-                </thead>
-
-                <tbody data-for="@trials">
-                <tr>
-                    <td class="table-cell">{{@sponsor}}</td>
-                    <td class="table-cell">{{@id}}</td>
-                    <td class="table-cell">{{@name}}</td>
-                    <td class="table-cell">{{@status}}</td>
-                    <td class="table-cell">{{@stage}}</td>
-                    <td class="table-cell">N/A</td>
-                    <td class="table-cell">N/A</td>
-                    <td class="cell-options">
+            <div class="common-datatable trial-management dt-8-col">
+            
+                <webc-datatable datasource="@trialsDataSource">
+            
+                    <div slot="header">Sponsor</div>
+                    <div slot="header">Trial Number/Id</div>
+                    <div slot="header">Trial Name</div>
+                    <div slot="header">Status</div>
+                    <div slot="header">Stage</div>
+                    <div slot="header">Notifications</div>
+                    <div slot="header">Action Required</div>
+                    <div slot="header">Options</div>
+            
+            
+                    <div class="cell">{{ @sponsor }}</div>
+                    <div class="cell">{{ @id }}</div>
+                    <div class="cell">{{ @name }}</div>
+                    <div class="cell">{{ @status }}</div>
+                    <div class="cell">{{ @stage }}</div>
+                    <div class="cell">N/A</div>
+                    <div class="cell">N/A</div>
+                    <div class="cell">
                         <button class="link-button" data-tag="trials:details">Overview</button>
                         <label> | </label>
                         <button class="link-button" data-tag="trials:participants">Subjects</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    </div>
+            
+                </webc-datatable>
+            </div>
+
+
         </main>
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>
         </div>
     </div>
 </webc-container>
-
-
-

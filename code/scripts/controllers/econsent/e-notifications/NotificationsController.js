@@ -54,7 +54,7 @@ export default class NotificationsController extends WebcController {
 
     attachHandlerNotificationsList() {
         this.onTagClick('navigation:econsent-notifications-list', (model, target) => {
-            this.navigateToPageTag('econsent-notifications-list', {notType: target.textContent});
+            this.navigateToPageTag('econsent-notifications-list', { notType: target.textContent, breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 

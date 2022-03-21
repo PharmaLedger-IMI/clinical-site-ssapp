@@ -12,9 +12,9 @@ export default class AddDeviceController extends WebcController {
         this.model = prevState;        
 
         this.model.breadcrumb.push({
-            label:"Add Device",
-            tag:"iot-add-device",
-            state: state
+          label:"Add Device",
+          tag:"iot-add-device",
+          state: state
         });
 
         this.deviceServices = new DeviceServices();
@@ -64,7 +64,8 @@ export default class AddDeviceController extends WebcController {
 
                 this.navigateToPageTag('confirmation-page', {
                     confirmationMessage: "Device included!",
-                    redirectPage: "iot-manage-devices"
+                    redirectPage: "iot-manage-devices",
+                    breadcrumb: this.model.toObject('breadcrumb')
                 });
             });
         });

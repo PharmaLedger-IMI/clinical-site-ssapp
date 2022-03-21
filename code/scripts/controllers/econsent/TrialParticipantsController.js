@@ -19,10 +19,21 @@ export default class TrialParticipantsController extends WebcController {
 
     constructor(...props) {
         super(...props);
+        
+        const prevState = this.getState() || {};
+        const { breadcrumb,keySSI, ...state } = prevState;
         this.setModel({
             ...getInitModel(),
-            trialSSI: this.history.win.history.state.state,
+            trialSSI: keySSI,
         });
+
+        this.model = prevState;
+        this.model.breadcrumb.push({
+            label: "Subjects Trial",
+            tag: "econsent-trial-participants",
+            state: state
+        });
+
         this._initServices();
         this._initHandlers();
     }
@@ -359,7 +370,7 @@ export default class TrialParticipantsController extends WebcController {
             // event.preventDefault();
             // event.stopImmediatePropagation();
             // window.history.back();
-            this.navigateToPageTag('econsent-trial-management');
+            this.navigateToPageTag('econsent-trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 

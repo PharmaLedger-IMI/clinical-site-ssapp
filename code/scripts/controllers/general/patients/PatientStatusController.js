@@ -5,6 +5,15 @@ export default class PatientStatusController extends WebcController {
         super(element, history);
 
         this.model.patientData = this.getTestData();
+         const prevState = this.getState() || {};
+         const {breadcrumb, ...state} = prevState;
+         this.model = prevState;
+
+         this.model.breadcrumb.push({
+          label:"Patient Status",
+          tag:"patient-status",
+          state: state
+         });
 
         this.attachHandlerGoBack();
         this.attachHandlerPatientAlertHistory();

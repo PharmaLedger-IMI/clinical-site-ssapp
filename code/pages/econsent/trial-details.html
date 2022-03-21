@@ -1,6 +1,7 @@
 <webc-container controller="econsent/TrialDetailsController">
     <div class="container main-container">
         <div>
+            <breadcrumb-navigator></breadcrumb-navigator>
             <h4 class="title">{{@trial.id}} {{@trial.name}}</h4>
             <div data-if="@trial.recruitmentPeriod.toShowDate">>
                 <h5 class="title" slot="true">Recruitment period: {{@trial.recruitmentPeriod.toShowDate}}</h5>
