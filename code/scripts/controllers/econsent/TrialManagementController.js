@@ -16,7 +16,6 @@ class TrialsDataSource extends DataSource {
         if (this.model.trials.length <= dataLengthForCurrentPage) {
             this.setPageSize(this.model.trials.length);
         }
-
         else {
             this.setPageSize(this.model.elements);
         }
