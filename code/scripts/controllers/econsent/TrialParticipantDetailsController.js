@@ -25,6 +25,18 @@ export default class TrialParticipantDetailsController extends WebcController {
             consentsSigned: [],
             userActionsToShow: []
         });
+
+        const prevState = this.getState();
+
+        const { breadcrumb,...state } = prevState;
+        this.model = prevState;
+
+        this.model.breadcrumb.push({
+            label: "Status - Trial Participant Details",
+            tag: "econsent-trial-participant-details",
+            state: state
+        });
+
         this._initServices();
         this._initHandlers();
     }

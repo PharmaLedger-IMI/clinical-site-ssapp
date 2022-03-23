@@ -12,6 +12,16 @@ export default class ProceduresViewController extends WebcController {
         super(...props);
 
         this.model = this.getInitModel();
+        const prevState = this.getState();
+        this.model = prevState;
+
+        const { breadcrumb,...state } = prevState;
+
+        this.model.breadcrumb.push({
+            label: "Procedures View",
+            tag: "econsent-procedures-view",
+            state: state
+        });
 
         this.initServices();
     }

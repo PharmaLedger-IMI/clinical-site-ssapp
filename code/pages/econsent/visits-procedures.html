@@ -1,46 +1,46 @@
 <webc-container controller="econsent/VisitsAndProceduresController">
     <div class="container main-container">
         <div class="container flex-container">
+            <breadcrumb-navigator></breadcrumb-navigator>
             <h4 class="title">Visits & Procedures</h4>
         </div>
 
         <main>
-            <table class="general-table">
-                <thead>
-                <tr>
-                    <th class="table-cell-title">Visits</th>
-                    <th class="table-cell-title">From (weak no)</th>
-                    <th class="table-cell-title">To (weak no)</th>
-                    <th class="table-cell-title">Plus (days)</th>
-                    <th class="table-cell-title">Minus (days)</th>
-                    <th class="table-cell-title">Proposed date</th>
-                    <th class="table-cell-title">Ts Acceptance</th>
-                    <th class="table-cell-title">Planned Date</th>
-                    <th class="table-cell-title">Actions</th>
-                </tr>
-                </thead>
 
-                <tbody data-for="@visits">
-                <tr>
-                    <td class="table-cell">{{@name}}</td>
-                    <td class="table-cell">{{@weakFrom}}</td>
-                    <td class="table-cell">{{@weakTo}}</td>
-                    <td class="table-cell">{{@plus}}</td>
-                    <td class="table-cell">{{@minus}}</td>
+            <div class="common-datatable visits-procedures dt-9-col">
 
-                    <td data-if="@toShowDate">
+                <webc-datatable datasource="@visitsDataSource">
+
+                    <div slot="header">Visits</div>
+                    <div slot="header">From (weak no)</div>
+                    <div slot="header">To (weak no)</div>
+                    <div slot="header">Plus (days)</div>
+                    <div slot="header">Minus (days)</div>
+                    <div slot="header">Proposed date</div>
+                    <div slot="header">Ts Acceptance</div>
+                    <div slot="header">Planned Date</div>
+                    <div slot="header">Actions</div>
+
+
+                    <div class="cell">{{@name}}</div>
+                    <div class="cell">{{@weakFrom}}</div>
+                    <div class="cell">{{@weakTo}}</div>
+                    <div class="cell">{{@plus}}</div>
+                    <div class="cell">{{@minus}}</div>
+                    
+                    <div data-if="@toShowDate" class="cell">
                         <div slot="true">{{@toShowDate}}</div>
                         <div slot="false">dd/mm/yyyy</div>
-                    </td>
+                    </div>
 
-                    <td class="table-cell">{{@tsAcceptance}}</td>
+                    <div class="cell">{{@tsAcceptance}}</div>
 
-                    <td data-if="@toShowDate">
+                    <div data-if="@toShowDate" class="cell"> 
                         <div slot="true">{{@toShowDate}}</div>
                         <div slot="false">dd/mm/yyyy</div>
-                    </td>
+                    </div>
 
-                    <td class="cell-options">
+                    <div class="cell">
                         <div data-if="@confirmed">
                             <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="false">Confirm
                                 Date
@@ -56,10 +56,11 @@
                         </div>
                         <button class="link-button view-adjust-margin" data-tag="visit:view">View</button>
                         <button class="link-button view-adjust-margin" data-tag="visit:edit">Edit</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    </div>
+
+                </webc-datatable>
+            </div>
+
         </main>
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>

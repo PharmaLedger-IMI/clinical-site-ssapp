@@ -27,36 +27,35 @@
                 </div>
             </div>
 
+            <div class="common-datatable trial-participant dt-6-col">
 
-            <table class="general-table">
-                <thead>
-                <tr>
-                    <th class="table-cell">Name</th>
-                    <th class="table-cell">Number</th>
-                    <th class="table-cell">Birthday</th>
-                    <th class="table-cell">Status</th>
-                    <th class="table-cell">Notification for action</th>
-                    <th class="table-cell">Overview</th>
-                </tr>
-                </thead>
+                <webc-datatable datasource="@trialParticipantsDataSource">
 
-                <tbody class="trial-table" data-for="@trialParticipants">
-                <tr>
-                    <td class="table-cell">{{@name}}{{@lastName}}</td>
-                    <td class="table-cell">{{@number}}</td>
-                    <td class="table-cell">{{@birthdate}}</td>
-                    <td class="table-cell">{{@status}}</td>
-                    <td class="table-cell">{{@actionNeeded}}</td>
-                    <td class="table-cell">
+                    <div slot="header">Name</div>
+                    <div slot="header">Number</div>
+                    <div slot="header">Birthday</div>
+                    <div slot="header">Status</div>
+                    <div slot="header">Notification for action</div>
+                    <div slot="header">Overview</div>
+
+
+                    <div class="cell">{{@name}}{{@lastName}}</div>
+                    <div class="cell">{{@number}}</div>
+                    <div class="cell">{{@birthdate}}</div>
+                    <div class="cell">{{@status}}</div>
+                    <div class="cell">{{@actionNeeded}}</div>
+                    <div class="cell">
                         <button class="link-button" data="@id" data-tag="tp:status">Status</button>
                         <label> | </label>
                         <button class="link-button" data="@id" data-tag="tp:details">Consents</button>
                         <label> | </label>
                         <button class="link-button" data="@" data-tag="tp:devices">Devices</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+
+                    </div>
+
+                </webc-datatable>
+            </div>
+
         </main>
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>

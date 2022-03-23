@@ -15,13 +15,11 @@ export default class TrialDetailsController extends WebcController {
     constructor(...props) {
         super(...props);
 
-        
-
         this.model = this.getInitModel();
 
         const prevState = this.getState() || {};
-        const { breadcrumb, keySSI, ...state } = prevState;
-        this.model.trialSSI = keySSI;
+        const { breadcrumb, ...state } = prevState;
+        this.model.trialSSI = state.keySSI;
 
         this.model = prevState;
         this.model.breadcrumb.push({
@@ -29,8 +27,6 @@ export default class TrialDetailsController extends WebcController {
             tag: "econsent-trial-details",
             state: state
         });
-
-        console.log('Model ',this.model.toObject());
 
         this.initServices();
         this.initHandlers();

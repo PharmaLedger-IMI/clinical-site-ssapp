@@ -16,6 +16,18 @@ export default class EconsentSignController extends WebcController {
         super(...props);
 
         this.model = this.getInitModel();
+
+        const prevState = this.getState();
+
+        const { breadcrumb,...state } = prevState;
+        this.model = prevState;
+
+        this.model.breadcrumb.push({
+            label: "View/Sign",
+            tag: "econsent-sign",
+            state: state
+        });
+
         this.initServices();
         this.initHandlers();
     }

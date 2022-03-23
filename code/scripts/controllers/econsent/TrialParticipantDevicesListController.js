@@ -10,7 +10,16 @@ export default class TrialParticipantDevicesListController extends WebcControlle
 
         const prevState = this.getState();
 
+        const { breadcrumb,...state } = prevState;
         this.model = prevState;
+
+        this.model.breadcrumb.push({
+            label: "Trial Participant Devices List",
+            tag: "econsent-trial-participant-devices-list",
+            state: state
+        });
+
+
         this.model.assigned_devices = []
         this.model.alldevices = []
         this.model.deviceListAvailable = false
@@ -71,7 +80,10 @@ export default class TrialParticipantDevicesListController extends WebcControlle
 
     _attachHandlerGoBack(prevState) {
         this.onTagClick('back', () => {
-            this.navigateToPageTag('econsent-trial-participants', prevState.trialSSI);
+            this.navigateToPageTag('econsent-trial-participants', {
+                keySSI: prevState.trialSSI,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
         });
     }
 
@@ -84,7 +96,8 @@ export default class TrialParticipantDevicesListController extends WebcControlle
                 console.log("There are not available devices to match!");
                 this.navigateToPageTag('confirmation-page', {
                     confirmationMessage: "There are no available devices to assign for this trial. Please register a new device for  this trial.",
-                    redirectPage: 'home'
+                    redirectPage: 'home',
+                    breadcrumb: this.model.toObject('breadcrumb')
                 });
             }
             else{

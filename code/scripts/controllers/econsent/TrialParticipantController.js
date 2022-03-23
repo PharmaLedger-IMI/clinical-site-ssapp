@@ -10,11 +10,45 @@ const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
+const { DataSource } = WebCardinal.dataSources;
+
 let getInitModel = () => {
     return {
         econsents: [],
     };
 };
+
+class EconsentsDataSource extends DataSource {
+    constructor(data) {
+        super();
+        this.model.econsents = data;
+        this.model.elements = 7;
+        this.setPageSize(this.model.elements);
+        this.model.noOfColumns = 7;
+    }
+
+    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
+        console.log({ startOffset, dataLengthForCurrentPage });
+        if (this.model.econsents.length <= dataLengthForCurrentPage) {
+            this.setPageSize(this.model.econsents.length);
+        }
+        else {
+            this.setPageSize(this.model.elements);
+        }
+        let slicedData = [];
+        this.setRecordsNumber(this.model.econsents.length);
+        if (dataLengthForCurrentPage > 0) {
+            slicedData = Object.entries(this.model.econsents).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
+            console.log(slicedData)
+        } else {
+            slicedData = Object.entries(this.model.econsents).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
+            console.log(slicedData)
+        }
+        return slicedData;
+    }
+}
+
+
 
 export default class TrialParticipantController extends WebcController {
     constructor(...props) {
@@ -23,6 +57,19 @@ export default class TrialParticipantController extends WebcController {
             ...getInitModel(),
             ...this.history.win.history.state.state,
         });
+
+        const prevState = this.getState();
+
+        const { breadcrumb,...state } = prevState;
+        this.model = prevState;
+
+        this.model.breadcrumb.push({
+            label: "Consents - Trial Participant",
+            tag: "econsent-trial-participant",
+            state: state
+        });
+
+        this.model.econsentsDataSource = this._initServices();
         this._initServices();
         this._initHandlers();
     }
@@ -34,7 +81,7 @@ export default class TrialParticipantController extends WebcController {
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this._initConsents(this.model.trialSSI);
+        return this._initConsents(this.model.trialSSI);
     }
 
     _initHandlers() {
@@ -59,14 +106,13 @@ export default class TrialParticipantController extends WebcController {
             return siteConsentsKeySSis.indexOf(icf.genesisSSI) > -1
         })
 
-
         this.model.econsents = trialConsents.map(consent => {
             return {
                 ...consent,
                 versionDateAsString: DateTimeService.convertStringToLocaleDate(consent.versions[0].versionDate)
             };
         })
-        this._initTrialParticipant();
+        return this._initTrialParticipant();
     }
 
     async _initTrialParticipant() {
@@ -76,7 +122,8 @@ export default class TrialParticipantController extends WebcController {
             trialParticipant.name = nonObfuscatedTps[0].name;
         }
         this.model.tp = trialParticipant;
-        this._computeEconsentsWithActions();
+        return this._computeEconsentsWithActions();
+
     }
 
     _attachHandlerNavigateToEconsentVersions() {
@@ -89,6 +136,7 @@ export default class TrialParticipantController extends WebcController {
                 trialParticipantNumber: this.model.trialParticipantNumber,
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }
@@ -102,7 +150,8 @@ export default class TrialParticipantController extends WebcController {
                 econsentSSI: model.KeySSI,
                 ecoVersion: model.lastVersion,
                 tpDid: this.model.tp.did,
-                controlsShouldBeVisible: false
+                controlsShouldBeVisible: false,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }
@@ -124,7 +173,8 @@ export default class TrialParticipantController extends WebcController {
                 trialParticipantNumber: this.model.tp.did,
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
-                ecoVersion: ecoVersion
+                ecoVersion: ecoVersion,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }
@@ -144,6 +194,7 @@ export default class TrialParticipantController extends WebcController {
             this.navigateToPageTag('econsent-visits-procedures', {
                 trialSSI: this.model.trialSSI,
                 tpUid: this.model.tpUid,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }
@@ -223,7 +274,6 @@ export default class TrialParticipantController extends WebcController {
         //     operation: Constants.MESSAGES.PATIENT.ADD_TRIAL_SUBJECT,
         //     useCaseSpecifics: messageForIot
         // });
-
 
     }
 
@@ -327,6 +377,7 @@ export default class TrialParticipantController extends WebcController {
                 econsent.lastVersion = econsent.versions[econsent.versions.length - 1].version;
             })
         })
+        return this.model.econsentsDataSource = new EconsentsDataSource(this.model.toObject('econsents'));
     }
 
     _getSite() {

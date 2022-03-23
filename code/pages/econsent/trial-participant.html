@@ -3,6 +3,7 @@
 
     <div class="container main-container">
         <div class="container flex-container">
+            <breadcrumb-navigator></breadcrumb-navigator>
             <h2 class="main-title">Trial Subject: {{@tp.name}}</h2>
             <div class="button-group-wrapper">
 
@@ -10,74 +11,72 @@
 
                 <div data-if="@tp.tpNumber">
                     <div slot="false" data-if="@tp.tpSigned">
-                        <button  data-tag="tp:setTpNumber">Set TS Number</button>
+                        <button data-tag="tp:setTpNumber">Set TS Number</button>
                     </div>
                 </div>
             </div>
         </div>
         <main>
 
-            <table class="general-table">
-                <thead>
-                <tr>
-                    <th class="table-title">Consent Name & ID</th>
-                    <th class="table-title">Type</th>
-                    <th class="table-title">Active Version Approved</th>
-                    <th class="table-title">TS Signature</th>
-                    <th class="table-title">TS Withdraw</th>
-                    <th class="table-title">HCP Signature</th>
-                    <th class="table-title">Options</th>
-                </tr>
-                </thead>
+            <div class="common-datatable econsents dt-7-col">
+
+                <webc-datatable datasource="@econsentsDataSource">
+
+                    <div slot="header">Consent Name & ID</div>
+                    <div slot="header">Type</div>
+                    <div slot="header">Active Version Approved</div>
+                    <div slot="header">TS Signature</div>
+                    <div slot="header">TS Withdraw</div>
+                    <div slot="header">HCP Signature</div>
+                    <div slot="header">Options</div>
 
 
-                <tbody data-for="@econsents">
-                <tr>
-                    <td class="table-cell">{{@name}}</td>
-                    <td class="table-cell">{{@type}}</td>
-                    <td class="table-cell">{{@lastVersion}}</td>
-                    <td data-if="@tsDeclined">
+                    <div class="cell">{{@name}}</div>
+                    <div class="cell">{{@type}}</div>
+                    <div class="cell">{{@lastVersion}}</div>
+                    <div data-if="@tsDeclined" class="cell">
                         <div slot="true">
                             <label class="table-cell red">{{@tsDeclined}}</label>
                         </div>
                         <div slot="false">
                             <label class="table-cell">{{@tsSignedDate}}</label>
                         </div>
-                    </td>
-                    <td data-if="@tsWithdrawedIntentionDate">
+                    </div>
+                    <div data-if="@tsWithdrawedIntentionDate" class="cell">
                         <div slot="true">
                             <label class="table-cell red">{{@tsWithdrawedIntentionDate}}</label>
                         </div>
                         <div slot="false">
                             <label class="table-cell">{{@tsWithdrawDate}}</label>
                         </div>
-                    </td>
+                    </div>
 
-                    <td class="table-cell">{{@hcoDate}}</td>
-                    <td class="cell-options">
-                            <div data-if="@showSignButton">
-                                <button class="link-button" data="@id" data-if="@showSignButton"
-                                        data-tag="consent:sign">Sign
-                                </button>
-                            </div>
-                            <div data-if="@showViewButton">
-                                <button class="link-button" data="@id" data-if="@showViewButton"
-                                        data-tag="consent:view">View
-                                </button>
-                            </div>
-                            <div data-if="@showContactButton">
-                                <button class="link-button" data="@id" data-if="@showContactButton"
-                                        data-tag="consent:contactTS">Contact TS
-                                </button>
-                            </div>
+                    <div class="cell">{{@hcoDate}}</div>
 
-                            <label> | </label>
-                            <button class="link-button" data="@id" data-tag="consent:history">History</button>
+                    <div class="cell">
+                        <div data-if="@showSignButton">
+                            <button class="link-button" data="@id" data-if="@showSignButton"
+                                data-tag="consent:sign">Sign
+                            </button>
+                        </div>
+                        <div data-if="@showViewButton">
+                            <button class="link-button" data="@id" data-if="@showViewButton"
+                                data-tag="consent:view">View
+                            </button>
+                        </div>
+                        <div data-if="@showContactButton">
+                            <button class="link-button" data="@id" data-if="@showContactButton"
+                                data-tag="consent:contactTS">Contact TS
+                            </button>
+                        </div>
 
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                        <label> | </label>
+                        <button class="link-button" data="@id" data-tag="consent:history">History</button>
+
+                    </div>
+                </webc-datatable>
+            </div>
+
         </main>
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>

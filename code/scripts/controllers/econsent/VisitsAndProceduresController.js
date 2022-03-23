@@ -8,6 +8,38 @@ const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
 
 const {WebcController} = WebCardinal.controllers;
+const { DataSource } = WebCardinal.dataSources;
+
+class VisitsDataSource extends DataSource {
+    constructor(data) {
+        super();
+        this.model.visits = data;
+        this.model.elements = 5;
+        this.setPageSize(this.model.elements);
+        this.model.noOfColumns = 5;
+    }
+
+    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
+        console.log({ startOffset, dataLengthForCurrentPage });
+        if (this.model.visits.length <= dataLengthForCurrentPage) {
+            this.setPageSize(this.model.visits.length);
+        }
+        else {
+            this.setPageSize(this.model.elements);
+        }
+        let slicedData = [];
+        this.setRecordsNumber(this.model.visits.length);
+        if (dataLengthForCurrentPage > 0) {
+            slicedData = Object.entries(this.model.visits).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
+            console.log(slicedData)
+        } else {
+            slicedData = Object.entries(this.model.visits).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
+            console.log(slicedData)
+        }
+        return slicedData;
+    }
+}
+
 
 export default class VisitsAndProceduresController extends WebcController {
     constructor(...props) {
@@ -15,7 +47,20 @@ export default class VisitsAndProceduresController extends WebcController {
 
         this.model = this.getInitModel();
 
-        this.initServices();
+        const prevState = this.getState();
+
+        const { breadcrumb,...state } = prevState;
+        this.model = prevState;
+
+        this.model.breadcrumb.push({
+            label: "Visit and Procedures",
+            tag: "econsent-visits-procedures",
+            state: state
+        });
+
+        this.model.visitsDataSource = this.initServices().then(dataSource => { 
+            return this.model.visitsDataSource = dataSource;
+        });
     }
 
     initHandlers() {
@@ -38,6 +83,7 @@ export default class VisitsAndProceduresController extends WebcController {
         this.initHandlers();
         this.initSite();
         this.initVisits();
+        return this.model.visitsDataSource = new VisitsDataSource(this.model.toObject('visits'));
     }
 
     async initVisits() {
@@ -258,7 +304,8 @@ export default class VisitsAndProceduresController extends WebcController {
         this.onTagClick("visit:edit", (model) => {
             this.navigateToPageTag("econsent-visit-edit", {
                 tpUid: this.model.tpUid,
-                existingVisit: model
+                existingVisit: model,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }
@@ -267,7 +314,8 @@ export default class VisitsAndProceduresController extends WebcController {
         this.onTagClick("visit:view", (model) => {
             this.navigateToPageTag('econsent-procedures-view', {
                 tpUid: this.model.tpUid,
-                visitUuid: model.uuid
+                visitUuid: model.uuid,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }

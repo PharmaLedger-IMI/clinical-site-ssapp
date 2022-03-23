@@ -7,6 +7,38 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
+const { DataSource } = WebCardinal.dataSources;
+
+class TrialsDataSource extends DataSource {
+    constructor(data) {
+        super();
+        this.model.trialParticipants = data;
+        this.model.elements = 6;
+        this.setPageSize(this.model.elements);
+        this.model.noOfColumns = 6;
+    }
+
+    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
+        console.log({ startOffset, dataLengthForCurrentPage });
+        if (this.model.trialParticipants.length <= dataLengthForCurrentPage) {
+            this.setPageSize(this.model.trialParticipants.length);
+        }
+        else {
+            this.setPageSize(this.model.elements);
+        }
+        let slicedData = [];
+        this.setRecordsNumber(this.model.trialParticipants.length);
+        if (dataLengthForCurrentPage > 0) {
+            slicedData = Object.entries(this.model.trialParticipants).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
+            console.log(slicedData)
+        } else {
+            slicedData = Object.entries(this.model.trialParticipants).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
+            console.log(slicedData)
+        }
+        return slicedData;
+    }
+}
+
 
 let getInitModel = () => {
     return {
@@ -21,10 +53,10 @@ export default class TrialParticipantsController extends WebcController {
         super(...props);
         
         const prevState = this.getState() || {};
-        const { breadcrumb,keySSI, ...state } = prevState;
+        const { breadcrumb, ...state } = prevState;
         this.setModel({
             ...getInitModel(),
-            trialSSI: keySSI,
+            trialSSI: state.keySSI,
         });
 
         this.model = prevState;
@@ -34,7 +66,8 @@ export default class TrialParticipantsController extends WebcController {
             state: state
         });
 
-        this._initServices();
+        this.model.trialParticipantsDataSource = this._initServices();
+
         this._initHandlers();
     }
 
@@ -43,12 +76,14 @@ export default class TrialParticipantsController extends WebcController {
         this.TrialService = new TrialService();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
-        await this.initializeData();
+        let trialParticipants = await this.initializeData();
+        return this.model.trialParticipantsDataSource = new TrialsDataSource(trialParticipants);
     }
 
     async initializeData() {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         await this._initTrial(this.model.trialSSI);
+        return this.model.toObject('trialParticipants');
     }
 
     _initHandlers() {
@@ -244,7 +279,8 @@ export default class TrialParticipantsController extends WebcController {
             console.log(this.model.trialSSI, model.uid);
             this.navigateToPageTag('econsent-trial-participant-details', {
                 trialSSI: this.model.trialSSI,
-                tpUid: model.uid
+                tpUid: model.uid,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }
@@ -258,7 +294,8 @@ export default class TrialParticipantsController extends WebcController {
                 trialNumber: model.trialNumber,
                 tpUid: model.uid,
                 participantName: model.name,
-                participantDID: model.did
+                participantDID: model.did,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }
@@ -269,7 +306,8 @@ export default class TrialParticipantsController extends WebcController {
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-trial-participant', {
                 trialSSI: this.model.trialSSI,
-                tpUid: model.uid
+                tpUid: model.uid,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }

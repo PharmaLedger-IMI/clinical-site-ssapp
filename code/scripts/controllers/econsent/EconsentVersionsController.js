@@ -3,6 +3,38 @@ import TrialService from "../../services/TrialService.js";
 
 const commonServices = require("common-services");
 const DateTimeService = commonServices.DateTimeService;
+const { DataSource } = WebCardinal.dataSources;
+
+
+class EconsentVersionsDataSource extends DataSource {
+    constructor(data) {
+        super();
+        this.model.econsentVersions = data;
+        this.model.elements = 5;
+        this.setPageSize(this.model.elements);
+        this.model.noOfColumns = 5;
+    }
+
+    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
+        console.log({ startOffset, dataLengthForCurrentPage });
+        if (this.model.econsentVersions.length <= dataLengthForCurrentPage) {
+            this.setPageSize(this.model.econsentVersions.length);
+        }
+        else {
+            this.setPageSize(this.model.elements);
+        }
+        let slicedData = [];
+        this.setRecordsNumber(this.model.econsentVersions.length);
+        if (dataLengthForCurrentPage > 0) {
+            slicedData = Object.entries(this.model.econsentVersions).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
+            console.log(slicedData)
+        } else {
+            slicedData = Object.entries(this.model.econsentVersions).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
+            console.log(slicedData)
+        }
+        return slicedData;
+    }
+}
 
 export default class EconsentVersionsController extends WebcController {
     constructor(...props) {
@@ -14,9 +46,46 @@ export default class EconsentVersionsController extends WebcController {
             ...this.getState(),
         };
 
+        const prevState = this.getState();
+
+        const { breadcrumb,...state } = prevState;
+        this.model = prevState;
+
+        this.model.breadcrumb.push({
+            label: "History/Versions",
+            tag: "econsent-versions",
+            state: state
+        });
+
         this.initServices();
         this.initHandlers();
-        this.initTrialAndConsent();
+        // this.initTrialAndConsent();
+    
+        const mockData = [{
+            version: '1',
+            versionDateAsString: '12/03/2022',
+            tsDeclined: true,
+            tpApproval: 'something about approval',
+            hcpApproval: 'approval',
+            tpWithdraw: 'withdraw'
+        },
+        {
+            version: '2',
+            versionDateAsString: '17/03/2022',
+            tsDeclined: false,
+            tpApproval: 'y about approval',
+            hcpApproval: 'denied',
+            tpWithdraw: 'withdrew'
+        },
+        {
+            version: '3',
+            versionDateAsString: '30/01/2022',
+            tsDeclined: true,
+            tpApproval: 'x about approval',
+            hcpApproval: 'denied',
+            tpWithdraw: 'withdrew'
+        }]
+        this.model.econsentVersionsDataSource = new EconsentVersionsDataSource(mockData);
     }
 
     initServices() {
@@ -74,8 +143,6 @@ export default class EconsentVersionsController extends WebcController {
                 if (econsentVersion.hcoSign) {
                     econsentVersion.hcpApproval = data.hcoSign.toShowDate;
                 }
-
-                return econsentVersion;
             });
         });
     }
@@ -105,7 +172,8 @@ export default class EconsentVersionsController extends WebcController {
                 econsentSSI: model.econsentSSI,
                 ecoVersion: model.lastVersion,
                 tpDid: this.model.tp.did,
-                controlsShouldBeVisible: false
+                controlsShouldBeVisible: false,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }

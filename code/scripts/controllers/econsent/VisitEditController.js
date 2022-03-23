@@ -5,7 +5,6 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
-
 const {WebcController} = WebCardinal.controllers;
 
 let getInitModel = () => {
@@ -27,6 +26,17 @@ export default class VisitEditController extends WebcController {
         this.setModel({
             ...getInitModel(),
             ...this.history.win.history.state.state,
+        });
+
+        const prevState = this.getState();
+        this.model = prevState;
+
+        const { breadcrumb,...state } = prevState;
+
+        this.model.breadcrumb.push({
+            label: "Visit Edit",
+            tag: "econsent-visit-edit",
+            state: state
         });
 
         this._initServices();

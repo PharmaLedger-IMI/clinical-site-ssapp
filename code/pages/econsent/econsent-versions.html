@@ -1,40 +1,40 @@
 <webc-container controller="econsent/EconsentVersionsController">
     <div class="container main-container">
         <div class="container flex-container">
+            <breadcrumb-navigator></breadcrumb-navigator>
             <h4 class="title">Trial History: {{@trial.name}}</h4>
         </div>
 
         <main>
-            <table class="general-table">
-                <thead>
-                <tr>
-                    <th class="table-cell">VERSION</th>
-                    <th class="table-cell">TS SIGNATURE</th>
-                    <th class="table-cell">HCP SIGNATURE</th>
-                    <th class="table-cell">WITHDREW</th>
-                    <th class="table-cell">OPTIONS</th>
-                </tr>
-                </thead>
 
-                <tbody class="trial-table" data-for="@versions">
-                <tr>
-                    <td class="table-cell">{{@version}} - {{@versionDateAsString}}</td>
-                    <td data-if="@tsDeclined">
+            <div class="common-datatable econsents-versions dt-5-col">
+
+                <webc-datatable datasource="@econsentVersionsDataSource">
+
+                    <div slot="header">VERSION</div>
+                    <div slot="header">TS SIGNATURE</div>
+                    <div slot="header">HCP SIGNATURE</div>
+                    <div slot="header">WITHDREW</div>
+                    <div slot="header">OPTIONS</div>
+
+                    <div class="cell">{{@version}} - {{@versionDateAsString}}</div>
+                    <div class="cell" data-if="@tsDeclined">
                         <div slot="true">
                             <label class="table-cell color-red">{{@tsDeclined}}</label>
                         </div>
                         <div slot="false">
                             <label class="table-cell">{{@tpApproval}}</label>
                         </div>
-                    </td>
-                    <td class="table-cell">{{@hcpApproval}}</td>
-                    <td class="table-cell">{{@tpWithdraw}}</td>
-                    <td>
+                    </div>
+                    <div class="cell">{{@hcpApproval}}</div>
+                    <div class="cell">{{@tpWithdraw}}</div>
+                    <div class="cell">
                         <button class="link-button" data-tag="consent:view">View</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                    </div>
+
+                </webc-datatable>
+            </div>
+
         </main>
 
         <div class="button-group-wrapper">
