@@ -57,8 +57,8 @@ export default class QuestionsListController extends WebcController {
 
         this.model.breadcrumb = prevState.breadcrumb;
         this.model.breadcrumb.push({
-            label: "IoT Edit Questions",
-            tag: "edit-questions",
+            label: "IoT Questions",
+            tag: "questions-list",
             state: state
         });
 
@@ -84,8 +84,13 @@ export default class QuestionsListController extends WebcController {
 
     _attachHandlerAddNewQuestion() {
         this.onTagEvent('new:question', 'click', (model, target, event) => {
-            this.saveSampleQuestionnaire();
+            //this.saveSampleQuestionnaire();
             //this.updateSampleQuestionnaire();
+            let state = {
+                trialSSI: model.keySSI,
+                breadcrumb: this.model.toObject('breadcrumb')
+            }
+            this.navigateToPageTag('add-questions', state)
         });
     }
 
