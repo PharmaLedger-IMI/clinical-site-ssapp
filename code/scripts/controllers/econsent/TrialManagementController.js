@@ -33,6 +33,7 @@ export default class TrialManagementController extends WebcController {
     }
 
     _initHandlers() {
+        this._attachHandlerTrialQuestionnaire();
         this._attachHandlerTrialDetails();
         this._attachHandlerTrialParticipants();
         this._attachHandlerBack();
@@ -72,4 +73,16 @@ export default class TrialManagementController extends WebcController {
             this.navigateToPageTag('home');
         });
     }
+
+    _attachHandlerTrialQuestionnaire() {
+        this.onTagEvent('trials:questionnaire', 'click', (model, target, event) => {
+            console.log("questionnaire")
+            let state = {
+                trialSSI: model.keySSI,
+                breadcrumb: this.model.toObject('breadcrumb')
+            }
+            this.navigateToPageTag('questions-list', state);
+        });
+    }
+
 }

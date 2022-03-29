@@ -1,0 +1,63 @@
+<webc-container controller="iot/QuestionsListController">
+
+  <div class="container main-container">
+
+    <div class="container flex-container">
+        <h2 class="main-title">{{@selected_trial.name}}</h2>
+        <breadcrumb-navigator></breadcrumb-navigator>
+<!--        <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>-->
+    </div>
+
+      <div class="container justify-content-start">
+
+          <div class="float-right">
+              <div class="form-row">
+                  <div class="form-group">
+                      <div class="button-group-wrapper">
+                          <button data-tag="new:question">Add New Question</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div class="form-row">
+              <div class="form-group">
+                  <div class="questions-tab d-flex justify-content-center">
+                      <button class="prom-prem-tab-buttons p-2" data-tag="new:prom">PROM Questions</button>
+                      <button class="prom-prem-tab-buttons p-2" data-tag="new:prem">PREM Questions</button>
+                  </div>
+              </div>
+          </div>
+
+
+          <div data-if="@hasQuestions">
+
+              <webc-spinner slot="loading"></webc-spinner>
+              <div slot="false" class="alert alert-warning" role="alert">
+                  <h4 class="alert-heading">No questions yet!</h4>
+                  <p>Add your first question!</p>
+              </div>
+              <div class="common-datatable questions-datatable dt-3-col" slot="true">
+                  <webc-datatable datasource="@questionsDataSource">
+
+                      <div slot="header" data-sortable>Type</div>
+                      <div slot="header" data-sortable>Question</div>
+                      <div slot="header" >Options</div>
+
+                      <div class="cell">{{ @type }}</div>
+                      <div class="cell">{{ @question }}</div>
+                      <div class="cell">
+                          <label data-tag="view-evidence" class="link option">Edit</label>
+                          <label> | </label>
+                          <label data-tag="edit-evidence" class="link option">Delete</label>
+                      </div>
+                  </webc-datatable>
+
+              </div>
+
+          </div>
+      </div>
+
+
+  </div>
+</webc-container>
