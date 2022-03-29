@@ -47,14 +47,13 @@ export default class LandingPageController extends WebcController {
     }
 
     initHandlers() {
+        this._attachMessageHandlers();
         this.attachHandlerManageDevices();
         this.attachHandlerTrialManagement();
         this.attachHandlerListOfPatients();
         this.attachHandlerVisits();
         this.attachHandlerEconsentTrialManagement();
 
-        //temporary to avoid 428 error on the did initialization
-        setTimeout(this._attachMessageHandlers.bind(this),1000);
     }
 
     _attachMessageHandlers() {
@@ -190,11 +189,11 @@ export default class LandingPageController extends WebcController {
                             if (err) {
                                 return console.log(err);
                             }
-                            this.HCOService.mountTrial(site.trialKeySSI, (err, trial) => {
+                            this.HCOService.mountTrial(site.trialSReadSSI, (err, trial) => {
                                 if (err) {
                                     return console.log(err);
                                 }
-                                this.HCOService.mountVisit(site.visitsKeySSI, (err, visit) => {
+                                this.HCOService.mountVisit(site.visitsSReadSSI, (err, visit) => {
                                     if (err) {
                                         return console.log(err);
                                     }

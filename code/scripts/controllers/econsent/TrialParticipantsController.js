@@ -286,7 +286,8 @@ export default class TrialParticipantsController extends WebcController {
         tp.trialNumber = this.model.trial.id;
         tp.status = Constants.TRIAL_PARTICIPANT_STATUS.PLANNED;
         tp.enrolledDate = currentDate.toLocaleDateString();
-        tp.trialSSI = this.model.trial.keySSI;
+        tp.trialUid = this.model.trial.id;
+        tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync();
         let trialParticipant = await this.TrialParticipantRepository.createAsync(tp);
         await this.HCOService.addTrialParticipantAsync(tp);
         trialParticipant.actionNeeded = 'No action required';
@@ -295,14 +296,14 @@ export default class TrialParticipantsController extends WebcController {
         //TODO refactor the above code
         await this.initializeData();
 
-        this.sendMessageToPatient(
+        await this.sendMessageToPatient(
             Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_PATIENT,
             {
                 tpNumber: '',
                 tpName: tp.name,
                 did: tp.did
             },
-            this.model.trialSSI,
+            tp.trialSReadSSI,
             Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.ADD_TO_TRIAL
         );
 
@@ -343,11 +344,13 @@ export default class TrialParticipantsController extends WebcController {
     }
 
 
-    sendMessageToPatient(operation, tp, trialSSI, shortMessage) {
+    async sendMessageToPatient(operation, tp, trialSSI, shortMessage) {
         let site = this.model.hcoDSU.volatile?.site[0];
+        const siteSReadSSI = await this.HCOService.getSiteSReadSSIAsync();
+        debugger;
         this.CommunicationService.sendMessage(tp.did, {
             operation: operation,
-            ssi: site.uid,
+            ssi: siteSReadSSI,
             useCaseSpecifics: {
                 tpNumber: tp.tpNumber,
                 tpName: tp.tpName,

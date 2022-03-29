@@ -171,6 +171,29 @@ export default class HCOService extends DSUService {
     _getSubPath = (subItem) => {
         return this.PATH + '/' + this.ssi + '/' + subItem;
     }
+
+    getSiteSReadSSI = (callback) => {
+        const sitePath = this._getSubPath('site');
+        this.getEntityMountSSI(sitePath, (err, siteSeed) => {
+            if (err) {
+                return callback(err);
+            }
+            this.getSReadSSI(siteSeed, callback);
+        });
+    }
+    async getSiteSReadSSIAsync () {
+        return this.asyncMyFunction(this.getSiteSReadSSI, [...arguments]);
+    }
+
+    getTrialSReadSSI = (callback) => {
+        const trialPath = this._getSubPath('trial');
+        this.getEntityMountSSI(trialPath, callback);
+    }
+
+     async getTrialSReadSSIAsync () {
+        return this.asyncMyFunction(this.getTrialSReadSSI, [...arguments]);
+    }
+
 }
 
 
