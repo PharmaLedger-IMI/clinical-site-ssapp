@@ -1,6 +1,12 @@
 const {WebcController} = WebCardinal.controllers;
 import HCOService from "../../../services/HCOService.js"
 import DeviceServices from "../../../services/DeviceServices.js";
+const commonServices = require("common-services");
+const  {getCommunicationServiceInstance} = commonServices.CommunicationService;
+const COMMUNICATION_MESSAGES = {
+    ADD_DEVICE:"add_device"
+}
+
 
 export default class AddDeviceController extends WebcController {
     constructor(element, history) {
@@ -56,11 +62,16 @@ export default class AddDeviceController extends WebcController {
         this.onTagClick('devices:save', () => {
 
             const deviceData = this.prepareDeviceData(this.model.trials);
-            console.log(deviceData);
-            this.deviceServices.saveDevice(deviceData, (err) => {
+            this.deviceServices.saveDevice(deviceData, (err, data) => {
                 if (err) {
                     console.error(err);
                 }
+
+                const communicationService = getCommunicationServiceInstance();
+                communicationService.sendMessageToIotAdaptor({
+                    operation:COMMUNICATION_MESSAGES.ADD_DEVICE,
+                    sReadSSI:data.sReadSSI
+                });
 
                 this.navigateToPageTag('confirmation-page', {
                     confirmationMessage: "Device included!",
