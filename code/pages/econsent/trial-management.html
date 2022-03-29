@@ -30,65 +30,12 @@
                         <button class="link-button" data-tag="trials:details">Overview</button>
                         <label> | </label>
                         <button class="link-button" data-tag="trials:participants">Subjects</button>
-<<<<<<< Updated upstream
                     </div>
 
                 </webc-datatable>
             </div>
 
 
-=======
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-
-            <webc-datatable datasource="@studiesDataSource" >
-
-                <div slot="header">Sponsor</div>
-                <div slot="header">Trial Number/Id</div>
-                <div slot="header">Trial Name</div>
-                <div slot="header">Status</div>
-                <div slot="header">Stage</div>
-                <div slot="header">Notifications</div>
-                <div slot="header">Action Required</div>
-                <div slot="header">Options</div>
-
-
-                <div class="cell">{{ @title }}</div>
-                <div class="cell">{{ @participants }}</div>
-                <div class="cell">{{ @title }}</div>
-                <div class="cell">{{ @participants }}</div>
-                <div class="cell">{{ @title }}</div>
-                <div class="cell">{{ @participants }}</div>
-                <div class="cell">{{ @title }}</div>
-                <div class="cell">{{ @participants }}</div>
-<!--                <div class="cell study-status-cell">-->
-<!--                    {{ @statusLabel }}-->
-<!--                    <div data-if="@hasStatusActions">-->
-<!--                        <i class="fa fa fa-ellipsis-v"> </i>-->
-<!--                        <div data-for="@statusActions" class="study-status-actions">-->
-<!--                            <label data-tag="change-status">{{@action}}</label>-->
-<!--                            <label class="separator"> | </label>-->
-<!--                        </div>-->
-
-<!--                    </div>-->
-
-<!--                </div>-->
-<!--                <div class="cell">-->
-<!--                    <button data-tag="view" class="link option" disabled="@preventActions.preventView">View</button>-->
-<!--                    <label> | </label>-->
-<!--                    <button data-tag="edit" class="link option" disabled="@preventActions.preventEdit">Edit</button>-->
-<!--                    <label> | </label>-->
-<!--                    <button data-tag="feedback-list" class="link option" disabled="@preventActions.preventFeedback">Feedback</button>-->
-<!--                    <label> | </label>-->
-<!--                    <button data-tag="evidence" class="link option" disabled="@preventActions.preventEvidence">Evidence</button>-->
-<!--                    <label> | </label>-->
-<!--                    <button data-tag="data" class="link option" disabled="@preventActions.preventData">Data</button>-->
-<!--                </div>-->
-
-            </webc-datatable>
->>>>>>> Stashed changes
         </main>
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>
