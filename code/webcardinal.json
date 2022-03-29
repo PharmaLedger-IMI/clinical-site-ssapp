@@ -99,8 +99,12 @@
 			"src": "iot/devices/list-all-devices.html",
 			"tag": "iot-list-all-devices"
 		},
-
-
+		{
+			"name": "questions-list",
+			"path": "/iot/questions-list",
+			"src": "iot/questions-list.html",
+			"tag": "questions-list"
+		},
 		{
 			"name": "Trial Management",
 			"path": "/econsent/trial-management",
