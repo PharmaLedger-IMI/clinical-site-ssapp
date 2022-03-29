@@ -15,27 +15,27 @@ let getInitModel = () => {
 class QuestionsDataSource extends DataSource {
     constructor(data) {
         super();
-        this.model.proms = data;
-        this.model.elements = 5;
+        this.model.questions = data;
+        this.model.elements = 6;
         this.setPageSize(this.model.elements);
         this.model.noOfColumns = 3;
     }
 
     async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
         console.log({startOffset, dataLengthForCurrentPage});
-        if (this.model.proms.length <= dataLengthForCurrentPage) {
-            this.setPageSize(this.model.proms.length);
+        if (this.model.questions.length <= dataLengthForCurrentPage) {
+            this.setPageSize(this.model.questions.length);
         }
         else {
             this.setPageSize(this.model.elements);
         }
         let slicedData = [];
-        this.setRecordsNumber(this.model.proms.length);
+        this.setRecordsNumber(this.model.questions.length);
         if (dataLengthForCurrentPage > 0) {
-            slicedData = Object.entries(this.model.proms).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
+            slicedData = Object.entries(this.model.questions).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
             console.log(slicedData)
         } else {
-            slicedData = Object.entries(this.model.proms).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
+            slicedData = Object.entries(this.model.questions).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
             console.log(slicedData)
         }
         return slicedData;
@@ -62,17 +62,18 @@ export default class QuestionsListController extends WebcController {
             state: state
         });
 
-        this.model.hasQuestions = false;
+        this.model.hasProms = false;
+        this.model.hasPrems = false;
+        this.model.currentTable = "none"
 
         this._attachHandlerAddNewQuestion();
         this._attachHandlerPromQuestions();
         this._attachHandlerPremQuestions();
-        this.getQuestionnaire();
-
         this.initServices();
     }
 
     initServices() {
+        this.getQuestionnaire();
         let hcoService = new HCOService();
         let hcoDSUPromise = hcoService.getOrCreateAsync();
         hcoDSUPromise.then(hcoDSU => {
@@ -84,17 +85,20 @@ export default class QuestionsListController extends WebcController {
     _attachHandlerAddNewQuestion() {
         this.onTagEvent('new:question', 'click', (model, target, event) => {
             this.saveSampleQuestionnaire();
+            //this.updateSampleQuestionnaire();
         });
     }
 
     _attachHandlerPromQuestions() {
         this.onTagEvent('new:prom', 'click', (model, target, event) => {
+            this.model.currentTable = "proms"
             console.log("prom")
         });
     }
 
     _attachHandlerPremQuestions() {
         this.onTagEvent('new:prem', 'click', (model, target, event) => {
+            this.model.currentTable = "prems"
             console.log("prem")
         });
     }
@@ -123,15 +127,28 @@ export default class QuestionsListController extends WebcController {
                     ]
                 }
             ],
-            prom:[
+            prom: [
                 {
-                    question: "first", type:"slider", uid:"#generatedUID"
+                    question: "Mobility",
+                    type: "slider",
+                    uid: "#generatedUID",
+                    minLabel: "No Mobility",
+                    maxLabel: "Normal mobility",
+                    steps: 10
                 },
                 {
-                    question: "questionnaire", type:"checkbox", options:["Option 1","Option 2","Option 3"],uid:"#generatedUID"
+                    question: "Treatment",
+                    type: "checkbox",
+                    options: ["Option 1", "Option 2", "Option 3"],
+                    uid: "#generatedUID"
                 },
                 {
-                    question: "created", type:"free-text",uid:"#generatedUID"
+                    question: "Usual Activities", type: "free-text", uid: "#generatedUID"
+                }
+            ],
+            prem: [
+                {
+                    question: "PREM Activities", type: "free-text", uid: "#generatedUID"
                 }
             ]
         }
@@ -158,6 +175,17 @@ export default class QuestionsListController extends WebcController {
                 question: "234 234234", type:"free-text",uid:"#generatedUID"
             }
         )
+        this.model.qes.prem.push(
+            {
+                question: "2342354", type:"slider", uid:"#generatedUID"
+            },
+            {
+                question: "345345345", type:"checkbox", options:["Option 1","Option 2","Option 3"],uid:"#generatedUID"
+            },
+            {
+                question: "234 234234", type:"free-text",uid:"#generatedUID"
+            }
+        )
         console.log(this.model.qes);
         this.QuestionnaireService = new QuestionnaireService();
         this.QuestionnaireService.updateQuestionnaire(this.model.qes, (err, data) => {
@@ -170,29 +198,49 @@ export default class QuestionsListController extends WebcController {
 
     getQuestionnaire(){
         this.QuestionnaireService = new QuestionnaireService();
-        this.QuestionnaireService.getAllQuestionnaires((err, data) => {
-            if (err) {
-                console.log(err);
-            }
-            this.model.qes = data[0];
-            console.log(this.model.qes);
-            if (!this.model.qes){
-                console.log("it is empty")
+        const getQuestions = () => {
+            return new Promise ((resolve, reject) => {
+                this.QuestionnaireService.getAllQuestionnaires((err, data ) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    resolve(data);
+                })
+            })
+        }
+
+        getQuestions().then(data => {
+            this.model.questionnaire = data[0];
+            if (!this.model.questionnaire){
+                console.log("Initial Questionnaire is not created");
             }
             else{
-                this.model.hasQuestions = this.model.qes.length !== 0;
-                console.log(this.model.qes.prom)
-                this.model.questionsDataSource = new QuestionsDataSource(this.model.qes.prom);
-                const { questionsDataSource } = this.model;
-
-                this.onTagClick("view-evidence", (model) => {
-
+                this.model.hasProms = this.model.questionnaire.prom.length !== 0;
+                this.model.PromsDataSource = new QuestionsDataSource(this.model.questionnaire.prom);
+                const { PromsDataSource } = this.model;
+                this.onTagClick("prom-prev-page", () => PromsDataSource.goToPreviousPage());
+                this.onTagClick("prom-next-page", () => PromsDataSource.goToNextPage());
+                this.onTagClick("prom-edit", (model) => {
+                    console.log(model);
                 });
-
-                this.onTagClick("prev-page", () => questionsDataSource.goToPreviousPage());
-                this.onTagClick("next-page", () => questionsDataSource.goToNextPage());
+                this.onTagClick("prom-delete", (model) => {
+                    console.log(model);
+                });
+                this.model.hasPrems = this.model.questionnaire.prem.length !== 0;
+                this.model.PremsDataSource = new QuestionsDataSource(this.model.questionnaire.prem);
+                const { PremsDataSource } = this.model;
+                this.onTagClick("prem-prev-page", () => PremsDataSource.goToPreviousPage());
+                this.onTagClick("prem-next-page", () => PremsDataSource.goToNextPage());
+                this.onTagClick("prem-edit", (model) => {
+                    console.log(model);
+                });
+                this.onTagClick("prem-delete", (model) => {
+                    console.log(model);
+                });
             }
-        });
+        })
+
+
     }
 
 
