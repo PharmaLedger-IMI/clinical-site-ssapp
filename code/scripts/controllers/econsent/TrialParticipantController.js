@@ -2,7 +2,6 @@ import TrialService from '../../services/TrialService.js';
 import SiteService from '../../services/SiteService.js';
 import HCOService from "../../services/HCOService.js";
 
-
 const {WebcController} = WebCardinal.controllers;
 
 const commonServices = require("common-services");
@@ -10,45 +9,14 @@ const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
-const { DataSource } = WebCardinal.dataSources;
+const DataSourceFactory = commonServices.getDataSourceFactory();
+
 
 let getInitModel = () => {
     return {
         econsents: [],
     };
 };
-
-class EconsentsDataSource extends DataSource {
-    constructor(data) {
-        super();
-        this.model.econsents = data;
-        this.model.elements = 7;
-        this.setPageSize(this.model.elements);
-        this.model.noOfColumns = 7;
-    }
-
-    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
-        console.log({ startOffset, dataLengthForCurrentPage });
-        if (this.model.econsents.length <= dataLengthForCurrentPage) {
-            this.setPageSize(this.model.econsents.length);
-        }
-        else {
-            this.setPageSize(this.model.elements);
-        }
-        let slicedData = [];
-        this.setRecordsNumber(this.model.econsents.length);
-        if (dataLengthForCurrentPage > 0) {
-            slicedData = Object.entries(this.model.econsents).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        } else {
-            slicedData = Object.entries(this.model.econsents).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        }
-        return slicedData;
-    }
-}
-
-
 
 export default class TrialParticipantController extends WebcController {
     constructor(...props) {
@@ -377,7 +345,7 @@ export default class TrialParticipantController extends WebcController {
                 econsent.lastVersion = econsent.versions[econsent.versions.length - 1].version;
             })
         })
-        return this.model.econsentsDataSource = new EconsentsDataSource(this.model.toObject('econsents'));
+        return this.model.econsentsDataSource = DataSourceFactory.createDataSource(7, 10,this.model.toObject('econsents'));
     }
 
     _getSite() {

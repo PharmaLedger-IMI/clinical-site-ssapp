@@ -3,38 +3,7 @@ import TrialService from "../../services/TrialService.js";
 
 const commonServices = require("common-services");
 const DateTimeService = commonServices.DateTimeService;
-const { DataSource } = WebCardinal.dataSources;
-
-
-class EconsentVersionsDataSource extends DataSource {
-    constructor(data) {
-        super();
-        this.model.econsentVersions = data;
-        this.model.elements = 5;
-        this.setPageSize(this.model.elements);
-        this.model.noOfColumns = 5;
-    }
-
-    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
-        console.log({ startOffset, dataLengthForCurrentPage });
-        if (this.model.econsentVersions.length <= dataLengthForCurrentPage) {
-            this.setPageSize(this.model.econsentVersions.length);
-        }
-        else {
-            this.setPageSize(this.model.elements);
-        }
-        let slicedData = [];
-        this.setRecordsNumber(this.model.econsentVersions.length);
-        if (dataLengthForCurrentPage > 0) {
-            slicedData = Object.entries(this.model.econsentVersions).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        } else {
-            slicedData = Object.entries(this.model.econsentVersions).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        }
-        return slicedData;
-    }
-}
+const DataSourceFactory = commonServices.getDataSourceFactory();
 
 export default class EconsentVersionsController extends WebcController {
     constructor(...props) {
@@ -85,7 +54,8 @@ export default class EconsentVersionsController extends WebcController {
             hcpApproval: 'denied',
             tpWithdraw: 'withdrew'
         }]
-        this.model.econsentVersionsDataSource = new EconsentVersionsDataSource(mockData);
+
+        this.model.econsentVersionsDataSource = DataSourceFactory.createDataSource(5, 10, mockData);
     }
 
     initServices() {

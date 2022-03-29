@@ -1,36 +1,8 @@
 import HCOService from '../../services/HCOService.js';
 const { WebcController } = WebCardinal.controllers;
-const { DataSource } = WebCardinal.dataSources;
 
-class TrialsDataSource extends DataSource {
-    constructor(data) {
-        super();
-        this.model.trials = data;
-        this.model.elements = 8;
-        this.setPageSize(this.model.elements);
-        this.model.noOfColumns = 8;
-    }
-
-    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
-        console.log({ startOffset, dataLengthForCurrentPage });
-        if (this.model.trials.length <= dataLengthForCurrentPage) {
-            this.setPageSize(this.model.trials.length);
-        }
-        else {
-            this.setPageSize(this.model.elements);
-        }
-        let slicedData = [];
-        this.setRecordsNumber(this.model.trials.length);
-        if (dataLengthForCurrentPage > 0) {
-            slicedData = Object.entries(this.model.trials).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        } else {
-            slicedData = Object.entries(this.model.trials).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        }
-        return slicedData;
-    }
-}
+const commonServices = require('common-services');
+const DataSourceFactory = commonServices.getDataSourceFactory();
 
 export default class TrialManagementController extends WebcController {
     constructor(...props) {
@@ -46,6 +18,7 @@ export default class TrialManagementController extends WebcController {
             state: state
         });
 
+
         this.model.trialsDataSource = this._initServices();
         this._initHandlers();
     }
@@ -54,7 +27,8 @@ export default class TrialManagementController extends WebcController {
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.model.trials = this.model.hcoDSU.volatile.trial !== undefined ? this.model.hcoDSU.volatile.trial : [];
-        this.model.trialsDataSource = new TrialsDataSource(this.model.trials);
+
+        this.model.trialsDataSource = DataSourceFactory.createDataSource(8, 10, this.model.trials);
         return this.model.trialsDataSource;
     }
 

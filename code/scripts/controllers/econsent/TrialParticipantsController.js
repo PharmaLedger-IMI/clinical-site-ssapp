@@ -7,38 +7,7 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
-const { DataSource } = WebCardinal.dataSources;
-
-class TrialsDataSource extends DataSource {
-    constructor(data) {
-        super();
-        this.model.trialParticipants = data;
-        this.model.elements = 6;
-        this.setPageSize(this.model.elements);
-        this.model.noOfColumns = 6;
-    }
-
-    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
-        console.log({ startOffset, dataLengthForCurrentPage });
-        if (this.model.trialParticipants.length <= dataLengthForCurrentPage) {
-            this.setPageSize(this.model.trialParticipants.length);
-        }
-        else {
-            this.setPageSize(this.model.elements);
-        }
-        let slicedData = [];
-        this.setRecordsNumber(this.model.trialParticipants.length);
-        if (dataLengthForCurrentPage > 0) {
-            slicedData = Object.entries(this.model.trialParticipants).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        } else {
-            slicedData = Object.entries(this.model.trialParticipants).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        }
-        return slicedData;
-    }
-}
-
+const DataSourceFactory = commonServices.getDataSourceFactory();
 
 let getInitModel = () => {
     return {
@@ -77,7 +46,7 @@ export default class TrialParticipantsController extends WebcController {
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         let trialParticipants = await this.initializeData();
-        return this.model.trialParticipantsDataSource = new TrialsDataSource(trialParticipants);
+        return this.model.trialParticipantsDataSource = DataSourceFactory.createDataSource(6, 10, trialParticipants);
     }
 
     async initializeData() {

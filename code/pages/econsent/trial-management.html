@@ -6,9 +6,9 @@
         </div>
         <main>
             <div class="common-datatable trial-management dt-8-col">
-            
+
                 <webc-datatable datasource="@trialsDataSource">
-            
+
                     <div slot="header">Sponsor</div>
                     <div slot="header">Trial Number/Id</div>
                     <div slot="header">Trial Name</div>
@@ -17,8 +17,8 @@
                     <div slot="header">Notifications</div>
                     <div slot="header">Action Required</div>
                     <div slot="header">Options</div>
-            
-            
+
+
                     <div class="cell">{{ @sponsor }}</div>
                     <div class="cell">{{ @id }}</div>
                     <div class="cell">{{ @name }}</div>
@@ -31,7 +31,7 @@
                         <label> | </label>
                         <button class="link-button" data-tag="trials:participants">Subjects</button>
                     </div>
-            
+
                 </webc-datatable>
             </div>
 

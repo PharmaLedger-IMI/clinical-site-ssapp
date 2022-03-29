@@ -6,40 +6,8 @@ const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
-
 const {WebcController} = WebCardinal.controllers;
-const { DataSource } = WebCardinal.dataSources;
-
-class VisitsDataSource extends DataSource {
-    constructor(data) {
-        super();
-        this.model.visits = data;
-        this.model.elements = 5;
-        this.setPageSize(this.model.elements);
-        this.model.noOfColumns = 5;
-    }
-
-    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
-        console.log({ startOffset, dataLengthForCurrentPage });
-        if (this.model.visits.length <= dataLengthForCurrentPage) {
-            this.setPageSize(this.model.visits.length);
-        }
-        else {
-            this.setPageSize(this.model.elements);
-        }
-        let slicedData = [];
-        this.setRecordsNumber(this.model.visits.length);
-        if (dataLengthForCurrentPage > 0) {
-            slicedData = Object.entries(this.model.visits).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        } else {
-            slicedData = Object.entries(this.model.visits).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        }
-        return slicedData;
-    }
-}
-
+const DataSourceFactory = commonServices.getDataSourceFactory();
 
 export default class VisitsAndProceduresController extends WebcController {
     constructor(...props) {
@@ -83,7 +51,7 @@ export default class VisitsAndProceduresController extends WebcController {
         this.initHandlers();
         this.initSite();
         this.initVisits();
-        return this.model.visitsDataSource = new VisitsDataSource(this.model.toObject('visits'));
+        return this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'));
     }
 
     async initVisits() {
