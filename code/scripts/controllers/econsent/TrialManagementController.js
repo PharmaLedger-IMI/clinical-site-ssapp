@@ -76,9 +76,8 @@ export default class TrialManagementController extends WebcController {
 
     _attachHandlerTrialQuestionnaire() {
         this.onTagEvent('trials:questionnaire', 'click', (model, target, event) => {
-            console.log("questionnaire")
             let state = {
-                trialSSI: model.keySSI,
+                trialSSI: model.uid,
                 breadcrumb: this.model.toObject('breadcrumb')
             }
             this.navigateToPageTag('questions-list', state);

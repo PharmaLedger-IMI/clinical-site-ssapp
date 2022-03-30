@@ -84,8 +84,6 @@ export default class QuestionsListController extends WebcController {
 
     _attachHandlerAddNewQuestion() {
         this.onTagEvent('new:question', 'click', (model, target, event) => {
-            //this.saveSampleQuestionnaire();
-            //this.updateSampleQuestionnaire();
             let state = {
                 trialSSI: model.keySSI,
                 breadcrumb: this.model.toObject('breadcrumb')
@@ -97,107 +95,12 @@ export default class QuestionsListController extends WebcController {
     _attachHandlerPromQuestions() {
         this.onTagEvent('new:prom', 'click', (model, target, event) => {
             this.model.currentTable = "proms"
-            console.log("prom")
         });
     }
 
     _attachHandlerPremQuestions() {
         this.onTagEvent('new:prem', 'click', (model, target, event) => {
             this.model.currentTable = "prems"
-            console.log("prem")
-        });
-    }
-
-    saveSampleQuestionnaire(){
-        let questions = {
-            resourceType: "Questionnaire",
-            id: "bb",
-            text: {
-                status: "generated",
-                div: "<div xmlns=\"http://www.w3.org/1999/xhtml\"></div>"
-            },
-            url: "http://hl7.org/fhir/Questionnaire/bb",
-            title: "NSW Government My Personal Health Record",
-            status: "draft",
-            subjectType: "Patient",
-            date: Date.now(),
-            publisher: "New South Wales Department of Health",
-            jurisdiction: [
-                {
-                    coding: [
-                        {
-                            system: "urn:iso:std:iso:3166",
-                            code: "AU"
-                        }
-                    ]
-                }
-            ],
-            prom: [
-                {
-                    question: "Mobility",
-                    type: "slider",
-                    uid: "#generatedUID",
-                    minLabel: "No Mobility",
-                    maxLabel: "Normal mobility",
-                    steps: 10
-                },
-                {
-                    question: "Treatment",
-                    type: "checkbox",
-                    options: ["Option 1", "Option 2", "Option 3"],
-                    uid: "#generatedUID"
-                },
-                {
-                    question: "Usual Activities", type: "free-text", uid: "#generatedUID"
-                }
-            ],
-            prem: [
-                {
-                    question: "PREM Activities", type: "free-text", uid: "#generatedUID"
-                }
-            ]
-        }
-
-        this.QuestionnaireService = new QuestionnaireService();
-        this.QuestionnaireService.saveQuestionnaire(questions, (err, data) => {
-            if (err) {
-                console.log(err);
-            }
-            console.log("First Questionnaire Saved")
-        });
-    }
-
-    updateSampleQuestionnaire(){
-        console.log(this.model.qes.prom);
-        this.model.qes.prom.push(
-            {
-                question: "2342354", type:"slider", uid:"#generatedUID"
-            },
-            {
-                question: "345345345", type:"checkbox", options:["Option 1","Option 2","Option 3"],uid:"#generatedUID"
-            },
-            {
-                question: "234 234234", type:"free-text",uid:"#generatedUID"
-            }
-        )
-        this.model.qes.prem.push(
-            {
-                question: "2342354", type:"slider", uid:"#generatedUID"
-            },
-            {
-                question: "345345345", type:"checkbox", options:["Option 1","Option 2","Option 3"],uid:"#generatedUID"
-            },
-            {
-                question: "234 234234", type:"free-text",uid:"#generatedUID"
-            }
-        )
-        console.log(this.model.qes);
-        this.QuestionnaireService = new QuestionnaireService();
-        this.QuestionnaireService.updateQuestionnaire(this.model.qes, (err, data) => {
-            if (err) {
-                console.log(err);
-            }
-            console.log("Questionnaire updated")
         });
     }
 
@@ -244,8 +147,6 @@ export default class QuestionsListController extends WebcController {
                 });
             }
         })
-
-
     }
 
 
