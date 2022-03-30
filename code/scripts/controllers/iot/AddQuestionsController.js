@@ -1,5 +1,6 @@
 const {WebcController} = WebCardinal.controllers;
-import QuestionnaireService from '../../services/QuestionnaireService.js';
+const commonServices = require("common-services");
+const {QuestionnaireService} = commonServices;
 
 
 let getInitModel = () => {

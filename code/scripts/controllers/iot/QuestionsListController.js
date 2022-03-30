@@ -1,7 +1,7 @@
 const {WebcController} = WebCardinal.controllers;
 import HCOService from '../../services/HCOService.js';
-import QuestionnaireService from '../../services/QuestionnaireService.js';
 const commonServices = require("common-services");
+const {QuestionnaireService} = commonServices;
 const { DataSource } = WebCardinal.dataSources;
 
 
