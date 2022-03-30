@@ -106,6 +106,12 @@
 			"tag": "questions-list"
 		},
 		{
+			"name": "add-questions",
+			"path": "/iot/add-questions",
+			"src": "iot/add-questions.html",
+			"tag": "add-questions"
+		},
+		{
 			"name": "Trial Management",
 			"path": "/econsent/trial-management",
 			"src": "econsent/trial-management.html",
