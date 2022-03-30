@@ -20,7 +20,7 @@ export default class LandingPageController extends WebcController {
         super(element, history);
 
         this.model = this.getInitialModel();
-
+        this._attachMessageHandlers();
         this.initServices();
         this.initHandlers();
     }
@@ -47,7 +47,6 @@ export default class LandingPageController extends WebcController {
     }
 
     initHandlers() {
-        this._attachMessageHandlers();
         this.attachHandlerManageDevices();
         this.attachHandlerTrialManagement();
         this.attachHandlerListOfPatients();

@@ -309,8 +309,8 @@ export default class TrialParticipantsController extends WebcController {
 
         this.HCOService.cloneIFCs(this.model.trialSSI, async () => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-
-            let icfs = this.model.hcoDSU.volatile.icfs;
+            debugger;
+            let icfs = this.model.hcoDSU.volatile.icfs||[];
             let site = this.model.hcoDSU.volatile.site.find(site => site.trialKeySSI === this.model.trialSSI);
             let siteConsentsKeySSis = site.consents.map(consent => consent.keySSI);
             let trialConsents = icfs.filter(icf => {

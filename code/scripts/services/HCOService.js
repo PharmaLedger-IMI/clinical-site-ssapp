@@ -174,12 +174,7 @@ export default class HCOService extends DSUService {
 
     getSiteSReadSSI = (callback) => {
         const sitePath = this._getSubPath('site');
-        this.getEntityMountSSI(sitePath, (err, siteSeed) => {
-            if (err) {
-                return callback(err);
-            }
-            this.getSReadSSI(siteSeed, callback);
-        });
+        this.getEntityMountSSI(sitePath, callback);
     }
     async getSiteSReadSSIAsync () {
         return this.asyncMyFunction(this.getSiteSReadSSI, [...arguments]);
