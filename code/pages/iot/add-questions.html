@@ -29,9 +29,11 @@
         </div>
       </div>
 
-      <webc-switch condition="@currentTable">
+      <webc-switch condition="@currentView">
         <div slot="proms">
+
           <main class="form-container">
+
             <div class="form-row">
               <div class="form-group">
                 <label class="col-form-label">{{@question.label}}</label>
@@ -60,24 +62,57 @@
 
             </div>
 
+          </main>
+
+          <div class="d-flex justify-content-center">
+                <div data-for="@answers">
+                  <label col-form-label>{{@element}}</label>
+                  <br>
+                </div>
+          </div>
+        </div>
+
+        <div slot="prems">
+
+          <main class="form-container">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="col-form-label">{{@question.label}}</label>
+                <input class="form-control" data-view-model="@question" id="@question.name"/>
+              </div>
+            </div>
+
+            <div class="form-row">
+
+              <div class="form-group">
+                <label class="col-form-label">{{@answerType.label}}</label>
+                <select class="form-control" data-for="@answerType.options"
+                        value="@answerType.value">
+                  <option value="@value">{{@label}}</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="col-form-label">{{@answer.label}}</label>
+                <input class="form-control" data-view-model="@answer" id="@answer.name"/>
+              </div>
+
+              <div class="form-group">
+                <button class="add-answer-button" data-tag="add:answer">OK</button>
+              </div>
+
+            </div>
 
           </main>
 
-            <div class="d-flex justify-content-center">
-                  <div data-for="@answers">
-                    <label col-form-label>{{@element}}</label>
-                    <br>
-                  </div>
+          <div class="d-flex justify-content-center">
+            <div data-for="@answers">
+              <label col-form-label>{{@element}}</label>
+              <br>
             </div>
+          </div>
 
-
-
-
-
-
-        </div>
-        <div slot="prems">
-          prem
         </div>
         <div slot="none">
           <div class="alert alert-warning text-center" role="alert">
