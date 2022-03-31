@@ -359,7 +359,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
     }
 
     _sendMessageToSponsor() {
-        this.CommunicationService.sendMessage(this.model.site.sponsorIdentity, {
+        this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
             operation: 'update-site-status',
             ssi: this.model.trialSSI,
             stageInfo: {

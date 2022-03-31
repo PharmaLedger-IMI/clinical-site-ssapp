@@ -387,7 +387,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
     _sendMessageToSponsor() {
-        this.CommunicationService.sendMessage(this.model.hcoDSU.volatile?.site[0].sponsorIdentity, {
+        this.CommunicationService.sendMessage(this.model.hcoDSU.volatile?.site[0].sponsorDid, {
             operation: 'update-site-status',
             ssi: this.model.trialSSI,
             stageInfo: {
