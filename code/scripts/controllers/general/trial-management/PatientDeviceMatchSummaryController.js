@@ -1,19 +1,20 @@
-const {WebcController} = WebCardinal.controllers;
+const commonServices = require('common-services');
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class PatientDeviceMatchSummaryController extends WebcController {
+export default class PatientDeviceMatchSummaryController extends BreadCrumbManager {
     constructor(element, history) {
         super(element, history);
 
-        this.model = this.getState();
         const prevState = this.getState() || {};
-        const {breadcrumb, ...state} = prevState;
         this.model.patientDeviceData = prevState.patientDeviceData;
 
-        this.model.breadcrumb.push({
-            label:"Summary",
-            tag:"patient-device-match-summary",
-            state: state
-        });
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Summary",
+                tag: "patient-device-match-summary"
+            }
+        );
 
         this.attachHandlerEditButton();
         this.attachHandlerAcceptButton();
@@ -28,7 +29,7 @@ export default class PatientDeviceMatchSummaryController extends WebcController 
 
     attachHandlerAcceptButton() {
         this.onTagClick('summary:accept', () => {
-            let trialState = { 
+            let trialState = {
                 confirmationMessage: "Match Completed!",
                 redirectPage: "trial-management",
                 breadcrumb: this.model.toObject('breadcrumb')

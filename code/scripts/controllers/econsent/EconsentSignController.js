@@ -2,31 +2,26 @@ import TrialService from '../../services/TrialService.js';
 import PatientEcosentService from "../../services/PatientEcosentService.js";
 import HCOService from "../../services/HCOService.js";
 
-const {WebcController} = WebCardinal.controllers;
-
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
 const FileDownloaderService = commonServices.FileDownloaderService;
 const BaseRepository = commonServices.BaseRepository;
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class EconsentSignController extends WebcController {
+export default class EconsentSignController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
 
         this.model = this.getInitModel();
 
-        const prevState = this.getState();
-
-        const { breadcrumb,...state } = prevState;
-        this.model = prevState;
-
-        this.model.breadcrumb.push({
-            label: "View/Sign",
-            tag: "econsent-sign",
-            state: state
-        });
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "View/Sign",
+                tag: "econsent-sign"
+            }
+        );
 
         this.initServices();
         this.initHandlers();

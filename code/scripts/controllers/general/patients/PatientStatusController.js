@@ -1,19 +1,19 @@
-const {WebcController} = WebCardinal.controllers;
+const commonServices = require("common-services");
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class PatientStatusController extends WebcController {
+export default class PatientStatusController extends BreadCrumbManager {
     constructor(element, history) {
         super(element, history);
 
         this.model.patientData = this.getTestData();
-         const prevState = this.getState() || {};
-         const {breadcrumb, ...state} = prevState;
-         this.model = prevState;
-
-         this.model.breadcrumb.push({
-          label:"Patient Status",
-          tag:"patient-status",
-          state: state
-         });
+      
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Patient Status",
+                tag: "patient-status"
+            }
+        );
 
         this.attachHandlerGoBack();
         this.attachHandlerPatientAlertHistory();

@@ -1,23 +1,19 @@
 import HCOService from '../../services/HCOService.js';
-const {WebcController} = WebCardinal.controllers;
-const { DataSource } = WebCardinal.dataSources;
 const commonServices = require('common-services');
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class TrialManagementController extends WebcController {
+export default class TrialManagementController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
 
-        const prevState = this.getState() || {};
-        const { breadcrumb, ...state } = prevState;
-
-        this.model = prevState;
-        this.model.breadcrumb.push({
-            label: "E-Consent Trial Management",
-            tag: "econsent-trial-management",
-            state: state
-        });
-
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "E-Consent Trial Management",
+                tag: "econsent-trial-management"
+            }
+        );
 
         this.model.trialsDataSource = this._initServices();
         this._initHandlers();
@@ -47,10 +43,10 @@ export default class TrialManagementController extends WebcController {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-trial-details',
-            {
-                keySSI: model.keySSI,
-                breadcrumb: this.model.toObject('breadcrumb')
-            }
+                {
+                    keySSI: model.keySSI,
+                    breadcrumb: this.model.toObject('breadcrumb')
+                }
             );
         });
     }
@@ -60,10 +56,10 @@ export default class TrialManagementController extends WebcController {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-trial-participants',
-            {
-                keySSI: model.keySSI,
-                breadcrumb: this.model.toObject('breadcrumb')
-            }
+                {
+                    keySSI: model.keySSI,
+                    breadcrumb: this.model.toObject('breadcrumb')
+                }
             );
         });
     }

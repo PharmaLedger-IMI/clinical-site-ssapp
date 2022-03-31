@@ -2,14 +2,13 @@ import TrialService from '../../services/TrialService.js';
 import SiteService from '../../services/SiteService.js';
 import HCOService from "../../services/HCOService.js";
 
-const {WebcController} = WebCardinal.controllers;
-
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 
 let getInitModel = () => {
@@ -18,7 +17,7 @@ let getInitModel = () => {
     };
 };
 
-export default class TrialParticipantController extends WebcController {
+export default class TrialParticipantController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
         this.setModel({
@@ -26,16 +25,14 @@ export default class TrialParticipantController extends WebcController {
             ...this.history.win.history.state.state,
         });
 
-        const prevState = this.getState();
 
-        const { breadcrumb,...state } = prevState;
-        this.model = prevState;
-
-        this.model.breadcrumb.push({
-            label: "Consents - Trial Participant",
-            tag: "econsent-trial-participant",
-            state: state
-        });
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Consents - Trial Participant",
+                tag: "econsent-trial-participant"
+            }
+        );
 
         this.model.econsentsDataSource = this._initServices();
         this._initServices();

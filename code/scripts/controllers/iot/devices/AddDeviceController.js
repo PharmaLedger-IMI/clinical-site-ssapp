@@ -1,27 +1,27 @@
-const {WebcController} = WebCardinal.controllers;
 import HCOService from "../../../services/HCOService.js"
 import DeviceServices from "../../../services/DeviceServices.js";
 const commonServices = require("common-services");
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const  {getCommunicationServiceInstance} = commonServices.CommunicationService;
 const COMMUNICATION_MESSAGES = {
     ADD_DEVICE:"add_device"
 }
 
 
-export default class AddDeviceController extends WebcController {
+export default class AddDeviceController extends BreadCrumbManager {
     constructor(element, history) {
 
         super(element, history);
 
         const prevState = this.getState() || {};
-        const {breadcrumb, ...state} = prevState;
-        this.model = prevState;        
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Add Device",
+                tag: "iot-add-device"
+            }
+        );
 
-        this.model.breadcrumb.push({
-          label:"Add Device",
-          tag:"iot-add-device",
-          state: state
-        });
 
         this.deviceServices = new DeviceServices();
         let hcoService = new HCOService();

@@ -3,8 +3,7 @@ import TrialService from "../../services/TrialService.js";
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
-
-const {WebcController} = WebCardinal.controllers;
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 let getInitModel = () => {
     return {
@@ -13,24 +12,21 @@ let getInitModel = () => {
     };
 };
 
-export default class VisitsController extends WebcController {
+export default class VisitsController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
         this.setModel({
             ...getInitModel(),
             ...this.history.win.history.state.state,
         });
-        
-        const prevState = this.getState() || {};
-        const {breadcrumb, ...state} = prevState;
-        
-        this.model = prevState;        
 
-        this.model.breadcrumb.push({
-            label:"Visits",
-            tag:"econsent-visits",
-            state: state
-        });
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Visits",
+                tag: "econsent-visits"
+            }
+        );
 
         this._initServices();
         this._initHandlers();

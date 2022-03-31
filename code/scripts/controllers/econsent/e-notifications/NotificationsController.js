@@ -1,24 +1,21 @@
 const commonServices = require('common-services');
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-const {WebcController} = WebCardinal.controllers;
-
-export default class NotificationsController extends WebcController {
+export default class NotificationsController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
 
         this.model = this.getInitModel();
 
-        const prevState = this.getState() || {};
-        const {breadcrumb, ...state} = prevState;
-        
-        this.model = prevState;        
-        this.model.breadcrumb.push({
-            label:"Notifications",
-            tag:"econsent-notifications",
-            state: state
-        });
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Notifications",
+                tag: "econsent-notifications"
+            }
+        );
 
         this.initServices();
         this.initNotifications();

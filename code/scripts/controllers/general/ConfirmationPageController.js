@@ -1,18 +1,17 @@
-const {WebcController} = WebCardinal.controllers;
+const commonServices = require('common-services');
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class HomeController extends WebcController {
+export default class HomeController extends BreadCrumbManager {
     constructor(element, history) {
         super(element, history);
 
         this.model = this.getState();
-        const prevState = this.getState() || {};
-        const {breadcrumb, ...state} = prevState;
-
-        this.model.breadcrumb.push({
-          label:"Confirmation",
-          tag:"confirmation-page",
-          state: state
-        });
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Confirmation",
+                tag: "confirmation-page"
+            }
+        );
 
         this.attachBackToMenuHandler();
     }

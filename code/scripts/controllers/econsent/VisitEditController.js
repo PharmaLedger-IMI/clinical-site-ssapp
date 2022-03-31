@@ -5,7 +5,7 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
-const {WebcController} = WebCardinal.controllers;
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 let getInitModel = () => {
     return {
@@ -20,7 +20,7 @@ let getInitModel = () => {
     };
 };
 
-export default class VisitEditController extends WebcController {
+export default class VisitEditController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
         this.setModel({
@@ -28,16 +28,14 @@ export default class VisitEditController extends WebcController {
             ...this.history.win.history.state.state,
         });
 
-        const prevState = this.getState();
-        this.model = prevState;
 
-        const { breadcrumb,...state } = prevState;
-
-        this.model.breadcrumb.push({
-            label: "Visit Edit",
-            tag: "econsent-visit-edit",
-            state: state
-        });
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Visit Edit",
+                tag: "econsent-visit-edit"
+            }
+        );
 
         this._initServices();
     }

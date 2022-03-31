@@ -1,24 +1,20 @@
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
 import DeviceServices from "../../services/DeviceServices.js";
-const {WebcController} = WebCardinal.controllers;
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 
-export default class TrialParticipantDevicesListController extends WebcController {
+export default class TrialParticipantDevicesListController extends BreadCrumbManager {
 
     constructor(...props) {
         super(...props);
 
-        const prevState = this.getState();
-
-        const { breadcrumb,...state } = prevState;
-        this.model = prevState;
-
-        this.model.breadcrumb.push({
-            label: "Trial Participant Devices List",
-            tag: "econsent-trial-participant-devices-list",
-            state: state
-        });
-
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Trial Participant Devices List",
+                tag: "econsent-trial-participant-devices-list"
+            }
+        );
 
         this.model.assigned_devices = []
         this.model.alldevices = []

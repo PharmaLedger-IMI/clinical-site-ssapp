@@ -6,25 +6,21 @@ const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
-const {WebcController} = WebCardinal.controllers;
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class VisitsAndProceduresController extends WebcController {
+export default class VisitsAndProceduresController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
 
         this.model = this.getInitModel();
 
-        const prevState = this.getState();
-
-        const { breadcrumb,...state } = prevState;
-        this.model = prevState;
-
-        this.model.breadcrumb.push({
-            label: "Visit and Procedures",
-            tag: "econsent-visits-procedures",
-            state: state
-        });
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Visit and Procedures",
+                tag: "econsent-visits-procedures"
+            }
+        );
 
         this.model.visitsDataSource = this.initServices().then(dataSource => { 
             return this.model.visitsDataSource = dataSource;

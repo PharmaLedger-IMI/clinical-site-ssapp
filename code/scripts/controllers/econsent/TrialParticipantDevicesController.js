@@ -1,15 +1,21 @@
-const {WebcController} = WebCardinal.controllers;
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-
-export default class TrialParticipantDevicesController extends WebcController {
+export default class TrialParticipantDevicesController extends BreadCrumbManager {
 
     constructor(...props) {
         super(...props);
-        const prevState = this.getState();
+        this.model = this.getFormViewModel(this.getState());
+
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Trial Participant Devices",
+                tag: "trial-participant-devices"
+            }
+        );
+
         this._attachHandlerGoBack(prevState);
         this._attachHandlerSave();
-        this.model = this.getFormViewModel(prevState);
     }
 
 

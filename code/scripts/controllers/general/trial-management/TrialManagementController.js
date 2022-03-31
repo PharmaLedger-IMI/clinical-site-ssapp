@@ -1,18 +1,18 @@
-const {WebcController} = WebCardinal.controllers;
+const commonServices = require('common-services');
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class TrialManagementController extends WebcController {
+export default class TrialManagementController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
 
-        const prevState = this.getState() || {};
-        const {breadcrumb, ...state} = prevState;
-        
-        this.model = prevState;        
-        this.model.breadcrumb.push({
-            label:"Trial Management",
-            tag:"trial-management",
-            state: state
-        });
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Trial Management",
+                tag: "trial-management"
+            }
+        );
+
 
         this.attachHandlerGoBack();
         this.attachHandlerPatientDeviceMatch();
@@ -26,7 +26,7 @@ export default class TrialManagementController extends WebcController {
 
     attachHandlerPatientDeviceMatch() {
         this.onTagClick('patient-device-match', () => {
-            this.navigateToPageTag('patient-device-match',{breadcrumb: this.model.toObject('breadcrumb')});
+            this.navigateToPageTag('patient-device-match', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 }

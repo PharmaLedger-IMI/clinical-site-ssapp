@@ -1,23 +1,22 @@
-const {WebcController} = WebCardinal.controllers;
-
 import DeviceServices from "../../../services/DeviceServices.js"
+const commonServices = require("common-services");
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class ListDevicesController extends WebcController {
+
+export default class ListDevicesController extends BreadCrumbManager {
     constructor(element, history) {
         super(element, history);
 
         this.model = {allDevices: []};
         this.deviceServices = new DeviceServices();
 
-        const prevState = this.getState() || {};
-        const {breadcrumb, ...state} = prevState;
-        
-        this.model = prevState;        
-        this.model.breadcrumb.push({
-            label:"Search Device",
-            tag:"iot-list-all-devices",
-            state: state
-        });
+        this.model = this.getState();
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Search Device",
+                tag: "iot-list-all-devices"
+            }
+        );
 
         this.attachModelHandlers();
         this.attachHandlerGoBack();

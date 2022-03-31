@@ -1,11 +1,11 @@
-const {WebcController} = WebCardinal.controllers;
 import TrialService from "../../services/TrialService.js";
 
 const commonServices = require("common-services");
 const DateTimeService = commonServices.DateTimeService;
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class EconsentVersionsController extends WebcController {
+export default class EconsentVersionsController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
 
@@ -15,16 +15,12 @@ export default class EconsentVersionsController extends WebcController {
             ...this.getState(),
         };
 
-        const prevState = this.getState();
-
-        const { breadcrumb,...state } = prevState;
-        this.model = prevState;
-
-        this.model.breadcrumb.push({
-            label: "History/Versions",
-            tag: "econsent-versions",
-            state: state
-        });
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "History/Versions",
+                tag: "econsent-versions"
+            }
+        );
 
         this.initServices();
         this.initHandlers();

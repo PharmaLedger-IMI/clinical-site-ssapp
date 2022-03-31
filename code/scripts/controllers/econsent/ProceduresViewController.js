@@ -5,23 +5,21 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
 
-const {WebcController} = WebCardinal.controllers;
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class ProceduresViewController extends WebcController {
+
+export default class ProceduresViewController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
-
+            
         this.model = this.getInitModel();
-        const prevState = this.getState();
-        this.model = prevState;
-
-        const { breadcrumb,...state } = prevState;
-
-        this.model.breadcrumb.push({
-            label: "Procedures View",
-            tag: "econsent-procedures-view",
-            state: state
-        });
+        
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Procedures View",
+                tag: "econsent-procedures-view"
+            }
+        );
 
         this.initServices();
     }

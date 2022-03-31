@@ -1,20 +1,18 @@
-const {WebcController} = WebCardinal.controllers;
+const commonServices = require('common-services');
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class PatientDeviceMatchController extends WebcController {
+export default class PatientDeviceMatchController extends BreadCrumbManager {
     constructor(element, history) {
 
         super(element, history);
 
-        const prevState = this.getState() || {};
-        this.model = this.getFormViewModel(prevState);
-        const {breadcrumb, ...state} = prevState;
-
-        this.model = prevState;        
-        this.model.breadcrumb.push({
-            label:"Match Patient/Device",
-            tag:"patient-device-match",
-            state: state
-        });
+        this.model = this.getFormViewModel(this.getState());
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Match Patient/Device",
+                tag: "patient-device-match"
+            }
+        );
 
         this.attachHandlerGoBackButton();
         this.attachHandlerSaveButton();
@@ -24,14 +22,14 @@ export default class PatientDeviceMatchController extends WebcController {
     attachHandlerGoBackButton() {
         this.onTagClick('navigation:go-back', () => {
             console.log("Go back button pressed");
-            this.navigateToPageTag('trial-management', {breadcrumb: this.model.toObject('breadcrumb')});
+            this.navigateToPageTag('trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
     attachHandlerSaveButton() {
         this.onTagClick('save', () => {
             const patientDeviceData = this.preparePatientDeviceData();
-            this.navigateToPageTag("patient-device-match-summary", {patientDeviceData: patientDeviceData, breadcrumb: this.model.toObject('breadcrumb')});
+            this.navigateToPageTag("patient-device-match-summary", { patientDeviceData: patientDeviceData, breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
@@ -41,13 +39,13 @@ export default class PatientDeviceMatchController extends WebcController {
             status: "Active",
             deviceId: this.model.device.value,
             patientId: this.model.patient.value
-            
+
         };
     }
 
     getFormViewModel(prevState) {
         return {
-            
+
             device: {
                 label: "Device ID",
                 required: true,
