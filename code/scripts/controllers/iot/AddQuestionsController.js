@@ -1,5 +1,5 @@
-const {WebcController} = WebCardinal.controllers;
 const commonServices = require("common-services");
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const {QuestionnaireService} = commonServices;
 
 
@@ -11,31 +11,34 @@ let getInitModel = () => {
 };
 
 
-
-export default class AddQuestionsController extends WebcController {
+export default class AddQuestionsController extends BreadCrumbManager {
 
     constructor(...props) {
         super(...props);
 
         const prevState = this.getState() || {};
-        const { breadcrumb, ...state } = prevState;
-
         this.model = {
             ...getInitModel(),
             trialSSI: prevState.trialSSI,
+            trialName: prevState.trialName
         };
 
-        this.model.breadcrumb = prevState.breadcrumb;
-        this.model.breadcrumb.push({
-            label: "Add IoT Questions",
-            tag: "add-questions",
-            state: state
-        });
+       this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Add IoT Questions",
+                tag: "add-questions"
+            }
+        );
 
         this.model = this.getQuestionsFormModel();
         this.model.currentView = "none"
 
         this.initServices();
+        this.initHandlers();
+
+    }
+
+    initHandlers(){
         this._attachHandlerSaveQuestion();
         this._attachHandlerPromQuestions();
         this._attachHandlerPremQuestions();
@@ -45,49 +48,80 @@ export default class AddQuestionsController extends WebcController {
     initServices() {
         this.QuestionnaireService = new QuestionnaireService();
         this.getQuestionnaire();
+        this.monitorAnswerType();
+    }
+
+    monitorAnswerType(){
+        this.model.onChange('answerType.value', () => {
+            switch (this.model.answerType.value) {
+                case "checkbox":
+                    this.model.answers = []
+                    this.model.answer.disabled = false;
+                    this.model.answer.label = "Insert the options one by one";
+                    this.model.answer.placeholder = "For each option hit OK";
+                    break;
+                case "slider":
+                    this.model.answers = []
+                    this.model.answer.disabled = false;
+                    this.model.answer.label = "Insert the values min, max, steps one by one";
+                    this.model.answer.placeholder = "For each option hit OK"
+                    break;
+                case "free text":
+                    this.model.answers = []
+                    this.model.answer.disabled = true;
+                    this.model.answer.label = "No answer required";
+                    this.model.answer.placeholder = "No answer required"
+                    break;
+            }
+        });
     }
 
     _attachHandlerSaveQuestion() {
         this.onTagEvent('save:question', 'click', (model, target, event) => {
-            // this.saveSampleQuestionnaire();
-            console.log("save question")
-            console.log(this.model.question.value)
-            console.log(this.model.answerType.value)
-            console.log(this.model.answers)
-            console.log(this.model.currentView)
 
-            console.log(this.model.questionnaire)
+            window.WebCardinal.loader.hidden = false;
 
-            if (this.model.currentView === "proms"){
-                this.model.questionnaire.prom.push({
-                    question: this.model.question.value,
-                    type: this.model.answerType.value,
-                    options: this.model.answers,
-                    uid: Date.now()
-                })
-                this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
-                    if (err) {
-                        console.log(err);
-                    }
-                    console.log("Questionnaire updated")
-                });
+            let question = {
+                question: this.model.question.value,
+                type: this.model.answerType.value,
+                uid: Date.now()
             }
 
-            else if(this.model.currentView === "prems"){
-                this.model.questionnaire.prem.push({
-                    question: this.model.question.value,
-                    type: this.model.answerType.value,
-                    options: this.model.answers,
-                    uid: Date.now()
-                })
-                this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
-                    if (err) {
-                        console.log(err);
-                    }
-                    console.log("Questionnaire updated")
-                });
+            switch (this.model.answerType.value) {
+                case "slider":
+                    question = Object.assign(question, {
+                        minLabel: this.model.answers[0].element,
+                        maxLabel: this.model.answers[1].element,
+                        steps: this.model.answers[2].element,
+                    });
+                    break;
+                case "checkbox":
+                    question = Object.assign(question, {
+                        options: Object.values(this.model.answers)
+                    });
+                    break;
             }
 
+            switch (this.model.currentView) {
+                case "prom":
+                    this.model.questionnaire.prom.push(question);
+                    break;
+                case "prem":
+                    this.model.questionnaire.prem.push(question);
+                    break;
+            }
+
+            this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
+                if (err) {
+                    console.log(err);
+                }
+                window.WebCardinal.loader.hidden = true;
+                this.navigateToPageTag('confirmation-page', {
+                    confirmationMessage: "Question included!",
+                    redirectPage: "econsent-trial-management",
+                    breadcrumb: this.model.toObject('breadcrumb')
+                });
+            });
         });
     }
 
@@ -174,20 +208,23 @@ export default class AddQuestionsController extends WebcController {
 
     _attachHandlerPromQuestions() {
         this.onTagEvent('add:prom', 'click', (model, target, event) => {
-            this.model.currentView = "proms"
+            this.model.currentView = "prom"
             this.model = this.getQuestionsFormModel();
         });
     }
 
     _attachHandlerPremQuestions() {
         this.onTagEvent('add:prem', 'click', (model, target, event) => {
-            this.model.currentView = "prems"
+            this.model.currentView = "prem"
             this.model = this.getQuestionsFormModel();
         });
     }
 
     _attachHandlerAddAnswer() {
         this.onTagEvent('add:answer', 'click', (model, target, event) => {
+            if (this.model.answerType.value === "checkbox") {
+                this.model.answer.placeholder = "Insert the options one by one"
+            }
             this.model.answers.push({
                 element: this.model.answer.value
             })
@@ -210,15 +247,16 @@ export default class AddQuestionsController extends WebcController {
                 id: 'answer',
                 label: "Answer:",
                 placeholder: 'Insert new answer',
-                required: true,
+                required: false,
+                disabled: false,
                 value: ""
             },
             answerType: {
                 label: "Answer Type:",
                 required: true,
                 options: [{
-                        label: "Checkbox",
-                        value: 'checkbox'
+                    label: "Checkbox",
+                    value: 'checkbox'
                 },
                     {
                         label: "Slider",

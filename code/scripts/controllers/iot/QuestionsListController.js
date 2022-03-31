@@ -1,6 +1,6 @@
-const {WebcController} = WebCardinal.controllers;
 import HCOService from '../../services/HCOService.js';
 const commonServices = require("common-services");
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const {QuestionnaireService} = commonServices;
 const { DataSource } = WebCardinal.dataSources;
 
@@ -42,34 +42,36 @@ class QuestionsDataSource extends DataSource {
     }
 }
 
-export default class QuestionsListController extends WebcController {
+export default class QuestionsListController extends BreadCrumbManager {
 
     constructor(...props) {
         super(...props);
 
         const prevState = this.getState() || {};
-        const { breadcrumb, ...state } = prevState;
-
         this.model = {
             ...getInitModel(),
-            trialSSI: prevState.trialSSI,
+            trialSSI: prevState.trialSSI
         };
 
-        this.model.breadcrumb = prevState.breadcrumb;
-        this.model.breadcrumb.push({
-            label: "IoT Questions",
-            tag: "questions-list",
-            state: state
-        });
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "IoT Questions",
+                tag: "questions-list"
+            }
+        );
 
         this.model.hasProms = false;
         this.model.hasPrems = false;
         this.model.currentTable = "none"
+        this.initHandlers();
+        this.initServices();
+    }
 
+    initHandlers(){
         this._attachHandlerAddNewQuestion();
         this._attachHandlerPromQuestions();
         this._attachHandlerPremQuestions();
-        this.initServices();
+        this._attachHandlerSetFrequency();
     }
 
     initServices() {
@@ -82,10 +84,17 @@ export default class QuestionsListController extends WebcController {
         });
     }
 
+    _attachHandlerSetFrequency() {
+        this.onTagEvent('set:frequency', 'click', (model, target, event) => {
+            console.log("set frequency page/modal")
+        });
+    }
+
     _attachHandlerAddNewQuestion() {
         this.onTagEvent('new:question', 'click', (model, target, event) => {
             let state = {
-                trialSSI: model.keySSI,
+                trialSSI: this.model.selected_trial.uid,
+                trialName: this.model.selected_trial.name,
                 breadcrumb: this.model.toObject('breadcrumb')
             }
             this.navigateToPageTag('add-questions', state)

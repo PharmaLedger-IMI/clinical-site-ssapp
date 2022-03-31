@@ -1,101 +1,97 @@
 <webc-container controller="iot/QuestionsListController">
 
-  <div class="container main-container">
+    <div class="container main-container">
 
-    <div class="container flex-container">
-        <h2 class="main-title">Trial: {{@selected_trial.name}}</h2>
-        <breadcrumb-navigator></breadcrumb-navigator>
-<!--        <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>-->
+        <div class="container flex-container">
+            <breadcrumb-navigator></breadcrumb-navigator>
+            <h2 class="main-title">Trial: {{@selected_trial.name}}</h2>
+<!--            <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>-->
+        </div>
+
+        <div class="container justify-content-start">
+
+            <div class="button-group-wrapper d-flex flex-row justify-content-end p-1">
+                <button data-tag="set:frequency">Set Frequency</button>
+                <button data-tag="new:question">Add New Question</button>
+            </div>
+            <hr/>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <div class="questions-tab d-flex justify-content-center">
+                        <button class="prom-prem-tab-buttons p-2" data-tag="new:prom">PROM Questions</button>
+                        <button class="prom-prem-tab-buttons p-2" data-tag="new:prem">PREM Questions</button>
+                    </div>
+                </div>
+            </div>
+
+            <webc-switch condition="@currentTable">
+                <div slot="proms">
+                    <div data-if="@hasProms">
+                        <webc-spinner slot="loading"></webc-spinner>
+                        <div slot="false" class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">No Proms yet!</h4>
+                            <p>Add your first question!</p>
+                        </div>
+                        <div class="common-datatable questions-datatable dt-3-col" slot="true">
+                            <webc-datatable datasource="@PromsDataSource">
+
+                                <div slot="header" >Answer type</div>
+                                <div slot="header" >Question</div>
+                                <div slot="header">Options</div>
+
+                                <div class="cell">{{ @type }}</div>
+                                <div class="cell">{{ @question }}</div>
+                                <div class="cell">
+                                    <label data-tag="prom-edit" class="link option">Edit</label>
+                                    <label> | </label>
+                                    <label data-tag="prom-delete" class="link option">Delete</label>
+                                </div>
+                            </webc-datatable>
+                        </div>
+                    </div>
+                </div>
+                <div slot="prems">
+                    <div data-if="@hasPrems">
+                        <webc-spinner slot="loading"></webc-spinner>
+                        <div slot="false" class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">No Prems yet!</h4>
+                            <p>Add your first question!</p>
+                        </div>
+                        <div class="common-datatable questions-datatable dt-3-col" slot="true">
+                            <webc-datatable datasource="@PremsDataSource">
+
+                                <div slot="header" >Answer type</div>
+                                <div slot="header" >Question</div>
+                                <div slot="header">Options</div>
+
+                                <div class="cell">{{ @type }}</div>
+                                <div class="cell">{{ @question }}</div>
+                                <div class="cell">
+                                    <label data-tag="prem-edit" class="link option">Edit</label>
+                                    <label> | </label>
+                                    <label data-tag="prem-delete" class="link option">Delete</label>
+                                </div>
+                            </webc-datatable>
+                        </div>
+                    </div>
+                </div>
+                <div slot="none">
+                    <div class="alert alert-warning text-center" role="alert">
+                        <h4 class="alert-heading">Choose between Proms and Prems.</h4>
+                        <p>PROMS: Patient Reported Outcome Measures.</p>
+                        <p>PREMS: Patient Reported Experience Measures.</p>
+                    </div>
+                </div>
+            </webc-switch>
+
+
+
+
+
+
+        </div>
+
+
     </div>
-
-      <div class="container justify-content-start">
-
-          <div class="float-right">
-              <div class="form-row">
-                  <div class="form-group">
-                      <div class="button-group-wrapper">
-                          <button data-tag="new:question">Add New Question</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
-
-          <div class="form-row">
-              <div class="form-group">
-                  <div class="questions-tab d-flex justify-content-center">
-                      <button class="prom-prem-tab-buttons p-2" data-tag="new:prom">PROM Questions</button>
-                      <button class="prom-prem-tab-buttons p-2" data-tag="new:prem">PREM Questions</button>
-                  </div>
-              </div>
-          </div>
-
-          <webc-switch condition="@currentTable">
-              <div slot="proms">
-                  <div data-if="@hasProms">
-                      <webc-spinner slot="loading"></webc-spinner>
-                      <div slot="false" class="alert alert-warning" role="alert">
-                          <h4 class="alert-heading">No Proms yet!</h4>
-                          <p>Add your first question!</p>
-                      </div>
-                      <div class="common-datatable questions-datatable dt-3-col" slot="true">
-                          <webc-datatable datasource="@PromsDataSource">
-
-                              <div slot="header" >Answer type</div>
-                              <div slot="header" >Question</div>
-                              <div slot="header">Options</div>
-
-                              <div class="cell">{{ @type }}</div>
-                              <div class="cell">{{ @question }}</div>
-                              <div class="cell">
-                                  <label data-tag="prom-edit" class="link option">Edit</label>
-                                  <label> | </label>
-                                  <label data-tag="prom-delete" class="link option">Delete</label>
-                              </div>
-                          </webc-datatable>
-                      </div>
-                  </div>
-              </div>
-              <div slot="prems">
-                  <div data-if="@hasPrems">
-                      <webc-spinner slot="loading"></webc-spinner>
-                      <div slot="false" class="alert alert-warning" role="alert">
-                          <h4 class="alert-heading">No Prems yet!</h4>
-                          <p>Add your first question!</p>
-                      </div>
-                      <div class="common-datatable questions-datatable dt-3-col" slot="true">
-                          <webc-datatable datasource="@PremsDataSource">
-
-                              <div slot="header" >Answer type</div>
-                              <div slot="header" >Question</div>
-                              <div slot="header">Options</div>
-
-                              <div class="cell">{{ @type }}</div>
-                              <div class="cell">{{ @question }}</div>
-                              <div class="cell">
-                                  <label data-tag="prem-edit" class="link option">Edit</label>
-                                  <label> | </label>
-                                  <label data-tag="prem-delete" class="link option">Delete</label>
-                              </div>
-                          </webc-datatable>
-                      </div>
-                  </div>
-              </div>
-              <div slot="none">
-                      <div class="alert alert-warning text-center" role="alert">
-                          <h4 class="alert-heading">Choose between Proms and Prems.</h4>
-                          <p>PROMS: Patient Reported Outcome Measures.</p>
-                          <p>PREMS: Patient Reported Experience Measures.</p>
-                      </div>
-              </div>
-          </webc-switch>
-
-
-
-
-
-
-      </div>
-
-
-  </div>
 </webc-container>

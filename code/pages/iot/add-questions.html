@@ -3,22 +3,26 @@
   <div class="container main-container">
 
     <div class="container flex-container">
-      <h2 class="main-title">{{@selected_trial.name}}</h2>
       <breadcrumb-navigator></breadcrumb-navigator>
-      <!--        <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>-->
+      <h2 class="main-title">Trial: {{@trialName}}</h2>
     </div>
 
     <div class="container justify-content-start">
 
-      <div class="float-right">
-        <div class="form-row">
-          <div class="form-group">
-            <div class="button-group-wrapper">
-              <button data-tag="save:question">Save</button>
-            </div>
-          </div>
-        </div>
+      <div class="button-group-wrapper d-flex flex-row justify-content-end p-1">
+        <button data-tag="save:question">Save</button>
       </div>
+      <hr/>
+
+<!--      <div class="float-right">-->
+<!--        <div class="form-row">-->
+<!--          <div class="form-group">-->
+<!--            <div class="button-group-wrapper">-->
+<!--              <button data-tag="save:question">Save</button>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
 
       <div class="form-row">
         <div class="form-group">
@@ -30,7 +34,7 @@
       </div>
 
       <webc-switch condition="@currentView">
-        <div slot="proms">
+        <div slot="prom">
 
           <main class="form-container">
 
@@ -57,7 +61,7 @@
               </div>
 
               <div class="form-group">
-                  <button class="add-answer-button" data-tag="add:answer">OK</button>
+                <button class="add-answer-button" data-tag="add:answer">OK</button>
               </div>
 
             </div>
@@ -65,14 +69,14 @@
           </main>
 
           <div class="d-flex justify-content-center">
-                <div data-for="@answers">
-                  <label col-form-label>{{@element}}</label>
-                  <br>
-                </div>
+            <div data-for="@answers">
+              <label col-form-label>{{@element}}</label>
+              <br>
+            </div>
           </div>
         </div>
 
-        <div slot="prems">
+        <div slot="prem">
 
           <main class="form-container">
 
