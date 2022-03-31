@@ -18,32 +18,31 @@ const SharedStorage = commonServices.SharedStorage;
 export default class LandingPageController extends WebcController {
     constructor(element, history) {
         super(element, history);
-
         this.model = this.getInitialModel();
-        this._attachMessageHandlers();
-        this.initServices();
-        this.initHandlers();
+
+        this.didService = getDidServiceInstance();
+        this.didService.getDID().then(async(did)=>{
+            this.model.did = did;
+            this._attachMessageHandlers();
+            await this.initServices();
+            this.initHandlers();
+        })
     }
 
     async initServices() {
+            this.ResponsesService = new ResponsesService(this.DSUStorage);
+            this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
+            //this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
 
-        this.didService = getDidServiceInstance();
-        this.didService.getDID().then((did)=>{
-            this.model.did = did;
-        })
+            this.TrialService = new TrialService();
+            this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
+            this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
+            this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
+            this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
+            this.SiteService = new SiteService();
+            this.HCOService = new HCOService();
+            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
 
-        this.ResponsesService = new ResponsesService(this.DSUStorage);
-        this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
-        //this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
-
-        this.TrialService = new TrialService();
-        this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
-        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
-        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
-        this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
-        this.SiteService = new SiteService();
-        this.HCOService = new HCOService();
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
     }
 
     initHandlers() {
