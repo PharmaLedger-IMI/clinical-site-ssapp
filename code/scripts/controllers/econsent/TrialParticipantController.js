@@ -68,7 +68,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         let site = this.model.hcoDSU.volatile.site.find(site => site.trialKeySSI === trialSSI)
         let siteConsentsKeySSis = site.consents.map(consent => consent.keySSI);
         let trialConsents = icfs.filter(icf => {
-            return siteConsentsKeySSis.indexOf(icf.genesisSSI) > -1
+            return siteConsentsKeySSis.indexOf(icf.genesisUid) > -1
         })
 
         this.model.econsents = trialConsents.map(consent => {

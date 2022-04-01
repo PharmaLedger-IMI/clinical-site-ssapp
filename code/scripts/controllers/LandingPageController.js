@@ -153,12 +153,12 @@ export default class LandingPageController extends WebcController {
 
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
                 this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
-                await this._reMountTrialAndSendRefreshMessageToAllParticipants(data);
+                await this.sendRefreshConsentsToTrialParticipants(data);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_CONSENT: {
                 this._saveNotification(data, 'New ecosent  was added', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
-                await this._reMountTrialAndSendRefreshMessageToAllParticipants(data);
+                await this.sendRefreshConsentsToTrialParticipants(data);
                 break;
             }
             case Constants.MESSAGES.HCO.SITE_STATUS_CHANGED: {
@@ -189,13 +189,14 @@ export default class LandingPageController extends WebcController {
                                 if (err) {
                                     return console.log(err);
                                 }
-                                this.HCOService.mountVisit(site.visitsSReadSSI, (err, visit) => {
-                                    if (err) {
-                                        return console.log(err);
-                                    }
-                                    this.sendMessageToSponsor(senderIdentity, Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_SPONSOR, this.HCOService.ssi, null);
-                                    resolve();
-                                })
+
+                                    this.HCOService.mountVisit(site.visitsSReadSSI, (err, visit) => {
+                                        if (err) {
+                                            return console.log(err);
+                                        }
+                                        this.sendMessageToSponsor(senderIdentity, Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_SPONSOR, this.HCOService.ssi, null);
+                                        resolve();
+                                    })
                             });
                         });
                     });
@@ -231,10 +232,10 @@ export default class LandingPageController extends WebcController {
     }
 
 
-    _reMountTrialAndSendRefreshMessageToAllParticipants(data) {
+    sendRefreshConsentsToTrialParticipants(data) {
         //TODO change it to async function
         return new Promise((resolve => {
-            this.HCOService.cloneIFCs(data.trialSSI, async () => {
+            this.HCOService.cloneIFCs(data.ssi, async () => {
                 this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
 
                 this.TrialParticipantRepository.findAll((err, tps) => {
@@ -262,7 +263,7 @@ export default class LandingPageController extends WebcController {
     }
 
     _updateEconsentWithDetails(message) {
-        let econsent = this.model.hcoDSU.volatile.icfs.find(ifc => ifc.genesisSSI === message.ssi)
+        let econsent = this.model.hcoDSU.volatile.icfs.find(ifc => ifc.genesisUid === message.ssi)
         if (econsent === undefined) {
             return console.error('Cannot find econsent.');
         }

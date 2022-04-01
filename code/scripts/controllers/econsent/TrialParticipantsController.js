@@ -25,7 +25,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         const { breadcrumb, ...state } = prevState;
         this.setModel({
             ...getInitModel(),
-            trialSSI: state.keySSI,
+            trialUid: state.trialUid,
         });
 
 
@@ -53,7 +53,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
     async initializeData() {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        await this._initTrial(this.model.trialSSI);
+        await this._initTrial(this.model.trialUid);
         return this.model.toObject('trialParticipants');
     }
 
@@ -70,10 +70,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         });
     }
 
-    async _initTrial(keySSI) {
-        this.model.trial = this.model.hcoDSU.volatile.trial.find(trial => trial.keySSI === keySSI);
+    async _initTrial(trialUid) {
+        this.model.trial = this.model.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
         this.model.trial.isInRecruitmentPeriod = true;
-        let actions = await this._getEconsentActionsMappedByUser(keySSI);
+        let actions = await this._getEconsentActionsMappedByUser(trialUid);
         this.model.trialParticipants = await this._getTrialParticipantsMappedWithActionRequired(actions);
         if (this.model.trial.recruitmentPeriod) {
             let endDate = new Date(this.model.trial.recruitmentPeriod.endDate);
@@ -139,9 +139,9 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             })
     }
 
-    async _getEconsentActionsMappedByUser(keySSI) {
+    async _getEconsentActionsMappedByUser(trialUid) {
         let actions = {};
-        (await this.TrialService.getEconsentsAsync(keySSI))
+        (await this.TrialService.getEconsentsAsync(trialUid))
             .forEach(econsent => {
                 if (econsent.versions === undefined) {
                     return actions;
@@ -157,7 +157,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         actions[action.tpDid].push({
                             econsent: {
                                 uid: econsent.uid,
-                                keySSI: econsent.keySSI,
                                 name: econsent.name,
                                 type: econsent.type,
                             },
@@ -308,21 +307,22 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             tp.trialSReadSSI,
             Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.ADD_TO_TRIAL
         );
-
-        this.HCOService.cloneIFCs(this.model.trialSSI, async () => {
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
+        this.HCOService.cloneIFCs(site.uid, async () => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-            debugger;
             let icfs = this.model.hcoDSU.volatile.icfs||[];
-            let site = this.model.hcoDSU.volatile.site.find(site => site.trialKeySSI === this.model.trialSSI);
-            let siteConsentsKeySSis = site.consents.map(consent => consent.keySSI);
+            let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
             let trialConsents = icfs.filter(icf => {
-                return siteConsentsKeySSis.indexOf(icf.genesisSSI) > -1
+                return siteConsentsKeySSis.includes(icf.genesisUid)
             });
 
             trialConsents.forEach(econsent => {
                 console.log(econsent);
-                this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
-                    econsent.genesisSSI, null)
+                //this.HCOService.getConsentSSI(site.uid, econsent.uid, (err, consentSSI) => {
+                    this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
+                        econsent.keySSI, null);
+                //})
             });
 
             this._sendMessageToSponsor();
@@ -347,9 +347,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
 
     async sendMessageToPatient(operation, tp, trialSSI, shortMessage) {
-        let site = this.model.hcoDSU.volatile?.site[0];
+        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
         const siteSReadSSI = await this.HCOService.getSiteSReadSSIAsync();
-        debugger;
         this.CommunicationService.sendMessage(tp.did, {
             operation: operation,
             ssi: siteSReadSSI,

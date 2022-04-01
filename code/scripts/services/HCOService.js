@@ -78,21 +78,22 @@ export default class HCOService extends DSUService {
         this.mountSubEntity(tcSSI, 'tc', callback);
     }
 
-    cloneIFCs = (trialSSI,callback) => {
+    cloneIFCs = (siteSSI, callback) => {
+        const siteUID = this.getAnchorId(siteSSI);
         if (this.ssi == null) {
             return callback(this.PATH + ' was not initialized yet.');
         }
-        this.getEntities(this.PATH + '/' + this.ssi + '/site', (err, sites) => {
+        const consentsPath = this.PATH + '/' + this.ssi + '/site/'+ siteUID+"/consent";
+        this.getEntities(consentsPath, (err, consents) => {
             if (err) {
                 return callback(err);
             }
-            if (sites.length === 0) {
+            if (consents.length === 0) {
                 return callback(undefined, []);
             }
             let clonedICFS = [];
-            let site = sites.find(site => site.trialKeySSI === trialSSI);
-            let siteConsents = site.consents;
-            let icfsPath = this.PATH + '/' + this.ssi + '/icfs'+"/"+trialSSI;
+            let siteConsents = consents;
+            let icfsPath = this.PATH + '/' + this.ssi + '/icfs/'+ siteUID;
             let icfsDSUService = new DSUService(icfsPath);
             icfsDSUService.getEntities((err, existingICFS) => {
                 if (err) {
@@ -102,24 +103,35 @@ export default class HCOService extends DSUService {
                     if (consent === undefined && siteConsents.length === 0) {
                         return callback(undefined, []);
                     }
-                    let consentExist = existingICFS.find(ifc => ifc.genesisSSI === consent.uid);
+                    let consentExist = existingICFS.find(ifc => ifc.genesisUid === consent.uid);
                     if (consentExist !== undefined) {
                         return getServiceDsu(siteConsents.pop());
                     }
                     consent = {
                         ...consent,
-                        genesisSSI: consent.uid
+                        genesisUid: consent.uid
                     }
-                    this.cloneDSU(consent.genesisSSI, icfsPath + '/', (err, cloneDetails) => {
+                    debugger;
+
+                    this.DSUStorage.listMountedDSUs(consentsPath, (err, dsuList) => {
                         if (err) {
-                            return getServiceDsu(siteConsents.pop());
+                            return callback(err);
                         }
-                        clonedICFS.push(cloneDetails);
-                        if (siteConsents.length === 0) {
-                            return callback(undefined, clonedICFS);
-                        }
-                        getServiceDsu(siteConsents.pop());
+
+                        const mountedConsent = dsuList.find(item => item.path === consent.uid);
+
+                        this.cloneDSU(mountedConsent.identifier, icfsPath + '/', (err, cloneDetails) => {
+                            if (err) {
+                                return getServiceDsu(siteConsents.pop());
+                            }
+                            clonedICFS.push(cloneDetails);
+                            if (siteConsents.length === 0) {
+                                return callback(undefined, clonedICFS);
+                            }
+                            getServiceDsu(siteConsents.pop());
+                        })
                     })
+
                 };
                 if (siteConsents.length === 0) {
                     return callback(undefined, []);
@@ -127,6 +139,18 @@ export default class HCOService extends DSUService {
                 getServiceDsu(siteConsents.pop());
             });
         });
+    }
+
+
+    getConsentSSI(siteUID, consentUid, callback){
+        const consentsPath = this.PATH + '/' + this.ssi + '/site/'+ siteUID+"/consent";
+        this.DSUStorage.listMountedDSUs(consentsPath, (err, dsuList) => {
+            if (err) {
+                return callback(err);
+            }
+            const mountedConsent = dsuList.find(item => item.path === consentUid);
+            callback(undefined, mountedConsent.identifier)
+        })
     }
 
     addTrialParticipant = (tp, callback) => {

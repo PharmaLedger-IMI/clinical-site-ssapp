@@ -57,7 +57,7 @@ export default class TrialManagementController extends BreadCrumbManager {
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-trial-participants',
                 {
-                    keySSI: model.keySSI,
+                    trialUid: model.uid,
                     breadcrumb: this.model.toObject('breadcrumb')
                 }
             );
