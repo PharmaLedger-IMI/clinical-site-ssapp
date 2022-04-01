@@ -21,12 +21,10 @@ export default class LandingPageController extends WebcController {
         this.model = this.getInitialModel();
 
         this.didService = getDidServiceInstance();
-        this.didService.getDID().then(async(did)=>{
-            this.model.did = did;
             this._attachMessageHandlers();
-            await this.initServices();
-            this.initHandlers();
-        })
+            this.initServices().then(()=>{
+                this.initHandlers();
+            });
     }
 
     async initServices() {
@@ -42,6 +40,7 @@ export default class LandingPageController extends WebcController {
             this.SiteService = new SiteService();
             this.HCOService = new HCOService();
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+            return this.model.hcoDSU;
 
     }
 
@@ -137,7 +136,6 @@ export default class LandingPageController extends WebcController {
         if (typeof senderIdentity === "undefined") {
             throw new Error("Sender identity is undefined. Did you forgot to add it?")
         }
-
         switch (data.operation) {
 
             case 'add-trial-subject': {
