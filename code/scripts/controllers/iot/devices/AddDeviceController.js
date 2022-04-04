@@ -87,15 +87,6 @@ export default class AddDeviceController extends BreadCrumbManager {
         let selected_trial = trial_list.find(t => t.value === this.model.trial.value);
 
         return {
-            brand: this.model.brand.value,
-            value: this.model.name.value,
-            trialSSI: selected_trial.ssi,
-            trialName: selected_trial.name,
-            trialID: this.model.trial.value,
-            modelNumber: this.model.model.value,
-            status: this.model.status.value,
-            manufacturer: this.model.manufacturer.value,
-            deviceName: this.model.name.value,
             resourceType: "Device",
             identifier: [{
                 use: "official",
@@ -107,7 +98,21 @@ export default class AddDeviceController extends BreadCrumbManager {
                 },
                 value: this.model.deviceId.value
             }],
+            status: this.model.status.value,
+            manufacturer: this.model.manufacturer.value,
             serialNumber: this.model.deviceId.value,
+            deviceName: [
+                {
+                    name:  this.model.name.value,
+                    type: "manufacturer-name"
+                }
+            ],
+            modelNumber: this.model.model.value,
+            brand: this.model.brand.value,
+            value: this.model.name.value,
+            trialSSI: selected_trial.ssi,
+            trialName: selected_trial.name,
+            trialID: this.model.trial.value,
             sk: this.model.deviceId.value
         };
     }
