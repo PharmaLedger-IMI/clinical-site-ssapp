@@ -34,7 +34,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
             }
         );
 
-        this.model.econsentsDataSource = this._initServices();
         this._initServices();
         this._initHandlers();
     }
@@ -46,7 +45,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        return this._initConsents(this.model.trialSSI);
+        this.model.econsentsDataSource =  await this._initConsents(this.model.trialUid);
     }
 
     _initHandlers() {
@@ -61,12 +60,13 @@ export default class TrialParticipantController extends BreadCrumbManager {
         });
     }
 
-    _initConsents(trialSSI) {
+    async _initConsents(trialUid) {
 
 
         let icfs = this.model.hcoDSU.volatile.icfs;
-        let site = this.model.hcoDSU.volatile.site.find(site => site.trialKeySSI === trialSSI)
-        let siteConsentsKeySSis = site.consents.map(consent => consent.keySSI);
+        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
+
+        let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
         let trialConsents = icfs.filter(icf => {
             return siteConsentsKeySSis.indexOf(icf.genesisUid) > -1
         })
@@ -77,7 +77,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 versionDateAsString: DateTimeService.convertStringToLocaleDate(consent.versions[0].versionDate)
             };
         })
-        return this._initTrialParticipant();
+        return await this._initTrialParticipant();
     }
 
     async _initTrialParticipant() {
@@ -96,8 +96,8 @@ export default class TrialParticipantController extends BreadCrumbManager {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-versions', {
-                trialSSI: this.model.trialSSI,
-                econsentSSI: model.keySSI,
+                trialUid: this.model.trialUid,
+                econsentUid: model.uid,
                 trialParticipantNumber: this.model.trialParticipantNumber,
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
@@ -111,8 +111,8 @@ export default class TrialParticipantController extends BreadCrumbManager {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-sign', {
-                trialSSI: this.model.trialSSI,
-                econsentSSI: model.KeySSI,
+                trialUid: this.model.trialUid,
+                econsentUid: model.uid,
                 ecoVersion: model.lastVersion,
                 tpDid: this.model.tp.did,
                 controlsShouldBeVisible: false,
@@ -130,8 +130,8 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 ecoVersion = model.versions[model.versions.length - 1].version;
             }
             this.navigateToPageTag('econsent-sign', {
-                trialSSI: this.model.trialSSI,
-                econsentSSI: model.keySSI,
+                trialUid: this.model.trialUid,
+                econsentUid: model.uid,
                 isManuallySigned: model.isManuallySigned,
                 manualKeySSI: model.manualKeySSI,
                 manualAttachment: model.manualAttachment,
@@ -157,7 +157,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-visits-procedures', {
-                trialSSI: this.model.trialSSI,
+                trialUid: this.model.trialUid,
                 tpUid: this.model.tpUid,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
@@ -196,9 +196,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
     }
 
     async sendMessageToProfessional(tp) {
-        let trial = await this.TrialService.getTrialAsync(this.model.trialSSI);
+        let trial = await this.TrialService.getTrialAsync(this.model.trialUid);
 
-        let econsents = await this.TrialService.getEconsentsAsync(this.model.trialSSI);
+        let econsents = await this.TrialService.getEconsentsAsync(this.model.trialUid);
 
         let wantedAction = {
             toShowDate: 'DD/MM/YYYY'
@@ -243,7 +243,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
     }
 
     updateTrialStage() {
-        this.TrialService.getTrial(this.model.trialSSI, async (err, trial) => {
+        this.TrialService.getTrial(this.model.trialUid, async (err, trial) => {
             if (err) {
                 return console.log(err);
             }
@@ -254,12 +254,12 @@ export default class TrialParticipantController extends BreadCrumbManager {
     }
 
     _updateTrialParticipant(trialParticipant) {
-        this.HCOService.updateEntity(trialParticipant, {}, (err, trialParticipant) => {
+        this.HCOService.updateHCOSubEntity(trialParticipant, "tps", (err, trialParticipant) => {
             if (err) {
                 return console.log(err);
             }
             this._showFeedbackToast('Result', Constants.MESSAGES.HCO.FEEDBACK.SUCCESS.ATTACH_TRIAL_PARTICIPANT_NUMBER);
-            this._sendMessageToPatient(this.model.trialSSI, trialParticipant, 'Tp Number was attached');
+            this._sendMessageToPatient(this.model.trialUid, trialParticipant, 'Tp Number was attached');
             this.TrialParticipantRepository.update(trialParticipant.uid, trialParticipant, () => {});
         })
     }
@@ -361,9 +361,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
     _sendMessageToSponsor() {
         this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
             operation: 'update-site-status',
-            ssi: this.model.trialSSI,
+            ssi: this.model.trialUid,
             stageInfo: {
-                siteSSI: this.model.site.KeySSI,
+                siteSSI: this.model.site.uid,
                 status: this.model.trial.stage
             },
             shortDescription: 'The stage of the site changed',

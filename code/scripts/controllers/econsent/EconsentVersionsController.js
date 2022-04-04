@@ -71,7 +71,7 @@ export default class EconsentVersionsController extends BreadCrumbManager {
             }
             this.model.trial = trial;
         });
-        this.TrialService.getEconsent(this.model.trialSSI, this.model.econsentSSI, (err, data) => {
+        this.TrialService.getEconsent(this.model.trialSSI, this.model.econsentUid, (err, data) => {
             if (err) {
                 return console.log(err);
             }
@@ -116,8 +116,8 @@ export default class EconsentVersionsController extends BreadCrumbManager {
     attachHandlerEconsentSign() {
         this.onTagClick("econsent:sign", (model) => {
             this.navigateToPageTag("econsent-sign", {
-                trialSSI: this.model.trialSSI,
-                econsentSSI: this.model.econsentSSI,
+                trialUid: this.model.trialUid,
+                econsentUid: this.model.econsentUid,
                 tpUid: this.model.tpUid,
                 trialParticipantNumber: this.model.trialParticipantNumber,
                 ecoVersion: model.version
@@ -134,8 +134,8 @@ export default class EconsentVersionsController extends BreadCrumbManager {
     attachHandlerView() {
         this.onTagClick("consent:view", (model) => {
             this.navigateToPageTag("econsent-sign", {
-                trialSSI: this.model.trialSSI,
-                econsentSSI: model.econsentSSI,
+                trialUid: this.model.trialUid,
+                econsentUid: model.econsentUid,
                 ecoVersion: model.lastVersion,
                 tpDid: this.model.tp.did,
                 controlsShouldBeVisible: false,

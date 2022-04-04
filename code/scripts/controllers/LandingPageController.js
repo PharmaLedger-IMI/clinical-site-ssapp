@@ -181,7 +181,7 @@ export default class LandingPageController extends WebcController {
                             return console.log(err);
                         }
                         site.sponsorIdentity = senderIdentity;
-                        this.HCOService.updateEntity(site, (err, updatedSite) => {
+                        this.HCOService.updateHCOSubEntity(site, "site", (err, updatedSite) => {
                             if (err) {
                                 return console.log(err);
                             }
@@ -217,7 +217,7 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.UPDATE_ECOSENT: {
-                this._updateEconsentWithDetails(data);
+                await this._updateEconsentWithDetails(data);
                 break;
             }
             case Constants.MESSAGES.PATIENT.SEND_TRIAL_CONSENT_DSU_TO_HCO: {
@@ -262,8 +262,9 @@ export default class LandingPageController extends WebcController {
         });
     }
 
-    _updateEconsentWithDetails(message) {
-        let econsent = this.model.hcoDSU.volatile.icfs.find(ifc => ifc.genesisUid === message.ssi)
+    async _updateEconsentWithDetails(message) {
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        let econsent = this.model.hcoDSU.volatile.icfs.find(ifc => ifc.keySSI === message.ssi)
         if (econsent === undefined) {
             return console.error('Cannot find econsent.');
         }
@@ -323,16 +324,15 @@ export default class LandingPageController extends WebcController {
             tp.actionNeeded = actionNeeded;
             tp.tpSigned = tpSigned;
             tp.status = status;
-            this.HCOService.updateEntity(tp, {}, async (err, response) => {
+            this.HCOService.updateHCOSubEntity(tp,"tps",async (err, response) => {
                 if (err) {
                     return console.log(err);
                 }
             });
         }
 
-        econsent.uid = econsent.keySSI;
         econsent.versions[currentVersionIndex] = currentVersion;
-        this.HCOService.updateEntity(econsent, {}, async (err, response) => {
+        this.HCOService.updateHCOSubEntity(econsent, "icfs", async (err, response) => {
             if (err) {
                 return console.log(err);
             }

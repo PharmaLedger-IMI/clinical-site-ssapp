@@ -59,7 +59,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     updateTrialParticipant() {
-        this.HCOService.updateEntity(this.model.tp, {}, async (err, data) => {
+        this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         });
     }
@@ -73,8 +73,8 @@ export default class ProceduresViewController extends BreadCrumbManager {
     attachHandlerDetails() {
         this.onTagClick("viewConsent", (model) => {
             this.navigateToPageTag("econsent-sign", {
-                trialSSI: model.trialSSI,
-                econsentSSI: model.consentSSI,
+                trialUid: model.trialUid,
+                econsentUid: model.uid,
                 controlsShouldBeVisible: false
             });
         });

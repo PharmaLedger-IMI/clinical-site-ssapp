@@ -44,7 +44,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this._initTrialParticipant(this.model.trialSSI);
+        this._initTrialParticipant(this.model.trialUid);
     }
 
     _initHandlers() {

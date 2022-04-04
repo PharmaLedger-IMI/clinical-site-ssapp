@@ -19,7 +19,7 @@ export default class AddQuestionsController extends BreadCrumbManager {
         const prevState = this.getState() || {};
         this.model = {
             ...getInitModel(),
-            trialSSI: prevState.trialSSI,
+            trialUid: prevState.trialUid,
             trialName: prevState.trialName
         };
 

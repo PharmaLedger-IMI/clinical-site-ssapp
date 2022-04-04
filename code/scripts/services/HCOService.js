@@ -93,7 +93,7 @@ export default class HCOService extends DSUService {
             }
             let clonedICFS = [];
             let siteConsents = consents;
-            let icfsPath = this.PATH + '/' + this.ssi + '/icfs/'+ siteUID;
+            let icfsPath = this.PATH + '/' + this.ssi + '/icfs/';
             let icfsDSUService = new DSUService(icfsPath);
             icfsDSUService.getEntities((err, existingICFS) => {
                 if (err) {
@@ -111,7 +111,6 @@ export default class HCOService extends DSUService {
                         ...consent,
                         genesisUid: consent.uid
                     }
-                    debugger;
 
                     this.DSUStorage.listMountedDSUs(consentsPath, (err, dsuList) => {
                         if (err) {
@@ -139,6 +138,11 @@ export default class HCOService extends DSUService {
                 getServiceDsu(siteConsents.pop());
             });
         });
+    }
+
+    updateHCOSubEntity(entity, path, callback) {
+        const subEntityPath = this._getSubPath(path);
+        this.updateEntity(entity, subEntityPath, callback);
     }
 
 

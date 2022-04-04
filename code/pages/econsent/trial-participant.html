@@ -18,9 +18,10 @@
         </div>
         <main>
 
-            <div class="common-datatable econsents dt-7-col">
+            <div class="common-datatable econsents dt-7-col" data-if="@econsentsDataSource">
+                <webc-spinner slot="loading"></webc-spinner>
 
-                <webc-datatable datasource="@econsentsDataSource">
+                <webc-datatable datasource="@econsentsDataSource" slot="true">
 
                     <div slot="header">Consent Name & ID</div>
                     <div slot="header">Type</div>

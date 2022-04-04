@@ -25,7 +25,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
             tpUid: prevState.tpUid,
             participantName: prevState.participantName,
             participantDID: prevState.participantDID,
-            trialSSI: prevState.trialSSI,
+            trialUid: prevState.trialUid,
 
             device: {
                 label: "Device ID",

@@ -47,7 +47,7 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     initConsent() {
-        let econsent = this.model.hcoDSU.volatile.icfs.find(consent => consent.uid == this.model.econsentSSI);
+        let econsent = this.model.hcoDSU.volatile.icfs.find(consent => consent.uid == this.model.econsentUid);
         if (econsent === undefined) {
             return console.log('Error while loading econsent.');
         }
@@ -76,6 +76,7 @@ export default class EconsentSignController extends BreadCrumbManager {
 
         } else {
             let econsentFilePath = this.getEconsentFilePath(econsent, currentVersion);
+            console.log(econsentFilePath);
             this.downloadFile(econsentFilePath, currentVersion.attachment);
         }
     }
@@ -84,9 +85,9 @@ export default class EconsentSignController extends BreadCrumbManager {
         const currentDate = new Date();
         let sendObject = {
             operation: operation,
-            ssi: this.model.econsentSSI,
+            ssi: this.model.econsentUid,
             useCaseSpecifics: {
-                trialSSI: this.model.trialSSI,
+                trialSSI: this.model.trialUid,
                 tpNumber: this.model.trialParticipant.number,
                 tpDid: this.model.trialParticipant.did,
                 version: this.model.ecoVersion,
@@ -99,12 +100,12 @@ export default class EconsentSignController extends BreadCrumbManager {
             },
             shortDescription: shortMessage,
         };
-        this.CommunicationService.sendMessage(this.model.site.sponsorIdentity, sendObject);
+        this.CommunicationService.sendMessage(this.model.site.sponsorDid, sendObject);
     }
 
     getEconsentFilePath(econsent, currentVersion) {
-        return this.HCOService.PATH + '/' + this.model.hcoDSU.uid + '/icfs/' + this.model.trialSSI + "/"
-            + econsent.uid + '/versions/' + currentVersion.version
+        return this.HCOService.PATH + '/' + this.HCOService.ssi + '/icfs/'
+            + econsent.keySSI + '/versions/' + currentVersion.version
     }
 
     getEconsentManualFilePath(ecoID, consentSSI, fileName) {

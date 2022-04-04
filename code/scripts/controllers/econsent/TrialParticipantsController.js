@@ -32,7 +32,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.model = this.getState();
         this.model.breadcrumb = this.setBreadCrumb(
             {
-                label: "Subjects Trial",
+                label: "Trial Subjects",
                 tag: "econsent-trial-participants"
             }
         );
@@ -246,9 +246,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.onTagEvent('tp:status', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            console.log(this.model.trialSSI, model.uid);
             this.navigateToPageTag('econsent-trial-participant-details', {
-                trialSSI: this.model.trialSSI,
+                trialUid: this.model.trialUid,
                 tpUid: model.uid,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
@@ -260,7 +259,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-trial-participant-devices-list', {
-                trialSSI: model.trialSSI,
+                trialUid: this.model.trialUid,
                 trialNumber: model.trialNumber,
                 tpUid: model.uid,
                 participantName: model.name,
@@ -275,7 +274,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-trial-participant', {
-                trialSSI: this.model.trialSSI,
+                trialUid: this.model.trialUid,
                 tpUid: model.uid,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
@@ -390,7 +389,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             operation: 'update-site-status',
             ssi: this.model.trialSSI,
             stageInfo: {
-                siteSSI: this.model.hcoDSU.volatile?.site[0].KeySSI,
+                siteSSI: this.model.hcoDSU.volatile?.site[0].uid,
                 status: this.model.trial.stage
             },
             shortDescription: 'The stage of the site changed',

@@ -85,7 +85,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.tp = this.model.hcoDSU.volatile.tps[tpIndex];
             if (!this.model.tp.visits || this.model.tp.visits.length < 1) {
                 this.model.tp.visits = this.model.visits;
-                this.HCOService.updateEntity(this.model.tp, {}, async (err, data) => {
+                this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
                     this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
                 });
 
@@ -125,11 +125,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         let v = this.model.hcoDSU.volatile.visit[0];
         v.visits.visits = this.model.tp.visits;
 
-        this.HCOService.updateEntity(v, {}, async (err, data) => {
+        this.HCOService.updateHCOSubEntity(v, "visit", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             let tpIndex = this.model.hcoDSU.volatile.tps.findIndex(tp => tp.uid === this.model.tpUid);
             this.model.tp = this.model.hcoDSU.volatile.tps[tpIndex];
-            this.HCOService.updateEntity(this.model.tp, {}, async (err, data) => {
+            this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
                 this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
                 this.sendMessageToPatient(visit, operation);
             })
@@ -146,7 +146,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.onTagClick("viewConsent", (model) => {
             this.navigateToPageTag("econsent-sign", {
                 trialSSI: model.trialSSI,
-                econsentSSI: model.consentSSI,
+                econsentUid: model.econsentUid,
                 controlsShouldBeVisible: false
             });
         });
@@ -192,7 +192,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     this.model.visits = this.model.tp.visits;
                     let v = this.model.hcoDSU.volatile.visit[0];
                     v.visits.visits = this.model.tp.visits;
-                    this.HCOService.updateEntity(v, {}, async (err, data) => {
+                    this.HCOService.updateHCOSubEntity(v, "visit", async (err, data) => {
                         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
                     });
                     this.sendMessageToPatient(this.model.tp.visits[visitIndex], Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
@@ -244,7 +244,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         model.confirmed = true;
                         let visitIndex = this.model.tp.visits.findIndex(v => v.pk === model.pk);
                         this.model.tp.visits[visitIndex].confirmed = true;
-                        this.HCOService.updateEntity(this.model.tp, {}, async (err, data) => {
+                        this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
                             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
                             this.model.visits = this.model.tp.visits;
                             this.sendMessageToSponsor(model);
@@ -292,7 +292,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         const currentDate = new Date();
         let sendObject = {
             operation: Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_CONFIRMED,
-            ssi: this.model.econsentSSI,
+            ssi: this.model.econsentUid,
             useCaseSpecifics: {
                 trialSSI: visit.trialSSI,
                 tpNumber: this.model.tp.number,
@@ -306,7 +306,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             },
             shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.VISIT_CONFIRMED,
         };
-        this.CommunicationService.sendMessage(this.model.site.sponsorIdentity, sendObject);
+        this.CommunicationService.sendMessage(this.model.site.sponsorDid, sendObject);
     }
 
     getInitModel() {

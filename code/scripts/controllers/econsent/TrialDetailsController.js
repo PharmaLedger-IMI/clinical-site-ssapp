@@ -20,7 +20,7 @@ export default class TrialDetailsController extends BreadCrumbManager {
 
         const prevState = this.getState() || {};
         const { breadcrumb, ...state } = prevState;
-        this.model.trialSSI = state.keySSI;
+        this.model.trialUid = state.trialUid;
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -45,7 +45,7 @@ export default class TrialDetailsController extends BreadCrumbManager {
 
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this.initTrial(this.model.trialSSI);
+        this.initTrial(this.model.trialUid);
     }
 
     initHandlers() {
@@ -57,7 +57,7 @@ export default class TrialDetailsController extends BreadCrumbManager {
     }
 
     async initTrial(keySSI) {
-        this.model.trial = this.model.hcoDSU.volatile.trial.find(t => t.uid === this.model.trialSSI);
+        this.model.trial = this.model.hcoDSU.volatile.trial.find(t => t.uid === this.model.trialUid);
         if (this.model.trial === undefined) {
             this.model.trial = {};
         }
@@ -82,7 +82,7 @@ export default class TrialDetailsController extends BreadCrumbManager {
                     versions: econsent.versions.map(v => {
                         return {
                             ...v,
-                            econsentSSI: econsent.uid,
+                            econsentUid: econsent.uid,
                             versionDateAsString: DateTimeService.convertStringToLocaleDate(v.versionDate)
                         }
                     })
@@ -106,8 +106,8 @@ export default class TrialDetailsController extends BreadCrumbManager {
     attachHandlerNavigateToVersion() {
         this.onTagClick("navigate-to-version", (model) => {
             this.navigateToPageTag("econsent-sign", {
-                trialSSI: this.model.trialSSI,
-                econsentSSI: model.econsentSSI,
+                trialUid: this.model.trialUid,
+                econsentUid: model.econsentUid,
                 ecoVersion: model.version,
                 controlsShouldBeVisible: false
             });
