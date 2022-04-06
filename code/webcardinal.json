@@ -94,6 +94,12 @@
 			"tag": "iot-add-device-summary"
 		},
 		{
+			"name": "edit-device",
+			"path": "/iot/devices/edit-device",
+			"src": "iot/devices/edit-device.html",
+			"tag": "iot-edit-device"
+		},
+		{
 			"name": "list-all-devices",
 			"path": "/iot/devices/list-all-devices",
 			"src": "iot/devices/list-all-devices.html",

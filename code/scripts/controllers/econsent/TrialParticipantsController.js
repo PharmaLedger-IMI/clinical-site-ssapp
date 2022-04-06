@@ -48,6 +48,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         let trialParticipants = await this.initializeData();
+        this.model.hasTrialParticipants = this.model.trialParticipants.length !== 0;
         return this.model.trialParticipantsDataSource = DataSourceFactory.createDataSource(6, 10, trialParticipants);
     }
 

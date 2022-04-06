@@ -1,0 +1,43 @@
+<webc-container data-view-model="@" controller="iot/devices/DeviceActionController">
+    <div class="form-row">
+        <div class="form-group">
+            <label class="col-form-label" for="@deviceName.name">{{@name.label}}</label>
+            <input class="form-control" data-view-model="@deviceName" id="@deviceName.name" value="@deviceName.value" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="col-form-label" for="@deviceId.name">{{@deviceId.label}}</label>
+            <input class="form-control" data-view-model="@deviceId" id="@deviceId.name" value="@deviceId.value" />
+        </div>
+        <div class="form-group">
+            <label class="col-form-label" for="@manufacturer.name">{{@manufacturer.label}}</label>
+            <input class="form-control" data-view-model="@manufacturer" id="@manufacturer.name"
+                value="@manufacturer.value" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="col-form-label" for="@modelNumber.name">{{@modelNumber.label}}</label>
+            <input class="form-control" data-view-model="@modelNumber" id="@modelNumber.name" value="@modelNumber.value" />
+        </div>
+        <div class="form-group">
+            <label class="col-form-label" for="@brand.name">{{@brand.label}}</label>
+            <input class="form-control" data-view-model="@brand" id="@brand.name" value="@brand.value" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="col-form-label">{{@trial.label}}</label>
+            <select class="form-control" data-for="@trial.options" value="@trial.value">
+                <option value="@value">{{@label}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="col-form-label">{{@status.label}}</label>
+            <select class="form-control" data-for="@status.options" value="@status.value">
+                <option value="@value">{{@label}}</option>
+            </select>
+        </div>
+    </div>
+</webc-container>

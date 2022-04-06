@@ -24,6 +24,7 @@ export default class TrialManagementController extends BreadCrumbManager {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.model.trials = this.model.hcoDSU.volatile.trial !== undefined ? this.model.hcoDSU.volatile.trial : [];
 
+        this.model.hasTrials = this.model.trials.length !== 0;
         this.model.trialsDataSource = DataSourceFactory.createDataSource(8, 10, this.model.trials);
         return this.model.trialsDataSource;
     }

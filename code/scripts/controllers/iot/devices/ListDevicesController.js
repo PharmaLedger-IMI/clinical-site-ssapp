@@ -10,7 +10,9 @@ export default class ListDevicesController extends BreadCrumbManager {
         this.model = {allDevices: []};
         this.deviceServices = new DeviceServices();
 
-        this.model = this.getState();
+        // this.model = this.getState();
+        
+        // this.model.allDevices = mocks;
         this.model.breadcrumb = this.setBreadCrumb(
             {
                 label: "Search Device",
@@ -27,6 +29,7 @@ export default class ListDevicesController extends BreadCrumbManager {
     }
 
     init() {
+
         this.deviceServices.searchDevice((err, devices) => {
             if (err) {
                 return console.error(err);
