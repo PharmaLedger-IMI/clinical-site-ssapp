@@ -180,11 +180,10 @@ export default class LandingPageController extends WebcController {
                         if (err) {
                             return console.log(err);
                         }
-                        site.sponsorIdentity = senderIdentity;
-                        this.HCOService.updateHCOSubEntity(site, "site", (err, updatedSite) => {
                             if (err) {
                                 return console.log(err);
                             }
+
                             this.HCOService.mountTrial(site.trialSReadSSI, (err, trial) => {
                                 if (err) {
                                     return console.log(err);
@@ -198,7 +197,6 @@ export default class LandingPageController extends WebcController {
                                         resolve();
                                     })
                             });
-                        });
                     });
                 }))
                 await mountSiteAndUpdateEntity;
@@ -347,15 +345,15 @@ export default class LandingPageController extends WebcController {
             useCaseSpecifics: {
                 tpName: trialParticipant.name,
                 did: trialParticipant.did,
-                sponsorIdentity: trialParticipant.sponsorIdentity,
+                sponsorDid: trialParticipant.sponsorDid,
                 trialSSI: ssi
             },
             shortDescription: shortMessage,
         });
     }
 
-    sendMessageToSponsor(sponsorIdentity, operation, ssi, shortMessage) {
-        this.CommunicationService.sendMessage(sponsorIdentity, {
+    sendMessageToSponsor(sponsorDid, operation, ssi, shortMessage) {
+        this.CommunicationService.sendMessage(sponsorDid, {
             operation: operation,
             ssi: ssi,
             shortDescription: shortMessage,

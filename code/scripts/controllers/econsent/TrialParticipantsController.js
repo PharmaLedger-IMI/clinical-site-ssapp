@@ -338,7 +338,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             useCaseSpecifics: {
                 tpName: tp.name,
                 did: tp.did,
-                sponsorIdentity: tp.sponsorIdentity,
+                sponsorDid: tp.sponsorDid,
                 trialSSI: trialSSI
             },
             shortDescription: shortMessage,
@@ -357,7 +357,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 tpName: tp.tpName,
                 tpDid: tp.did,
                 trialSSI: trialSSI,
-                sponsorIdentity: site.sponsorIdentity,
+                sponsorDid: site.sponsorDid,
                 site: {
                     name: site?.name,
                     number: site?.id,
