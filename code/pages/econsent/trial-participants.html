@@ -27,33 +27,40 @@
                 </div>
             </div>
 
-            <div class="common-datatable trial-participant dt-6-col">
+            <div data-if="@hasTrialsParticipants">
 
-                <webc-datatable datasource="@trialParticipantsDataSource">
+                <div slot="false" class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">No trial participants yet!</h4>
+                    <p>Add your first trial participants!</p>
+                </div>
+                <div class="common-datatable trial-participant dt-6-col" slot="true">
 
-                    <div slot="header">Name</div>
-                    <div slot="header">Number</div>
-                    <div slot="header">Birthday</div>
-                    <div slot="header">Status</div>
-                    <div slot="header">Notification for action</div>
-                    <div slot="header">Overview</div>
+                    <webc-datatable datasource="@trialParticipantsDataSource">
+
+                        <div slot="header">Name</div>
+                        <div slot="header">Number</div>
+                        <div slot="header">Birthday</div>
+                        <div slot="header">Status</div>
+                        <div slot="header">Notification for action</div>
+                        <div slot="header">Overview</div>
 
 
-                    <div class="cell">{{@name}}{{@lastName}}</div>
-                    <div class="cell">{{@number}}</div>
-                    <div class="cell">{{@birthdate}}</div>
-                    <div class="cell">{{@status}}</div>
-                    <div class="cell">{{@actionNeeded}}</div>
-                    <div class="cell">
-                        <button class="link-button" data="@id" data-tag="tp:status">Status</button>
-                        <label> | </label>
-                        <button class="link-button" data="@id" data-tag="tp:details">Consents</button>
-                        <label> | </label>
-                        <button class="link-button" data="@" data-tag="tp:devices">Devices</button>
+                        <div class="cell">{{@name}}{{@lastName}}</div>
+                        <div class="cell">{{@number}}</div>
+                        <div class="cell">{{@birthdate}}</div>
+                        <div class="cell">{{@status}}</div>
+                        <div class="cell">{{@actionNeeded}}</div>
+                        <div class="cell">
+                            <button class="link-button" data="@id" data-tag="tp:status">Status</button>
+                            <label> | </label>
+                            <button class="link-button" data="@id" data-tag="tp:details">Consents</button>
+                            <label> | </label>
+                            <button class="link-button" data="@" data-tag="tp:devices">Devices</button>
 
-                    </div>
+                        </div>
 
-                </webc-datatable>
+                    </webc-datatable>
+                </div>
             </div>
 
         </main>

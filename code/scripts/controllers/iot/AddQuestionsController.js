@@ -1,6 +1,6 @@
 const commonServices = require("common-services");
-const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const {QuestionnaireService} = commonServices;
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 
 let getInitModel = () => {
@@ -9,7 +9,6 @@ let getInitModel = () => {
         selected_trial: {}
     };
 };
-
 
 export default class AddQuestionsController extends BreadCrumbManager {
 

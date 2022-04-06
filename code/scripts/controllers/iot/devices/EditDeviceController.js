@@ -2,12 +2,12 @@ import HCOService from "../../../services/HCOService.js"
 import DeviceServices from "../../../services/DeviceServices.js";
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-const  {getCommunicationServiceInstance} = commonServices.CommunicationService;
+const { getCommunicationServiceInstance } = commonServices.CommunicationService;
 import { COMMUNICATION_MESSAGES } from "../../../utils/CommunicationMessages.js";
 import { modelSetter } from "./deviceModel/deviceViewModel.js";
 
 
-export default class AddDeviceController extends BreadCrumbManager {
+export default class EditDeviceController extends BreadCrumbManager {
     constructor(element, history) {
 
         super(element, history);
@@ -16,41 +16,35 @@ export default class AddDeviceController extends BreadCrumbManager {
         this.model = this.getState();
         this.model.breadcrumb = this.setBreadCrumb(
             {
-                label: "Add Device",
-                tag: "iot-add-device"
+                label: "Edit Device",
+                tag: "iot-edit-device"
             }
         );
-
 
         this.deviceServices = new DeviceServices();
         let hcoService = new HCOService();
         let hcoDSUPromise = hcoService.getOrCreateAsync();
         hcoDSUPromise.then(hcoDSU => {
             let allTrials = [];
-           let listTrials = hcoDSU.volatile.trial;
-            for(let trial in listTrials){
-                let trialFormat={
+            let listTrials = hcoDSU.volatile.trial;
+            for (let trial in listTrials) {
+                let trialFormat = {
                     label: "",
                     value: "",
                     ssi: ""
                 };
                 trialFormat.label = listTrials[trial].name + " - " + listTrials[trial].id;
                 trialFormat.value = listTrials[trial].id;
-                trialFormat.ssi  = listTrials[trial].uid;
+                trialFormat.ssi = listTrials[trial].uid;
                 trialFormat.name = listTrials[trial].name;
                 allTrials.push(trialFormat);
             }
 
-
-            let objToSend = { 
-                // prevState : prevState,
-                trials : allTrials
-            }
-
-            this.model = modelSetter(objToSend, false);
+            let objToSend = { prevState: prevState.data, trials: allTrials } // 
+            this.model = modelSetter(objToSend, true);
             this.model.trials = allTrials;
         });
-        
+
         this.attachHandlerGoBackButton();
         this.attachHandlerSaveButton();
 
@@ -58,7 +52,7 @@ export default class AddDeviceController extends BreadCrumbManager {
 
     attachHandlerGoBackButton() {
         this.onTagClick('devices:go-back', () => {
-            this.navigateToPageTag('iot-manage-devices',{breadcrumb: this.model.toObject('breadcrumb')});
+            this.navigateToPageTag('iot-manage-devices', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
@@ -66,7 +60,7 @@ export default class AddDeviceController extends BreadCrumbManager {
         this.onTagClick('devices:save', () => {
 
             const deviceData = this.prepareDeviceData(this.model.trials);
-            this.deviceServices.saveDevice(deviceData, (err, data) => {
+            this.deviceServices.updateDevice(deviceData, (err, data) => {
                 let message = {};
 
                 if (err) {
@@ -79,14 +73,15 @@ export default class AddDeviceController extends BreadCrumbManager {
 
                 const communicationService = getCommunicationServiceInstance();
                 communicationService.sendMessageToIotAdaptor({
-                    operation:COMMUNICATION_MESSAGES.ADD_DEVICE,
-                    sReadSSI:data.sReadSSI
+                    operation: COMMUNICATION_MESSAGES.EDIT_DEVICE,
+                    uid: deviceData.uid
                 });
 
                 this.navigateToPageTag('iot-manage-devices', {
                     message: message,
                     breadcrumb: this.model.toObject('breadcrumb')
                 });
+
             });
         });
     }
@@ -94,7 +89,6 @@ export default class AddDeviceController extends BreadCrumbManager {
     prepareDeviceData(trial_list) {
 
         let selected_trial = trial_list.find(t => t.value === this.model.trial.value);
-
         return {
             resourceType: "Device",
             identifier: [{
@@ -112,18 +106,18 @@ export default class AddDeviceController extends BreadCrumbManager {
             deviceId: this.model.deviceId.value,
             device: [
                 {
-                    name:  this.model.deviceName.value,
+                    name: this.model.deviceName.value,
                     type: "manufacturer-name"
                 }
             ],
-            deviceName: this.model.modelNumber.value,
             modelNumber: this.model.modelNumber.value,
             brand: this.model.brand.value,
             deviceName: this.model.deviceName.value,
             trialSSI: selected_trial.ssi,
             trialName: selected_trial.name,
             trialID: this.model.trial.value,
-            sk: this.model.deviceId.value
+            sk: this.model.deviceId.value,
+            uid: this.model.data.uid
         };
     }
 }

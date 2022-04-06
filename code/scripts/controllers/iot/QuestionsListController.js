@@ -2,8 +2,7 @@ import HCOService from '../../services/HCOService.js';
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const {QuestionnaireService} = commonServices;
-const { DataSource } = WebCardinal.dataSources;
-
+const DataSourceFactory = commonServices.getDataSourceFactory();
 
 let getInitModel = () => {
     return {
@@ -12,35 +11,6 @@ let getInitModel = () => {
     };
 };
 
-class QuestionsDataSource extends DataSource {
-    constructor(data) {
-        super();
-        this.model.questions = data;
-        this.model.elements = 6;
-        this.setPageSize(this.model.elements);
-        this.model.noOfColumns = 3;
-    }
-
-    async getPageDataAsync(startOffset, dataLengthForCurrentPage) {
-        console.log({startOffset, dataLengthForCurrentPage});
-        if (this.model.questions.length <= dataLengthForCurrentPage) {
-            this.setPageSize(this.model.questions.length);
-        }
-        else {
-            this.setPageSize(this.model.elements);
-        }
-        let slicedData = [];
-        this.setRecordsNumber(this.model.questions.length);
-        if (dataLengthForCurrentPage > 0) {
-            slicedData = Object.entries(this.model.questions).slice(startOffset, startOffset + dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        } else {
-            slicedData = Object.entries(this.model.questions).slice(0, startOffset - dataLengthForCurrentPage).map(entry => entry[1]);
-            console.log(slicedData)
-        }
-        return slicedData;
-    }
-}
 
 export default class QuestionsListController extends BreadCrumbManager {
 
@@ -133,7 +103,7 @@ export default class QuestionsListController extends BreadCrumbManager {
             }
             else{
                 this.model.hasProms = this.model.questionnaire.prom.length !== 0;
-                this.model.PromsDataSource = new QuestionsDataSource(this.model.questionnaire.prom);
+                this.model.PromsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prom);
                 const { PromsDataSource } = this.model;
                 this.onTagClick("prom-prev-page", () => PromsDataSource.goToPreviousPage());
                 this.onTagClick("prom-next-page", () => PromsDataSource.goToNextPage());
@@ -144,7 +114,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                     console.log(model);
                 });
                 this.model.hasPrems = this.model.questionnaire.prem.length !== 0;
-                this.model.PremsDataSource = new QuestionsDataSource(this.model.questionnaire.prem);
+                this.model.PremsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prem);
                 const { PremsDataSource } = this.model;
                 this.onTagClick("prem-prev-page", () => PremsDataSource.goToPreviousPage());
                 this.onTagClick("prem-next-page", () => PremsDataSource.goToNextPage());

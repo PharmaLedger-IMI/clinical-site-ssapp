@@ -5,38 +5,45 @@
             <h2 class="main-title">Trial Management</h2>
         </div>
         <main>
-            <div class="common-datatable trial-management dt-8-col">
+            <div data-if="@hasTrials">
 
-                <webc-datatable datasource="@trialsDataSource">
+                <webc-spinner slot="loading"></webc-spinner>
+                <div slot="false" class="alert alert-warning" role="alert">
+                    <h4 class="alert-heading">No trials yet!</h4>
+                    <p>Add your first trial!</p>
+                </div>
+                <div class="common-datatable trial-management dt-8-col" slot="true">
 
-                    <div slot="header">Sponsor</div>
-                    <div slot="header">Trial Number/Id</div>
-                    <div slot="header">Trial Name</div>
-                    <div slot="header">Status</div>
-                    <div slot="header">Stage</div>
-                    <div slot="header">Notifications</div>
-                    <div slot="header">Action Required</div>
-                    <div slot="header">Options</div>
+                    <webc-datatable datasource="@trialsDataSource">
+
+                        <div slot="header">Sponsor</div>
+                        <div slot="header">Trial Number/Id</div>
+                        <div slot="header">Trial Name</div>
+                        <div slot="header">Status</div>
+                        <div slot="header">Stage</div>
+                        <div slot="header">Notifications</div>
+                        <div slot="header">Action Required</div>
+                        <div slot="header">Options</div>
 
 
-                    <div class="cell">{{ @sponsor }}</div>
-                    <div class="cell">{{ @id }}</div>
-                    <div class="cell">{{ @name }}</div>
-                    <div class="cell">{{ @status }}</div>
-                    <div class="cell">{{ @stage }}</div>
-                    <div class="cell">N/A</div>
-                    <div class="cell">N/A</div>
-                    <div class="cell">
-                        <button class="link-button" data-tag="trials:details">Overview</button>
-                        <label> | </label>
-                        <button class="link-button" data-tag="trials:participants">Subjects</button>
-                         <label> | </label>
-                        <button class="link-button" data-tag="trials:questionnaire">Questionnaire</button>
-                    </div>
+                        <div class="cell">{{ @sponsor }}</div>
+                        <div class="cell">{{ @id }}</div>
+                        <div class="cell">{{ @name }}</div>
+                        <div class="cell">{{ @status }}</div>
+                        <div class="cell">{{ @stage }}</div>
+                        <div class="cell">N/A</div>
+                        <div class="cell">N/A</div>
+                        <div class="cell">
+                            <button class="link-button" data-tag="trials:details">Overview</button>
+                            <label> | </label>
+                            <button class="link-button" data-tag="trials:participants">Subjects</button>
+                            <label> | </label>
+                            <button class="link-button" data-tag="trials:questionnaire">Questionnaire</button>
+                        </div>
 
-                </webc-datatable>
+                    </webc-datatable>
+                </div>
             </div>
-
 
         </main>
         <div class="button-group-wrapper">
