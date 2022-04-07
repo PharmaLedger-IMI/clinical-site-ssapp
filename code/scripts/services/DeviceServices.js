@@ -7,7 +7,7 @@ export default class DeviceServices extends DSUService {
         super('/device');
     }
 
-    searchDevice(callback) {
+    getDevice(callback) {
         this.getEntities((err, devices) => {
             if (err) {
                 return callback(err)

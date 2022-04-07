@@ -30,7 +30,7 @@ export default class ListDevicesController extends BreadCrumbManager {
 
     init() {
 
-        this.deviceServices.searchDevice((err, devices) => {
+        this.deviceServices.getDevice((err, devices) => {
             if (err) {
                 return console.error(err);
             }

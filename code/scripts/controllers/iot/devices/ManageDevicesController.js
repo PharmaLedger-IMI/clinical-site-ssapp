@@ -20,7 +20,7 @@ export default class ManageDevicesController extends BreadCrumbManager {
             }
         );
 
-        this.model.testBool = false;
+        this.model.noResults = false;
 
         this.attachHandlerAddDevice();
         this.attachModelHandlers();
@@ -70,21 +70,21 @@ export default class ManageDevicesController extends BreadCrumbManager {
 
             this.model.devicesDataSource.updateDevices(JSON.parse(JSON.stringify(filteredDevices)));
             if (filteredDevices.length === 0) {
-                this.model.testBool = true;
+                this.model.noResults = true;
             }
             else {
-                this.model.testBool = false;
+                this.model.noResults = false;
             }
         }
         else {
             this.model.devicesDataSource.updateDevices(allDevices);
-            this.model.testBool = false;
+            this.model.noResults = false;
         }
     }
 
 
     init() {
-        this.deviceServices.searchDevice((err, devices) => {
+        this.deviceServices.getDevice((err, devices) => {
             if (err) {
                 return console.error(err);
             }
@@ -109,7 +109,10 @@ export default class ManageDevicesController extends BreadCrumbManager {
     attachModelHandlers() {
         this.model.addExpression(
             'deviceListNotEmpty',
-            () => this.model.allDevices && this.model.allDevices.length > 0,
+            () => {
+                return this.model.allDevices && this.model.allDevices.length > 0
+            }
+            ,
             'allDevices');
     }
 
@@ -175,7 +178,7 @@ export default class ManageDevicesController extends BreadCrumbManager {
 
                         });
 
-                        this.deviceServices.searchDevice((err, devices) => {
+                        this.deviceServices.getDevice((err, devices) => {
                             if (err) {
                                 return console.error(err);
                             }

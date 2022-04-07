@@ -28,7 +28,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
 
     getDeviceFullInfo(deviceID) {
         this.DeviceServices = new DeviceServices();
-        this.DeviceServices.searchDevice((err, devices) => {
+        this.DeviceServices.getDevice((err, devices) => {
             if (err) {
                 return console.error(err);
             }
@@ -56,7 +56,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 this.model.deviceListAvailable = false
 
                 this.DeviceServices = new DeviceServices();
-                this.DeviceServices.searchDevice((err, devices) => {
+                this.DeviceServices.getDevice((err, devices) => {
                     if (err) {
                         return console.error(err);
                     }
