@@ -105,7 +105,7 @@ export default class EconsentSignController extends BreadCrumbManager {
 
     getEconsentFilePath(econsent, currentVersion) {
         return this.HCOService.PATH + '/' + this.HCOService.ssi + '/icfs/'
-            + econsent.keySSI + '/versions/' + currentVersion.version
+            + econsent.uid + '/versions/' + currentVersion.version
     }
 
     getEconsentManualFilePath(ecoID, consentSSI, fileName) {
@@ -232,13 +232,13 @@ export default class EconsentSignController extends BreadCrumbManager {
             toShowDate: currentDate.toLocaleDateString(),
         });
 
-        this.model.econsent.uid = this.model.econsent.keySSI;
         this.model.econsent.versions[currentVersionIndex] = currentVersion;
-        this.TrialService.updateEconsent(this.model.trialSSI, this.model.econsent, (err, response) => {
+        this.HCOService.updateHCOSubEntity(this.model.econsent, "icfs", async (err, response) => {
             if (err) {
                 return console.log(err);
             }
-            this.updateTrialParticipantStatus();
+            this.updateTrialParticipantStatus()
+            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         });
     }
 
