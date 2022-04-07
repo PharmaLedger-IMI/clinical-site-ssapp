@@ -40,8 +40,8 @@ export default class EditDeviceController extends BreadCrumbManager {
                 allTrials.push(trialFormat);
             }
 
-            let objToSend = { prevState: prevState.data, trials: allTrials } // 
-            this.model = modelSetter(objToSend, true);
+            let trialsState = { prevState: prevState.data, trials: allTrials }
+            this.model = modelSetter(trialsState, true);
             this.model.trials = allTrials;
         });
 

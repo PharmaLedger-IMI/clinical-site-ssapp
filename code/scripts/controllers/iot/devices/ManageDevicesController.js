@@ -2,12 +2,14 @@ import DeviceServices from "../../../services/DeviceServices.js"
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const { getCommunicationServiceInstance } = commonServices.CommunicationService;
+import { COMMUNICATION_MESSAGES } from "../../../utils/CommunicationMessages.js";
+
 
 export default class ManageDevicesController extends BreadCrumbManager {
     constructor(element, history) {
         super(element, history);
 
-        // this.model = { allDevices: [] };
         this.deviceServices = new DeviceServices();
 
         this.model = this.getState();
@@ -18,11 +20,14 @@ export default class ManageDevicesController extends BreadCrumbManager {
             }
         );
 
+        this.model.testBool = false;
+
         this.attachHandlerAddDevice();
         this.attachModelHandlers();
         this.attachHandlerGoBack();
         this.attachHandlerViewDevice();
         this.attachHandlerEditDevice();
+        this.attachHandlerRemoveDevice();
 
         let search = {
             label: 'Search for a trial',
@@ -44,22 +49,36 @@ export default class ManageDevicesController extends BreadCrumbManager {
     }
 
     filterData() {
+        let searchKeys = ['deviceId', 'modelNumber', 'manufacturer', 'deviceName', 'brand', 'status', 'trial']
+
         let allDevices = this.model.toObject('allDevices');
 
         if (this.model.search.value.trim() !== '') {
             let filteredDevices = allDevices.filter(device => {
+
                 let keys = Object.keys(device);
                 for (let key of keys) {
-                    if (device[key].toString().toUpperCase().search(this.model.search.value.toUpperCase()) !== -1) {
-                        return true;
+                    for (let searchKey of searchKeys) {
+                        if (device[key].toString().toUpperCase().search(this.model.search.value.toUpperCase()) !== -1 && searchKey === key) {
+                            return true;
+                        }
                     }
                 }
+
                 return false;
             });
+
             this.model.devicesDataSource.updateDevices(JSON.parse(JSON.stringify(filteredDevices)));
+            if (filteredDevices.length === 0) {
+                this.model.testBool = true;
+            }
+            else {
+                this.model.testBool = false;
+            }
         }
         else {
             this.model.devicesDataSource.updateDevices(allDevices);
+            this.model.testBool = false;
         }
     }
 
@@ -69,7 +88,6 @@ export default class ManageDevicesController extends BreadCrumbManager {
             if (err) {
                 return console.error(err);
             }
-            console.log(devices);
             this.model.allDevices = devices;
             this.model.devicesDataSource = DataSourceFactory.createDataSource(7, 10, this.model.allDevices);
             this.model.devicesDataSource.__proto__.updateDevices = function (devices) {
@@ -113,6 +131,60 @@ export default class ManageDevicesController extends BreadCrumbManager {
         this.onTagClick('edit', (model) => {
             console.log("Edit Device button pressed", model);
             this.navigateToPageTag('iot-edit-device', { data: model, breadcrumb: this.model.toObject('breadcrumb') });
+        });
+    }
+
+    attachHandlerRemoveDevice() {
+        this.onTagClick('remove', (model) => {
+            console.log("Remove Device button pressed", model);
+
+            const modalConfig = {
+                controller: "modals/ConfirmationAlertController",
+                disableExpanding: false,
+                disableBackdropClosing: true,
+                question: "Are you sure you want to delete this device? ",
+                title: "Delete device",
+            };
+
+            const deviceUid = model.uid;
+
+            this.showModalFromTemplate(
+                "confirmation-alert",
+                (event) => {
+
+                    if (event.type === 'confirmed') {
+
+                        let message = {};
+
+                        this.deviceServices.deleteDevice(deviceUid, (err, data) => {
+                            if (err) {
+                                message.content = "An error has been occurred!";
+                                message.type = 'error';
+                            } else {
+                                message.content = `The device has been deleted!`;
+                                message.type = 'success'
+                            }
+
+                            this.model.message = message;
+
+                            const communicationService = getCommunicationServiceInstance();
+                            communicationService.sendMessageToIotAdaptor({
+                                operation: COMMUNICATION_MESSAGES.REMOVE_DEVICE,
+                                uid: deviceUid
+                            });
+
+                        });
+
+                        this.deviceServices.searchDevice((err, devices) => {
+                            if (err) {
+                                return console.error(err);
+                            }
+                            this.model.allDevices = devices;
+                            this.model.devicesDataSource.updateDevices(devices);
+                        });
+                    }
+                }, this.emptyCallback, modalConfig);
+
         });
     }
 

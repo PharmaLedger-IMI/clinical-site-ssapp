@@ -24,7 +24,7 @@ export default class DeviceServices extends DSUService {
         this.updateEntity(device, callback);
     }
 
-    deleteDevice(device, callback) {
-        console.log("delete device WIP!")
+    deleteDevice(uid, callback) {
+        this.unmountEntity(uid, callback);
     }
 }

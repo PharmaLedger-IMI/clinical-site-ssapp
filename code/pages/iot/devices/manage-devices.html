@@ -13,14 +13,19 @@
 
             <webc-spinner slot="loading"></webc-spinner>
             <div slot="false" class="alert alert-warning" role="alert">
-                <h4 class="alert-heading">No trials yet!</h4>
-                <p>Add your first trial!</p>
+                <h4 class="alert-heading">No devices yet!</h4>
+                <p>Add your first device!</p>
             </div>
+            
             <div class="common-datatable econsents dt-7-col" slot="true">
 
                 <div class="m-2 d-flex flex-column">
                     <label for="@search.name">Search device:</label>
                     <input class="form-control" id="search-field" data-view-model="@search" event-name="filters-changed" />
+                </div>
+
+                <div class="m-2" data-if="@testBool">
+                    <strong><p>There are no results for your search!</p></strong>
                 </div>
 
                 <webc-datatable datasource="@devicesDataSource">

@@ -78,7 +78,6 @@ function getModel(data = {}) {
 }
 
 export function modelSetter(data, readonly = false) {
-    console.log(data);
     let model = getModel(data);
 
     if (readonly === false) {

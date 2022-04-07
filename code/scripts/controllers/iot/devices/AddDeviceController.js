@@ -42,12 +42,11 @@ export default class AddDeviceController extends BreadCrumbManager {
             }
 
 
-            let objToSend = { 
-                // prevState : prevState,
+            let trialsState = { 
                 trials : allTrials
             }
 
-            this.model = modelSetter(objToSend, false);
+            this.model = modelSetter(trialsState, false);
             this.model.trials = allTrials;
         });
         
@@ -73,7 +72,7 @@ export default class AddDeviceController extends BreadCrumbManager {
                     message.content = "An error has been occurred!";
                     message.type = 'error';
                 } else {
-                    message.content = `The device has been updated!`;
+                    message.content = `The device has been added!`;
                     message.type = 'success'
                 }
 
