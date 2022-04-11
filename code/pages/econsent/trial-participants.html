@@ -27,15 +27,17 @@
                 </div>
             </div>
 
-            <div data-if="@hasTrialsParticipants">
+            <div data-if="@dataSourceInitialized">
+                 <webc-spinner slot="loading"></webc-spinner>
 
-                <div slot="false" class="alert alert-warning" role="alert">
-                    <h4 class="alert-heading">No trial participants yet!</h4>
-                    <p>Add your first trial participants!</p>
-                </div>
                 <div class="common-datatable trial-participant dt-6-col" slot="true">
 
                     <webc-datatable datasource="@trialParticipantsDataSource">
+
+                        <div slot="no-data" class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">No trial participants yet!</h4>
+                            <p>Add your first trial participants!</p>
+                        </div>
 
                         <div slot="header">Name</div>
                         <div slot="header">Number</div>

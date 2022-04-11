@@ -1,4 +1,5 @@
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
+const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 export default class TrialParticipantDevicesController extends BreadCrumbManager {
@@ -14,7 +15,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
             }
         );
 
-        this._attachHandlerGoBack(prevState);
+        this._attachHandlerGoBack(this.model);
         this._attachHandlerSave();
     }
 
@@ -57,7 +58,10 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
 
     _attachHandlerGoBack(prevState) {
         this.onTagClick('back', () => {
-            this.navigateToPageTag('econsent-trial-participants', prevState.trialSSI);
+            this.navigateToPageTag('econsent-trial-participants', {
+                trialUid : prevState.trialSSI ,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
         });
     }
 
@@ -69,13 +73,15 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
                 if (err) {
                     this.navigateToPageTag('confirmation-page', {
                         confirmationMessage: "An error has been occurred!",
-                        redirectPage: "econsent-trial-management"
+                        redirectPage: "econsent-trial-management",
+                        breadcrumb: this.model.toObject('breadcrumb')
                     });
                     return console.log(err);
                 }
                 this.navigateToPageTag('confirmation-page', {
                     confirmationMessage: "The device has been assigned to the patient successfully.",
-                    redirectPage: "econsent-trial-management"
+                    redirectPage: "econsent-trial-management",
+                    breadcrumb: this.model.toObject('breadcrumb')
                 });
             });
         });

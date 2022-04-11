@@ -37,7 +37,18 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             }
         );
 
-        this.model.trialParticipantsDataSource = this._initServices();
+        this._initServices().then(() => {
+            this.model.dataSourceInitialized = true;
+            this.model.trialParticipantsDataSource = DataSourceFactory.createDataSource(6, 10, this.model.toObject('trialParticipants'));
+            this.model.trialParticipantsDataSource.__proto__.updateParticipants = function (trialParticipants) {
+                this.model.trialParticipants = trialParticipants;
+                this.model.tableData = trialParticipants;
+
+                this.getElement().dataSize = trialParticipants.length;
+                this.forceUpdate(true);
+            }
+        });
+
 
         this._initHandlers();
     }
@@ -47,15 +58,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.TrialService = new TrialService();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
-        let trialParticipants = await this.initializeData();
-        this.model.hasTrialParticipants = this.model.trialParticipants.length !== 0;
-        return this.model.trialParticipantsDataSource = DataSourceFactory.createDataSource(6, 10, trialParticipants);
+        return await this.initializeData();
     }
 
     async initializeData() {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        await this._initTrial(this.model.trialUid);
-        return this.model.toObject('trialParticipants');
+        return await this._initTrial(this.model.trialUid);
     }
 
     _initHandlers() {
@@ -198,7 +206,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     await this.TrialService.updateTrialAsync(this.model.trial);
                     await this.createTpDsu(response);
                     this._showFeedbackToast('Result', Constants.MESSAGES.HCO.FEEDBACK.SUCCESS.ADD_TRIAL_PARTICIPANT);
-
+                    this.model.trialParticipantsDataSource.updateParticipants(this.model.toObject('trialParticipants'))
                 },
                 (event) => {
                     const response = event.detail;

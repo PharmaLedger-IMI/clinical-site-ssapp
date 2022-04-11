@@ -113,7 +113,7 @@ export default class EditDeviceController extends BreadCrumbManager {
             modelNumber: this.model.modelNumber.value,
             brand: this.model.brand.value,
             deviceName: this.model.deviceName.value,
-            trialSSI: selected_trial.ssi,
+            trialUid: selected_trial.ssi,
             trialName: selected_trial.name,
             trialID: this.model.trial.value,
             sk: this.model.deviceId.value,

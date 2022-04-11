@@ -1,5 +1,6 @@
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
 import DeviceServices from "../../services/DeviceServices.js";
+const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 
@@ -21,9 +22,9 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
         this.model.deviceListAvailable = false
         this.model.assignedDevicesIDsOnly = []
 
-        this._attachHandlerGoBack(prevState);
+        this._attachHandlerGoBack(this.model);
         this._attachHandlerAssignDevice();
-        this.findAssignedDevices(prevState)
+        this.findAssignedDevices(this.model);
     }
 
     getDeviceFullInfo(deviceID) {
@@ -67,7 +68,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
     }
 
     findAvailableDevicesToMatch(){
-        this.model.all_registered_devices =  this.model.alldevices.filter(t => t.trialSSI === this.model.trialSSI);
+        this.model.all_registered_devices =  this.model.alldevices.filter(t => t.trialUid === this.model.trialUid);
         this.model.available_devices = this.model.all_registered_devices;
         this.model.assignedDevicesIDsOnly.forEach(id =>
             this.model.available_devices.splice(this.model.available_devices.findIndex(t => t.sk === id), 1)
@@ -110,7 +111,8 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     participantName: this.model.participantName,
                     tpUid: this.model.tpUid ,
                     trialNumber: this.model.trialNumber,
-                    trialSSI: this.model.trialSSI
+                    trialSSI: this.model.trialSSI,
+                    breadcrumb: this.model.toObject('breadcrumb')
                 }
                 this.navigateToPageTag('econsent-trial-participant-devices', state);
             }
