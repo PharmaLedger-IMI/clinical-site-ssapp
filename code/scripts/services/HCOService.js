@@ -16,7 +16,13 @@ export default class HCOService extends DSUService {
                 if (err) {
                     return callback(err);
                 }
-                this.fillObjectWithVolatileSubItems(entity, (err, data) => callback(err, data))
+                this.fillObjectWithVolatileSubItems(entity, (err, data) =>{
+                    if(err){
+                        return callback(err);
+                    }
+
+                    this.getSiteData(data, callback);
+                })
             })
         }
         this.getEntities((err, hcoDSUs) => {
@@ -26,14 +32,26 @@ export default class HCOService extends DSUService {
             if (typeof hcoDSUs !== 'undefined' && hcoDSUs.length > 0) {
                 let hcoDSU = hcoDSUs[0];
                 classThis.ssi = hcoDSU.uid;
-                return this.fillObjectWithVolatileSubItems(hcoDSU, (err, data) => callback(err, data))
+                return this.fillObjectWithVolatileSubItems(hcoDSU, (err, data) => {
+                    if(err){
+                        return callback(err);
+                    }
+
+                    this.getSiteData(data, callback);
+                })
             }
             this.saveEntity({}, (err, entity) => {
                 if (err) {
                     return callback(err);
                 }
                 classThis.ssi = entity.uid;
-                this.fillObjectWithVolatileSubItems(entity, (err, data) => callback(err, data))
+                this.fillObjectWithVolatileSubItems(entity, (err, data) => {
+                    if(err){
+                        return callback(err);
+                    }
+
+                    this.getSiteData(data, callback);
+                })
             })
         })
     }
@@ -52,6 +70,41 @@ export default class HCOService extends DSUService {
             })
             callback(undefined, entity);
         })
+    }
+
+    getSiteSpecificData(siteUid, callback){
+        const specificData = {}
+        this.getEntities(this.PATH + '/' + this.ssi+ "/site/"+ siteUid, (err, subEntities) => {
+            if (err) {
+                return callback(err);
+            }
+            subEntities.forEach((item) => {
+                let {objectName, ...toBeCopied} = item;
+                specificData[objectName] = toBeCopied;
+            })
+            callback(undefined, specificData);
+        })
+    }
+
+    getSiteData(data, callback) {
+            const sites = data.volatile.site;
+            const sitesPromises = [];
+            sites.forEach((site, index) => {
+                const sitePromise = new Promise((resolve, reject)=>{
+                    this.getSiteSpecificData(site.uid, (err, siteSpecificData) => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        sites[index] = {...site, ...siteSpecificData};
+                        resolve(sites[index]);
+                    })
+                });
+                sitesPromises.push(sitePromise);
+            });
+
+            Promise.all(sitesPromises).then(()=>{
+                callback(undefined, data);
+            }).catch(callback);
     }
 
     getOrCreateAsync = async () => {
