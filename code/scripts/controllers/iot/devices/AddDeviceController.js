@@ -115,7 +115,7 @@ export default class AddDeviceController extends BreadCrumbManager {
                     type: "manufacturer-name"
                 }
             ],
-            deviceName: this.model.modelNumber.value,
+            deviceName: this.model.deviceName.value,
             modelNumber: this.model.modelNumber.value,
             brand: this.model.brand.value,
             trialUid: selected_trial.ssi,
