@@ -1,6 +1,6 @@
 const commonServices = require("common-services");
 const DSUService = commonServices.DSUService;
-
+const IFCS_PATH="ifcs";
 export default class HCOService extends DSUService {
 
     ssi = null;
@@ -87,24 +87,27 @@ export default class HCOService extends DSUService {
     }
 
     getSiteData(data, callback) {
-            const sites = data.volatile.site;
-            const sitesPromises = [];
-            sites.forEach((site, index) => {
-                const sitePromise = new Promise((resolve, reject)=>{
-                    this.getSiteSpecificData(site.uid, (err, siteSpecificData) => {
-                        if (err) {
-                            return reject(err);
-                        }
-                        sites[index] = {...site, ...siteSpecificData};
-                        resolve(sites[index]);
-                    })
-                });
-                sitesPromises.push(sitePromise);
+        const sites = data.volatile.site;
+        if (!sites) {
+            return callback(undefined, data);
+        }
+        const sitesPromises = [];
+        sites.forEach((site, index) => {
+            const sitePromise = new Promise((resolve, reject) => {
+                this.getSiteSpecificData(site.uid, (err, siteSpecificData) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    sites[index] = {...site, ...siteSpecificData};
+                    resolve(sites[index]);
+                })
             });
+            sitesPromises.push(sitePromise);
+        });
 
-            Promise.all(sitesPromises).then(()=>{
-                callback(undefined, data);
-            }).catch(callback);
+        Promise.all(sitesPromises).then(() => {
+            callback(undefined, data);
+        }).catch(callback);
     }
 
     getOrCreateAsync = async () => {
@@ -144,10 +147,10 @@ export default class HCOService extends DSUService {
             if (consents.length === 0) {
                 return callback(undefined, []);
             }
-            let clonedICFS = [];
+            let clonedIFCS = [];
             let siteConsents = consents;
             let hcoPath = this.PATH + '/' + this.ssi;
-            this.getFilteredEntities(hcoPath,"icfs",(err, existingICFS) => {
+            this.getFilteredEntities(hcoPath,IFCS_PATH,(err, existingIFCS) => {
 
                 if (err) {
                     return callback(err);
@@ -156,7 +159,7 @@ export default class HCOService extends DSUService {
                     if (consent === undefined && siteConsents.length === 0) {
                         return callback(undefined, []);
                     }
-                    let consentExist = existingICFS.find(ifc => ifc.genesisUid === consent.uid);
+                    let consentExist = existingIFCS.find(ifc => ifc.genesisUid === consent.uid);
                     if (consentExist !== undefined) {
                         return getServiceDsu(siteConsents.pop());
                     }
@@ -172,13 +175,13 @@ export default class HCOService extends DSUService {
 
                         const mountedConsent = dsuList.find(item => item.path === consent.uid);
 
-                        this.cloneDSU(mountedConsent.identifier, hcoPath + '/icfs', (err, cloneDetails) => {
+                        this.cloneDSU(mountedConsent.identifier, hcoPath + '/'+IFCS_PATH, (err, cloneDetails) => {
                             if (err) {
                                 return getServiceDsu(siteConsents.pop());
                             }
-                            clonedICFS.push(cloneDetails);
+                            clonedIFCS.push(cloneDetails);
                             if (siteConsents.length === 0) {
-                                return callback(undefined, clonedICFS);
+                                return callback(undefined, clonedIFCS);
                             }
                             getServiceDsu(siteConsents.pop());
                         })

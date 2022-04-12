@@ -74,7 +74,7 @@ export default class TrialDetailsController extends BreadCrumbManager {
                 return console.log(err);
             }
             //TODO check this mechanism and while the previous function is not returning the econsents...
-            econsents = this.model.hcoDSU.volatile.icfs ? this.model.hcoDSU.volatile.icfs : [];
+            econsents = this.model.hcoDSU.volatile.ifcs ? this.model.hcoDSU.volatile.ifcs : [];
 
             this.model.econsents = econsents.map(econsent => {
                 return {

@@ -329,9 +329,9 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
         this.HCOService.cloneIFCs(site.uid, async () => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-            let icfs = this.model.hcoDSU.volatile.icfs||[];
+            let ifcs = this.model.hcoDSU.volatile.ifcs||[];
             let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
-            let trialConsents = icfs.filter(icf => {
+            let trialConsents = ifcs.filter(icf => {
                 return siteConsentsKeySSis.includes(icf.genesisUid)
             });
 

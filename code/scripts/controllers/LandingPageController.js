@@ -260,9 +260,20 @@ export default class LandingPageController extends WebcController {
         });
     }
 
+
+    /*
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        let existingIfcs = this.model.hcoDSU.volatile.ifcs.filter(ifc => ifc.genesisUid === message.econsentUid)
+        const site = this.model.hcoDSU.volatile.site.find(site=>site.uid === message.ssi);
+        let modifiedConsent = site.consents.find(consent => consent.uid === message.econsentUid);
+        await this.HCOService.updateIfcs(existingIfcs, modifiedConsent);
+     */
+
+
+
     async _updateEconsentWithDetails(message) {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        let econsent = this.model.hcoDSU.volatile.icfs.find(ifc => ifc.keySSI === message.ssi)
+        let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === message.ssi)
         if (econsent === undefined) {
             return console.error('Cannot find econsent.');
         }
@@ -330,7 +341,7 @@ export default class LandingPageController extends WebcController {
         }
 
         econsent.versions[currentVersionIndex] = currentVersion;
-        this.HCOService.updateHCOSubEntity(econsent, "icfs", async (err, response) => {
+        this.HCOService.updateHCOSubEntity(econsent, "ifcs", async (err, response) => {
             if (err) {
                 return console.log(err);
             }
