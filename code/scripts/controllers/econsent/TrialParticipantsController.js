@@ -1,5 +1,4 @@
 import HCOService from '../../services/HCOService.js';
-
 import TrialService from '../../services/TrialService.js';
 
 const commonServices = require("common-services");
@@ -202,8 +201,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 'add-new-tp',
                 async (event) => {
                     const response = event.detail;
-                    this.model.trial.stage = 'Recruiting';
-                    await this.TrialService.updateTrialAsync(this.model.trial);
                     await this.createTpDsu(response);
                     this._showFeedbackToast('Result', Constants.MESSAGES.HCO.FEEDBACK.SUCCESS.ADD_TRIAL_PARTICIPANT);
                     this.model.trialParticipantsDataSource.updateParticipants(this.model.toObject('trialParticipants'))
@@ -317,6 +314,19 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         );
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
+
+        //TODO use enums
+        if (site.status.stage === "Created") {
+            debugger;
+            this.HCOService.getHCOSubEntity(site.status.uid,"/site/"+site.uid+"/status",(err, statusDSU)=>{
+                debugger;
+                statusDSU.stage = 'Recruiting';
+                this.HCOService.updateHCOSubEntity(statusDSU,"/site/"+site.uid+"/status",(err, dsu)=>{
+
+                });
+            });
+        }
+
         this.HCOService.cloneIFCs(site.uid, async () => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             let icfs = this.model.hcoDSU.volatile.icfs||[];

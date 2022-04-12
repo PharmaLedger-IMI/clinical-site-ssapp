@@ -193,6 +193,11 @@ export default class HCOService extends DSUService {
         });
     }
 
+    async getHCOSubEntity(uid, path, callback) {
+        const subEntityPath = this._getSubPath(path);
+        this.getEntity(uid,subEntityPath, callback);
+    }
+
     updateHCOSubEntity(entity, path, callback) {
         const subEntityPath = this._getSubPath(path);
         this.updateEntity(entity, subEntityPath, callback);
