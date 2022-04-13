@@ -83,13 +83,13 @@ export default class AddTrialParticipantController extends WebcController {
 
     async observeInputs() {
         this.model.onChange('name.value', () => {
-            if(this.model.name.value.trim() !== '') {
+            if(this.model.name.value.trim() !== '' && this.model.did.value.trim() !== '') {
                 this.model.isBtnDisabled = false;
             }
             else this.model.isBtnDisabled = true;
         });
         this.model.onChange('did.value', async () => {
-            if(this.model.did.value.trim() !== '') {
+            if(this.model.did.value.trim() !== '' && this.model.name.value.trim() !== '') {
                 await this.verifyParticipant();
                 if (this.model.hcoDSU.volatile.tps) {
                     let tps = this.model.toObject('hcoDSU.volatile.tps');
