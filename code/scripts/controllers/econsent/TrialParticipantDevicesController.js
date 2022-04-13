@@ -50,7 +50,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
 
     preparePatientDeviceData() {
         return {
-            trial: this.model.trialSSI,
+            trial: this.model.trialUid,
             deviceId: this.model.device.value,
             patientDID: this.model.participantDID,
         };
@@ -59,7 +59,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
     _attachHandlerGoBack(prevState) {
         this.onTagClick('back', () => {
             this.navigateToPageTag('econsent-trial-participants', {
-                trialUid : prevState.trialSSI ,
+                trialUid : prevState.trialUid ,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });

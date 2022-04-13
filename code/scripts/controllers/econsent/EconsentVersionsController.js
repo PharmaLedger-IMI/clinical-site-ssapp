@@ -59,7 +59,7 @@ export default class EconsentVersionsController extends BreadCrumbManager {
 
     getEconsentVersions() {
 
-        const consent = this.model.hcoDSU.volatile.icfs.find(ifc => ifc.uid === this.model.econsentUid);
+        const consent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid);
         this.model.econsent = consent;
         this.model.versions = consent.versions?.map(econsentVersion => {
             econsentVersion = {

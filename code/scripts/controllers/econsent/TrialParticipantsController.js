@@ -108,15 +108,17 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             return [];
         }
         tps.forEach(tp => tpsMappedByDID[tp.did] = tp);
-        let trialsR = this.model.hcoDSU.volatile.tps;
+        let trialParticipants = this.model.hcoDSU.volatile.tps;
 
-        return trialsR
+        return trialParticipants
             .filter(tp => tp.trialNumber === this.model.trial.id)
             .map(tp => {
+
                 let nonObfuscatedTp = tpsMappedByDID[tp.did];
                 tp.name = nonObfuscatedTp.name;
                 tp.birthdate = nonObfuscatedTp.birthdate;
                 tp.enrolledDate = nonObfuscatedTp.enrolledDate;
+                tp.cannotManageDevices = typeof tp.number === "undefined";
 
                 let tpActions = actions[tp.did];
                 let actionNeeded = 'No action required';
