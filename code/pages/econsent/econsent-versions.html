@@ -2,38 +2,40 @@
     <div class="container main-container">
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <h4 class="title">Trial History: {{@trial.name}}</h4>
+            <h4 class="title">Versions History</h4>
         </div>
 
         <main>
 
-            <div class="common-datatable econsents-versions dt-5-col">
+            <div data-if="@dataSourceInitialized">
 
-                <webc-datatable datasource="@econsentVersionsDataSource">
+                <webc-spinner slot="loading"></webc-spinner>
 
-                    <div slot="header">VERSION</div>
-                    <div slot="header">TS SIGNATURE</div>
-                    <div slot="header">HCP SIGNATURE</div>
-                    <div slot="header">WITHDREW</div>
-                    <div slot="header">OPTIONS</div>
+                <div class="common-datatable trial-participant dt-6-col" slot="true">
 
-                    <div class="cell">{{@version}} - {{@versionDateAsString}}</div>
-                    <div class="cell" data-if="@tsDeclined">
-                        <div slot="true">
-                            <label class="table-cell color-red">{{@tsDeclined}}</label>
+                    <webc-datatable datasource="@dataSourceVersions">
+                        <div slot="no-data" class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">No actions yet!</h4>
                         </div>
-                        <div slot="false">
-                            <label class="table-cell">{{@tpApproval}}</label>
-                        </div>
-                    </div>
-                    <div class="cell">{{@hcpApproval}}</div>
-                    <div class="cell">{{@tpWithdraw}}</div>
-                    <div class="cell">
-                        <button class="link-button" data-tag="consent:view">View</button>
-                    </div>
 
-                </webc-datatable>
+                        <div slot="header">Version</div>
+                        <div slot="header">Version Date</div>
+                        <div slot="header">Action Needed</div>
+                        <div slot="header">Name</div>
+                        <div slot="header">Status</div>
+                        <div slot="header">Date</div>
+
+                        <div class="cell">{{@version}}</div>
+                        <div class="cell">{{@versionDate}}</div>
+                        <div class="cell">{{@actionNeeded}}</div>
+                        <div class="cell">{{@name}}</div>
+                        <div class="cell">{{@status}}</div>
+                        <div class="cell">{{@toShowDate}}</div>
+
+                    </webc-datatable>
+                </div>
             </div>
+
 
         </main>
 
