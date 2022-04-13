@@ -12,46 +12,18 @@ export default class EconsentVersionsController extends BreadCrumbManager {
         this.model = {
             econsent: {},
             versions: [],
-            ...this.getState(),
+            ...this.getState()
         };
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
-                label: "History/Versions",
+                label: "Versions History",
                 tag: "econsent-versions"
             }
         );
 
         this.initServices();
         this.initHandlers();
-        // this.initTrialAndConsent();
-    
-        const mockData = [{
-            version: '1',
-            versionDateAsString: '12/03/2022',
-            tsDeclined: true,
-            tpApproval: 'something about approval',
-            hcpApproval: 'approval',
-            tpWithdraw: 'withdraw'
-        },
-        {
-            version: '2',
-            versionDateAsString: '17/03/2022',
-            tsDeclined: false,
-            tpApproval: 'y about approval',
-            hcpApproval: 'denied',
-            tpWithdraw: 'withdrew'
-        },
-        {
-            version: '3',
-            versionDateAsString: '30/01/2022',
-            tsDeclined: true,
-            tpApproval: 'x about approval',
-            hcpApproval: 'denied',
-            tpWithdraw: 'withdrew'
-        }]
-
-        this.model.econsentVersionsDataSource = DataSourceFactory.createDataSource(5, 10, mockData);
     }
 
     initServices() {
@@ -59,7 +31,24 @@ export default class EconsentVersionsController extends BreadCrumbManager {
         this.HCOService.getOrCreateAsync().then((hcoDSU) => {
             this.model.hcoDSU = hcoDSU;
             this.getEconsentVersions();
-        })
+            const dataSourceVersions = this.model.toObject('econsent.versions').map(version => {
+                if (!version.actions) {
+                    version.actions = [];
+                }
+
+                version.actions.forEach(( _, index) => {
+                    version.actions[index] = {
+                        ...version.actions[index],
+                        version: version.version,
+                        versionDate: new Date(version.versionDate).toLocaleDateString()
+                    }
+                })
+
+                return version.actions;
+            });
+            this.model.dataSourceVersions = DataSourceFactory.createDataSource(1, 10, [].concat(...dataSourceVersions));
+            this.model.dataSourceInitialized = true;
+        });
     }
 
     initHandlers() {
@@ -106,6 +95,8 @@ export default class EconsentVersionsController extends BreadCrumbManager {
                 econsentVersion.hcpApproval = consent.hcoSign.toShowDate;
             }
         });
+
+        console.log(this.model.toObject());
     }
 
     attachHandlerEconsentSign() {
@@ -130,6 +121,7 @@ export default class EconsentVersionsController extends BreadCrumbManager {
         this.onTagClick("consent:view", (model) => {
             this.navigateToPageTag("econsent-sign", {
                 trialUid: this.model.trialUid,
+                //de vazut
                 econsentUid: model.econsentUid,
                 ecoVersion: model.lastVersion,
                 tpDid: this.model.tp.did,

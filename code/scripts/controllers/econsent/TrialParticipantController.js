@@ -147,7 +147,10 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this.onTagEvent('back', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            window.history.back();
+            this.navigateToPageTag('econsent-trial-participants', {
+                trialUid: this.model.trialUid,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
         });
     }
 
