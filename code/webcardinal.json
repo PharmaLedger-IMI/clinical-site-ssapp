@@ -46,6 +46,12 @@
 			"tag": "econsent-notifications-list"
 		},
 		{
+			"name": "confirmation-page",
+			"path": "/general/confirmation-page",
+			"src": "general/confirmation-page.html",
+			"tag": "confirmation-page"
+		},
+		{
 			"name": "manage-devices",
 			"path": "/iot/devices/manage-devices",
 			"src": "iot/devices/manage-devices.html",
