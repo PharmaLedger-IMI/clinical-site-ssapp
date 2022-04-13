@@ -162,7 +162,6 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.SITE_STATUS_CHANGED: {
-                this._refreshSite(data);
                 this._saveNotification(data, 'The status of site was changed', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
 
                 break;
@@ -251,15 +250,6 @@ export default class LandingPageController extends WebcController {
     async _updateHcoDSU() {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
     }
-
-    _refreshSite(message) {
-        this.SiteService.mountSite(message.data.site, (err, site) => {
-            if (err) {
-                return console.log(err);
-            }
-        });
-    }
-
 
     /*
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
@@ -486,26 +476,6 @@ export default class LandingPageController extends WebcController {
             }]
         };
     }
-
-
-    // async attachHandlerListOfPatients() {
-    //     this.onTagClick('home:list-of-patients', () => {
-    //         this.IotAdaptorApi = new IotAdaptorApi();
-    //         let observations = [];
-    //         this.IotAdaptorApi.searchResource("Observation", function (err, result) {
-    //             result.forEach(value => {
-    //                 let initData = {
-    //                     name: value.code.text,
-    //                     value: value.valueQuantity.value,
-    //                     unit: value.valueQuantity.unit
-    //                 };
-    //                 observations.push(initData);
-    //             });
-    //         });
-    //
-    //         this.navigateToPageTag('patient-status', {allData: observations});
-    //     });
-    // }
 
 
 }

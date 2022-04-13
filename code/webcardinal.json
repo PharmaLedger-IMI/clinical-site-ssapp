@@ -16,12 +16,6 @@
 			"tag": "confirmation-page"
 		},
 		{
-			"name": "list-of-patients",
-			"path": "/general/patients/list-of-patients",
-			"src": "general/patients/list-of-patients.html",
-			"tag": "list-of-patients"
-		},
-		{
 			"name": "patient-status",
 			"path": "/general/patients/patient-status",
 			"src": "general/patients/patient-status.html",
