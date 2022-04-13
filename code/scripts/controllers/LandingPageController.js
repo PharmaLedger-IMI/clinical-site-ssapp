@@ -46,7 +46,6 @@ export default class LandingPageController extends WebcController {
 
     initHandlers() {
         this.attachHandlerManageDevices();
-        this.attachHandlerTrialManagement();
         this.attachHandlerListOfPatients();
         this.attachHandlerVisits();
         this.attachHandlerEconsentTrialManagement();
@@ -71,12 +70,6 @@ export default class LandingPageController extends WebcController {
     attachHandlerManageDevices() {
         this.onTagClick('navigation:iot-manage-devices', () => {
             this.navigateToPageTag('iot-manage-devices', { breadcrumb: this.model.toObject('breadcrumb') } );
-        });
-    }
-
-    attachHandlerTrialManagement() {
-        this.onTagClick('navigation:trial-management', () => {
-            this.navigateToPageTag('trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 

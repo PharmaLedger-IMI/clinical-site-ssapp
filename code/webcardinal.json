@@ -10,12 +10,6 @@
 			"tag": "home"
 		},
 		{
-			"name": "confirmation-page",
-			"path": "/general/confirmation-page",
-			"src": "general/confirmation-page.html",
-			"tag": "confirmation-page"
-		},
-		{
 			"name": "patient-status",
 			"path": "/general/patients/patient-status",
 			"src": "general/patients/patient-status.html",
@@ -38,24 +32,6 @@
 			"path": "/general/patients/patient-alert-history",
 			"src": "general/patients/patient-alert-history.html",
 			"tag": "patient-alert-history"
-		},
-		{
-			"name": "trial-management",
-			"path": "/general/trial-management/trial-management",
-			"src": "general/trial-management/trial-management.html",
-			"tag": "trial-management"
-		},
-		{
-			"name": "patient-device-match",
-			"path": "/general/trial-management/patient-device-match",
-			"src": "general/trial-management/patient-device-match.html",
-			"tag": "patient-device-match"
-		},
-		{
-			"name": "patient-device-match-summary",
-			"path": "/general/trial-management/patient-device-match-summary",
-			"src": "general/trial-management/patient-device-match-summary.html",
-			"tag": "patient-device-match-summary"
 		},
 		{
 			"name": "notifications",
