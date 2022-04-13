@@ -78,7 +78,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
     _attachHandlerGoBack(prevState) {
         this.onTagClick('back', () => {
             this.navigateToPageTag('econsent-trial-participants', {
-                keySSI: prevState.trialSSI,
+                trialUid : prevState.trialUid ,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
