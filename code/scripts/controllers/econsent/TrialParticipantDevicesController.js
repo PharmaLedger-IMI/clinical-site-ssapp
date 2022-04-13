@@ -70,17 +70,17 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
 
             this.DeviceAssignationService = new DeviceAssignationService();
             this.DeviceAssignationService.assignDevice(this.preparePatientDeviceData(), (err, data) => {
+                let message = {};
+
                 if (err) {
-                    this.navigateToPageTag('confirmation-page', {
-                        confirmationMessage: "An error has been occurred!",
-                        redirectPage: "econsent-trial-management",
-                        breadcrumb: this.model.toObject('breadcrumb')
-                    });
-                    return console.log(err);
+                    message.content = "An error has been occurred!";
+                    message.type = 'error';
+                } else {
+                    message.content = `The device has been assigned to the patient successfully!`;
+                    message.type = 'success'
                 }
-                this.navigateToPageTag('confirmation-page', {
-                    confirmationMessage: "The device has been assigned to the patient successfully.",
-                    redirectPage: "econsent-trial-management",
+                this.navigateToPageTag('econsent-trial-management', {
+                    message: message,
                     breadcrumb: this.model.toObject('breadcrumb')
                 });
             });

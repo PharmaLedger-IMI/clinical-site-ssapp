@@ -29,12 +29,15 @@ export default class PatientDeviceMatchSummaryController extends BreadCrumbManag
 
     attachHandlerAcceptButton() {
         this.onTagClick('summary:accept', () => {
+            let message = {
+                content: "Match Completed!",
+                type: 'success',
+            }
             let trialState = {
-                confirmationMessage: "Match Completed!",
-                redirectPage: "trial-management",
+                message: message,
                 breadcrumb: this.model.toObject('breadcrumb')
             }
-            this.navigateToPageTag('confirmation-page', trialState);
+            this.navigateToPageTag('trial-management', trialState);
         });
     }
 }

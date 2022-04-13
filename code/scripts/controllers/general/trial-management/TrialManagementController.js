@@ -13,7 +13,6 @@ export default class TrialManagementController extends BreadCrumbManager {
             }
         );
 
-
         this.attachHandlerGoBack();
         this.attachHandlerPatientDeviceMatch();
     }

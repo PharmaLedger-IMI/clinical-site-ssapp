@@ -1,3 +1,5 @@
+import HCOService from '../../services/HCOService.js';
+
 const {WebcController} = WebCardinal.controllers;
 const LEGAL_ENTITY_MAX_AGE = 14;
 let getInitModel = () => {
@@ -9,7 +11,6 @@ let getInitModel = () => {
             placeholder: 'Full name',
             value: '',
         },
-
         did: {
             label: 'Public Identifier',
             name: 'did',
@@ -70,6 +71,39 @@ export default class AddTrialParticipantController extends WebcController {
         super(...props);
         this.setModel(getInitModel());
         this._initHandlers();
+
+        this.model.isBtnDisabled = true;
+        this.observeInputs();
+    }
+
+    async verifyParticipant() {
+        this.HCOService = new HCOService();
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+    }
+
+    async observeInputs() {
+        this.model.onChange('name.value', () => {
+            if(this.model.name.value.trim() !== '') {
+                this.model.isBtnDisabled = false;
+            }
+            else this.model.isBtnDisabled = true;
+        });
+        this.model.onChange('did.value', async () => {
+            if(this.model.did.value.trim() !== '') {
+                await this.verifyParticipant();
+                if (this.model.hcoDSU.volatile.tps) {
+                    let tps = this.model.toObject('hcoDSU.volatile.tps');
+                    let filtered = tps.filter(tp => tp.did === this.model.did.value);
+                    if(filtered.length) {
+                        this.model.isBtnDisabled = false;
+                    } else {
+                        this.model.isBtnDisabled = true;
+                    }
+                }
+            }
+            else this.model.isBtnDisabled = true;
+        });
+
     }
 
     _initHandlers() {
