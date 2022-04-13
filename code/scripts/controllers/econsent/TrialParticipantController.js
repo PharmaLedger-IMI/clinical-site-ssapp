@@ -63,7 +63,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
     async _initConsents(trialUid) {
 
 
-        let ifcs = this.model.hcoDSU.volatile.ifcs;
+        let ifcs = this.model.hcoDSU.volatile.icfs;
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
 
         let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
