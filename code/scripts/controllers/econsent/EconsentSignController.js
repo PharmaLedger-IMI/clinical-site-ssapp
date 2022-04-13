@@ -47,7 +47,7 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     initConsent() {
-        let econsent = this.model.hcoDSU.volatile.icfs.find(consent => consent.uid == this.model.econsentUid);
+        let econsent = this.model.hcoDSU.volatile.ifcs.find(consent => consent.uid == this.model.econsentUid);
         if (econsent === undefined) {
             return console.log('Error while loading econsent.');
         }
@@ -104,7 +104,7 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     getEconsentFilePath(econsent, currentVersion) {
-        return this.HCOService.PATH + '/' + this.HCOService.ssi + '/icfs/'
+        return this.HCOService.PATH + '/' + this.HCOService.ssi + '/ifcs/'
             + econsent.uid + '/versions/' + currentVersion.version
     }
 
@@ -233,7 +233,7 @@ export default class EconsentSignController extends BreadCrumbManager {
         });
 
         this.model.econsent.versions[currentVersionIndex] = currentVersion;
-        this.HCOService.updateHCOSubEntity(this.model.econsent, "icfs", async (err, response) => {
+        this.HCOService.updateHCOSubEntity(this.model.econsent, "ifcs", async (err, response) => {
             if (err) {
                 return console.log(err);
             }

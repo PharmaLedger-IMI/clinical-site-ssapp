@@ -22,7 +22,7 @@
 
                 <div data-if="@trial.isInRecruitmentPeriod">
                     <div slot="true">
-                        <button class="add-ts" data-tag="add:ts">Add Trial Subject</button>
+                        <button class="add-ts" data-tag="add:ts" disabled="@addParticipantsIsDisabled">Add Trial Subject</button>
                     </div>
                 </div>
             </div>
@@ -30,9 +30,17 @@
             <div data-if="@dataSourceInitialized">
                  <webc-spinner slot="loading"></webc-spinner>
 
-                <div class="common-datatable trial-participant dt-6-col" slot="true">
+                <div class="common-datatable trial-participant dt-6-col" slot="true" data-if="@siteHasConsents">
 
-                    <webc-datatable datasource="@trialParticipantsDataSource">
+                    <div class="alert alert-light d-flex justify-content-center" role="alert" slot="false">
+                        <p>
+                            No consents are added to this site. Sponsor <b>"{{@trial.sponsor}}"</b>should add a
+                            consent
+                            before you will be able to add a trial participant.
+                        </p>
+                    </div>
+
+                    <webc-datatable datasource="@trialParticipantsDataSource" slot="true">
 
                         <div slot="no-data" class="alert alert-warning" role="alert">
                             <h4 class="alert-heading">No trial participants yet!</h4>

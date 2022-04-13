@@ -105,7 +105,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
     async _getUserActionsFromEconsents(keySSI, tpDid) {
         // TODO: re-check this logic.
         let userActions = [];
-        this.model.hcoDSU.volatile.icfs
+        this.model.hcoDSU.volatile.ifcs
             .forEach(econsent => {
                 if (econsent.versions === undefined) {
                     return userActions;

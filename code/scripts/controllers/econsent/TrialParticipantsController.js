@@ -81,6 +81,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     async _initTrial(trialUid) {
         this.model.trial = this.model.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
         this.model.trial.isInRecruitmentPeriod = true;
+        const sites = this.model.hcoDSU.volatile.site;
+        const site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
+        this.model.siteHasConsents = site.consents.length > 0;
+
         let actions = await this._getEconsentActionsMappedByUser(trialUid);
         this.model.trialParticipants = await this._getTrialParticipantsMappedWithActionRequired(actions);
         if (this.model.trial.recruitmentPeriod) {
@@ -88,6 +92,13 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             let currentDate = new Date();
             this.model.trial.isInRecruitmentPeriod = currentDate <= endDate;
         }
+
+        this.checkIfCanAddParticipants();
+    }
+
+
+    checkIfCanAddParticipants(){
+        this.model.addParticipantsIsDisabled = !this.model.siteHasConsents;
     }
 
     async _getTrialParticipantsMappedWithActionRequired(actions) {
@@ -329,9 +340,9 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
         this.HCOService.cloneIFCs(site.uid, async () => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-            let icfs = this.model.hcoDSU.volatile.icfs||[];
+            let ifcs = this.model.hcoDSU.volatile.ifcs||[];
             let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
-            let trialConsents = icfs.filter(icf => {
+            let trialConsents = ifcs.filter(icf => {
                 return siteConsentsKeySSis.includes(icf.genesisUid)
             });
 
