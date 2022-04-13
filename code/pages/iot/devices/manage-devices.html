@@ -3,9 +3,6 @@
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
             <h4 class="title">IOT Devices List</h4>
-            <div class="button-group-wrapper">
-                <button data-tag="devices:add">Add Device</button>
-            </div>
             <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>
         </div>
 
@@ -20,12 +17,12 @@
             <div class="common-datatable econsents dt-7-col" slot="true">
 
                 <div class="m-2 d-flex flex-column">
-                    <label for="@search.name">Search device:</label>
+                    <label>Search device:</label>
                     <input class="form-control" id="search-field" data-view-model="@search" event-name="filters-changed" />
                 </div>
 
                 <div class="m-2" data-if="@noResults">
-                    <strong><p>There are no results for your search!</p></strong>
+                    <strong>There are no results for your search!</strong>
                 </div>
 
                 <webc-datatable datasource="@devicesDataSource">
@@ -60,6 +57,7 @@
 
         <footer class="button-group-wrapper">
             <button data-tag="navigation:go-back">Go Back</button>
+            <button data-tag="devices:add">Add Device</button>
         </footer>
     </div>
 </webc-container>
