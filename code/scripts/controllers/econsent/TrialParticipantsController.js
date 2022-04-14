@@ -82,6 +82,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.model.trial.isInRecruitmentPeriod = true;
         const sites = this.model.hcoDSU.volatile.site;
         const site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
+        this.model.site = site;
         this.model.siteHasConsents = site.consents.length > 0;
 
         let actions = await this._getEconsentActionsMappedByUser(trialUid);
@@ -416,12 +417,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
     _sendMessageToSponsor() {
-        this.CommunicationService.sendMessage(this.model.hcoDSU.volatile?.site[0].sponsorDid, {
+        this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
             operation: 'update-site-status',
-            ssi: this.model.trialSSI,
             stageInfo: {
-                siteSSI: this.model.hcoDSU.volatile?.site[0].uid,
-                status: this.model.trial.stage
+                siteSSI: this.model.site.uid
             },
             shortDescription: 'The stage of the site changed',
         });

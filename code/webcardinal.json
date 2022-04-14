@@ -10,18 +10,6 @@
 			"tag": "home"
 		},
 		{
-			"name": "confirmation-page",
-			"path": "/general/confirmation-page",
-			"src": "general/confirmation-page.html",
-			"tag": "confirmation-page"
-		},
-		{
-			"name": "list-of-patients",
-			"path": "/general/patients/list-of-patients",
-			"src": "general/patients/list-of-patients.html",
-			"tag": "list-of-patients"
-		},
-		{
 			"name": "patient-status",
 			"path": "/general/patients/patient-status",
 			"src": "general/patients/patient-status.html",
@@ -46,24 +34,6 @@
 			"tag": "patient-alert-history"
 		},
 		{
-			"name": "trial-management",
-			"path": "/general/trial-management/trial-management",
-			"src": "general/trial-management/trial-management.html",
-			"tag": "trial-management"
-		},
-		{
-			"name": "patient-device-match",
-			"path": "/general/trial-management/patient-device-match",
-			"src": "general/trial-management/patient-device-match.html",
-			"tag": "patient-device-match"
-		},
-		{
-			"name": "patient-device-match-summary",
-			"path": "/general/trial-management/patient-device-match-summary",
-			"src": "general/trial-management/patient-device-match-summary.html",
-			"tag": "patient-device-match-summary"
-		},
-		{
 			"name": "notifications",
 			"path": "/econsent/e-notifications/notifications",
 			"src": "econsent/e-notifications/notifications.html",
@@ -74,6 +44,12 @@
 			"path": "/econsent/e-notifications/notifications-list",
 			"src": "econsent/e-notifications/notifications-list.html",
 			"tag": "econsent-notifications-list"
+		},
+		{
+			"name": "confirmation-page",
+			"path": "/general/confirmation-page",
+			"src": "general/confirmation-page.html",
+			"tag": "confirmation-page"
 		},
 		{
 			"name": "manage-devices",
