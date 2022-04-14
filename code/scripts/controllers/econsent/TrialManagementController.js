@@ -17,6 +17,7 @@ export default class TrialManagementController extends BreadCrumbManager {
 
         this.model.trialsDataSource = this._initServices();
         this._initHandlers();
+
     }
 
     async _initServices() {
@@ -33,13 +34,20 @@ export default class TrialManagementController extends BreadCrumbManager {
             }
             trial.siteStatus = site.status.status;
             trial.siteStage = site.status.stage;
+            if(trial.siteStage !== 'Created') {
+                trial.showViewButton = false;
+            } else trial.showViewButton = true;
+            trial.siteId = site.id;
         })
+
+
         this.model.hasTrials = this.model.trials.length !== 0;
         this.model.trialsDataSource = DataSourceFactory.createDataSource(8, 10, this.model.trials);
         return this.model.trialsDataSource;
     }
 
     _initHandlers() {
+        this._attachHandlerViewDataAnalysis();
         this._attachHandlerTrialQuestionnaire();
         this._attachHandlerTrialDetails();
         this._attachHandlerTrialParticipants();
@@ -72,6 +80,16 @@ export default class TrialManagementController extends BreadCrumbManager {
                     breadcrumb: this.model.toObject('breadcrumb')
                 }
             );
+        });
+    }
+
+
+    _attachHandlerViewDataAnalysis() {
+        this.onTagEvent('view-data-analysis', 'click', (model, target, event) => {
+            let state = {
+                breadcrumb: this.model.toObject('breadcrumb')
+            }
+            this.navigateToPageTag('questions-list', state);
         });
     }
 

@@ -72,7 +72,6 @@ export default class AddTrialParticipantController extends WebcController {
         this.setModel(getInitModel());
         this._initHandlers();
 
-        this.model.isBtnDisabled = true;
         this.observeInputs();
     }
 
@@ -82,28 +81,28 @@ export default class AddTrialParticipantController extends WebcController {
     }
 
     async observeInputs() {
-        this.model.onChange('name.value', () => {
-            if(this.model.name.value.trim() !== '' && this.model.did.value.trim() !== '') {
-                this.model.isBtnDisabled = false;
+        const validateInputs = async () => {
+            if(this.model.name.value.trim() === '' || this.model.did.value.trim() === '') {
+                return this.model.isBtnDisabled = true;
             }
-            else this.model.isBtnDisabled = true;
-        });
-        this.model.onChange('did.value', async () => {
-            if(this.model.did.value.trim() !== '' && this.model.name.value.trim() !== '') {
-                await this.verifyParticipant();
-                if (this.model.hcoDSU.volatile.tps) {
-                    let tps = this.model.toObject('hcoDSU.volatile.tps');
-                    let filtered = tps.filter(tp => tp.did === this.model.did.value);
-                    if(filtered.length) {
-                        this.model.isBtnDisabled = false;
-                    } else {
-                        this.model.isBtnDisabled = true;
-                    }
-                }
+            //known did schema has the next format : did:type:name:domain:uniqueIdentifier
+            const didSegments = this.model.did.value.split(':');
+            if(didSegments.length !== 5) {
+                return this.model.isBtnDisabled = true;
             }
-            else this.model.isBtnDisabled = true;
-        });
+            if(didSegments.some(segment => segment.trim() === '')) {
+                return this.model.isBtnDisabled = true;
+            }
+            await this.verifyParticipant();
+            if (this.model.hcoDSU.volatile.tps) {
+                let tps = this.model.toObject('hcoDSU.volatile.tps');
+                let didAlreadyExists = tps.some(tp => tp.did === this.model.did.value);
+                this.model.isBtnDisabled = didAlreadyExists;
+            }
+        }
 
+        this.model.onChange('name.value', validateInputs);
+        this.model.onChange('did.value', validateInputs);
     }
 
     _initHandlers() {
