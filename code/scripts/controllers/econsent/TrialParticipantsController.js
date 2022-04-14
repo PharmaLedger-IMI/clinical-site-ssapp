@@ -79,26 +79,33 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
     async _initTrial(trialUid) {
         this.model.trial = this.model.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
-        this.model.trial.isInRecruitmentPeriod = true;
-        const sites = this.model.hcoDSU.volatile.site;
+        const sites = this.model.toObject("hcoDSU.volatile.site");
         const site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
+        site.isInRecruitmentPeriod
         this.model.site = site;
         this.model.siteHasConsents = site.consents.length > 0;
 
         let actions = await this._getEconsentActionsMappedByUser(trialUid);
         this.model.trialParticipants = await this._getTrialParticipantsMappedWithActionRequired(actions);
-        if (this.model.trial.recruitmentPeriod) {
-            let endDate = new Date(this.model.trial.recruitmentPeriod.endDate);
-            let currentDate = new Date();
-            this.model.trial.isInRecruitmentPeriod = currentDate <= endDate;
-        }
-
         this.checkIfCanAddParticipants();
+        this.model.onChange("site.recruitmentPeriod",this.checkIfCanAddParticipants.bind(this));
     }
 
 
     checkIfCanAddParticipants(){
-        this.model.addParticipantsIsDisabled = !this.model.siteHasConsents;
+        const recruitmentPeriod = this.model.site.recruitmentPeriod;
+        let isInRecruitmentPeriod = false;
+        if (typeof recruitmentPeriod === "object") {
+            const today = new Date();
+            const startDate = new Date(recruitmentPeriod.startDate)
+            const endDate = new Date(recruitmentPeriod.endDate);
+
+            if (startDate <= today && today <= endDate) {
+                isInRecruitmentPeriod = true;
+            }
+        }
+
+        this.model.addParticipantsIsDisabled = !(this.model.siteHasConsents && isInRecruitmentPeriod);
     }
 
     async _getTrialParticipantsMappedWithActionRequired(actions) {
@@ -240,9 +247,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 'edit-recruitment-period',
                 (event) => {
                     const response = event.detail;
-                    this.model.trial.recruitmentPeriod = response;
-                    this.model.trial.recruitmentPeriod.toShowDate = new Date(this.model.trial.recruitmentPeriod.startDate).toLocaleDateString() + ' - ' + new Date(this.model.trial.recruitmentPeriod.endDate).toLocaleDateString();
-                    this.TrialService.updateTrialAsync(this.model.trial)
+                    this.model.site.recruitmentPeriod = response;
+                    this.model.site.recruitmentPeriod.toShowDate = new Date(response.startDate).toLocaleDateString() + ' - ' + new Date(response.endDate).toLocaleDateString();
+                    this.HCOService.updateHCOSubEntity(this.model.site, "site", async (err, data) => {
+
+                    });
 
                 },
                 (event) => {
@@ -253,7 +262,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     title: 'Edit Recruitment Period',
-                    recruitmentPeriod: this.model.trial.recruitmentPeriod
+                    recruitmentPeriod: this.model.site.recruitmentPeriod
                 }
             );
 

@@ -8,22 +8,25 @@
         </div>
         <main>
             <div class="subtitle-container">
-                <div data-if="@trial.recruitmentPeriod.toShowDate">
-                    <div slot="true">
-                        <label class="subtitle">Recruitment period: {{@trial.recruitmentPeriod.toShowDate}}
-                        </label>
+                <div data-if="@site.recruitmentPeriod.toShowDate">
+                    <div class="alert alert-info" role="alert" slot="true">
+                        Recruitment period: {{@site.recruitmentPeriod.toShowDate}}
                     </div>
-
-                    <div slot="false">
-                        <label class="subtitle">Recruitment period not set yet
-                        </label>
+                    <div class="alert alert-light" role="alert" slot="false">
+                        Recruitment period not set yet
                     </div>
                 </div>
 
-                <div data-if="@trial.isInRecruitmentPeriod">
-                    <div slot="true">
-                        <button class="add-ts" data-tag="add:ts" disabled="@addParticipantsIsDisabled">Add Trial Subject</button>
+                <div class="d-flex">
+                    <div data-if="@site.recruitmentPeriod.toShowDate">
+                        <button class="action-button" data-tag="edit-period" slot="true">Edit Period</button>
+                        <button class="action-button" data-tag="edit-period" slot="false">Set Recruitment Period
+                        </button>
                     </div>
+
+                    <button class="action-button" data-tag="add:ts" disabled="@addParticipantsIsDisabled">Add
+                        Trial Subject
+                    </button>
                 </div>
             </div>
 

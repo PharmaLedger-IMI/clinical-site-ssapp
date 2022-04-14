@@ -3,11 +3,15 @@
 <h2 slot="header" class="alert-title">Set Trial Recruitment Period</h2>
 
     <div class="top">
-        <div class="line">
-            <input type="date" data-view-model="@startDate" value="@startDate.value"/>
+
+        <div class="form-group">
+            <label>Start Date</label>
+            <input  class="form-control" type="date" data-view-model="@startDate" value="@startDate.value">
         </div>
-        <div class="line">
-            <input type="date" data-view-model="@endDate" value="@endDate.value"/>
+
+        <div class="form-group">
+            <label>End Date</label>
+            <input class="form-control" type="date" data-view-model="@endDate" value="@endDate.value">
         </div>
 
     </div>
