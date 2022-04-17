@@ -81,7 +81,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.model.trial = this.model.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
         const sites = this.model.toObject("hcoDSU.volatile.site");
         const site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
-        site.isInRecruitmentPeriod
         this.model.site = site;
         this.model.siteHasConsents = site.consents.length > 0;
 
@@ -314,10 +313,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         tp.trialNumber = this.model.trial.id;
         tp.status = Constants.TRIAL_PARTICIPANT_STATUS.PLANNED;
         tp.enrolledDate = currentDate.toLocaleDateString();
-        tp.trialUid = this.model.trial.id;
+        tp.trialId = this.model.trial.id;
         tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync();
         let trialParticipant = await this.TrialParticipantRepository.createAsync(tp);
-        await this.HCOService.addTrialParticipantAsync(tp);
+        tp  = await this.HCOService.addTrialParticipantAsync(tp);
         trialParticipant.actionNeeded = 'No action required';
         //this.model.trialParticipants.push(trialParticipant);
         //refresh
@@ -334,14 +333,19 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             tp.trialSReadSSI,
             Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.ADD_TO_TRIAL
         );
+
+        await this._sendMessageToSponsor(
+            Constants.MESSAGES.SPONSOR.TP_ADDED,
+            {ssi: tp.sReadSSI},
+            "A new trial participant was added"
+        );
+
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
 
         //TODO use enums
         if (site.status.stage === "Created") {
-            debugger;
             this.HCOService.getHCOSubEntity(site.status.uid,"/site/"+site.uid+"/status",(err, statusDSU)=>{
-                debugger;
                 statusDSU.stage = 'Recruiting';
                 this.HCOService.updateHCOSubEntity(statusDSU,"/site/"+site.uid+"/status",(err, dsu)=>{
 
@@ -365,7 +369,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 //})
             });
 
-            this._sendMessageToSponsor();
+            this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
+                stageInfo: {
+                    siteSSI: this.model.site.uid
+                }
+            },'The stage of the site changed');
         });
     }
 
@@ -418,20 +426,15 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
     _attachHandlerGoBack() {
         this.onTagEvent('back', 'click', (model, target, event) => {
-            // event.preventDefault();
-            // event.stopImmediatePropagation();
-            // window.history.back();
             this.navigateToPageTag('econsent-trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
-    _sendMessageToSponsor() {
+    _sendMessageToSponsor(operation, data, shortDescription) {
         this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
-            operation: 'update-site-status',
-            stageInfo: {
-                siteSSI: this.model.site.uid
-            },
-            shortDescription: 'The stage of the site changed',
+            operation: operation,
+            ...data,
+            shortDescription: shortDescription,
         });
     }
 }
