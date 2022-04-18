@@ -46,6 +46,8 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.model.econsentsDataSource =  await this._initConsents(this.model.trialUid);
+        const sites = this.model.toObject("hcoDSU.volatile.site");
+        this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
     }
 
     _initHandlers() {
@@ -183,7 +185,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     this.model.tp.number = event.detail;
                     this.sendMessageToProfessional(this.model.tp)
                     this._updateTrialParticipant(this.model.tp);
-                    this.updateTrialStage();
+                    this.updateSiteStage(()=>{
+                        this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.ADDED_TS_NUMBER, {
+                              ssi: this.model.tpUid
+                        },'The stage of the site changed');
+                    });
                 },
                 (event) => {
                     const response = event.detail;
@@ -193,21 +199,21 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     title: 'Attach Trial Participant Number',
+                    existingTSNumbers: this.model.hcoDSU.volatile.tps.filter(tp => typeof tp.number !== "undefined").map(tp => tp.number)
                 });
         });
     }
 
     async sendMessageToProfessional(tp) {
-        let trial = await this.TrialService.getTrialAsync(this.model.trialUid);
 
-        let econsents = await this.TrialService.getEconsentsAsync(this.model.trialUid);
+        let ifcs = this.model.hcoDSU.volatile.ifcs;
 
         let wantedAction = {
             toShowDate: 'DD/MM/YYYY'
         };
 
-        for (const econsent of econsents) {
-            for (const version of econsent.versions) {
+        for (const ifc of ifcs) {
+            for (const version of ifc.versions) {
                 let validActions = version.actions
                     .filter(action => action.name === 'sign' && action.type === 'tp')
                     .filter(action => tp.did === action.tpNumber);
@@ -221,9 +227,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
         let messageForIot = {
             trial: {
-                id: trial.id,
-                name: trial.name,
-                status: trial.status
+                id: this.model.site.trialId,
+                name: this.model.site.name,
+                status: this.model.site.status.status
             },
             participant: {
                 id: tp.tpNumber,
@@ -235,24 +241,29 @@ export default class TrialParticipantController extends BreadCrumbManager {
             }
         }
 
-        throw new Error("SET IOT IDENTITY!");
-        //TODO: IOT-identity?
-        // this.CommunicationService.sendMessage(CommunicationService.identities.IOT.PROFESSIONAL_IDENTITY, {
-        //     operation: Constants.MESSAGES.PATIENT.ADD_TRIAL_SUBJECT,
-        //     useCaseSpecifics: messageForIot
-        // });
+        this.CommunicationService.sendMessageToIotAdaptor({
+            operation: Constants.MESSAGES.PATIENT.ADD_TRIAL_SUBJECT,
+            useCaseSpecifics:messageForIot
+        })
 
     }
 
-    updateTrialStage() {
-        this.TrialService.getTrial(this.model.trialUid, async (err, trial) => {
-            if (err) {
-                return console.log(err);
-            }
-            trial.stage = 'Enrolling';
-            this.TrialService.updateTrialAsync(trial)
-            this._getSite();
-        });
+    updateSiteStage(callback) {
+
+        const site = this.model.site;
+        if (site.status.stage === "Recruiting") {
+            this.HCOService.getHCOSubEntity(site.status.uid, "/site/" + site.uid + "/status", (err, statusDSU) => {
+                statusDSU.stage = 'Enrolling';
+                this.HCOService.updateHCOSubEntity(statusDSU, "/site/" + site.uid + "/status", (err, dsu) => {
+                    this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
+                        stageInfo: {
+                            siteSSI: this.model.site.uid
+                        }
+                    },'The stage of the site changed');
+                    callback();
+                });
+            });
+        }
     }
 
     _updateTrialParticipant(trialParticipant) {
@@ -347,28 +358,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
         return this.model.econsentsDataSource = DataSourceFactory.createDataSource(7, 10,this.model.toObject('econsents'));
     }
 
-    _getSite() {
-        this.SiteService.getSites((err, sites) => {
-            if (err) {
-                return console.log(err);
-            }
-            // this.model.site = sites?.filter(site=> site.trialKeySSI === this.model.trial.keySSI);
-            if (sites && sites.length > 0) {
-                this.model.site = sites[sites.length - 1];
-                this._sendMessageToSponsor();
-            }
-        });
-    }
-
-    _sendMessageToSponsor() {
+    _sendMessageToSponsor(operation, data, shortDescription) {
         this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
-            operation: 'update-site-status',
-            ssi: this.model.trialUid,
-            stageInfo: {
-                siteSSI: this.model.site.uid,
-                status: this.model.trial.stage
-            },
-            shortDescription: 'The stage of the site changed',
+            operation: operation,
+            ...data,
+            shortDescription: shortDescription,
         });
     }
 }
