@@ -185,7 +185,7 @@ export default class LandingPageController extends WebcController {
                                         if (err) {
                                             return console.log(err);
                                         }
-                                        this.sendMessageToSponsor(senderIdentity, Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_SPONSOR, this.HCOService.ssi, null);
+                                        this.sendMessageToSponsor(senderIdentity, Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_SPONSOR, {ssi:this.HCOService.ssi}, null);
                                         resolve();
                                     })
                             });
@@ -255,14 +255,16 @@ export default class LandingPageController extends WebcController {
 
 
     async _updateEconsentWithDetails(message) {
+        let tp;
+        const consentSSI = message.ssi;
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === message.ssi)
+        let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === consentSSI)
         if (econsent === undefined) {
             return console.error('Cannot find econsent.');
         }
         let currentVersionIndex = econsent.versions.findIndex(eco => eco.version === message.useCaseSpecifics.version)
         if (currentVersionIndex === -1) {
-            return console.log(`Version ${message.useCaseSpecifics.version} of the econsent ${message.ssi} does not exist.`)
+            return console.log(`Version ${message.useCaseSpecifics.version} of the econsent ${consentSSI} does not exist.`)
         }
         let currentVersion = econsent.versions[currentVersionIndex]
         if (currentVersion.actions === undefined) {
@@ -309,7 +311,7 @@ export default class LandingPageController extends WebcController {
         });
 
         if (this.model.hcoDSU.volatile.tps) {
-            let tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
+            tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
             if (tp === undefined) {
                 return console.error('Cannot find tp.');
             }
@@ -330,6 +332,13 @@ export default class LandingPageController extends WebcController {
             }
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         });
+
+        const sites = this.model.toObject("hcoDSU.volatile.site");
+        const site = sites.find(site=>site.trialSReadSSI === tp.trialSReadSSI);
+        this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
+            ssi: tp.uid,
+            consentSSI: consentSSI
+        }, "Consent Changed");
     }
 
     sendMessageToPatient(trialParticipant, operation, ssi, shortMessage) {
@@ -346,10 +355,10 @@ export default class LandingPageController extends WebcController {
         });
     }
 
-    sendMessageToSponsor(sponsorDid, operation, ssi, shortMessage) {
+    sendMessageToSponsor(sponsorDid, operation, data, shortMessage) {
         this.CommunicationService.sendMessage(sponsorDid, {
             operation: operation,
-            ssi: ssi,
+           ...data,
             shortDescription: shortMessage,
         });
     }

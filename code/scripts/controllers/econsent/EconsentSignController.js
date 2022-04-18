@@ -33,7 +33,7 @@ export default class EconsentSignController extends BreadCrumbManager {
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this.initSite();
+        this.initSite(this.model.trialUid);
         this.initTrialParticipant();
         this.initConsent();
     }
@@ -91,7 +91,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 tpNumber: this.model.trialParticipant.number,
                 tpDid: this.model.trialParticipant.did,
                 version: this.model.ecoVersion,
-                siteSSI: this.model.site?.keySSI,
+                siteSSI: this.model.site.uid,
                 action: {
                     name: 'sign',
                     date: DateTimeService.getCurrentDateAsISOString(),
@@ -271,11 +271,9 @@ export default class EconsentSignController extends BreadCrumbManager {
         });
     }
 
-    async initSite() {
-        let sites = this.model.hcoDSU.volatile.site;
-        if (sites && sites.length > 0) {
-            this.model.site = sites[sites.length - 1];
-        }
+    async initSite(trialUid) {
+        const sites = this.model.toObject("hcoDSU.volatile.site");
+        this.model.site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
     }
 
     getInitModel() {

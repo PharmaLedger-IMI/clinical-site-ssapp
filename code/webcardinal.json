@@ -106,12 +106,6 @@
 			"tag": "econsent-trial-consents"
 		},
 		{
-			"name": "Trial Details",
-			"path": "/econsent/trial-details",
-			"src": "econsent/trial-details.html",
-			"tag": "econsent-trial-details"
-		},
-		{
 			"name": "Trial Participants",
 			"path": "/econsent/trial-participants",
 			"src": "econsent/trial-participants.html",

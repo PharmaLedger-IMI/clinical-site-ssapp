@@ -94,32 +94,37 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
         });
-
     }
 
     async _initTrial(trialUid) {
         this.model.trial = this.model.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
-        this.model.trial.isInRecruitmentPeriod = true;
-        const sites = this.model.hcoDSU.volatile.site;
+        const sites = this.model.toObject("hcoDSU.volatile.site");
         const site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
         this.model.site = site;
         this.model.siteHasConsents = site.consents.length > 0;
 
         let actions = await this._getEconsentActionsMappedByUser(trialUid);
         this.model.trialParticipants = await this._getTrialParticipantsMappedWithActionRequired(actions);
-        if (this.model.trial.recruitmentPeriod) {
-            let endDate = new Date(this.model.trial.recruitmentPeriod.endDate);
-            let currentDate = new Date();
-            this.model.trial.isInRecruitmentPeriod = currentDate <= endDate;
-        }
-
         this.checkIfCanAddParticipants();
-        this.getStatistics(this.model.toObject('trialParticipants'))
+        this.model.onChange("site.recruitmentPeriod",this.checkIfCanAddParticipants.bind(this));
+        this.getStatistics(this.model.toObject('trialParticipants'));
     }
 
 
     checkIfCanAddParticipants(){
-        this.model.addParticipantsIsDisabled = !this.model.siteHasConsents;
+        const recruitmentPeriod = this.model.site.recruitmentPeriod;
+        let isInRecruitmentPeriod = false;
+        if (typeof recruitmentPeriod === "object") {
+            const today = new Date();
+            const startDate = new Date(recruitmentPeriod.startDate)
+            const endDate = new Date(recruitmentPeriod.endDate);
+
+            if (startDate <= today && today <= endDate) {
+                isInRecruitmentPeriod = true;
+            }
+        }
+
+        this.model.addParticipantsIsDisabled = !(this.model.siteHasConsents && isInRecruitmentPeriod);
     }
 
     async _getTrialParticipantsMappedWithActionRequired(actions) {
@@ -140,7 +145,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 tp.name = nonObfuscatedTp.name;
                 tp.birthdate = nonObfuscatedTp.birthdate;
                 tp.enrolledDate = nonObfuscatedTp.enrolledDate;
-                // tp.cannotManageDevices = typeof tp.number === "undefined";
+                tp.cannotManageDevices = typeof tp.number === "undefined";
 
                 let tpActions = actions[tp.did];
                 let actionNeeded = 'No action required';
@@ -261,9 +266,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 'edit-recruitment-period',
                 (event) => {
                     const response = event.detail;
-                    this.model.trial.recruitmentPeriod = response;
-                    this.model.trial.recruitmentPeriod.toShowDate = new Date(this.model.trial.recruitmentPeriod.startDate).toLocaleDateString() + ' - ' + new Date(this.model.trial.recruitmentPeriod.endDate).toLocaleDateString();
-                    this.TrialService.updateTrialAsync(this.model.trial)
+                    this.model.site.recruitmentPeriod = response;
+                    this.model.site.recruitmentPeriod.toShowDate = new Date(response.startDate).toLocaleDateString() + ' - ' + new Date(response.endDate).toLocaleDateString();
+                    this.HCOService.updateHCOSubEntity(this.model.site, "site", async (err, data) => {
+
+                    });
 
                 },
                 (event) => {
@@ -274,11 +281,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     title: 'Edit Recruitment Period',
-                    recruitmentPeriod: this.model.trial.recruitmentPeriod
+                    recruitmentPeriod: this.model.site.recruitmentPeriod
                 }
             );
 
         });
+
     }
 
     _attachHandlerViewTrialParticipantStatus() {
@@ -325,10 +333,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         tp.trialNumber = this.model.trial.id;
         tp.status = Constants.TRIAL_PARTICIPANT_STATUS.PLANNED;
         tp.enrolledDate = currentDate.toLocaleDateString();
-        tp.trialUid = this.model.trial.id;
+        tp.trialId = this.model.trial.id;
         tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync();
         let trialParticipant = await this.TrialParticipantRepository.createAsync(tp);
-        await this.HCOService.addTrialParticipantAsync(tp);
+        tp  = await this.HCOService.addTrialParticipantAsync(tp);
         trialParticipant.actionNeeded = 'No action required';
         //this.model.trialParticipants.push(trialParticipant);
         //refresh
@@ -345,14 +353,19 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             tp.trialSReadSSI,
             Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.ADD_TO_TRIAL
         );
+
+        await this._sendMessageToSponsor(
+            Constants.MESSAGES.SPONSOR.TP_ADDED,
+            {ssi: tp.sReadSSI},
+            "A new trial participant was added"
+        );
+
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
 
         //TODO use enums
         if (site.status.stage === "Created") {
-            debugger;
             this.HCOService.getHCOSubEntity(site.status.uid,"/site/"+site.uid+"/status",(err, statusDSU)=>{
-                debugger;
                 statusDSU.stage = 'Recruiting';
                 this.HCOService.updateHCOSubEntity(statusDSU,"/site/"+site.uid+"/status",(err, dsu)=>{
 
@@ -376,7 +389,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 //})
             });
 
-            this._sendMessageToSponsor();
+            this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
+                stageInfo: {
+                    siteSSI: this.model.site.uid
+                }
+            },'The stage of the site changed');
         });
     }
 
@@ -429,20 +446,15 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
     _attachHandlerGoBack() {
         this.onTagEvent('back', 'click', (model, target, event) => {
-            // event.preventDefault();
-            // event.stopImmediatePropagation();
-            // window.history.back();
             this.navigateToPageTag('econsent-trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
-    _sendMessageToSponsor() {
+    _sendMessageToSponsor(operation, data, shortDescription) {
         this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
-            operation: 'update-site-status',
-            stageInfo: {
-                siteSSI: this.model.site.uid
-            },
-            shortDescription: 'The stage of the site changed',
+            operation: operation,
+            ...data,
+            shortDescription: shortDescription,
         });
     }
 }

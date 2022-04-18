@@ -7,33 +7,36 @@
             <h2 class="main-title">{{@trial.id}} {{@trial.name}}</h2>
         </div>
         <main>
-            <div class="recruitment-state" data-if="@trial.recruitmentPeriod.toShowDate">
-                <div slot="true">
-                    <label class="subtitle">Recruitment period: {{@trial.recruitmentPeriod.toShowDate}}
-                    </label>
-                </div>
 
-                <div slot="false">
-                    <label class="subtitle">Recruitment period not set yet
-                    </label>
-                </div>
+            <div class="overview-statistics">
+                <div><span>Planned</span> <span>{{@statistics.planned}}</span></div>
+                <div><span>Screened</span> <span>{{@statistics.screened}}</span></div>
+                <div><span>Enrolled</span> <span>{{@statistics.enrolled}}</span></div>
+                <div><span>Percentage of enrollment </span> <span>{{@statistics.percentage}}</span></div>
+                <div><span>Withdrawn</span> <span>{{@statistics.withdrew}}</span></div>
+                <div><span>Declined Trial</span> <span>{{@statistics.declined}}</span></div>
             </div>
 
             <div class="subtitle-container">
-
-                <div class="overview-statistics">
-                    <div><span>Planned</span> <span>{{@statistics.planned}}</span></div>
-                    <div><span>Screened</span> <span>{{@statistics.screened}}</span></div>
-                    <div><span>Enrolled</span> <span>{{@statistics.enrolled}}</span></div>
-                    <div><span>Percentage of enrollment </span> <span>{{@statistics.percentage}}</span></div>
-                    <div><span>Withdrawn</span> <span>{{@statistics.withdrew}}</span></div>
-                    <div><span>Declined Trial</span> <span>{{@statistics.declined}}</span></div>
+                <div data-if="@site.recruitmentPeriod.toShowDate">
+                    <div class="alert alert-info" role="alert" slot="true">
+                        Recruitment period: {{@site.recruitmentPeriod.toShowDate}}
+                    </div>
+                    <div class="alert alert-light" role="alert" slot="false">
+                        Recruitment period not set yet
+                    </div>
                 </div>
 
-                <div data-if="@trial.isInRecruitmentPeriod">
-                    <div slot="true">
-                        <button class="add-ts" data-tag="add:ts" disabled="@addParticipantsIsDisabled">Add Trial Subject</button>
+                <div class="d-flex">
+                    <div data-if="@site.recruitmentPeriod.toShowDate">
+                        <button class="action-button" data-tag="edit-period" slot="true">Edit Period</button>
+                        <button class="action-button" data-tag="edit-period" slot="false">Set Recruitment Period
+                        </button>
                     </div>
+
+                    <button class="action-button" data-tag="add:ts" disabled="@addParticipantsIsDisabled">Add
+                        Trial Subject
+                    </button>
                 </div>
             </div>
 
@@ -75,8 +78,7 @@
                             <label> | </label>
                             <button class="link-button" data="@id" data-tag="tp:details">Consents</button>
                             <label> | </label>
-<!--                            <button class="link-button" data="@" data-tag="tp:devices" disabled="@cannotManageDevices">Devices</button>-->
-                            <button class="link-button" data="@" data-tag="tp:devices" >Devices</button>
+                            <button class="link-button" data="@" data-tag="tp:devices" disabled="@cannotManageDevices">Devices</button>
 
                         </div>
 
