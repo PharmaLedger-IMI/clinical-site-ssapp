@@ -7,35 +7,41 @@
             <h6 class="title">User DID: {{@participantDID}} </h6>
         </div>
 
-        <div class="container" data-if="@deviceListAvailable">
-            <label class="no-data" slot="false">No devices assigned for this patient.</label>
+        <div data-if="@deviceListAvailable">
+            <webc-spinner slot="loading"></webc-spinner>
 
-            <header slot="true">
-                <div class="row-wrapper assigned-devices">
-                    <label>Device ID</label>
-                    <label>Brand</label>
-                    <label>Model</label>
-                    <label>Status</label>
-                    <label>Trial Name</label>
-                    <label>Trial ID</label>
-                    <label>Options</label>
+            <div class="common-datatable econsents dt-7-col" slot="true" data-if="@hasAssignedDevices">
+
+                <div class="alert alert-light d-flex justify-content-center" role="alert" slot="false">
+                    <p>
+                        No assigned devices yet!
+                    </p>
                 </div>
-            </header>
 
-            <main data-for="@assigned_devices" slot="true">
-                <div class="row-wrapper grid-equal">
-                    <label>{{@serialNumber}}</label>
-                    <label>{{@brand}}</label>
-                    <label>{{@modelNumber}}</label>
-                    <label>{{@status}}</label>
-                    <label>{{@trialName}}</label>
-                    <label>{{@trialID}}</label>
-                    <div class="d-flex justify-content-center align-items-center">
-                        <label class="link option" data-tag="view">View</label>
-                        <label class="link option" data-tag="edit">Edit</label>
+                <webc-datatable datasource="@assignedDevicesDataSource" slot="true">
+
+                    <div slot="header">Device ID</div>
+                    <div slot="header">Brand</div>
+                    <div slot="header">Model</div>
+                    <div slot="header">Status</div>
+                    <div slot="header">Trial Name</div>
+                    <div slot="header">Trial ID</div>
+                    <div slot="header">Options</div>
+
+                    <div class="cell">{{@serialNumber}}</div>
+                    <div class="cell">{{@brand}}</div>
+                    <div class="cell">{{@modelNumber}}</div>
+                    <div class="cell">{{@status}}</div>
+                    <div class="cell">{{@trialName}}</div>
+                    <div class="cell">{{@trialID}}</div>
+                    <div class="cell">
+                            <buton class="link-button" data-tag="view">View</buton>
+                            <label> | </label>
+                            <buton class="link-button" data-tag="edit">Edit</buton>
                     </div>
-                </div>
-            </main>
+
+                </webc-datatable>
+            </div>
         </div>
 
         <footer class="button-group-wrapper">

@@ -47,8 +47,32 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 this.forceUpdate(true);
             }
         });
+        // this.getStatistics(tps)
 
         this._initHandlers();
+        console.log('MODEL ', this.model.toObject());
+    }
+
+    getStatistics(tps) {
+        console.log('TPSSS ',tps)
+
+        this.model.statistics = {
+            planned : '0',
+            screened: '0',
+            enrolled: '0',
+            percentage: '0',
+            withdrew: '0',
+            declined: '0'
+        }
+
+        this.model.statistics.planned = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.PLANNED).length;
+        this.model.statistics.enrolled = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED).length;
+        this.model.statistics.screened = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.SCREENED).length;
+        this.model.statistics.withdrew = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW).length;
+        this.model.statistics.declined = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DECLINED).length;
+        this.model.statistics.percentage = ((this.model.statistics.enrolled * 100) / this.model.statistics.planned).toFixed(2) + "%";
+
+        console.log('MODEL ', this.model.toObject());
     }
 
     async _initServices() {
@@ -56,12 +80,14 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.TrialService = new TrialService();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
+        console.log('MODEL ', this.model.toObject());
         return await this.initializeData();
     }
 
     async initializeData() {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         return await this._initTrial(this.model.trialUid);
+        console.log('MODEL ', this.model.toObject());
     }
 
     _initHandlers() {
@@ -75,6 +101,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
         });
+
     }
 
     async _initTrial(trialUid) {
@@ -94,6 +121,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         }
 
         this.checkIfCanAddParticipants();
+        this.getStatistics(this.model.toObject('trialParticipants'))
+        console.log('MODEL ', this.model.toObject());
     }
 
 
@@ -119,7 +148,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 tp.name = nonObfuscatedTp.name;
                 tp.birthdate = nonObfuscatedTp.birthdate;
                 tp.enrolledDate = nonObfuscatedTp.enrolledDate;
-                tp.cannotManageDevices = typeof tp.number === "undefined";
+                // tp.cannotManageDevices = typeof tp.number === "undefined";
 
                 let tpActions = actions[tp.did];
                 let actionNeeded = 'No action required';
@@ -158,6 +187,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     actionNeeded: actionNeeded
                 }
             })
+        console.log('MODEL ', this.model.toObject());
     }
 
     async _getEconsentActionsMappedByUser(trialUid) {
@@ -191,6 +221,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     })
                 })
             });
+        console.log('MODEL ', this.model.toObject());
         return actions;
     }
 
@@ -258,7 +289,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             );
 
         });
-
+        console.log('MODEL ', this.model.toObject());
     }
 
     _attachHandlerViewTrialParticipantStatus() {
@@ -358,6 +389,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
             this._sendMessageToSponsor();
         });
+        console.log('MODEL ', this.model.toObject());
     }
 
 
@@ -399,6 +431,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             },
             shortDescription: shortMessage,
         });
+        console.log('MODEL ', this.model.toObject());
     }
 
     _showFeedbackToast(title, message, alertType = 'toast') {

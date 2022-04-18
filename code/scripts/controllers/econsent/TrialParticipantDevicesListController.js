@@ -2,7 +2,7 @@ import DeviceAssignationService from "../../services/DeviceAssignationService.js
 import DeviceServices from "../../services/DeviceServices.js";
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-
+const DataSourceFactory = commonServices.getDataSourceFactory();
 
 export default class TrialParticipantDevicesListController extends BreadCrumbManager {
 
@@ -36,6 +36,8 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             this.model.alldevices = devices;
             this.model.deviceInfo = (devices.find(element => element.sk === deviceID));
             this.model.assigned_devices.push(this.model.deviceInfo);
+            this.model.hasAssignedDevices = true;
+            this.model.assignedDevicesDataSource = DataSourceFactory.createDataSource(8, 10, this.model.assigned_devices);
         });
     }
 
@@ -48,13 +50,16 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             this.model.foundAssignedDevices = assignedDevices.filter(ad => ad.patientDID === prevState.participantDID);
             if (this.model.foundAssignedDevices.length>0) {
                 this.model.deviceListAvailable = true;
+
                 for(let ad in this.model.foundAssignedDevices){
                     this.getDeviceFullInfo(this.model.foundAssignedDevices[ad].deviceId);
                     this.model.assignedDevicesIDsOnly.push(this.model.foundAssignedDevices[ad].deviceId);
                 }
+
             }
             else{
-                this.model.deviceListAvailable = false
+                this.model.deviceListAvailable = true;
+                this.model.hasAssignedDevices = false;
 
                 this.DeviceServices = new DeviceServices();
                 this.DeviceServices.getDevice((err, devices) => {

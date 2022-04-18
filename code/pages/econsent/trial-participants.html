@@ -7,17 +7,27 @@
             <h2 class="main-title">{{@trial.id}} {{@trial.name}}</h2>
         </div>
         <main>
-            <div class="subtitle-container">
-                <div data-if="@trial.recruitmentPeriod.toShowDate">
-                    <div slot="true">
-                        <label class="subtitle">Recruitment period: {{@trial.recruitmentPeriod.toShowDate}}
-                        </label>
-                    </div>
+            <div class="recruitment-state" data-if="@trial.recruitmentPeriod.toShowDate">
+                <div slot="true">
+                    <label class="subtitle">Recruitment period: {{@trial.recruitmentPeriod.toShowDate}}
+                    </label>
+                </div>
 
-                    <div slot="false">
-                        <label class="subtitle">Recruitment period not set yet
-                        </label>
-                    </div>
+                <div slot="false">
+                    <label class="subtitle">Recruitment period not set yet
+                    </label>
+                </div>
+            </div>
+
+            <div class="subtitle-container">
+
+                <div class="overview-statistics">
+                    <div><span>Planned</span> <span>{{@statistics.planned}}</span></div>
+                    <div><span>Screened</span> <span>{{@statistics.screened}}</span></div>
+                    <div><span>Enrolled</span> <span>{{@statistics.enrolled}}</span></div>
+                    <div><span>Percentage of enrollment </span> <span>{{@statistics.percentage}}</span></div>
+                    <div><span>Withdrawn</span> <span>{{@statistics.withdrew}}</span></div>
+                    <div><span>Declined Trial</span> <span>{{@statistics.declined}}</span></div>
                 </div>
 
                 <div data-if="@trial.isInRecruitmentPeriod">
@@ -65,7 +75,8 @@
                             <label> | </label>
                             <button class="link-button" data="@id" data-tag="tp:details">Consents</button>
                             <label> | </label>
-                            <button class="link-button" data="@" data-tag="tp:devices" disabled="@cannotManageDevices">Devices</button>
+<!--                            <button class="link-button" data="@" data-tag="tp:devices" disabled="@cannotManageDevices">Devices</button>-->
+                            <button class="link-button" data="@" data-tag="tp:devices" >Devices</button>
 
                         </div>
 

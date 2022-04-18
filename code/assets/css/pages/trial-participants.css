@@ -1,7 +1,7 @@
 .subtitle-container {
     display: flex;
-    margin-bottom: 20px;
-    justify-content: center;
+    /*margin-bottom: 20px;*/
+    /*justify-content: center;*/
 }
 
 .add-ts {
@@ -17,4 +17,22 @@
     width: 160px;
     position: absolute;
     right: 10%;
+}
+
+.overview-statistics {
+    display: flex;
+    justify-content: space-between;
+    background-color: #008798;
+    color: white;
+    width: 650px;
+    height: 55px;
+}
+
+.overview-statistics > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.recruitment-state {
+    margin: 0 auto;
 }

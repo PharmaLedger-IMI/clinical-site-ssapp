@@ -34,7 +34,7 @@ export default class TrialManagementController extends BreadCrumbManager {
             }
             trial.siteStatus = site.status.status;
             trial.siteStage = site.status.stage;
-            if(trial.siteStage !== 'Created') {
+            if(trial.siteStage === 'Created') {
                 trial.showViewButton = false;
             } else trial.showViewButton = true;
             trial.siteId = site.id;
