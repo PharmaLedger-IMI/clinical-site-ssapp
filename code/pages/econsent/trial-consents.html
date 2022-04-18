@@ -1,0 +1,53 @@
+<webc-container controller="econsent/TrialConsentsController">
+    <link href="./assets/css/pages/trial-participants.css" rel="stylesheet">
+
+    <div class="container main-container">
+        <div class="container flex-container">
+            <breadcrumb-navigator></breadcrumb-navigator>
+            <h2 class="main-title">Trial Consents</h2>
+        </div>
+        <main>
+
+            <div data-if="@dataSourceInitialized">
+
+                <webc-spinner slot="loading"></webc-spinner>
+
+                <div class="common-datatable trial-participant dt-6-col" slot="true">
+
+                    <webc-datatable datasource="@dataSourceVersions">
+                        <div slot="no-data" class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">No actions yet!</h4>
+                        </div>
+
+                        <div slot="header">Consent Name</div>
+                        <div slot="header">Consent Version Name</div>
+                        <div slot="header">Approval Date</div>
+                        <div slot="header">Consent Type</div>
+                        <div slot="header">Version</div>
+                        <div slot="header">Options</div>
+
+                        <div class="cell">{{@consentName}}</div>
+                        <div class="cell">{{@versionName}}</div>
+                        <div class="cell">{{@versionDate}}</div>
+                        <div class="cell">{{@consentType}}</div>
+                        <div class="cell">{{@version}}</div>
+                        <div class="cell">
+                            <buton class="link-button" data-tag="preview">Preview</buton>
+                            <label> | </label>
+                            <buton class="link-button" data-tag="consent-history">Consent History</buton>
+                        </div>
+
+                    </webc-datatable>
+                </div>
+            </div>
+
+
+        </main>
+
+        </main>
+        <div class="button-group-wrapper">
+            <button data-tag="back">Back</button>
+        </div>
+    </div>
+
+</webc-container>

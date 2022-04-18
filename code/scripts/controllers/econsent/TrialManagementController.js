@@ -47,12 +47,25 @@ export default class TrialManagementController extends BreadCrumbManager {
     }
 
     _initHandlers() {
+        this._attachHandlerTrialConsents();
         this._attachHandlerViewDataAnalysis();
         this._attachHandlerTrialQuestionnaire();
         this._attachHandlerTrialParticipants();
         this._attachHandlerBack();
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
+        });
+    }
+
+    _attachHandlerTrialConsents() {
+        this.onTagEvent('trials:consents', 'click', (model, target, event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.navigateToPageTag('econsent-trial-consents',
+                {
+                    breadcrumb: this.model.toObject('breadcrumb')
+                }
+            );
         });
     }
 

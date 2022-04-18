@@ -100,6 +100,12 @@
 			"tag": "econsent-trial-management"
 		},
 		{
+			"name": "Trial Consents",
+			"path": "/econsent/trial-consents",
+			"src": "econsent/trial-consents.html",
+			"tag": "econsent-trial-consents"
+		},
+		{
 			"name": "Trial Details",
 			"path": "/econsent/trial-details",
 			"src": "econsent/trial-details.html",
