@@ -112,6 +112,12 @@
 			"tag": "econsent-patients-list"
 		},
 		{
+			"name": "Trial Visits",
+			"path": "/econsent/visits/trial-visits",
+			"src": "econsent/visits/trial-visits.html",
+			"tag": "trial-visits"
+		},
+		{
 			"name": "Visits And Procedures List",
 			"path": "/econsent/visits-procedures",
 			"src": "econsent/visits-procedures.html",
