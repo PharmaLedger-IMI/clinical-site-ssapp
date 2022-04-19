@@ -94,10 +94,11 @@ export default class AddTrialParticipantController extends WebcController {
                 return this.model.isBtnDisabled = true;
             }
             await this.verifyParticipant();
-            if (this.model.hcoDSU.volatile.tps) {
+            if (this.model.hcoDSU.volatile.tps && this.model.hcoDSU.volatile.tps.length > 0) {
                 let tps = this.model.toObject('hcoDSU.volatile.tps');
-                let didAlreadyExists = tps.some(tp => tp.did === this.model.did.value);
-                this.model.isBtnDisabled = didAlreadyExists;
+                this.model.isBtnDisabled = tps.some(tp => tp.did === this.model.did.value);
+            } else {
+                this.model.isBtnDisabled = false;
             }
         }
 
