@@ -368,7 +368,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             this.HCOService.getHCOSubEntity(site.status.uid,"/site/"+site.uid+"/status",(err, statusDSU)=>{
                 statusDSU.stage = 'Recruiting';
                 this.HCOService.updateHCOSubEntity(statusDSU,"/site/"+site.uid+"/status",(err, dsu)=>{
-
+                    this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
+                        stageInfo: {
+                            siteSSI: this.model.site.uid
+                        }
+                    },'The stage of the site changed');
                 });
             });
         }
@@ -388,12 +392,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         econsent.keySSI, null);
                 //})
             });
-
-            this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
-                stageInfo: {
-                    siteSSI: this.model.site.uid
-                }
-            },'The stage of the site changed');
         });
     }
 
