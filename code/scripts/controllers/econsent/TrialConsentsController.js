@@ -11,8 +11,7 @@ export default class TrialConsentsController extends BreadCrumbManager {
         super(...props);
 
         this.model = this.getState();
-        const prevState = this.getState() || {};
-        const { breadcrumb, ...state } = prevState;
+        const {breadcrumb, ...state} = this.model;
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -21,39 +20,38 @@ export default class TrialConsentsController extends BreadCrumbManager {
             }
         );
 
-        this.initServices();
-        console.log('model ', this.model.toObject());
-
+        this.initServices(this.model.trialUid);
+        this._attachHandlerGoBack();
     }
 
-    initServices() {
+    initServices(trialUid) {
         this.HCOService = new HCOService();
         this.HCOService.getOrCreateAsync().then((hcoDSU) => {
             this.model.hcoDSU = hcoDSU;
-            this.model.consents = this.model.hcoDSU.volatile.site[0].consents;
-            console.log('consents', this.model.toObject('consents'));
-            let consents = this.model.toObject('consents');
-            console.log('hcoDSU ', this.model.toObject(hcoDSU));
+            this.model.trial = this.model.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
+            const sites = this.model.toObject("hcoDSU.volatile.site");
+            const site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
+            this.model.site = site;
+            const consents = this.model.site.consents;
             let dataSourceVersions = [];
-            for( let consent of consents) {
-                console.log('consent', consent);
 
-                let x = consent.versions.map(version => {
-                    console.log('version' ,version);
+            consents.forEach((consent) => {
+                let consentVersion = consent.versions.map(version => {
                     version.consentName = consent.trialConsentName;
                     version.consentType = consent.type;
-                    version.versionDate = new Date(version.versionDate).toLocaleDateString()
+                    version.versionDate = new Date(version.versionDate).toLocaleDateString();
                     return version;
                 });
-                console.log('x ',x);
-                dataSourceVersions.push(...x);
-            }
-            console.log('datasource versions ', dataSourceVersions)
-
-            this.model.dataSourceVersions = DataSourceFactory.createDataSource(1, 10, [].concat(...dataSourceVersions));
+                dataSourceVersions.push(...consentVersion);
+            });
+            this.model.dataSourceVersions = DataSourceFactory.createDataSource(5, 10, dataSourceVersions);
             this.model.dataSourceInitialized = true;
-            console.log(this.model.toObject());
+        });
+    }
 
+    _attachHandlerGoBack() {
+        this.onTagEvent('back', 'click', (model, target, event) => {
+            this.navigateToPageTag('econsent-trial-management', {breadcrumb: this.model.toObject('breadcrumb')});
         });
     }
 

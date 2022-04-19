@@ -64,6 +64,7 @@ export default class TrialManagementController extends BreadCrumbManager {
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-trial-consents',
                 {
+                    trialUid: model.uid,
                     breadcrumb: this.model.toObject('breadcrumb')
                 }
             );
