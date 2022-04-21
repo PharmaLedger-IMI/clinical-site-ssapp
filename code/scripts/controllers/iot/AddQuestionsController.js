@@ -18,7 +18,7 @@ export default class AddQuestionsController extends BreadCrumbManager {
         const prevState = this.getState() || {};
         this.model = {
             ...getInitModel(),
-            trialUid: prevState.trialUid,
+            trialSSI: prevState.trialSSI,
             trialName: prevState.trialName
         };
 
@@ -89,8 +89,7 @@ export default class AddQuestionsController extends BreadCrumbManager {
                     startDate: "",
                     endDate: "",
                     repeatAppointment: ""
-                },
-                status: "active"
+                }
             }
 
             switch (this.model.answerType.value) {
@@ -127,6 +126,10 @@ export default class AddQuestionsController extends BreadCrumbManager {
                     redirectPage: "econsent-trial-management",
                     breadcrumb: this.model.toObject('breadcrumb')
                 });
+                // this.navigateToPageTag('questions-list', {
+                //     message: "Question has been added.",
+                //     breadcrumb: this.model.toObject('breadcrumb')
+                // });
             });
         });
     }
@@ -143,13 +146,13 @@ export default class AddQuestionsController extends BreadCrumbManager {
             })
         }
         getQuestions().then(data => {
-            this.model.questionnaire = data[0];
+            this.model.questionnaire = data.filter(data => data.trialSSI === this.model.trialSSI)[0];
             if (!this.model.questionnaire){
-                console.log("Initial Questionnaire is not created. Generating now the initial questionnaire.");
+                console.log("Initial Questionnaire is not created. Generating now the initial questionnaire for this trial.");
                 this.generateInitialQuestionnaire();
             }
             else{
-                console.log("Initial questionnaire exists!")
+                console.log("Initial questionnaire exists for this trial!")
             }
         })
     }
@@ -189,7 +192,8 @@ export default class AddQuestionsController extends BreadCrumbManager {
             prom: [
             ],
             prem: [
-            ]
+            ],
+            trialSSI: this.model.trialSSI
         }
         this.QuestionnaireService.saveQuestionnaire(questionnaire, (err, data) => {
             if (err) {

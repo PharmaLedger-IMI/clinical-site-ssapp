@@ -18,6 +18,7 @@ export default class QuestionsListController extends BreadCrumbManager {
         super(...props);
 
         const prevState = this.getState() || {};
+        this.model = this.getState();
         this.model = {
             ...getInitModel(),
             trialSSI: prevState.trialSSI
@@ -29,6 +30,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                 tag: "questions-list"
             }
         );
+        this.model.message = "";
 
         this.model.hasProms = false;
         this.model.hasPrems = false;
@@ -67,7 +69,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                 trialName: this.model.selected_trial.name,
                 breadcrumb: this.model.toObject('breadcrumb')
             }
-            this.navigateToPageTag('add-questions', state)
+            this.navigateToPageTag('add-questions', state);
         });
     }
 
@@ -97,11 +99,12 @@ export default class QuestionsListController extends BreadCrumbManager {
         }
 
         getQuestions().then(data => {
-            this.model.questionnaire = data[0];
+            this.model.questionnaire = data.filter(data => data.trialSSI === this.model.trialSSI)[0];
             if (!this.model.questionnaire){
-                console.log("Initial Questionnaire is not created");
+                console.log("Initial Questionnaire is not created!");
             }
             else{
+                console.log("Initial Questionnaire is created!")
                 this.model.hasProms = this.model.questionnaire.prom.length !== 0;
                 this.model.PromsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prom);
                 const { PromsDataSource } = this.model;
@@ -129,7 +132,6 @@ export default class QuestionsListController extends BreadCrumbManager {
                                 if (err) {
                                     console.log(err);
                                 }
-                                window.WebCardinal.loader.hidden = true;
                                 console.log("deleted");
                             });
                         },
@@ -137,6 +139,10 @@ export default class QuestionsListController extends BreadCrumbManager {
                             console.log("cancel");
                         },
                         modalConfig);
+                    // let state = {
+                    //     breadcrumb: this.model.toObject('breadcrumb')
+                    // }
+                    // this.navigateToPageTag('questions-list', state);
                 });
                 this.model.hasPrems = this.model.questionnaire.prem.length !== 0;
                 this.model.PremsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prem);
