@@ -112,6 +112,31 @@ export default class QuestionsListController extends BreadCrumbManager {
                 });
                 this.onTagClick("prom-delete", (model) => {
                     console.log(model);
+                    const modalConfig = {
+                        controller: "modals/ConfirmationAlertController",
+                        disableExpanding: false,
+                        disableBackdropClosing: true,
+                        question: "Are you sure that you want to delete this question? ",
+                        title: "Delete question",
+                    };
+                    this.showModalFromTemplate(
+                        "confirmation-alert",
+                        (event) => {
+                            let index = this.model.questionnaire.prom.findIndex(element => element.uid === model.uid);
+                            this.model.questionnaire.prom.splice(index, 1);
+                            console.log(this.model.questionnaire.prom)
+                            this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
+                                if (err) {
+                                    console.log(err);
+                                }
+                                window.WebCardinal.loader.hidden = true;
+                                console.log("deleted");
+                            });
+                        },
+                        (event) => {
+                            console.log("cancel");
+                        },
+                        modalConfig);
                 });
                 this.model.hasPrems = this.model.questionnaire.prem.length !== 0;
                 this.model.PremsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prem);
@@ -122,7 +147,32 @@ export default class QuestionsListController extends BreadCrumbManager {
                     console.log(model);
                 });
                 this.onTagClick("prem-delete", (model) => {
-                    console.log(model);
+                    const modalConfig = {
+                        controller: "modals/ConfirmationAlertController",
+                        disableExpanding: false,
+                        disableBackdropClosing: true,
+                        question: "Are you sure that you want to delete this question? ",
+                        title: "Delete question",
+                    };
+                    this.showModalFromTemplate(
+                        "confirmation-alert",
+                        (event) => {
+                            let index = this.model.questionnaire.prem.findIndex(element => element.uid === model.uid);
+                            this.model.questionnaire.prem.splice(index, 1);
+                            console.log(this.model.questionnaire.prem)
+                            this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
+                                if (err) {
+                                    console.log(err);
+                                }
+                                window.WebCardinal.loader.hidden = true;
+                                console.log("deleted");
+                                console.log(data);
+                            });
+                        },
+                        (event) => {
+                            console.log("cancel");
+                        },
+                        modalConfig);
                 });
             }
         })

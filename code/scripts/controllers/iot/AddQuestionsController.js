@@ -83,7 +83,14 @@ export default class AddQuestionsController extends BreadCrumbManager {
             let question = {
                 question: this.model.question.value,
                 type: this.model.answerType.value,
-                uid: Date.now()
+                uid: this.randomQuestionId(),
+                task: "",
+                schedule: {
+                    startDate: "",
+                    endDate: "",
+                    repeatAppointment: ""
+                },
+                status: "active"
             }
 
             switch (this.model.answerType.value) {
@@ -147,8 +154,14 @@ export default class AddQuestionsController extends BreadCrumbManager {
         })
     }
 
+    randomQuestionId(){
+        let max = Date.now();
+        let qId = Math.floor(Math.random() * max);
+        return qId;
+    }
+
     generateInitialQuestionnaire() {
-        let questions = {
+        let questionnaire = {
             resourceType: "Questionnaire",
             id: "bb",
             text: {
@@ -158,7 +171,9 @@ export default class AddQuestionsController extends BreadCrumbManager {
             url: "http://hl7.org/fhir/Questionnaire/bb",
             title: "NSW Government My Personal Health Record",
             status: "draft",
-            subjectType: "Patient",
+            subjectType: [
+                "Patient"
+            ],
             date: Date.now(),
             publisher: "New South Wales Department of Health",
             jurisdiction: [
@@ -172,31 +187,11 @@ export default class AddQuestionsController extends BreadCrumbManager {
                 }
             ],
             prom: [
-                {
-                    question: "Mobility",
-                    type: "slider",
-                    uid: "#generatedUID",
-                    minLabel: "No Mobility",
-                    maxLabel: "Normal mobility",
-                    steps: 10
-                },
-                {
-                    question: "Treatment",
-                    type: "checkbox",
-                    options: ["Option 1", "Option 2", "Option 3"],
-                    uid: "#generatedUID"
-                },
-                {
-                    question: "Usual Activities", type: "free-text", uid: "#generatedUID"
-                }
             ],
             prem: [
-                {
-                    question: "PREM Activities", type: "free-text", uid: "#generatedUID"
-                }
             ]
         }
-        this.QuestionnaireService.saveQuestionnaire(questions, (err, data) => {
+        this.QuestionnaireService.saveQuestionnaire(questionnaire, (err, data) => {
             if (err) {
                 console.log(err);
             }
