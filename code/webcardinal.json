@@ -178,6 +178,12 @@
 			"tag": "econsent-sign"
 		},
 		{
+			"name": "Consent Preview",
+			"path": "/econsent/consent-preview",
+			"src": "econsent/consent-preview.html",
+			"tag": "consent-preview"
+		},
+		{
 			"name": "Questions",
 			"path": "/econsent/questions",
 			"src": "econsent/questions.html",

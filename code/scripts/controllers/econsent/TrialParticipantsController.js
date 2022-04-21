@@ -51,7 +51,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this._initHandlers();
     }
 
-    getStatistics(tps) {
+    getStatistics() {
         this.model.statistics = {
             planned : '0',
             screened: '0',
@@ -66,7 +66,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.model.statistics.screened = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.SCREENED).length;
         this.model.statistics.withdrew = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW).length;
         this.model.statistics.declined = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DECLINED).length;
-        this.model.statistics.percentage = ((this.model.statistics.enrolled * 100) / this.model.statistics.planned).toFixed(2) + "%";
+        if(!this.model.statistics.planned) {
+            this.model.statistics.percentage = 'N/A';
+        } else {
+            this.model.statistics.percentage = ((this.model.statistics.enrolled * 100) / this.model.statistics.planned).toFixed(2) + "%";
+        }
 
     }
 
@@ -107,7 +111,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.model.trialParticipants = await this._getTrialParticipantsMappedWithActionRequired(actions);
         this.checkIfCanAddParticipants();
         this.model.onChange("site.recruitmentPeriod",this.checkIfCanAddParticipants.bind(this));
-        this.getStatistics(this.model.toObject('trialParticipants'));
+        this.getStatistics();
     }
 
 

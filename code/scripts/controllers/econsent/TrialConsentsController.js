@@ -22,6 +22,7 @@ export default class TrialConsentsController extends BreadCrumbManager {
 
         this.initServices(this.model.trialUid);
         this._attachHandlerGoBack();
+        this._attachHandlerPreview();
     }
 
     initServices(trialUid) {
@@ -37,21 +38,44 @@ export default class TrialConsentsController extends BreadCrumbManager {
 
             consents.forEach((consent) => {
                 let consentVersion = consent.versions.map(version => {
-                    version.consentName = consent.trialConsentName;
+                    version.consentName = consent.name;
                     version.consentType = consent.type;
                     version.versionDate = new Date(version.versionDate).toLocaleDateString();
+                    version.consentUid = consent.uid;
+                    version.isEmpty = false;
                     return version;
                 });
-                dataSourceVersions.push(...consentVersion);
+
+                let emptyObj = {
+                    consentName : '',
+                    consentType : '',
+                    versionDate : '',
+                    version: '',
+                    isEmpty: true,
+                }
+
+                dataSourceVersions.push(...consentVersion, emptyObj);
             });
             this.model.dataSourceVersions = DataSourceFactory.createDataSource(5, 10, dataSourceVersions);
             this.model.dataSourceInitialized = true;
-        });
+        })
     }
 
     _attachHandlerGoBack() {
         this.onTagEvent('back', 'click', (model, target, event) => {
             this.navigateToPageTag('econsent-trial-management', {breadcrumb: this.model.toObject('breadcrumb')});
+        });
+    }
+
+    _attachHandlerPreview() {
+        this.onTagEvent('preview', 'click', (model, target, event) => {
+            console.log('What we send ', model);
+            this.navigateToPageTag('consent-preview', {
+                breadcrumb: this.model.toObject('breadcrumb'),
+                trialUid: this.model.trialUid,
+                versionId: model.version,
+                consentUid: model.consentUid
+            });
         });
     }
 

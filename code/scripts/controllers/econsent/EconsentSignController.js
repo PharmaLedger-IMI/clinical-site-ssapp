@@ -273,7 +273,7 @@ export default class EconsentSignController extends BreadCrumbManager {
 
     async initSite(trialUid) {
         const sites = this.model.toObject("hcoDSU.volatile.site");
-        this.model.site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
+        this.model.site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid);
     }
 
     getInitModel() {
