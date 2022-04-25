@@ -83,7 +83,8 @@ export default class QuestionsListController extends BreadCrumbManager {
                     controller: 'modals/SetFrequencyQuestionnaire',
                     disableExpanding: false,
                     disableBackdropClosing: true,
-                    title: 'Set Frequency Questionnaire'
+                    title: 'Set Frequency Questionnaire',
+                    schedule: this.model.questionnaire.schedule
                 }
             );
 
@@ -140,6 +141,14 @@ export default class QuestionsListController extends BreadCrumbManager {
                 this.onTagClick("prom-next-page", () => PromsDataSource.goToNextPage());
                 this.onTagClick("prom-edit", (model) => {
                     console.log(model);
+                    let state =
+                        {
+                            questionID: model.uid,
+                            trialSSI: this.model.selected_trial.uid,
+                            trialName: this.model.selected_trial.name,
+                            breadcrumb: this.model.toObject('breadcrumb')
+                        }
+                    this.navigateToPageTag('edit-questions', state)
                 });
                 this.onTagClick("prom-delete", (model) => {
                     console.log(model);

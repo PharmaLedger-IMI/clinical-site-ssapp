@@ -94,6 +94,12 @@
 			"tag": "add-questions"
 		},
 		{
+			"name": "edit-questions",
+			"path": "/iot/edit-questions",
+			"src": "iot/edit-questions.html",
+			"tag": "edit-questions"
+		},
+		{
 			"name": "Trial Management",
 			"path": "/econsent/trial-management",
 			"src": "econsent/trial-management.html",

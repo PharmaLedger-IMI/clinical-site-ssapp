@@ -37,7 +37,7 @@ let getInitModel = () => {
                     value: 'yearly'
                 },
             ],
-            value: ""
+            value: 'daily'
         }
 
     };
@@ -46,16 +46,20 @@ let getInitModel = () => {
 export default class SetFrequencyQuestionnaire extends WebcController {
     constructor(...props) {
         super(...props);
-        this.setModel(getInitModel());
+        this.model = {
+            ...getInitModel(),
+            schedule: props[0].schedule
+        };
         this._initHandlers();
+        if (this.model.schedule) {
+            this.model.startDate.value = this.model.schedule.startDate;
+            this.model.endDate.value = this.model.schedule.endDate;
+            this.model.frequencyType.value = this.model.schedule.repeatAppointment;
+        }
     }
 
     _initHandlers() {
         this._attachHandlerSubmit();
-    }
-
-    setExistingFrequency(){
-
     }
 
     _attachHandlerSubmit() {
