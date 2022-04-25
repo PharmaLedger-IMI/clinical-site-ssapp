@@ -84,12 +84,7 @@ export default class AddQuestionsController extends BreadCrumbManager {
                 question: this.model.question.value,
                 type: this.model.answerType.value,
                 uid: this.randomQuestionId(),
-                task: "",
-                schedule: {
-                    startDate: "",
-                    endDate: "",
-                    repeatAppointment: ""
-                }
+                task: ""
             }
 
             switch (this.model.answerType.value) {
@@ -193,6 +188,11 @@ export default class AddQuestionsController extends BreadCrumbManager {
             ],
             prem: [
             ],
+            schedule: {
+                startDate: "",
+                endDate: "",
+                repeatAppointment: ""
+            },
             trialSSI: this.model.trialSSI
         }
         this.QuestionnaireService.saveQuestionnaire(questionnaire, (err, data) => {

@@ -59,6 +59,34 @@ export default class QuestionsListController extends BreadCrumbManager {
     _attachHandlerSetFrequency() {
         this.onTagEvent('set:frequency', 'click', (model, target, event) => {
             console.log("set frequency page/modal")
+
+            this.showModalFromTemplate(
+                'set-frequency-questionnaire',
+                (event) => {
+                    const response = event.detail;
+                    this.model.response = response;
+                    this.model.questionnaire.schedule.startDate = this.model.response.startDate;
+                    this.model.questionnaire.schedule.endDate = this.model.response.endDate;
+                    this.model.questionnaire.schedule.repeatAppointment = this.model.response.frequencyType.value;
+                    this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                        console.log("Frequency has been set");
+                        console.log(data);
+                    });
+                },
+                (event) => {
+                    const response = event.detail;
+                },
+                {
+                    controller: 'modals/SetFrequencyQuestionnaire',
+                    disableExpanding: false,
+                    disableBackdropClosing: true,
+                    title: 'Set Frequency Questionnaire'
+                }
+            );
+
         });
     }
 
