@@ -83,8 +83,7 @@ export default class AddQuestionsController extends BreadCrumbManager {
             let question = {
                 question: this.model.question.value,
                 type: this.model.answerType.value,
-                uid: this.randomQuestionId(),
-                task: ""
+                uid: this.randomQuestionId()
             }
 
             switch (this.model.answerType.value) {
@@ -104,9 +103,15 @@ export default class AddQuestionsController extends BreadCrumbManager {
 
             switch (this.model.currentView) {
                 case "prom":
+                    question = Object.assign(question, {
+                        task: "prom"
+                    });
                     this.model.questionnaire.prom.push(question);
                     break;
                 case "prem":
+                    question = Object.assign(question, {
+                        task: "prem"
+                    });
                     this.model.questionnaire.prem.push(question);
                     break;
             }

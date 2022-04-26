@@ -140,7 +140,6 @@ export default class QuestionsListController extends BreadCrumbManager {
                 this.onTagClick("prom-prev-page", () => PromsDataSource.goToPreviousPage());
                 this.onTagClick("prom-next-page", () => PromsDataSource.goToNextPage());
                 this.onTagClick("prom-edit", (model) => {
-                    console.log(model);
                     let state =
                         {
                             questionID: model.uid,
@@ -187,7 +186,14 @@ export default class QuestionsListController extends BreadCrumbManager {
                 this.onTagClick("prem-prev-page", () => PremsDataSource.goToPreviousPage());
                 this.onTagClick("prem-next-page", () => PremsDataSource.goToNextPage());
                 this.onTagClick("prem-edit", (model) => {
-                    console.log(model);
+                    let state =
+                        {
+                            questionID: model.uid,
+                            trialSSI: this.model.selected_trial.uid,
+                            trialName: this.model.selected_trial.name,
+                            breadcrumb: this.model.toObject('breadcrumb')
+                        }
+                    this.navigateToPageTag('edit-questions', state)
                 });
                 this.onTagClick("prem-delete", (model) => {
                     const modalConfig = {

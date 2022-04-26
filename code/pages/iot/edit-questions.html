@@ -10,45 +10,67 @@
     <div class="container justify-content-start">
 
       <div class="button-group-wrapper d-flex flex-row justify-content-end p-1">
-        <button data-tag="save:question">Update</button>
+        <button data-tag="update">Update</button>
       </div>
       <hr/>
 
-      <main class="form-container">
+      <webc-switch condition="@view">
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="col-form-label">{{@question.label}}</label>
-            <input class="form-control" data-view-model="@question" id="@question.name"/>
+          <div slot="freetext">
+            <main class="form-container">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="col-form-label">{{@question.label}}</label>
+                  <input class="form-control" data-view-model="@question" id="@question.name"/>
+                </div>
+              </div>
+<!--              <div class="form-row">-->
+<!--                <div class="form-group">-->
+<!--                  <label class="col-form-label">{{@answerType.label}}</label>-->
+<!--                  <select class="form-control" data-for="@answerType.options"-->
+<!--                          value="@answerType.value">-->
+<!--                    <option value="@value">{{@label}}</option>-->
+<!--                  </select>-->
+<!--                </div>-->
+<!--              </div>-->
+            </main>
           </div>
+
+        <div slot="slider">
+          <main class="form-container">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="col-form-label">{{@question.label}}</label>
+                <input class="form-control" data-view-model="@question" id="@question.name"/>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="col-form-label">{{@sliderMin.label}}</label>
+                <input class="form-control" data-view-model="@sliderMin" id="@sliderMin.name"/>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="col-form-label">{{@sliderMax.label}}</label>
+                <input class="form-control" data-view-model="@sliderMax" id="@sliderMax.name"/>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="col-form-label">{{@sliderSteps.label}}</label>
+                <input class="form-control" data-view-model="@sliderSteps" id="@sliderSteps.name"/>
+              </div>
+            </div>
+
+          </main>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label class="col-form-label">{{@answerType.label}}</label>
-            <select class="form-control" data-for="@answerType.options"
-                    value="@answerType.value">
-              <option value="@value">{{@label}}</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="col-form-label">{{@answer.label}}</label>
-            <input class="form-control" data-view-model="@answer" id="@answer.name"/>
-          </div>
-        </div>
-
-        <div class="d-flex justify-content-center">
-          <div data-for="@checkbox.options">
-            <input class="form-control" data-view-model="@element">{{@element}}</input>
-            <br>
-          </div>
-        </div>
-
-
-      </main>
+      </webc-switch>
 
 
     </div>
