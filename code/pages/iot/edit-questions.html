@@ -24,15 +24,6 @@
                   <input class="form-control" data-view-model="@question" id="@question.name"/>
                 </div>
               </div>
-<!--              <div class="form-row">-->
-<!--                <div class="form-group">-->
-<!--                  <label class="col-form-label">{{@answerType.label}}</label>-->
-<!--                  <select class="form-control" data-for="@answerType.options"-->
-<!--                          value="@answerType.value">-->
-<!--                    <option value="@value">{{@label}}</option>-->
-<!--                  </select>-->
-<!--                </div>-->
-<!--              </div>-->
             </main>
           </div>
 
@@ -69,6 +60,49 @@
 
           </main>
         </div>
+
+        <div slot="checkbox">
+          <main class="form-container">
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="col-form-label">{{@question.label}}</label>
+                <input class="form-control" data-view-model="@question" id="@question.name"/>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="col-form-label">{{@answer.label}}</label>
+                <input class="form-control" data-view-model="@answer" id="@answer.name"/>
+              </div>
+            </div>
+
+            <div data-if="@hasOptions">
+              <webc-spinner slot="loading"></webc-spinner>
+              <div slot="false" class="alert alert-warning" role="alert">
+                <h4 class="alert-heading">No answers provided!</h4>
+                <p>Go back to generate questions with answers!</p>
+              </div>
+              <div class="common-datatable answers-datatable dt-2-col" slot="true">
+                <webc-datatable datasource="@OptionsDataSource">
+
+                  <div slot="header" >Provided Answer</div>
+                  <div slot="header">Options</div>
+
+                  <div class="cell">{{ @element }}</div>
+                  <div class="cell">
+                    <label data-tag="option-edit" class="link option">Choose this answer to update it</label>
+                  </div>
+                </webc-datatable>
+              </div>
+
+            </div>
+
+
+          </main>
+        </div>
+
 
       </webc-switch>
 

@@ -1,6 +1,7 @@
 const commonServices = require("common-services");
 const {QuestionnaireService} = commonServices;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
+const DataSourceFactory = commonServices.getDataSourceFactory();
 
 
 export default class EditQuestionsController extends BreadCrumbManager {
@@ -54,9 +55,6 @@ export default class EditQuestionsController extends BreadCrumbManager {
             this.model.questionnaire = data.filter(data => data.trialSSI === this.model.trialSSI)[0];
             const dataPromsPrems = [...this.model.questionnaire.prom, ...this.model.questionnaire.prem];
             this.model.chosenQuestion = dataPromsPrems.filter(dataPromsPrems => dataPromsPrems.uid === this.model.questionID)[0];
-            console.log(this.model.chosenQuestion)
-
-
             if (this.model.chosenQuestion.type==="free text"){
                 this.model.view = "freetext"
                 this.model.question.value = this.model.chosenQuestion.question;
@@ -68,10 +66,20 @@ export default class EditQuestionsController extends BreadCrumbManager {
                 this.model.sliderMax.value = this.model.chosenQuestion.maxLabel;
                 this.model.sliderSteps.value = this.model.chosenQuestion.steps;
             }
-
-
-
-
+            else if (this.model.chosenQuestion.type==="checkbox"){
+                this.model.view = "checkbox"
+                this.model.question.value = this.model.chosenQuestion.question;
+                this.model.options = this.model.chosenQuestion.options;
+                this.model.hasOptions = this.model.options.length !== 0;
+                this.model.OptionsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.options);
+                const { OptionsDataSource } = this.model;
+                this.onTagClick("option-prev-page", () => OptionsDataSource.goToPreviousPage());
+                this.onTagClick("option-next-page", () => OptionsDataSource.goToNextPage());
+                this.onTagClick("option-edit", (model) => {
+                    this.model.answer.value = model.element;
+                    this.model.chosenAnswer = model.element;
+                });
+            }
         })
     }
 
@@ -88,7 +96,7 @@ export default class EditQuestionsController extends BreadCrumbManager {
                             console.log(err);
                         }
                         window.WebCardinal.loader.hidden = true;
-                        console.log("updated");
+                        console.log("updated prem free text question");
                         console.log(data);
                     });
                 }
@@ -101,7 +109,7 @@ export default class EditQuestionsController extends BreadCrumbManager {
                             console.log(err);
                         }
                         window.WebCardinal.loader.hidden = true;
-                        console.log("updated");
+                        console.log("updated prom free text question");
                         console.log(data);
                     });
                 }
@@ -119,7 +127,7 @@ export default class EditQuestionsController extends BreadCrumbManager {
                             console.log(err);
                         }
                         window.WebCardinal.loader.hidden = true;
-                        console.log("updated");
+                        console.log("updated prem slider question");
                         console.log(data);
                     });
                 }
@@ -135,14 +143,46 @@ export default class EditQuestionsController extends BreadCrumbManager {
                             console.log(err);
                         }
                         window.WebCardinal.loader.hidden = true;
-                        console.log("updated");
+                        console.log("updated prom slider question");
                         console.log(data);
                     });
                 }
             }
-
-
-
+            else if (this.model.chosenQuestion.type === "checkbox") {
+                if (!this.model.chosenAnswer) {return undefined;}
+                if (this.model.chosenQuestion.task ==="prem") {
+                    let prems = this.model.questionnaire.prem;
+                    let index = prems.findIndex(prems => prems.uid === this.model.questionID);
+                    this.model.questionnaire.prem[index].question = this.model.question.value;
+                    let answers = this.model.options;
+                    let answerIndex = answers.findIndex(answers => answers.element === this.model.chosenAnswer);
+                    this.model.questionnaire.prem[index].options[answerIndex].element = this.model.answer.value;
+                    this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                        window.WebCardinal.loader.hidden = true;
+                        console.log("updated prem checkbox question");
+                        console.log(data);
+                    });
+                }
+                else if (this.model.chosenQuestion.task ==="prom") {
+                    let proms = this.model.questionnaire.prom;
+                    let index = proms.findIndex(proms => proms.uid === this.model.questionID);
+                    this.model.questionnaire.prom[index].question = this.model.question.value;
+                    let answers = this.model.options;
+                    let answerIndex = answers.findIndex(answers => answers.element === this.model.chosenAnswer);
+                    this.model.questionnaire.prom[index].options[answerIndex].element = this.model.answer.value;
+                    this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
+                        if (err) {
+                            console.log(err);
+                        }
+                        window.WebCardinal.loader.hidden = true;
+                        console.log("updated prom checkbox question");
+                        console.log(data);
+                    });
+                }
+            }
         });
     }
 
@@ -154,32 +194,6 @@ export default class EditQuestionsController extends BreadCrumbManager {
                 label: "Question:",
                 placeholder: 'Insert new question',
                 required: true,
-                value: ""
-            },
-            uid : {
-                name: 'uid',
-                id: 'uid',
-                label: "UID:",
-                placeholder: 'ID of the question',
-                required: false,
-                value: ""
-            },
-            answerType: {
-                label: "Answer Type:",
-                required: true,
-                options: [{
-                    label: "Checkbox",
-                    value: 'checkbox'
-                },
-                    {
-                        label: "Slider",
-                        value: 'slider'
-                    },
-                    {
-                        label: "Free Text",
-                        value: 'free text'
-                    }
-                ],
                 value: ""
             },
             sliderMin: {
@@ -206,26 +220,17 @@ export default class EditQuestionsController extends BreadCrumbManager {
                 required: true,
                 value: ""
             },
-            checkbox: [
-                {
-                    answer: "answer1",
-                    id: "fghtyrgytry"
-                },
-                {
-                    answer: "answer2",
-                    id: "sdfasdafasdf"
-                },
-                {
-                    answer: "answer3",
-                    id: "dfsdffsdf"
-                }
-            ]
+            answer: {
+                name: 'answer',
+                id: 'answer',
+                label: "Update the answer:",
+                placeholder: 'Insert the new answer',
+                required: true,
+                value: ""
+            },
+            options: []
         }
-
-
     }
-
-
 
 
 }
