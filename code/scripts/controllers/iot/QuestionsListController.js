@@ -21,7 +21,11 @@ export default class QuestionsListController extends BreadCrumbManager {
         this.model = this.getState();
         this.model = {
             ...getInitModel(),
-            trialSSI: prevState.trialSSI
+            trialSSI: prevState.trialSSI,
+            hasProms: false,
+            hasPrems: false,
+            currentTable: "none",
+            message: "empty"
         };
 
         this.model.breadcrumb = this.setBreadCrumb(
@@ -30,11 +34,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                 tag: "questions-list"
             }
         );
-        this.model.message = "";
 
-        this.model.hasProms = false;
-        this.model.hasPrems = false;
-        this.model.currentTable = "none"
         this.initHandlers();
         this.initServices();
     }
@@ -58,7 +58,6 @@ export default class QuestionsListController extends BreadCrumbManager {
 
     _attachHandlerSetFrequency() {
         this.onTagEvent('set:frequency', 'click', (model, target, event) => {
-            console.log("set frequency page/modal")
 
             this.showModalFromTemplate(
                 'set-frequency-questionnaire',
@@ -114,6 +113,52 @@ export default class QuestionsListController extends BreadCrumbManager {
         });
     }
 
+    generateInitialQuestionnaire() {
+        let questionnaire = {
+            resourceType: "Questionnaire",
+            id: "bb",
+            text: {
+                status: "generated",
+                div: "<div xmlns=\"http://www.w3.org/1999/xhtml\"></div>"
+            },
+            url: "http://hl7.org/fhir/Questionnaire/bb",
+            title: "NSW Government My Personal Health Record",
+            status: "draft",
+            subjectType: [
+                "Patient"
+            ],
+            date: Date.now(),
+            publisher: "New South Wales Department of Health",
+            jurisdiction: [
+                {
+                    coding: [
+                        {
+                            system: "urn:iso:std:iso:3166",
+                            code: "AU"
+                        }
+                    ]
+                }
+            ],
+            prom: [
+            ],
+            prem: [
+            ],
+            schedule: {
+                startDate: "",
+                endDate: "",
+                repeatAppointment: ""
+            },
+            trialSSI: this.model.trialSSI
+        }
+        this.QuestionnaireService.saveQuestionnaire(questionnaire, (err, data) => {
+            if (err) {
+                console.log(err);
+            }
+            console.log("Initial Questionnaire Generated!")
+            this.model.questionnaire = data;
+        });
+    }
+
     getQuestionnaire(){
         this.QuestionnaireService = new QuestionnaireService();
         const getQuestions = () => {
@@ -130,10 +175,11 @@ export default class QuestionsListController extends BreadCrumbManager {
         getQuestions().then(data => {
             this.model.questionnaire = data.filter(data => data.trialSSI === this.model.trialSSI)[0];
             if (!this.model.questionnaire){
-                console.log("Initial Questionnaire is not created!");
+                console.log("Initial Questionnaire is not created. Generating now the initial questionnaire for this trial.");
+                this.generateInitialQuestionnaire();
             }
             else{
-                console.log("Initial Questionnaire is created!")
+                console.log("Initial Questionnaire is loaded.")
                 this.model.hasProms = this.model.questionnaire.prom.length !== 0;
                 this.model.PromsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prom);
                 const { PromsDataSource } = this.model;
@@ -225,6 +271,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                 });
             }
         })
+
     }
 
 

@@ -5,7 +5,6 @@ const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 let getInitModel = () => {
     return {
-        trials: {},
         selected_trial: {}
     };
 };
@@ -19,7 +18,9 @@ export default class AddQuestionsController extends BreadCrumbManager {
         this.model = {
             ...getInitModel(),
             trialSSI: prevState.trialSSI,
-            trialName: prevState.trialName
+            trialName: prevState.trialName,
+            currentView: "none",
+            ...this.getQuestionsFormModel()
         };
 
        this.model.breadcrumb = this.setBreadCrumb(
@@ -29,12 +30,8 @@ export default class AddQuestionsController extends BreadCrumbManager {
             }
         );
 
-        this.model = this.getQuestionsFormModel();
-        this.model.currentView = "none"
-
         this.initServices();
         this.initHandlers();
-
     }
 
     initHandlers(){
@@ -148,11 +145,10 @@ export default class AddQuestionsController extends BreadCrumbManager {
         getQuestions().then(data => {
             this.model.questionnaire = data.filter(data => data.trialSSI === this.model.trialSSI)[0];
             if (!this.model.questionnaire){
-                console.log("Initial Questionnaire is not created. Generating now the initial questionnaire for this trial.");
-                this.generateInitialQuestionnaire();
+                console.log("Initial Questionnaire not found for this trial.");
             }
             else{
-                console.log("Initial questionnaire exists for this trial!")
+                console.log("Initial questionnaire loaded for this trial.")
             }
         })
     }
@@ -161,52 +157,6 @@ export default class AddQuestionsController extends BreadCrumbManager {
         let max = Date.now();
         let qId = Math.floor(Math.random() * max);
         return qId;
-    }
-
-    generateInitialQuestionnaire() {
-        let questionnaire = {
-            resourceType: "Questionnaire",
-            id: "bb",
-            text: {
-                status: "generated",
-                div: "<div xmlns=\"http://www.w3.org/1999/xhtml\"></div>"
-            },
-            url: "http://hl7.org/fhir/Questionnaire/bb",
-            title: "NSW Government My Personal Health Record",
-            status: "draft",
-            subjectType: [
-                "Patient"
-            ],
-            date: Date.now(),
-            publisher: "New South Wales Department of Health",
-            jurisdiction: [
-                {
-                    coding: [
-                        {
-                            system: "urn:iso:std:iso:3166",
-                            code: "AU"
-                        }
-                    ]
-                }
-            ],
-            prom: [
-            ],
-            prem: [
-            ],
-            schedule: {
-                startDate: "",
-                endDate: "",
-                repeatAppointment: ""
-            },
-            trialSSI: this.model.trialSSI
-        }
-        this.QuestionnaireService.saveQuestionnaire(questionnaire, (err, data) => {
-            if (err) {
-                console.log(err);
-            }
-            console.log("Initial Questionnaire Generated!")
-            this.model.questionnaire = data;
-        });
     }
 
     _attachHandlerPromQuestions() {
@@ -274,10 +224,7 @@ export default class AddQuestionsController extends BreadCrumbManager {
             },
             answers: []
         }
-
-
     }
-
 
 
 

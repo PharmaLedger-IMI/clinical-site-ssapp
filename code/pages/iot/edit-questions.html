@@ -71,13 +71,6 @@
               </div>
             </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="col-form-label">{{@answer.label}}</label>
-                <input class="form-control" data-view-model="@answer" id="@answer.name"/>
-              </div>
-            </div>
-
             <div data-if="@hasOptions">
               <webc-spinner slot="loading"></webc-spinner>
               <div slot="false" class="alert alert-warning" role="alert">
@@ -87,7 +80,7 @@
               <div class="common-datatable answers-datatable dt-2-col" slot="true">
                 <webc-datatable datasource="@OptionsDataSource">
 
-                  <div slot="header" >Provided Answer</div>
+                  <div slot="header" >Provided Answers</div>
                   <div slot="header">Options</div>
 
                   <div class="cell">{{ @element }}</div>
