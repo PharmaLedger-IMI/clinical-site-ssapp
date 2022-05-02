@@ -93,7 +93,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
         this.onTagClick('assign-device', () => {
 
             this.findAvailableDevicesToMatch();
-            // console.log(this.model.available_devices);
             if (this.model.available_devices.length === 0 ){
                 console.log("There are not available devices to match!");
                 this.navigateToPageTag('confirmation-page', {
