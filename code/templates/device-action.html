@@ -1,7 +1,6 @@
-<webc-container data-view-model="@" controller="iot/devices/DeviceActionController">
     <div class="form-row">
         <div class="form-group">
-            <label class="col-form-label" for="@deviceName.name">{{@name.label}}</label>
+            <label class="col-form-label" for="@deviceName.name">{{@deviceName.label}}</label>
             <input class="form-control" data-view-model="@deviceName" id="@deviceName.name" value="@deviceName.value" />
         </div>
     </div>
@@ -40,4 +39,3 @@
             </select>
         </div>
     </div>
-</webc-container>
