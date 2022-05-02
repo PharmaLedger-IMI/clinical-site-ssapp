@@ -6,19 +6,19 @@
             <breadcrumb-navigator></breadcrumb-navigator>
             <h2 class="main-title">{{@trial.id}} {{@trial.name}}</h2>
         </div>
-        <main>
-
-            <div class="overview-statistics">
-                <div><span>Planned</span> <span>{{@statistics.planned}}</span></div>
-                <div><span>Screened</span> <span>{{@statistics.screened}}</span></div>
-                <div><span>Enrolled</span> <span>{{@statistics.enrolled}}</span></div>
-                <div><span>Percentage of enrollment </span> <span>{{@statistics.percentage}}</span></div>
-                <div><span>Withdrawn</span> <span>{{@statistics.withdrew}}</span></div>
-                <div><span>Declined Trial</span> <span>{{@statistics.declined}}</span></div>
-            </div>
+        <main class="items-container">
 
             <div class="subtitle-container">
-                <div data-if="@site.recruitmentPeriod.toShowDate">
+
+                <div class="overview-statistics">
+                    <div><span>Planned</span> <span>{{@statistics.planned}}</span></div>
+                    <div><span>Screened</span> <span>{{@statistics.screened}}</span></div>
+                    <div><span>Enrolled</span> <span>{{@statistics.enrolled}}({{@statistics.percentage}})</span></div>
+                    <div><span>Withdrawn</span> <span>{{@statistics.withdrew}}</span></div>
+                    <div><span>Declined Trial</span> <span>{{@statistics.declined}}</span></div>
+                </div>
+
+                <div class="recruitment-period" data-if="@site.recruitmentPeriod.toShowDate">
                     <div class="alert alert-info" role="alert" slot="true">
                         Recruitment period: {{@site.recruitmentPeriod.toShowDate}}
                     </div>
@@ -27,7 +27,7 @@
                     </div>
                 </div>
 
-                <div class="d-flex">
+                <div class="d-flex action-buttons">
                     <div data-if="@site.recruitmentPeriod.toShowDate">
                         <button class="action-button" data-tag="edit-period" slot="true">Edit Period</button>
                         <button class="action-button" data-tag="edit-period" slot="false">Set Recruitment Period
