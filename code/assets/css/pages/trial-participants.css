@@ -1,7 +1,9 @@
 .subtitle-container {
-    display: flex;
-    margin-bottom: 20px;
-    justify-content: space-between;
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: minmax(100px, 1fr) 210px 320px;
+    background-color: #fff;
+    color: #444;
 }
 
 .action-button {
@@ -14,23 +16,27 @@
     border-radius: 5px;
     height: 55px;
     width: 160px;
+}
+
+.add-btn {
     margin-left: 20px;
+}
+
+.alert-info {
+    padding: 0px;
 }
 
 .recruitment-period {
     height:55px;
 }
 
-.action-buttons {
-    padding: 0.25rem;
-}
-
 .overview-statistics {
+    color: #fff;
+    border-radius: 5px;
     display: flex;
     justify-content: space-between;
     background-color: #008798;
     color: white;
-    width: 650px;
     height: 55px;
     border-radius: 0.25rem;
 }
