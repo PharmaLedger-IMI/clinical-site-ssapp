@@ -58,10 +58,16 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
 
     _attachHandlerGoBack(prevState) {
         this.onTagClick('back', () => {
-            this.navigateToPageTag('econsent-trial-participants', {
-                trialUid : prevState.trialUid ,
+            let state = {
+                participantDID: this.model.participantDID,
+                participantName: this.model.participantName,
+                tpUid: this.model.tpUid ,
+                trialNumber: this.model.trialNumber,
+                trialUid: this.model.trialUid,
                 breadcrumb: this.model.toObject('breadcrumb')
-            });
+            }
+
+            this.navigateToPageTag('econsent-trial-participant-devices-list', state);
         });
     }
 
@@ -79,10 +85,18 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
                     message.content = `The device has been assigned to the patient successfully!`;
                     message.type = 'success'
                 }
-                this.navigateToPageTag('econsent-trial-management', {
+
+                let state = {
                     message: message,
+                    participantDID: this.model.participantDID,
+                    participantName: this.model.participantName,
+                    tpUid: this.model.tpUid ,
+                    trialNumber: this.model.trialNumber,
+                    trialUid: this.model.trialUid,
                     breadcrumb: this.model.toObject('breadcrumb')
-                });
+                }
+
+                this.navigateToPageTag('econsent-trial-participant-devices-list', state);
             });
         });
     }
