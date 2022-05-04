@@ -121,7 +121,8 @@ export default class AddDeviceController extends BreadCrumbManager {
             trialUid: selected_trial.ssi,
             trialName: selected_trial.name,
             trialID: this.model.trial.value,
-            sk: this.model.deviceId.value
+            sk: this.model.deviceId.value,
+            isAssigned: false
         };
     }
 }

@@ -1,4 +1,5 @@
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
+import DeviceServices from "../../services/DeviceServices.js";
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
@@ -15,10 +16,24 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
             }
         );
 
-        this._attachHandlerGoBack(this.model);
+        this._attachHandlerGoBack();
         this._attachHandlerSave();
+        this.initServices();
     }
 
+    initServices(){
+        this.getAllDevices();
+    }
+
+    getAllDevices(){
+        this.DeviceServices = new DeviceServices();
+        this.DeviceServices.getDevice((err, devices) => {
+            if (err) {
+                return console.error(err);
+            }
+            this.model.allDevices = devices;
+        });
+    }
 
     getFormViewModel(prevState) {
         return {
@@ -48,7 +63,17 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
         }
     }
 
-    preparePatientDeviceData() {
+    preparePatientDeviceAssignationData() {
+
+        let chosenDeviceIndex = this.model.allDevices.findIndex(device => device.sk === this.model.device.value);
+        this.model.allDevices[chosenDeviceIndex].isAssigned = true;
+        this.DeviceServices.updateDevice(this.model.allDevices[chosenDeviceIndex], (err, data) => {
+            if (err) {
+                return console.error(err);
+            }
+            console.log("Device set to assigned.");
+        });
+
         return {
             trial: this.model.trialUid,
             deviceId: this.model.device.value,
@@ -56,7 +81,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
         };
     }
 
-    _attachHandlerGoBack(prevState) {
+    _attachHandlerGoBack() {
         this.onTagClick('back', () => {
             let state = {
                 participantDID: this.model.participantDID,
@@ -75,7 +100,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
         this.onTagEvent('save', 'click', (model, target, event) => {
 
             this.DeviceAssignationService = new DeviceAssignationService();
-            this.DeviceAssignationService.assignDevice(this.preparePatientDeviceData(), (err, data) => {
+            this.DeviceAssignationService.assignDevice(this.preparePatientDeviceAssignationData(), (err, data) => {
                 let message = {};
 
                 if (err) {

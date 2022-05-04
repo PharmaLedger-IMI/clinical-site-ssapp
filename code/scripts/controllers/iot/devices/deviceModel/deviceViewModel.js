@@ -73,7 +73,8 @@ function getModel(data = {}) {
             options: trials,
             value: trials.length ? trials[0].value : ""
         },
-        hasTrials: trials.length > 0
+        hasTrials: trials.length > 0,
+        isAssigned: false
     }
 }
 

@@ -9,7 +9,16 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
     constructor(...props) {
         super(...props);
 
+        const prevState = this.getState() || {};
         this.model = this.getState();
+        this.model = {
+            trialUid: prevState.trialUid,
+            trialNumber: prevState.trialNumber,
+            tpUid: prevState.tpUid,
+            participantName: prevState.participantName,
+            participantDID: prevState.participantDID,
+        };
+
         this.model.breadcrumb = this.setBreadCrumb(
             {
                 label: "Trial Participant Devices List",
@@ -17,73 +26,71 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             }
         );
 
-        this.model.assigned_devices = []
-        this.model.alldevices = []
-        this.model.deviceListAvailable = false
-        this.model.assignedDevicesIDsOnly = []
+        this.model.devices = [];
+        this.model.devices_this_trial = [];
+        this.model.assignedDevices = [];
+        this.model.AssignedDevicesForChosenPatient = [];
+        this.model.hasAssignedDevices = false;
+        this.model.available_devices_for_assignation = [];
 
-        this._attachHandlerGoBack(this.model);
+        console.log(this.model);
+
+        this.getDevices();
+        this.getAssignedDevices();
+
+        this._attachHandlerGoBack();
         this._attachHandlerAssignDevice();
-        this.findAssignedDevices(this.model);
     }
 
-    getDeviceFullInfo(deviceID) {
+    getDevices() {
         this.DeviceServices = new DeviceServices();
         this.DeviceServices.getDevice((err, devices) => {
             if (err) {
                 return console.error(err);
             }
-            this.model.alldevices = devices;
-            this.model.deviceInfo = (devices.find(element => element.sk === deviceID));
-            this.model.assigned_devices.push(this.model.deviceInfo);
-            this.model.hasAssignedDevices = true;
-            this.model.assignedDevicesDataSource = DataSourceFactory.createDataSource(8, 10, this.model.assigned_devices);
+            this.model.devices = devices;
+
+            console.log("all devices are: ");
+            console.log(this.model.devices);
+
+            this.model.devices_this_trial =  this.model.devices.filter(t => t.trialUid === this.model.trialUid);
+            console.log("all devices for this trial are: " );
+            console.log(this.model.devices_this_trial);
         });
     }
 
-    findAssignedDevices(prevState){
+    getAssignedDevices(){
         this.DeviceAssignationService = new DeviceAssignationService();
         this.DeviceAssignationService.getAssignedDevices( (err, assignedDevices) => {
             if (err) {
                 return console.error(err);
             }
-            this.model.foundAssignedDevices = assignedDevices.filter(ad => ad.patientDID === prevState.participantDID);
-            if (this.model.foundAssignedDevices.length>0) {
-                this.model.deviceListAvailable = true;
 
-                for(let ad in this.model.foundAssignedDevices){
-                    this.getDeviceFullInfo(this.model.foundAssignedDevices[ad].deviceId);
-                    this.model.assignedDevicesIDsOnly.push(this.model.foundAssignedDevices[ad].deviceId);
-                }
+            this.model.assignedDevices = assignedDevices;
+            this.model.AssignedDevicesForChosenPatient = assignedDevices.filter(ad => ad.patientDID === this.model.participantDID);
+            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(8, 10, this.model.AssignedDevicesForChosenPatient);
 
+            if (this.model.AssignedDevicesForChosenPatient.length>0){
+                this.model.hasAssignedDevices = true;
             }
-            else{
-                this.model.deviceListAvailable = true;
-                this.model.hasAssignedDevices = false;
 
-                this.DeviceServices = new DeviceServices();
-                this.DeviceServices.getDevice((err, devices) => {
-                    if (err) {
-                        return console.error(err);
-                    }
-                    this.model.alldevices = devices;
-                });
-            }
+            console.log("assigned devices: ");
+            console.log(this.model.assignedDevices);
+
+            console.log("assigned devices for chosen patient: ");
+            console.log(this.model.AssignedDevicesForChosenPatient);
+
         } );
     }
 
-    findAvailableDevicesToMatch(){
-        this.model.all_registered_devices =  this.model.alldevices.filter(t => t.trialUid === this.model.trialUid);
-        this.model.available_devices = this.model.all_registered_devices;
-        this.model.assignedDevicesIDsOnly.forEach(id =>
-            this.model.available_devices.splice(this.model.available_devices.findIndex(t => t.sk === id), 1)
-        );
+    getAvailableDevicesToAssign(){
+        this.model.available_devices_for_assignation =  this.model.devices_this_trial.filter(device => device.isAssigned === false);
     }
 
-    _attachHandlerGoBack(prevState) {
+    _attachHandlerGoBack() {
         this.onTagClick('back', () => {
             this.navigateToPageTag('econsent-trial-participants', {
-                trialUid : prevState.trialUid ,
+                trialUid : this.model.trialUid ,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -91,19 +98,20 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
 
     _attachHandlerAssignDevice() {
         this.onTagClick('assign-device', () => {
-
-            this.findAvailableDevicesToMatch();
-            if (this.model.available_devices.length === 0 ){
+            console.log("assign device action")
+            this.getAvailableDevicesToAssign();
+            console.log(this.model.available_devices_for_assignation);
+            if (this.model.available_devices_for_assignation.length === 0 ){
                 console.log("There are not available devices to match!");
                 this.navigateToPageTag('confirmation-page', {
-                    confirmationMessage: "There are no available devices to assign for this trial. Please register a new device for  this trial.",
+                    confirmationMessage: "There are no available devices to assign for this trial. Please register a new device for this trial or de-assign a current device from the devices menu.",
                     redirectPage: 'home',
                     breadcrumb: this.model.toObject('breadcrumb')
                 });
             }
             else{
                 let ids = []
-                this.model.available_devices.forEach(element =>
+                this.model.available_devices_for_assignation.forEach(element =>
                     ids.push({
                         value: element.sk,
                         label: element.deviceName
