@@ -5,39 +5,46 @@
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
             <h4 class="title">{{@trialParticipant.name}} {{@trialParticipant.lastName}}</h4>
+            <div>
+                <label class="subtitle">{{@lastAction}}</label>
+            </div>
         </div>
 
         <main>
-            <div class="subtitle-container">
-                <label class="subtitle">{{@lastAction}}</label>
+            <div data-if="@dataSourceInitialized">
+
+                <webc-spinner slot="loading"></webc-spinner>
+
+                <div class="common-datatable trial-participant-details dt-4-col" slot="true">
+
+                    <webc-datatable datasource="@participantDetailsDataSource">
+                        <div slot="no-data" class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">No details!</h4>
+                        </div>
+
+                        <div slot="header">Status</div>
+                        <div slot="header">Withdraw / Discontinued / Screen Failed</div>
+                        <div slot="header">Completed</div>
+                        <div slot="header">Consents Signed</div>
+
+                        <div class="cell">
+                            <div data-for="@userActionsToShow">
+                                <div>{{@name}} - {{@date}}</div>
+                            </div>
+                        </div>
+                        <div class="cell">{{@lastBadAction}}</div>
+                        <div class="cell">MOCK: N/A</div>
+                        <div class="cell">
+                            <div data-for="@consentsSigned">
+                                <label>{{@}}</label>
+                            </div>
+                        </div>
+
+
+                    </webc-datatable>
+                </div>
             </div>
 
-            <table class="general-table">
-                <thead>
-                <tr>
-                    <th class="table-cell">Status</th>
-                    <th class="table-cell">Withdraw / Discontinued / Screen Failed</th>
-                    <th class="table-cell">Completed</th>
-                    <th class="table-cell">Consents Signed</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                <tr>
-                    <td class="table-like-elements" data-for="@userActionsToShow">
-                        <label class="table-cell">{{@name}} - {{@date}}</label>
-                    </td>
-                    <td class="table-cell">{{@lastBadAction}}</td>
-                    <td class="table-cell">MOCK: N/A</td>
-                    <td class="table-cell">
-                        <div class="rows-as-list" data-for="@consentsSigned">
-                            <label>{{@}}</label>
-                        </div>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            
         </main>
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>

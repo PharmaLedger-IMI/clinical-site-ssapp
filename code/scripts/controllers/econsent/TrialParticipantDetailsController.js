@@ -5,7 +5,7 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-
+const DataSourceFactory = commonServices.getDataSourceFactory();
 
 let getInitModel = () => {
     return {
@@ -34,7 +34,18 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
             }
         );
 
-        this._initServices();
+        this._initServices().then(() => {
+            this.model.dataSourceInitialized = true;
+
+            let tableData = [];
+            let dataObject = {
+                consentsSigned: this.model.consentsSigned,
+                lastBadAction: this.model.lastBadAction,
+                userActionsToShow: this.model.userActionsToShow,
+            }
+            tableData.push(dataObject);
+            this.model.participantDetailsDataSource = DataSourceFactory.createDataSource(1, 4, tableData);
+        });
         this._initHandlers();
     }
 
@@ -44,7 +55,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this._initTrialParticipant(this.model.trialUid);
+        await this._initTrialParticipant(this.model.trialUid);
     }
 
     _initHandlers() {
