@@ -13,4 +13,6 @@ export default class DeviceAssignationService extends DSUService {
 
     assignDevice = (data, callback) => this.saveEntity(data, callback);
 
+    updateAssignedDevice = (data, callback) => this.updateEntity(data, callback);
+
 }
