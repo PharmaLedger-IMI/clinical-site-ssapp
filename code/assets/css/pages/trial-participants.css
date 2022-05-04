@@ -1,7 +1,7 @@
 .subtitle-container {
     display: grid;
     grid-gap: 10px;
-    grid-template-columns: minmax(100px, 1fr) 210px 320px;
+    grid-template-columns: minmax(100px, 1fr) 350px 350px;
     background-color: #fff;
     color: #444;
 }
@@ -19,15 +19,11 @@
 }
 
 .add-btn {
-    margin-left: 20px;
+    margin-left: 10px;
 }
 
 .alert-info {
     padding: 0px;
-}
-
-.recruitment-period {
-    height:55px;
 }
 
 .overview-statistics {

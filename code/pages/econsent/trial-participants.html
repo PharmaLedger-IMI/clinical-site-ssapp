@@ -19,9 +19,9 @@
                     <div><span>Declined Trial</span> <span>{{@statistics.declined}}</span></div>
                 </div>
 
-                <div class="recruitment-period" data-if="@site.recruitmentPeriod.toShowDate">
+                <div data-if="@site.recruitmentPeriod.toShowDate">
 
-                    <div class="alert alert-info" role="alert" slot="true">
+                    <div class="alert alert-light" role="alert" slot="true">
                         Recruitment period: {{@site.recruitmentPeriod.toShowDate}}
                     </div>
                     <div class="alert alert-light" role="alert" slot="false">
