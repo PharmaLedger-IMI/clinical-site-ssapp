@@ -123,7 +123,13 @@ export default class EconsentSignController extends BreadCrumbManager {
             };
             this.updateEconsentWithDetails();
             this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.SIGN_ECOSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.SIGN_ECONSENT);
-            this.navigateToPageTag('home');
+
+            let state = {
+                trialUid: this.model.trialUid,
+                tpUid: this.model.tpUid,
+                breadcrumb: this.model.toObject('breadcrumb')
+            }
+            this.navigateToPageTag('econsent-trial-participant', state);
         });
     }
 
