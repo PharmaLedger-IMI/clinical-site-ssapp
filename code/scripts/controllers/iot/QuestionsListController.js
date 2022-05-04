@@ -24,8 +24,7 @@ export default class QuestionsListController extends BreadCrumbManager {
             trialSSI: prevState.trialSSI,
             hasProms: false,
             hasPrems: false,
-            currentTable: "none",
-            message: "empty"
+            currentTable: "none"
         };
 
         this.model.breadcrumb = this.setBreadCrumb(
@@ -221,10 +220,6 @@ export default class QuestionsListController extends BreadCrumbManager {
                             console.log("cancel");
                         },
                         modalConfig);
-                    // let state = {
-                    //     breadcrumb: this.model.toObject('breadcrumb')
-                    // }
-                    // this.navigateToPageTag('questions-list', state);
                 });
                 this.model.hasPrems = this.model.questionnaire.prem.length !== 0;
                 this.model.PremsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prem);

@@ -114,19 +114,24 @@ export default class AddQuestionsController extends BreadCrumbManager {
             }
 
             this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
+                let message ={}
+
                 if (err) {
                     console.log(err);
+                    message.content = "An error has been occurred!";
+                    message.type = 'error';
+                } else {
+                    message.content = "The question has been added!";
+                    message.type = 'success';
                 }
+
                 window.WebCardinal.loader.hidden = true;
-                this.navigateToPageTag('confirmation-page', {
-                    confirmationMessage: "Question included!",
-                    redirectPage: "econsent-trial-management",
-                    breadcrumb: this.model.toObject('breadcrumb')
+
+                this.navigateToPageTag('questions-list', {
+                    message: message,
+                    breadcrumb: this.model.toObject('breadcrumb'),
+                    trialSSI: this.model.trialSSI
                 });
-                // this.navigateToPageTag('questions-list', {
-                //     message: "Question has been added.",
-                //     breadcrumb: this.model.toObject('breadcrumb')
-                // });
             });
         });
     }
