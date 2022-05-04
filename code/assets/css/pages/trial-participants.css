@@ -23,18 +23,17 @@
 }
 
 .alert-info {
-    padding: 0px;
+    padding: 0;
 }
 
 .overview-statistics {
     color: #fff;
-    border-radius: 5px;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     background-color: #008798;
-    color: white;
     height: 55px;
     border-radius: 0.25rem;
+    align-items: center;
 }
 
 .overview-statistics > div {
