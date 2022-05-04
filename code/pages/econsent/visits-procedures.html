@@ -12,10 +12,10 @@
                 <webc-datatable datasource="@visitsDataSource">
 
                     <div slot="header">Visits</div>
-                    <div slot="header">From (weak no)</div>
-                    <div slot="header">To (weak no)</div>
-                    <div slot="header">Plus (days)</div>
-                    <div slot="header">Minus (days)</div>
+                    <div slot="header">Week Number</div>
+                    <div slot="header">Week Day Number</div>
+                    <div slot="header">+Days</div>
+                    <div slot="header">-Days</div>
                     <div slot="header">Proposed date</div>
                     <div slot="header">Ts Acceptance</div>
                     <div slot="header">Planned Date</div>
@@ -23,30 +23,30 @@
 
 
                     <div class="cell">{{@name}}</div>
-                    <div class="cell">{{@weakFrom}}</div>
-                    <div class="cell">{{@weakTo}}</div>
-                    <div class="cell">{{@plus}}</div>
-                    <div class="cell">{{@minus}}</div>
-                    
-                    <div data-if="@toShowDate" class="cell">
+                    <div class="cell">{{@week}}</div>
+                    <div class="cell">{{@day}}</div>
+                    <div class="cell">{{@windowFrom}}</div>
+                    <div class="cell">{{@windowTo}}</div>
+
+                    <div data-if="@hasProposedDate" class="cell">
                         <div slot="true">{{@toShowDate}}</div>
-                        <div slot="false">dd/mm/yyyy</div>
+                        <div slot="false">-</div>
                     </div>
 
                     <div class="cell">{{@tsAcceptance}}</div>
 
-                    <div data-if="@toShowDate" class="cell"> 
+                    <div data-if="@accepted" class="cell">
                         <div slot="true">{{@toShowDate}}</div>
-                        <div slot="false">dd/mm/yyyy</div>
+                        <div slot="false">-</div>
                     </div>
 
                     <div class="cell">
-                        <div data-if="@confirmed">
-                            <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="false">Confirm
+                        <div data-if="@accepted">
+                            <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="true">Confirm
                                 Date
                             </button>
                         </div>
-                        <div data-if="@toShowDate">
+                        <div data-if="@shouldBeRescheduled">
                             <button class="link-button view-adjust-margin" data-tag="procedure:editDate" slot="true">
                                 Reschedule
                             </button>

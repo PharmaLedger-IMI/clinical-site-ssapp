@@ -446,27 +446,20 @@ export default class LandingPageController extends WebcController {
     }
 
     _updateVisit(message) {
-        this.TrialParticipantRepository.filter(`did == ${message.useCaseSpecifics.tpDid}`, 'ascending', 30, (err, tps) => {
-            if (err) {
-                console.log(err);
-            }
-            let tp = tps[0];
-            let objIndex = tp?.visits?.findIndex((obj => obj.uuid == message.useCaseSpecifics.visit.id));
-            tp.visits[objIndex].accepted = message.useCaseSpecifics.visit.accepted;
-            tp.visits[objIndex].declined = message.useCaseSpecifics.visit.declined;
 
-            this.TrialParticipantRepository.update(tp.uid, tp, (err, data) => {
-                if (err) {
-                    console.log(err);
-                }
+        const tpDSU = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid);
+        let objIndex = tpDSU?.visits?.findIndex((visit => visit.uuid === message.useCaseSpecifics.visit.id));
 
-                let notification = message;
-                notification.tpUid = data.uid;
-                this._saveNotification(notification, message.shortDescription, 'view visits', Constants.NOTIFICATIONS_TYPE.MILESTONES_REMINDERS);
-            })
+        tpDSU.visits[objIndex].accepted = message.useCaseSpecifics.visit.accepted;
+        tpDSU.visits[objIndex].declined = message.useCaseSpecifics.visit.declined;
 
-
+        this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
+            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+            let notification = message;
+            notification.tpUid = data.uid;
+            this._saveNotification(notification, message.shortDescription, 'view visits', Constants.NOTIFICATIONS_TYPE.MILESTONES_REMINDERS);
         });
+
     }
 
     getInitialModel() {

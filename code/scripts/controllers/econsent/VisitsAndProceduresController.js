@@ -51,7 +51,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     async initVisits() {
-        this.model.visits = this.model.hcoDSU.volatile.visit[0].visits.visits;
+        this.model.visits = this.model.toObject("site.visits.visits").find((visit)=>visit.consentId= this.model.consentId).data;
         this.extractDataVisit();
         this.matchTpVisits();
     }
@@ -59,19 +59,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     extractDataVisit() {
         if (this.model.visits) {
             this.model.visits.forEach(visit => {
-                let weaksFrom = visit.weeks?.filter(weak => weak.type === "weekFrom" || weak.type === "week");
-                if (weaksFrom)
-                    visit.weakFrom = weaksFrom[0]?.value;
-                let weaksTo = visit.weeks?.filter(weak => weak.type === "weekTo");
-                if (weaksTo)
-                    visit.weakTo = weaksTo[0]?.value;
-
-                let plus = visit.visitWindow?.filter(weak => weak.type === "windowFrom");
-                if (plus)
-                    visit.plus = plus[0]?.value;
-                let minus = visit.visitWindow?.filter(weak => weak.type === "windowTo");
-                if (plus)
-                    visit.minus = minus[0]?.value;
+                visit.windowFrom = visit.visitWindow ? visit.visitWindow.windowFrom : "N/A";
+                visit.windowTo = visit.visitWindow ? visit.visitWindow.windowTo : "N/A";
             });
         }
     }
@@ -91,23 +80,29 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
             } else {
                 this.model.visits.forEach(visit => {
-
                     let visitTp = this.model.tp.visits.filter(v => v.uuid === visit.uuid)[0];
                     if (visitTp !== undefined) {
+
                         visit.confirmed = visitTp.confirmed;
                         visit.accepted = visitTp.accepted;
                         visit.declined = visitTp.declined;
+                        visit.shouldBeRescheduled = false;
                         if (!visit.accepted && !visit.declined) {
                             visit.tsAcceptance = "Required";
                         } else {
+                            visit.shouldBeRescheduled = true;
                             if (visit.accepted) {
                                 visit.tsAcceptance = "Agreed";
                             } else {
                                 visit.tsAcceptance = "Declined";
                             }
                         }
-                        visit.date = visitTp.date;
-                        visit.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(visitTp.date);
+                        visit.proposedDate = visitTp.proposedDate;
+                        visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
+                        if(visit.hasProposedDate){
+                            visit.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(visit.proposedDate);
+                        }
+
                     }
                 })
             }
@@ -119,20 +114,14 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.tp.visits = this.visits;
         }
 
-        let objIndex = this.model.tp.visits.findIndex((obj => obj.uuid == visit.uuid));
-        this.model.tp.visits[objIndex] = visit;
-        this.model.visits = this.model.tp.visits;
-        let v = this.model.hcoDSU.volatile.visit[0];
-        v.visits.visits = this.model.tp.visits;
+        let objIndex = this.model.tp.visits.findIndex((obj => obj.uuid === visit.uuid));
+        this.model.tp.visits[objIndex].proposedDate = this.model.proposedDate;
+        this.model.visits[objIndex].proposedDate = this.model.proposedDate;
+        this.model.visits[objIndex].hasProposedDate = true;
 
-        this.HCOService.updateHCOSubEntity(v, "visit", async (err, data) => {
+        this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-            let tpIndex = this.model.hcoDSU.volatile.tps.findIndex(tp => tp.uid === this.model.tpUid);
-            this.model.tp = this.model.hcoDSU.volatile.tps[tpIndex];
-            this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
-                this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-                this.sendMessageToPatient(visit, operation);
-            })
+            this.sendMessageToPatient(visit, operation);
         })
     }
 
@@ -158,7 +147,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 "set-procedure-date",
                 (event) => {
                     let date = new Date(event.detail);
-                    this.model.date = event.detail;
+                    this.model.proposedDate = event.detail;
                     this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
                     this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
                 },
@@ -285,7 +274,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     async initSite() {
-        this.model.site = this.model.hcoDSU.volatile.site[0];
+        const sites = this.model.toObject("hcoDSU.volatile.site");
+        this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
     }
 
     sendMessageToSponsor(visit) {

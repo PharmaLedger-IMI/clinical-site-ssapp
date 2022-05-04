@@ -7,8 +7,6 @@
             <h2 class="main-title">Trial Subject: {{@tp.name}}</h2>
             <div class="button-group-wrapper">
 
-                <button data-tag="tp:visits">Visits and Procedures</button>
-
                 <div data-if="@tp.tpNumber">
                     <div slot="false" data-if="@tp.tpSigned">
                         <button data-tag="tp:setTpNumber">Set TS Number</button>
@@ -60,8 +58,15 @@
                                 data-tag="consent:sign">Sign
                             </button>
                         </div>
+
+                        <div data-if="@showScheduleButton">
+                            <button class="link-button" data="@id"
+                                    data-tag="tp:visits">Schedule Visit
+                            </button>
+                        </div>
+
                         <div data-if="@showViewButton">
-                            <button class="link-button" data="@id" data-if="@showViewButton"
+                            <button class="link-button" data="@" data-if="@showViewButton"
                                 data-tag="consent:view">View
                             </button>
                         </div>

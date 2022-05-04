@@ -159,6 +159,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
             this.navigateToPageTag('econsent-visits-procedures', {
                 trialUid: this.model.trialUid,
                 tpUid: this.model.tpUid,
+                consentId:model.trialConsentId,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -287,7 +288,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
     }
 
     _showButton(econsent, buttonName) {
-        let existingButtons = ['Sign', 'View', 'Contact'];
+        let existingButtons = ['Sign', 'View', 'Schedule','Contact'];
         existingButtons.forEach(bn => {
             econsent['show' + bn + 'Button'] = false;
         })
@@ -340,7 +341,8 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         let hcoVersionIndex = validVersions.findIndex(v => v === hcoVersion);
                         let tpVersionIndex = validVersions.findIndex(v => v === tpVersion);
                         if (hcoVersion.name === 'sign' && hcoVersionIndex > tpVersionIndex) {
-                            econsent = this._showButton(econsent, 'View');
+                            //econsent = this._showButton(econsent, 'View');
+                            econsent = this._showButton(econsent, 'Schedule');
                         }
                         econsent.hcoDate = hcoVersion.toShowDate;
                         this.model.tp.hcoSigned = true;
