@@ -181,6 +181,9 @@ export default class QuestionsListController extends BreadCrumbManager {
                 console.log("Initial Questionnaire is loaded.")
                 this.model.hasProms = this.model.questionnaire.prom.length !== 0;
                 this.model.PromsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prom);
+                this.model.PromsDataSource.__proto__.updateRecords = function() {
+                    this.forceUpdate(true);
+                }
                 const { PromsDataSource } = this.model;
                 this.onTagClick("prom-prev-page", () => PromsDataSource.goToPreviousPage());
                 this.onTagClick("prom-next-page", () => PromsDataSource.goToNextPage());
@@ -195,7 +198,6 @@ export default class QuestionsListController extends BreadCrumbManager {
                     this.navigateToPageTag('edit-questions', state)
                 });
                 this.onTagClick("prom-delete", (model) => {
-                    console.log(model);
                     const modalConfig = {
                         controller: "modals/ConfirmationAlertController",
                         disableExpanding: false,
@@ -208,12 +210,11 @@ export default class QuestionsListController extends BreadCrumbManager {
                         (event) => {
                             let index = this.model.questionnaire.prom.findIndex(element => element.uid === model.uid);
                             this.model.questionnaire.prom.splice(index, 1);
-                            console.log(this.model.questionnaire.prom)
                             this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
                                 if (err) {
                                     console.log(err);
                                 }
-                                console.log("deleted");
+                                this.model.PromsDataSource.updateRecords();
                             });
                         },
                         (event) => {
@@ -223,6 +224,9 @@ export default class QuestionsListController extends BreadCrumbManager {
                 });
                 this.model.hasPrems = this.model.questionnaire.prem.length !== 0;
                 this.model.PremsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prem);
+                this.model.PremsDataSource.__proto__.updateRecords = function() {
+                    this.forceUpdate(true);
+                }
                 const { PremsDataSource } = this.model;
                 this.onTagClick("prem-prev-page", () => PremsDataSource.goToPreviousPage());
                 this.onTagClick("prem-next-page", () => PremsDataSource.goToNextPage());
@@ -249,14 +253,11 @@ export default class QuestionsListController extends BreadCrumbManager {
                         (event) => {
                             let index = this.model.questionnaire.prem.findIndex(element => element.uid === model.uid);
                             this.model.questionnaire.prem.splice(index, 1);
-                            console.log(this.model.questionnaire.prem)
                             this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
                                 if (err) {
                                     console.log(err);
                                 }
-                                window.WebCardinal.loader.hidden = true;
-                                console.log("deleted");
-                                console.log(data);
+                                this.model.PremsDataSource.updateRecords();
                             });
                         },
                         (event) => {

@@ -78,6 +78,9 @@ export default class EditQuestionsController extends BreadCrumbManager {
                     this.model.options = this.model.chosenQuestion.options;
                     this.model.hasOptions = this.model.options.length !== 0;
                     this.model.OptionsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.options);
+                    this.model.OptionsDataSource.__proto__.updateOptions = function() {
+                        this.forceUpdate(true);
+                    }
                     const {OptionsDataSource} = this.model;
                     this.onTagClick("option-prev-page", () => OptionsDataSource.goToPreviousPage());
                     this.onTagClick("option-next-page", () => OptionsDataSource.goToNextPage());
@@ -95,11 +98,13 @@ export default class EditQuestionsController extends BreadCrumbManager {
                                         let answersPrems = this.model.options;
                                         let answerPremsIndex = answersPrems.findIndex(answersPrems => answersPrems.element === this.model.chosenAnswer);
                                         this.model.questionnaire.prem[this.model.indexPrems].options[answerPremsIndex].element = this.model.updatedAnswer;
+                                        this.model.OptionsDataSource.updateOptions();
                                         break;
                                     case "prom":
                                         let answersProms = this.model.options;
                                         let answerpromsIndex = answersProms.findIndex(answersProms => answersProms.element === this.model.chosenAnswer);
                                         this.model.questionnaire.prom[this.model.indexProms].options[answerpromsIndex].element = this.model.updatedAnswer;
+                                        this.model.OptionsDataSource.updateOptions();
                                         break;
                                 }
                             },
@@ -122,6 +127,7 @@ export default class EditQuestionsController extends BreadCrumbManager {
 
     _attachHandlerEdit() {
         this.onTagEvent('update', 'click', (model, target, event) => {
+            window.WebCardinal.loader.hidden = false;
 
             switch (this.model.chosenQuestion.task) {
                 case "prem":
@@ -148,11 +154,26 @@ export default class EditQuestionsController extends BreadCrumbManager {
                     }
                     break;
             }
+
             this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
+                let message ={}
+
                 if (err) {
                     console.log(err);
+                    message.content = "An error has been occurred!";
+                    message.type = 'error';
+                } else {
+                    message.content = "The question has been updated!";
+                    message.type = 'success';
                 }
-                console.log(data);
+
+                window.WebCardinal.loader.hidden = true;
+
+                this.navigateToPageTag('questions-list', {
+                    message: message,
+                    breadcrumb: this.model.toObject('breadcrumb'),
+                    trialSSI: this.model.trialSSI
+                });
             });
         });
     }
