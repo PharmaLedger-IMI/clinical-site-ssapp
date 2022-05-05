@@ -25,6 +25,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.setModel({
             ...getInitModel(),
             trialUid: state.trialUid,
+            previousScreened: 0
         });
 
 
@@ -54,16 +55,17 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     getStatistics() {
         this.model.statistics = {
             planned : '0',
-            screened: '0',
+            screened: 0,
             enrolled: '0',
             percentage: '0',
             withdrew: '0',
-            declined: '0'
+            declined: '0',
         }
 
-        this.model.statistics.planned = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.PLANNED).length;
+        this.model.statistics.planned = this.model.trialParticipants.length;
         this.model.statistics.enrolled = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED).length;
-        this.model.statistics.screened = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.SCREENED).length;
+        this.model.statistics.screened = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.SCREENED).length
+            + this.model.previousScreened;
         this.model.statistics.withdrew = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW).length;
         this.model.statistics.declined = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DECLINED).length;
         if(!this.model.statistics.planned) {
@@ -144,6 +146,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         return trialParticipants
             .filter(tp => tp.trialNumber === this.model.trial.id)
             .map(tp => {
+                if(tp.status === 'Screened' && tp.number!== undefined) {
+                    this.model.previousScreened++;
+                    tp.status = 'Enrolled';
+                }
 
                 let nonObfuscatedTp = tpsMappedByDID[tp.did];
                 tp.name = nonObfuscatedTp.name;
@@ -183,6 +189,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         }
                     }
                 }
+
                 return {
                     ...tp,
                     actionNeeded: actionNeeded
