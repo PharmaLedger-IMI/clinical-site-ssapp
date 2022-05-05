@@ -100,6 +100,18 @@
 			"tag": "edit-questions"
 		},
 		{
+			"name": "Trial Participant Answers",
+			"path": "/econsent/trial-participant-answers",
+			"src": "econsent/trial-participant-answers.html",
+			"tag": "trial-participant-answers"
+		},
+		{
+			"name": "prom-prem-graphs",
+			"path": "/iot/prom-prem-graphs",
+			"src": "iot/prom-prem-graphs.html",
+			"tag": "prom-prem-graphs"
+		},
+		{
 			"name": "Trial Management",
 			"path": "/econsent/trial-management",
 			"src": "econsent/trial-management.html",

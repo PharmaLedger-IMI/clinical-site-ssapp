@@ -93,6 +93,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this._attachHandlerAddTrialParticipant();
         this._attachHandlerNavigateToParticipant();
         this._attachHandlerViewTrialParticipantDetails();
+        this._attachHandlerViewAnswersDetails();
         this._attachHandlerViewTrialParticipantStatus();
         this._attachHandlerViewTrialParticipantDevices();
         this._attachHandlerGoBack();
@@ -333,6 +334,18 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-trial-participant', {
                 trialUid: this.model.trialUid,
+                tpUid: model.uid,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
+        });
+    }
+
+    _attachHandlerViewAnswersDetails() {
+        this.onTagEvent('tp:answers', 'click', (model, target, event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.navigateToPageTag('trial-participant-answers', {
+                trialSSI: this.model.trialUid,
                 tpUid: model.uid,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
