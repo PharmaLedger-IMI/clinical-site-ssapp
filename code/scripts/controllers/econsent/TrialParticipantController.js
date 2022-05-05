@@ -44,6 +44,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this.model.econsentsDataSource =  await this._initConsents(this.model.trialUid);
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
+        if(this.model.tp.number !== undefined) {
+            this.model.buttonText = 'Edit TS Number';
+        } else {
+            this.model.buttonText = 'Set TS Number';
+        }
     }
 
     _initHandlers() {
