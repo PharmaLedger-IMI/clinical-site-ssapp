@@ -45,10 +45,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
         if(this.model.tp.number !== undefined) {
-            this.model.buttonText = 'Edit TS Number';
+            this.model.hasAlreadyTpNumber = true;
         } else {
-            this.model.buttonText = 'Set TS Number';
+            this.model.hasAlreadyTpNumber = false;
         }
+        this.initTrialParticipant();
     }
 
     _initHandlers() {
@@ -186,7 +187,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 (event) => {
                     this.model.tp.number = event.detail;
                     this.sendMessageToProfessional(this.model.tp)
-                    this._updateTrialParticipant(this.model.tp);
+                    this._updateTrialParticipant(this.model.tp, () => {});
                     this.updateSiteStage(()=>{
                         this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.ADDED_TS_NUMBER, {
                               ssi: this.model.tpUid
@@ -268,15 +269,41 @@ export default class TrialParticipantController extends BreadCrumbManager {
         }
     }
 
-    _updateTrialParticipant(trialParticipant) {
-        this.HCOService.updateHCOSubEntity(trialParticipant, "tps", (err, trialParticipant) => {
-            if (err) {
-                return console.log(err);
+    initTrialParticipant() {
+        this.TrialParticipantRepository.filter(`did == ${this.model.trialParticipantNumber}`, 'ascending', 30, (err, tps) => {
+
+            if (tps && tps.length > 0) {
+                this.model.trialParticipant = tps[0];
             }
-            this._showFeedbackToast('Result', Constants.MESSAGES.HCO.FEEDBACK.SUCCESS.ATTACH_TRIAL_PARTICIPANT_NUMBER);
-            this._sendMessageToPatient(this.model.trialUid, trialParticipant, 'Tp Number was attached');
-            this.TrialParticipantRepository.update(trialParticipant.uid, trialParticipant, () => {});
-        })
+        });
+    }
+
+    _updateTrialParticipant(trialParticipant, callback) {
+
+        const tpDsuUpdate = (callback) => {
+            this.HCOService.updateHCOSubEntity(trialParticipant, "tps", (err, trialParticipant) => {
+                if (err) {
+                    return console.log(err);
+                }
+                this._showFeedbackToast('Result', Constants.MESSAGES.HCO.FEEDBACK.SUCCESS.ATTACH_TRIAL_PARTICIPANT_NUMBER);
+                this._sendMessageToPatient(this.model.trialUid, trialParticipant, 'Tp Number was attached');
+                this.TrialParticipantRepository.update(trialParticipant.uid, trialParticipant, callback);
+            })
+        }
+
+        if(this.model.tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
+            this.model.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
+            this.TrialParticipantRepository.update(this.model.trialParticipant.uid, this.model.trialParticipant, (err, trialParticipant) => {
+                if (err) {
+                    return console.log(err);
+                }
+                tpDsuUpdate(callback);
+            });
+        }
+        else {
+            tpDsuUpdate(callback);
+        }
+
     }
 
     _sendMessageToPatient(ssi, tp, shortMessage) {

@@ -142,15 +142,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             return [];
         }
         tps.forEach(tp => tpsMappedByDID[tp.did] = tp);
+
         let trialParticipants = this.model.hcoDSU.volatile.tps;
 
         return trialParticipants
             .filter(tp => tp.trialNumber === this.model.trial.id)
             .map(tp => {
-                if(tp.status === 'Screened' && tp.number!== undefined) {
-                    this.model.previousScreened++;
-                    tp.status = 'Enrolled';
-                }
 
                 let nonObfuscatedTp = tpsMappedByDID[tp.did];
                 tp.name = nonObfuscatedTp.name;
@@ -335,6 +332,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             this.navigateToPageTag('econsent-trial-participant', {
                 trialUid: this.model.trialUid,
                 tpUid: model.uid,
+                trialParticipantNumber: model.name,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });

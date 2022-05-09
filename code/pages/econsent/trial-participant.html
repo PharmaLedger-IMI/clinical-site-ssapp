@@ -5,11 +5,15 @@
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
             <h2 class="main-title">Trial Subject: {{@tp.name}}</h2>
-            <div class="button-group-wrapper">
+            <div>
 
                 <div data-if="@tp.tpNumber">
                     <div slot="false" data-if="@tp.tpSigned">
-                        <button data-tag="tp:setTpNumber">{{@buttonText}}</button>
+                        <div class="button-group-wrapper" data-if="@hasAlreadyTpNumber">
+                            <button slot="true" data-tag="tp:setTpNumber">Edit TS number</button>
+                            <button slot="false" data-tag="tp:setTpNumber">Set TS number</button>
+                        </div>
+
                     </div>
                 </div>
             </div>
