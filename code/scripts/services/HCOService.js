@@ -159,9 +159,35 @@ export default class HCOService extends DSUService {
                     if (consent === undefined && siteConsents.length === 0) {
                         return callback(undefined, []);
                     }
-                    let consentExist = existingIFCS.find(ifc => ifc.genesisUid === consent.uid);
-                    if (consentExist !== undefined) {
-                        return getServiceDsu(siteConsents.pop());
+                    let existingIfc = existingIFCS.find(ifc => ifc.genesisUid === consent.uid);
+                    if (existingIfc !== undefined) {
+                        const ifcVersions = existingIfc.versions.map(version => version.version);
+                        const notExistingVersions = consent.versions.filter(version => ifcVersions.includes(version.version) === false);
+                        existingIfc.versions.push(...notExistingVersions);
+                        return this.updateHCOSubEntity(existingIfc, "ifcs", async (err, response) => {
+                            if (err) {
+                                return console.log(err);
+                            }
+
+                            let copyVersionsPromises = notExistingVersions.map(version => {
+                                return new Promise((resolve,reject) => {
+                                    const source = consentsPath + "/" + consent.uid  + "/versions/" + version.version + "/" + version.attachment;
+                                    const destination = hcoPath + "/" + IFCS_PATH + "/" + existingIfc.uid + "/versions/" + version.version + "/" + version.attachment;
+                                    
+                                    this.copyFile(source, destination, (err) => {
+                                        if(err) {
+                                            return reject(err);
+                                        }
+                                        resolve();
+                                    });
+                                })
+                            })
+
+                            Promise.all(copyVersionsPromises).then(() => {
+                                getServiceDsu(siteConsents.pop());
+                            })
+                        });
+
                     }
                     consent = {
                         ...consent,
