@@ -20,6 +20,7 @@ export default class AddQuestionsController extends BreadCrumbManager {
             trialSSI: prevState.trialSSI,
             trialName: prevState.trialName,
             currentView: "none",
+            currentAnswerType: "none",
             ...this.getQuestionsFormModel()
         };
 
@@ -51,22 +52,17 @@ export default class AddQuestionsController extends BreadCrumbManager {
         this.model.onChange('answerType.value', () => {
             switch (this.model.answerType.value) {
                 case "checkbox":
+                    this.model.currentAnswerType = "checkbox-answer";
                     this.model.answers = []
                     this.model.answer.disabled = false;
                     this.model.answer.label = "Insert the options one by one";
                     this.model.answer.placeholder = "For each option hit OK";
                     break;
                 case "slider":
-                    this.model.answers = []
-                    this.model.answer.disabled = false;
-                    this.model.answer.label = "Insert the values min, max, steps one by one";
-                    this.model.answer.placeholder = "For each option hit OK"
+                    this.model.currentAnswerType = "slider-answer";
                     break;
                 case "free text":
-                    this.model.answers = []
-                    this.model.answer.disabled = true;
-                    this.model.answer.label = "No answer required";
-                    this.model.answer.placeholder = "No answer required"
+                    this.model.currentAnswerType = "free-text-answer";
                     break;
             }
         });
@@ -86,9 +82,9 @@ export default class AddQuestionsController extends BreadCrumbManager {
             switch (this.model.answerType.value) {
                 case "slider":
                     question = Object.assign(question, {
-                        minLabel: this.model.answers[0].element,
-                        maxLabel: this.model.answers[1].element,
-                        steps: this.model.answers[2].element,
+                        minLabel: this.model.minimum.value,
+                        maxLabel: this.model.maximum.value,
+                        steps: this.model.steps.value,
                     });
                     break;
                 case "checkbox":
@@ -227,7 +223,31 @@ export default class AddQuestionsController extends BreadCrumbManager {
                 ],
                 value: ""
             },
-            answers: []
+            answers: [],
+            minimum:{
+                name: 'minimum',
+                id: 'minimum',
+                label: "Minimum:",
+                placeholder: 'Insert the minimum value',
+                required: true,
+                value: ""
+            },
+            maximum:{
+                name: 'maximum',
+                id: 'maximum',
+                label: "Maximum:",
+                placeholder: 'Insert the maximum value',
+                required: true,
+                value: ""
+            },
+            steps:{
+                name: 'steps',
+                id: 'steps',
+                label: "Steps:",
+                placeholder: 'Insert the steps',
+                required: true,
+                value: ""
+            }
         }
     }
 

@@ -28,6 +28,8 @@
 
           <main class="form-container">
 
+            <h5 class="title">Create a new prom question</h5>
+
             <div class="form-row">
               <div class="form-group">
                 <label class="col-form-label">{{@question.label}}</label>
@@ -45,31 +47,62 @@
                 </select>
               </div>
 
-              <div class="form-group">
-                <label class="col-form-label">{{@answer.label}}</label>
-                <input class="form-control" data-view-model="@answer" id="@answer.name"/>
-              </div>
-
-              <div class="form-group">
-                <button class="add-answer-button" data-tag="add:answer">OK</button>
-              </div>
-
             </div>
 
+              <webc-switch condition="@currentAnswerType">
+
+                <div slot="checkbox-answer">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="col-form-label">{{@answer.label}}</label>
+                      <input class="form-control" data-view-model="@answer" id="@answer.name"/>
+                    </div>
+                    <div class="form-group">
+                      <br><br>
+                      <button class="add-answer-button" data-tag="add:answer">OK</button>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <div class="d-flex justify-content-center">
+                        <br>
+                        <div data-for="@answers">
+                          <h5 class="checkbox-answers">{{@element}}</h5>
+                          <br>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div slot="slider-answer">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="col-form-label">{{@minimum.label}}</label>
+                      <input class="form-control" data-view-model="@minimum" id="@minimum.name"/>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-form-label">{{@maximum.label}}</label>
+                      <input class="form-control" data-view-model="@maximum" id="@maximum.name"/>
+                    </div>
+                    <div class="form-group">
+                      <label class="col-form-label">{{@steps.label}}</label>
+                      <input class="form-control" data-view-model="@steps" id="@steps.name"/>
+                    </div>
+                  </div>
+                </div>
+                <div slot="free-text-answer"></div>
+              </webc-switch>
           </main>
-
-          <div class="d-flex justify-content-center">
-            <div data-for="@answers">
-              <label col-form-label>{{@element}}</label>
-              <br>
-            </div>
-          </div>
         </div>
 
         <div slot="prem">
 
           <main class="form-container">
 
+            <h5 class="title">Create a new prem question</h5>
+
             <div class="form-row">
               <div class="form-group">
                 <label class="col-form-label">{{@question.label}}</label>
@@ -87,34 +120,67 @@
                 </select>
               </div>
 
-              <div class="form-group">
-                <label class="col-form-label">{{@answer.label}}</label>
-                <input class="form-control" data-view-model="@answer" id="@answer.name"/>
-              </div>
-
-              <div class="form-group">
-                <button class="add-answer-button" data-tag="add:answer">OK</button>
-              </div>
-
             </div>
 
+            <webc-switch condition="@currentAnswerType">
+
+              <div slot="checkbox-answer">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="col-form-label">{{@answer.label}}</label>
+                    <input class="form-control" data-view-model="@answer" id="@answer.name"/>
+                  </div>
+                  <div class="form-group">
+                    <br><br>
+                    <button class="add-answer-button" data-tag="add:answer">OK</button>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <div class="d-flex justify-content-center">
+                      <br>
+                      <div data-for="@answers">
+                        <h5 class="checkbox-answers">{{@element}}</h5>
+                        <br>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div slot="slider-answer">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="col-form-label">{{@minimum.label}}</label>
+                    <input class="form-control" data-view-model="@minimum" id="@minimum.name"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-form-label">{{@maximum.label}}</label>
+                    <input class="form-control" data-view-model="@maximum" id="@maximum.name"/>
+                  </div>
+                  <div class="form-group">
+                    <label class="col-form-label">{{@steps.label}}</label>
+                    <input class="form-control" data-view-model="@steps" id="@steps.name"/>
+                  </div>
+                </div>
+              </div>
+              <div slot="free-text-answer"></div>
+            </webc-switch>
           </main>
-
-          <div class="d-flex justify-content-center">
-            <div data-for="@answers">
-              <label col-form-label>{{@element}}</label>
-              <br>
-            </div>
-          </div>
-
         </div>
+
+
         <div slot="none">
           <div class="alert alert-warning text-center" role="alert">
-            <h4 class="alert-heading">Choose between Proms and Prems.</h4>
+            <h4 class="alert-heading">Create a new question</h4>
+            <h4 class="alert-heading">Choose between Proms and Prems</h4>
             <p>PROMS: Patient Reported Outcome Measures.</p>
             <p>PREMS: Patient Reported Experience Measures.</p>
           </div>
         </div>
+
+
       </webc-switch>
 
 
