@@ -3,6 +3,9 @@ const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const {QuestionnaireService} = commonServices;
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const CommunicationService = commonServices.CommunicationService;
+const BaseRepository = commonServices.BaseRepository;
+
 
 let getInitModel = () => {
     return {
@@ -45,8 +48,10 @@ export default class QuestionsListController extends BreadCrumbManager {
         this._attachHandlerSetFrequency();
     }
 
-    initServices() {
+    async initServices() {
         this.getQuestionnaire();
+        this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         let hcoService = new HCOService();
         let hcoDSUPromise = hcoService.getOrCreateAsync();
         hcoDSUPromise.then(hcoDSU => {
@@ -147,7 +152,8 @@ export default class QuestionsListController extends BreadCrumbManager {
                 endDate: "",
                 repeatAppointment: ""
             },
-            trialSSI: this.model.trialSSI
+            trialSSI: this.model.trialSSI,
+            trialId: this.model.selected_trial.id
         }
         this.QuestionnaireService.saveQuestionnaire(questionnaire, (err, data) => {
             if (err) {
@@ -155,6 +161,29 @@ export default class QuestionsListController extends BreadCrumbManager {
             }
             console.log("Initial Questionnaire Generated!")
             this.model.questionnaire = data;
+
+            this.TrialParticipantRepository.findAll((err, tps) => {
+                if (err) {
+                    return console.log(err);
+                }
+                let tps_this_trial = tps.filter(tp => tp.trialId === this.model.selected_trial.id);
+                tps_this_trial.forEach(participant => {
+                    this.sendMessageToPatient(participant.did, "CLINICAL-SITE-QUESTIONNAIRE", data.sReadSSI, "");
+                    console.log("Questionnaire sent to: " + participant.name)
+                });
+            })
+        });
+    }
+
+    sendMessageToPatient(trialParticipant, operation, ssi, shortMessage) {
+        this.CommunicationService.sendMessage(trialParticipant, {
+            operation: operation,
+            ssi: ssi,
+            useCaseSpecifics: {
+                did: trialParticipant.did,
+                trialSSI: this.model.trialSSI
+            },
+            shortDescription: shortMessage,
         });
     }
 
