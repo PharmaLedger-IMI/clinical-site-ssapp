@@ -2,6 +2,11 @@ import DeviceAssignationService from "../../services/DeviceAssignationService.js
 import DeviceServices from "../../services/DeviceServices.js";
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
+const CommunicationService = commonServices.CommunicationService;
+const COMMUNICATION_MESSAGES = {
+    DEVICE_ASSIGNATION: "device_assignation"
+}
+
 
 export default class TrialParticipantDevicesController extends BreadCrumbManager {
 
@@ -23,6 +28,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
 
     initServices(){
         this.getAllDevices();
+        this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
     }
 
     getAllDevices(){
@@ -110,6 +116,11 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
                     message.content = `The device has been assigned to the patient successfully!`;
                     message.type = 'success'
                 }
+
+                this.CommunicationService.sendMessageToIotAdaptor({
+                    operation:  COMMUNICATION_MESSAGES.DEVICE_ASSIGNATION,
+                    ssi:        data.sReadSSI
+                })
 
                 let state = {
                     message: message,
