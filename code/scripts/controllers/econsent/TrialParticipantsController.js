@@ -354,6 +354,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         const currentDate = new Date();
         tp.trialNumber = this.model.trial.id;
         tp.status = Constants.TRIAL_PARTICIPANT_STATUS.PLANNED;
+        tp.subjectName = tp.name;
         tp.enrolledDate = currentDate.toLocaleDateString();
         tp.trialId = this.model.trial.id;
         tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync();
@@ -370,7 +371,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 tpNumber: '',
                 tpName: tp.name,
                 did: tp.did,
-                status: tp.status
+                status: tp.status,
+                subjectName: tp.subjectName
             },
             tp.trialSReadSSI,
             Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.ADD_TO_TRIAL
@@ -424,6 +426,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             operation: operation,
             ssi: trialSSI,
             useCaseSpecifics: {
+                subjectName: tp.subjectName,
                 tpName: tp.name,
                 did: tp.did,
                 sponsorDid: tp.sponsorDid,
@@ -441,6 +444,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             operation: operation,
             ssi: siteSReadSSI,
             useCaseSpecifics: {
+                subjectName: tp.subjectName,
                 tpNumber: tp.tpNumber,
                 tpName: tp.tpName,
                 tpStatus: tp.status,
