@@ -364,13 +364,13 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         //refresh
         //TODO refactor the above code
         await this.initializeData();
-
         await this.sendMessageToPatient(
             Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_PATIENT,
             {
                 tpNumber: '',
                 tpName: tp.name,
-                did: tp.did
+                did: tp.did,
+                status: tp.status
             },
             tp.trialSReadSSI,
             Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.ADD_TO_TRIAL
@@ -443,6 +443,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             useCaseSpecifics: {
                 tpNumber: tp.tpNumber,
                 tpName: tp.tpName,
+                tpStatus: tp.status,
                 tpDid: tp.did,
                 trialSSI: trialSSI,
                 sponsorDid: site.sponsorDid,
