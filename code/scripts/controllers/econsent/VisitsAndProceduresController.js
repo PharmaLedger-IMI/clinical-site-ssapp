@@ -118,6 +118,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.model.tp.visits[objIndex].proposedDate = this.model.proposedDate;
         this.model.visits[objIndex].proposedDate = this.model.proposedDate;
         this.model.visits[objIndex].hasProposedDate = true;
+        visit.proposedDate = this.model.tp.visits[objIndex].proposedDate;
 
         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
@@ -216,7 +217,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     date: visit.date,
                     unit: visit.unit,
                     uid: visit.uuid,
-                    id: visit.id
+                    id: visit.id,
+                    proposedDate: visit.proposedDate
                 },
             },
             shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.SCHEDULE_VISIT,
