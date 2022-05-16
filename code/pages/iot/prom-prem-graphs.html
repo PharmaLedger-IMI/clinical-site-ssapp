@@ -1,24 +1,50 @@
 <webc-container controller="iot/ViewPromPremGraphsController">
 
     <div class="container main-container">
+
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <h5 class="generic-title">PROM AND PREM DATA ANALYSIS</h5>
         </div>
 
-        <div class="container justify-content-start">
-
-            <main>
-                <div class="parent-graphs-container">
-                    <div class="graph-container">
-                        <canvas id="barChart"></canvas>
-                    </div>
-                    <div class="graph-container">
-                        <canvas id="pieChart"></canvas>
-                    </div>
+        <div class="form-row">
+            <div class="form-group">
+                <div class="questions-tab d-flex justify-content-center">
+                    <button class="prom-prem-tab-buttons p-2" data-tag="charts:prom">PROM Data Analysis</button>
+                    <button class="prom-prem-tab-buttons p-2" data-tag="charts:prem">PREM Data Analysis</button>
                 </div>
-            </main>
-
+            </div>
         </div>
+
+        <webc-switch condition="@currentTable">
+            <div slot="proms">
+                <div class="container justify-content-start">
+                    <main>
+                        <div class="parent-graphs-container">
+                            <div class="graph-container">
+                                <div data-for="@promQuestions">
+                                    <canvas id="@promQuestion"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                </div>
+            </div>
+            <div slot="prems">
+                <div class="container justify-content-start">
+                    <main>
+                        <div class="parent-graphs-container">
+                            <div class="graph-container">
+                                <div data-for="@premQuestions">
+                                    <canvas id="@premQuestion"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+
+                </div>
+            </div>
+
     </div>
+
 </webc-container>
