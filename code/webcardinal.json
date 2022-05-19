@@ -112,6 +112,12 @@
 			"tag": "prom-prem-graphs"
 		},
 		{
+			"name": "view-graph",
+			"path": "/iot/view-graph",
+			"src": "iot/view-graph.html",
+			"tag": "view-graph"
+		},
+		{
 			"name": "Trial Management",
 			"path": "/econsent/trial-management",
 			"src": "econsent/trial-management.html",

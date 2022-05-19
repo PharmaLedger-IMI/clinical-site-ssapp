@@ -12,39 +12,48 @@
                     <button class="prom-prem-tab-buttons p-2" data-tag="charts:prom">PROM Data Analysis</button>
                     <button class="prom-prem-tab-buttons p-2" data-tag="charts:prem">PREM Data Analysis</button>
                 </div>
+                <webc-switch condition="@currentTable">
+                    <div slot="proms">
+                        <div class="container justify-content-start">
+                            <div class="common-datatable two-column-datatable dt-2-col" slot="true">
+
+                                <webc-datatable datasource="@PromsDataSource">
+                                    <div slot="header">Question</div>
+                                    <div slot="header">Data Analysis</div>
+
+                                    <div class="cell">{{ @question }}</div>
+                                    <div class="cell">
+                                        <button class="link-button" data-tag="data-analysis">View</button>
+                                    </div>
+
+                                </webc-datatable>
+                            </div>
+                        </div>
+                    </div>
+                    <div slot="prems">
+                        <div class="container justify-content-start">
+                            <main>
+                                <div class="parent-graphs-container">
+                                    <div class="graph-container">
+                                        <div data-for="@premQuestions">
+                                            <canvas id="@premQuestion"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                            </main>
+
+                        </div>
+                    </div>
+                    <div slot="none">
+                        <div class="alert alert-warning text-center" role="alert">
+                            <h4 class="alert-heading">Choose between Proms and Prems.</h4>
+                            <p>PROMS: Patient Reported Outcome Measures.</p>
+                            <p>PREMS: Patient Reported Experience Measures.</p>
+                        </div>
+                    </div>
+                </webc-switch>
             </div>
         </div>
-
-        <webc-switch condition="@currentTable">
-            <div slot="proms">
-                <div class="container justify-content-start">
-                    <main>
-                        <div class="parent-graphs-container">
-                            <div class="graph-container">
-                                <div data-for="@promQuestions">
-                                    <canvas id="@promQuestion"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </main>
-
-                </div>
-            </div>
-            <div slot="prems">
-                <div class="container justify-content-start">
-                    <main>
-                        <div class="parent-graphs-container">
-                            <div class="graph-container">
-                                <div data-for="@premQuestions">
-                                    <canvas id="@premQuestion"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </main>
-
-                </div>
-            </div>
-
     </div>
 
 </webc-container>
