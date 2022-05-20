@@ -270,7 +270,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
     }
 
     initTrialParticipant() {
-        this.TrialParticipantRepository.filter(`did == ${this.model.trialParticipantNumber}`, 'ascending', 30, (err, tps) => {
+        this.TrialParticipantRepository.filter(`did == ${this.model.tp.did}`, 'ascending', 30, (err, tps) => {
 
             if (tps && tps.length > 0) {
                 this.model.trialParticipant = tps[0];
