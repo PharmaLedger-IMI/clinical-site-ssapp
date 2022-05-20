@@ -54,11 +54,7 @@ export default class LandingPageController extends WebcController {
 
     _attachMessageHandlers() {
         this.CommunicationService = getCommunicationServiceInstance();
-        MessageHandlerService.init(async (err, data) => {
-            if (err) {
-                return console.error(err);
-            }
-
+        MessageHandlerService.init(async (data) => {
             data = JSON.parse(data);
 
             await this.handleIotMessages(data);
