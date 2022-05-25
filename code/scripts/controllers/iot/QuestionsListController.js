@@ -49,7 +49,6 @@ export default class QuestionsListController extends BreadCrumbManager {
     }
 
     async initServices() {
-        this.getQuestionnaire();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         let hcoService = new HCOService();
@@ -57,6 +56,7 @@ export default class QuestionsListController extends BreadCrumbManager {
         hcoDSUPromise.then(hcoDSU => {
             this.model.trials = hcoDSU.volatile.trial;
             this.model.selected_trial = this.model.trials.find(t => t.uid === this.model.trialSSI);
+            this.getQuestionnaire();
         });
     }
 
@@ -294,6 +294,16 @@ export default class QuestionsListController extends BreadCrumbManager {
                         },
                         modalConfig);
                 });
+                this.TrialParticipantRepository.findAll((err, tps) => {
+                    if (err) {
+                        return console.log(err);
+                    }
+                    let tps_this_trial = tps.filter(tp => tp.trialId === this.model.selected_trial.id);
+                    tps_this_trial.forEach(participant => {
+                        this.sendMessageToPatient(participant.did, "CLINICAL-SITE-QUESTIONNAIRE", this.model.questionnaire.sReadSSI, "");
+                        console.log("Questionnaire sent to: " + participant.name)
+                    });
+                })
             }
         })
 
