@@ -1,5 +1,5 @@
-
 import TrialService from "../services/TrialService.js";
+
 const {WebcController} = WebCardinal.controllers;
 const commonServices = require("common-services");
 const Constants = commonServices.Constants;
@@ -7,8 +7,9 @@ import ResponsesService from '../services/ResponsesService.js';
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import SiteService from "../services/SiteService.js";
 import HCOService from "../services/HCOService.js";
+
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
-const {getDidServiceInstance } = commonServices.DidService;
+const {getDidServiceInstance} = commonServices.DidService;
 const MessageHandlerService = commonServices.MessageHandlerService;
 
 const BaseRepository = commonServices.BaseRepository;
@@ -21,26 +22,26 @@ export default class LandingPageController extends WebcController {
         this.model = this.getInitialModel();
 
         this.didService = getDidServiceInstance();
-            this._attachMessageHandlers();
-            this.initServices().then(()=>{
-                this.initHandlers();
-            });
+        this._attachMessageHandlers();
+        this.initServices().then(() => {
+            this.initHandlers();
+        });
     }
 
     async initServices() {
-            this.ResponsesService = new ResponsesService(this.DSUStorage);
-            this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
-            //this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
+        this.ResponsesService = new ResponsesService(this.DSUStorage);
+        this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
+        //this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
 
-            this.TrialService = new TrialService();
-            this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
-            this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
-            this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
-            this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
-            this.SiteService = new SiteService();
-            this.HCOService = new HCOService();
-            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-            return this.model.hcoDSU;
+        this.TrialService = new TrialService();
+        this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
+        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
+        this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
+        this.SiteService = new SiteService();
+        this.HCOService = new HCOService();
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        return this.model.hcoDSU;
 
     }
 
@@ -65,25 +66,25 @@ export default class LandingPageController extends WebcController {
 
     attachHandlerManageDevices() {
         this.onTagClick('navigation:iot-manage-devices', () => {
-            this.navigateToPageTag('iot-manage-devices', { breadcrumb: this.model.toObject('breadcrumb') } );
+            this.navigateToPageTag('iot-manage-devices', {breadcrumb: this.model.toObject('breadcrumb')});
         });
     }
 
     attachHandlerListOfPatients() {
         this.onTagClick('navigation:econsent-notifications', () => {
-            this.navigateToPageTag('econsent-notifications', { breadcrumb: this.model.toObject('breadcrumb') });
+            this.navigateToPageTag('econsent-notifications', {breadcrumb: this.model.toObject('breadcrumb')});
         });
     }
 
     attachHandlerVisits() {
         this.onTagClick('navigation:econsent-visits', () => {
-            this.navigateToPageTag('econsent-visits', { breadcrumb: this.model.toObject('breadcrumb') });
+            this.navigateToPageTag('econsent-visits', {breadcrumb: this.model.toObject('breadcrumb')});
         });
     }
 
     attachHandlerEconsentTrialManagement() {
         this.onTagClick('navigation:econsent-trial-management', () => {
-            this.navigateToPageTag('econsent-trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
+            this.navigateToPageTag('econsent-trial-management', {breadcrumb: this.model.toObject('breadcrumb')});
         });
     }
 
@@ -168,23 +169,23 @@ export default class LandingPageController extends WebcController {
                         if (err) {
                             return console.log(err);
                         }
+                        if (err) {
+                            return console.log(err);
+                        }
+
+                        this.HCOService.mountTrial(site.trialSReadSSI, (err, trial) => {
                             if (err) {
                                 return console.log(err);
                             }
 
-                            this.HCOService.mountTrial(site.trialSReadSSI, (err, trial) => {
+                            this.HCOService.mountVisit(site.visitsSReadSSI, (err, visit) => {
                                 if (err) {
                                     return console.log(err);
                                 }
-
-                                    this.HCOService.mountVisit(site.visitsSReadSSI, (err, visit) => {
-                                        if (err) {
-                                            return console.log(err);
-                                        }
-                                        this.sendMessageToSponsor(senderIdentity, Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_SPONSOR, {ssi:this.HCOService.ssi}, null);
-                                        resolve();
-                                    })
-                            });
+                                this.sendMessageToSponsor(senderIdentity, Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_SPONSOR, {ssi: this.HCOService.ssi}, null);
+                                resolve();
+                            })
+                        });
                     });
                 }))
                 await mountSiteAndUpdateEntity;
@@ -219,21 +220,35 @@ export default class LandingPageController extends WebcController {
 
 
     sendRefreshConsentsToTrialParticipants(data) {
-        //TODO change it to async function
-        return new Promise((resolve => {
+
+        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.uid) === data.ssi);
+
+        return new Promise((resolve) => {
             this.HCOService.cloneIFCs(data.ssi, async () => {
                 this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
 
+                //TODO filter the ifcs
+                let ifcs = this.model.hcoDSU.volatile.ifcs || [];
+                let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
+                let trialConsents = ifcs.filter(icf => {
+                    return siteConsentsKeySSis.includes(icf.genesisUid)
+                });
                 this.TrialParticipantRepository.findAll((err, tps) => {
                     if (err) {
                         return console.log(err);
                     }
-                    tps.forEach(tp => this.sendMessageToPatient(tp,
-                        Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, data.ssi, null))
-                    resolve();
+
+                    //TODO filter the tp
+                    tps.forEach((tp) => {
+                        trialConsents.forEach(econsent => {
+                            this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT,
+                                econsent.keySSI, null);
+                        });
+                        resolve();
+                    })
                 })
             });
-        }))
+        })
     }
 
     async _updateHcoDSU() {
@@ -247,7 +262,6 @@ export default class LandingPageController extends WebcController {
         let modifiedConsent = site.consents.find(consent => consent.uid === message.econsentUid);
         await this.HCOService.updateIfcs(existingIfcs, modifiedConsent);
      */
-
 
 
     async _updateEconsentWithDetails(message) {
@@ -314,7 +328,7 @@ export default class LandingPageController extends WebcController {
             tp.actionNeeded = actionNeeded;
             tp.tpSigned = tpSigned;
             tp.status = status;
-            this.HCOService.updateHCOSubEntity(tp,"tps",async (err, response) => {
+            this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
                 if (err) {
                     return console.log(err);
                 }
@@ -330,7 +344,7 @@ export default class LandingPageController extends WebcController {
         });
 
         const sites = this.model.toObject("hcoDSU.volatile.site");
-        const site = sites.find(site=>site.trialSReadSSI === tp.trialSReadSSI);
+        const site = sites.find(site => site.trialSReadSSI === tp.trialSReadSSI);
         this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
             ssi: tp.uid,
             consentSSI: consentSSI
@@ -354,7 +368,7 @@ export default class LandingPageController extends WebcController {
     sendMessageToSponsor(sponsorDid, operation, data, shortMessage) {
         this.CommunicationService.sendMessage(sponsorDid, {
             operation: operation,
-           ...data,
+            ...data,
             shortDescription: shortMessage,
         });
     }
@@ -401,7 +415,7 @@ export default class LandingPageController extends WebcController {
                     if (plus)
                         visitToBeAdded.minus = minus[0]?.value;
 
-                    item.procedures.forEach((procedure)=>{
+                    item.procedures.forEach((procedure) => {
                         procedure.consent.consentSSI = this.model.hcoDSU.volatile.site[0].consents.find((consent => consent.name === procedure.consent.name)).keySSI;
                     })
 
@@ -460,10 +474,10 @@ export default class LandingPageController extends WebcController {
 
     getInitialModel() {
         return {
-            breadcrumb : [{
-                label:"Dashboard",
-                tag:"home",
-                state:{}
+            breadcrumb: [{
+                label: "Dashboard",
+                tag: "home",
+                state: {}
             }]
         };
     }

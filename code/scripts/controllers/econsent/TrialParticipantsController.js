@@ -420,17 +420,15 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
 
-    //TODO: will be refactored on DID integration
-    sendConsentToPatient(operation, tp, trialSSI, shortMessage) {
+    sendConsentToPatient(operation, tp, econsentKeySSI, shortMessage) {
         this.CommunicationService.sendMessage(tp.did, {
             operation: operation,
-            ssi: trialSSI,
+            ssi: econsentKeySSI,
             useCaseSpecifics: {
                 subjectName: tp.subjectName,
                 tpName: tp.name,
                 did: tp.did,
                 sponsorDid: tp.sponsorDid,
-                trialSSI: trialSSI
             },
             shortDescription: shortMessage,
         });
