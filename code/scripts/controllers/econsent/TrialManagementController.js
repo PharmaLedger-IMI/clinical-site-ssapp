@@ -90,7 +90,7 @@ export default class TrialManagementController extends BreadCrumbManager {
             let state = {
                 breadcrumb: this.model.toObject('breadcrumb')
             }
-            this.navigateToPageTag('prom-prem-graphs', state);
+            // this.navigateToPageTag('prom-prem-graphs', state);
         });
     }
 
