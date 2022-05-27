@@ -31,12 +31,12 @@ export default class EconsentVersionsController extends BreadCrumbManager {
         this.HCOService.getOrCreateAsync().then((hcoDSU) => {
             this.model.hcoDSU = hcoDSU;
             this.getEconsentVersions();
-            const dataSourceVersions = this.model.toObject('econsent.versions').map(version => {
+            const dataSourceVersions = this.model.toObject('versions').map(version => {
                 if (!version.actions) {
                     version.actions = [];
                 }
 
-                version.actions.forEach(( _, index) => {
+                version.actions.forEach((_, index) => {
                     version.actions[index] = {
                         ...version.actions[index],
                         version: version.version,
@@ -52,82 +52,59 @@ export default class EconsentVersionsController extends BreadCrumbManager {
     }
 
     initHandlers() {
-        this.attachHandlerEconsentSign();
         this.attachHandlerBack();
-        this.attachHandlerView();
     }
 
     getEconsentVersions() {
 
         const consent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid);
-        this.model.econsent = consent;
-        this.model.versions = consent.versions?.map(econsentVersion => {
-            econsentVersion = {
-                ...econsentVersion,
-                tpApproval: "-",
-                hcpApproval: "-",
-                tpWithdraw: "-",
-                versionDateAsString: DateTimeService.convertStringToLocaleDate(econsentVersion.versionDate)
-            };
-            econsentVersion.actions?.forEach((action) => {
-                switch (action.name) {
-                    case "sign": {
-                        econsentVersion.tpApproval = action.toShowDate;
-                        econsentVersion.hcpApproval = "Required";
-                        break;
-                    }
-                    case "withdraw": {
-                        econsentVersion.tpWithdraw = "TP Withdraw";
-                        break;
-                    }
-                    case "withdraw-intention": {
-                        econsentVersion.hcpApproval = "Contact TP";
-                        econsentVersion.tpWithdraw = "Intention";
-                        break;
-                    }
-                    case "Declined": {
-                        econsentVersion.tsDeclined = "Declined";
-                        break;
-                    }
+        this.model.versions = consent.versions.filter(version => version.actions && version.actions.some(action => action.tpDid === this.model.tpDid));
+        if (this.model.versions.length > 0) {
+
+            this.model.versions = this.model.versions.map(econsentVersion => {
+                econsentVersion = {
+                    ...econsentVersion,
+                    tpApproval: "-",
+                    hcpApproval: "-",
+                    tpWithdraw: "-",
+                    versionDateAsString: DateTimeService.convertStringToLocaleDate(econsentVersion.versionDate)
+                };
+                if (econsentVersion.actions) {
+
+                    econsentVersion.actions.forEach((action) => {
+                        switch (action.name) {
+                            case "sign": {
+                                econsentVersion.tpApproval = action.toShowDate;
+                                econsentVersion.hcpApproval = "Required";
+                                break;
+                            }
+                            case "withdraw": {
+                                econsentVersion.tpWithdraw = "TP Withdraw";
+                                break;
+                            }
+                            case "withdraw-intention": {
+                                econsentVersion.hcpApproval = "Contact TP";
+                                econsentVersion.tpWithdraw = "Intention";
+                                break;
+                            }
+                            case "Declined": {
+                                econsentVersion.tsDeclined = "Declined";
+                                break;
+                            }
+                        }
+                    });
                 }
+                if (econsentVersion.hcoSign) {
+                    econsentVersion.hcpApproval = consent.hcoSign.toShowDate;
+                }
+                return econsentVersion;
             });
-            if (econsentVersion.hcoSign) {
-                econsentVersion.hcpApproval = consent.hcoSign.toShowDate;
-            }
-        });
-
-        console.log(this.model.toObject());
-    }
-
-    attachHandlerEconsentSign() {
-        this.onTagClick("econsent:sign", (model) => {
-            this.navigateToPageTag("econsent-sign", {
-                trialUid: this.model.trialUid,
-                econsentUid: this.model.econsentUid,
-                tpUid: this.model.tpUid,
-                trialParticipantNumber: this.model.trialParticipantNumber,
-                ecoVersion: model.version
-            });
-        });
+        }
     }
 
     attachHandlerBack() {
         this.onTagClick("back", () => {
             this.history.goBack();
-        });
-    }
-
-    attachHandlerView() {
-        this.onTagClick("consent:view", (model) => {
-            this.navigateToPageTag("econsent-sign", {
-                trialUid: this.model.trialUid,
-                //de vazut
-                econsentUid: model.econsentUid,
-                ecoVersion: model.lastVersion,
-                tpDid: this.model.tp.did,
-                controlsShouldBeVisible: false,
-                breadcrumb: this.model.toObject('breadcrumb')
-            });
         });
     }
 }
