@@ -7,61 +7,76 @@
 
         <main>
 
-            <div class="common-datatable visits-procedures dt-9-col">
+            <div data-if="@dataSourceInitialized">
+                <webc-spinner slot="loading"></webc-spinner>
 
-                <webc-datatable datasource="@visitsDataSource">
-
-                    <div slot="header">Visits</div>
-                    <div slot="header">Week Number</div>
-                    <div slot="header">Week Day Number</div>
-                    <div slot="header">+Days</div>
-                    <div slot="header">-Days</div>
-                    <div slot="header">Proposed date</div>
-                    <div slot="header">Ts Acceptance</div>
-                    <div slot="header">Planned Date</div>
-                    <div slot="header">Actions</div>
+                <div class="alert alert-light d-flex justify-content-center" role="alert" slot="false">
+                    <p>
+                        No visits yet!
+                    </p>
+                </div>
 
 
-                    <div class="cell">{{@name}}</div>
-                    <div class="cell">{{@week}}</div>
-                    <div class="cell">{{@day}}</div>
-                    <div class="cell">{{@windowFrom}}</div>
-                    <div class="cell">{{@windowTo}}</div>
+                <div class="common-datatable visits-procedures dt-9-col" slot="true" data-if="@siteHasVisits">
 
-                    <div data-if="@hasProposedDate" class="cell">
-                        <div slot="true">{{@toShowDate}}</div>
-                        <div slot="false">-</div>
-                    </div>
+                    <webc-datatable datasource="@visitsDataSource">
 
-                    <div class="cell">{{@tsAcceptance}}</div>
+                        <div slot="header">Visits</div>
+                        <div slot="header">Week Number</div>
+                        <div slot="header">Week Day Number</div>
+                        <div slot="header">+Days</div>
+                        <div slot="header">-Days</div>
+                        <div slot="header">Proposed date</div>
+                        <div slot="header">Ts Acceptance</div>
+                        <div slot="header">Planned Date</div>
+                        <div slot="header">Actions</div>
 
-                    <div data-if="@accepted" class="cell">
-                        <div slot="true">{{@toShowDate}}</div>
-                        <div slot="false">-</div>
-                    </div>
 
-                    <div class="cell">
-                        <div data-if="@accepted">
-                            <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="true">Confirm
-                                Date
-                            </button>
+                        <div class="cell">{{@name}}</div>
+                        <div class="cell">{{@week}}</div>
+                        <div class="cell">{{@day}}</div>
+                        <div class="cell">{{@windowFrom}}</div>
+                        <div class="cell">{{@windowTo}}</div>
+
+                        <div data-if="@hasProposedDate" class="cell">
+                            <div slot="true">{{@toShowDate}}</div>
+                            <div slot="false">-</div>
                         </div>
-                        <div data-if="@shouldBeRescheduled">
-                            <button class="link-button view-adjust-margin" data-tag="procedure:editDate" slot="true">
-                                Reschedule
-                            </button>
-                            <button class="link-button view-adjust-margin" data-tag="procedure:setDate" slot="false">
-                                Schedule
-                            </button>
-                        </div>
-                        <button class="link-button view-adjust-margin" data-tag="visit:view">View</button>
-                        <button class="link-button view-adjust-margin" data-tag="visit:edit">Edit</button>
-                    </div>
 
-                </webc-datatable>
+                        <div class="cell">{{@tsAcceptance}}</div>
+
+                        <div data-if="@accepted" class="cell">
+                            <div slot="true">{{@toShowDate}}</div>
+                            <div slot="false">-</div>
+                        </div>
+
+                        <div class="cell">
+                            <div data-if="@accepted">
+                                <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="true">
+                                    Confirm
+                                    Date
+                                </button>
+                            </div>
+                            <div data-if="@shouldBeRescheduled">
+                                <button class="link-button view-adjust-margin" data-tag="procedure:editDate"
+                                        slot="true">
+                                    Reschedule
+                                </button>
+                                <button class="link-button view-adjust-margin" data-tag="procedure:setDate"
+                                        slot="false">
+                                    Schedule
+                                </button>
+                            </div>
+                            <button class="link-button view-adjust-margin" data-tag="visit:view">View</button>
+                            <button class="link-button view-adjust-margin" data-tag="visit:edit">Edit</button>
+                        </div>
+
+                    </webc-datatable>
+                </div>
+
             </div>
-
         </main>
+
         <div class="button-group-wrapper">
             <button data-tag="back">Back</button>
         </div>

@@ -22,8 +22,21 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             }
         );
 
-        this.model.visitsDataSource = this.initServices().then(dataSource => { 
-            return this.model.visitsDataSource = dataSource;
+        this.initServices().then(() => {
+            this.model.dataSourceInitialized = true;
+            this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'))
+            this.model.visitsDataSource.__proto__.updateVisits = function (visits) {
+                visits.forEach(visit => {
+                    if (visit.hasProposedDate) {
+                        visit.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(visit.proposedDate);
+                    }
+                });
+                this.model.trialParticipants = visits;
+                this.model.tableData = visits;
+
+                this.getElement().dataSize = visits.length;
+                this.forceUpdate(true);
+            }
         });
     }
 
@@ -45,15 +58,15 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.initHandlers();
-        this.initSite();
-        this.initVisits();
-        return this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'));
+        await this.initSite();
+        await this.initVisits();
     }
 
     async initVisits() {
-        this.model.visits = this.model.toObject("site.visits.visits").find((visit)=>visit.consentId= this.model.consentId).data;
+        this.model.visits = this.model.toObject("site.visits.visits").find((visit) => visit.consentId = this.model.consentId).data;
+        this.model.siteHasVisits = this.model.visits.length > 0;
         this.extractDataVisit();
-        this.matchTpVisits();
+        await this.matchTpVisits();
     }
 
     extractDataVisit() {
@@ -98,8 +111,9 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                             }
                         }
                         visit.proposedDate = visitTp.proposedDate;
+
                         visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
-                        if(visit.hasProposedDate){
+                        if (visit.hasProposedDate) {
                             visit.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(visit.proposedDate);
                         }
 
@@ -151,6 +165,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     this.model.proposedDate = event.detail;
                     this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
                     this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
+                    this.model.visitsDataSource.updateVisits(this.model.toObject('visits'));
                 },
                 (event) => {
                     const response = event.detail;
@@ -186,6 +201,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
                     });
                     this.sendMessageToPatient(this.model.tp.visits[visitIndex], Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
+                    this.model.visitsDataSource.updateVisits(this.model.toObject('visits'));
                 },
                 (event) => {
                     const response = event.detail;
