@@ -214,33 +214,26 @@ export default class LandingPageController extends WebcController {
             }
         }
         await this._updateHcoDSU();
-
-
     }
 
-
-    sendRefreshConsentsToTrialParticipants(data) {
-
+    async sendRefreshConsentsToTrialParticipants(data) {
+        //refresh hcoDSU
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.uid) === data.ssi);
-
-        return new Promise((resolve) => {
+        return await new Promise((resolve) => {
             this.HCOService.cloneIFCs(data.ssi, async () => {
                 this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
 
-                //TODO filter the ifcs
                 let ifcs = this.model.hcoDSU.volatile.ifcs || [];
-                let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
-                let trialConsents = ifcs.filter(icf => {
-                    return siteConsentsKeySSis.includes(icf.genesisUid)
-                });
+                ifcs = ifcs.filter(ifc => ifc.genesisUid === data.econsentUid);
+
                 this.TrialParticipantRepository.findAll((err, tps) => {
                     if (err) {
                         return console.log(err);
                     }
 
-                    //TODO filter the tp
-                    tps.forEach((tp) => {
-                        trialConsents.forEach(econsent => {
+                    tps.filter(tp => tp.trialId === site.trialId).forEach((tp) => {
+                        ifcs.forEach(econsent => {
                             this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT,
                                 econsent.keySSI, null);
                         });
@@ -254,15 +247,6 @@ export default class LandingPageController extends WebcController {
     async _updateHcoDSU() {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
     }
-
-    /*
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        let existingIfcs = this.model.hcoDSU.volatile.ifcs.filter(ifc => ifc.genesisUid === message.econsentUid)
-        const site = this.model.hcoDSU.volatile.site.find(site=>site.uid === message.ssi);
-        let modifiedConsent = site.consents.find(consent => consent.uid === message.econsentUid);
-        await this.HCOService.updateIfcs(existingIfcs, modifiedConsent);
-     */
-
 
     async _updateEconsentWithDetails(message) {
         let tp;

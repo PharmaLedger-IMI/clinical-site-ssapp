@@ -351,6 +351,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
     async createTpDsu(tp) {
+        window.WebCardinal.loader.hidden = false;
         const currentDate = new Date();
         tp.trialNumber = this.model.trial.id;
         tp.status = Constants.TRIAL_PARTICIPANT_STATUS.PLANNED;
@@ -409,19 +410,19 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 return siteConsentsKeySSis.includes(icf.genesisUid)
             });
 
-            trialConsents.forEach(econsent => {
-                console.log(econsent);
-                //this.HCOService.getConsentSSI(site.uid, econsent.uid, (err, consentSSI) => {
-                    this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
-                        econsent.keySSI, null);
-                //})
+            const promises = trialConsents.map((econsent)=> {
+                return this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
+                    econsent.keySSI, null);
+
             });
+            await Promise.all(promises);
+            window.WebCardinal.loader.hidden = true;
         });
     }
 
 
-    sendConsentToPatient(operation, tp, econsentKeySSI, shortMessage) {
-        this.CommunicationService.sendMessage(tp.did, {
+    async sendConsentToPatient(operation, tp, econsentKeySSI, shortMessage) {
+        await this.CommunicationService.sendMessage(tp.did, {
             operation: operation,
             ssi: econsentKeySSI,
             useCaseSpecifics: {
