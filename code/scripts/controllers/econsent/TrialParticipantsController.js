@@ -360,32 +360,37 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         tp.trialId = this.model.trial.id;
         tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync();
         let trialParticipant = await this.TrialParticipantRepository.createAsync(tp);
-        tp  = await this.HCOService.addTrialParticipantAsync(tp);
+        const anonymizedTp  = await this.HCOService.addTrialParticipantAsync(tp);
         trialParticipant.actionNeeded = 'No action required';
-        //this.model.trialParticipants.push(trialParticipant);
-        //refresh
-        //TODO refactor the above code
-        await this.initializeData();
+
+
+
+        //TODO to be replace with real did anonymization procedure
+        const randomDidName = (Math.random() + 1).toString(36).substring(7);
+        const anonymizedDid = `ssi:name:iot:${randomDidName}`
+
         await this.sendMessageToPatient(
             Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_PATIENT,
             {
                 tpNumber: '',
-                tpName: tp.name,
-                did: tp.did,
+                gender:tp.gender,
+                birthdate:tp.birthdate,
+                anonymizedDid: anonymizedDid,
                 status: tp.status,
-                subjectName: tp.subjectName
+                subjectName: tp.subjectName,
+                did: tp.did,
             },
-            tp.trialSReadSSI,
+            anonymizedTp.trialSReadSSI,
             Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.ADD_TO_TRIAL
         );
 
         await this._sendMessageToSponsor(
             Constants.MESSAGES.SPONSOR.TP_ADDED,
-            {ssi: tp.sReadSSI},
+            {ssi: anonymizedTp.sReadSSI},
             "A new trial participant was added"
         );
 
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        await this.initializeData();
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
 
         //TODO use enums
@@ -421,8 +426,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
 
-    async sendConsentToPatient(operation, tp, econsentKeySSI, shortMessage) {
-        await this.CommunicationService.sendMessage(tp.did, {
+    sendConsentToPatient(operation, tp, econsentKeySSI, shortMessage) {
+        return this.CommunicationService.sendMessage(tp.did, {
             operation: operation,
             ssi: econsentKeySSI,
             useCaseSpecifics: {
@@ -439,15 +444,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     async sendMessageToPatient(operation, tp, trialSSI, shortMessage) {
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
         const siteSReadSSI = await this.HCOService.getSiteSReadSSIAsync();
-        this.CommunicationService.sendMessage(tp.did, {
+        const {did, ...tpData} = tp;
+        this.CommunicationService.sendMessage(did, {
             operation: operation,
             ssi: siteSReadSSI,
             useCaseSpecifics: {
-                subjectName: tp.subjectName,
-                tpNumber: tp.tpNumber,
-                tpName: tp.tpName,
-                tpStatus: tp.status,
-                tpDid: tp.did,
+                tp:tpData,
                 trialSSI: trialSSI,
                 sponsorDid: site.sponsorDid,
                 site: {
