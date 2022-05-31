@@ -356,6 +356,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         tp.trialNumber = this.model.trial.id;
         tp.status = Constants.TRIAL_PARTICIPANT_STATUS.PLANNED;
         tp.subjectName = tp.name;
+        tp.gender = tp.gender;
+        tp.birthdate = tp.birthdate;
         tp.enrolledDate = currentDate.toLocaleDateString();
         tp.trialId = this.model.trial.id;
         tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync();
