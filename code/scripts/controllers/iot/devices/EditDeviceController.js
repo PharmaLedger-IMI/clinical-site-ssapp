@@ -72,7 +72,7 @@ export default class EditDeviceController extends BreadCrumbManager {
                 }
 
                 const communicationService = getCommunicationServiceInstance();
-                communicationService.sendMessageToIotAdaptor({
+                communicationService.sendMessageToIotAdapter({
                     operation: COMMUNICATION_MESSAGES.EDIT_DEVICE,
                     uid: deviceData.uid
                 });

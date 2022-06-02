@@ -117,7 +117,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
                     message.type = 'success'
                 }
 
-                this.CommunicationService.sendMessageToIotAdaptor({
+                this.CommunicationService.sendMessageToIotAdapter({
                     operation:  COMMUNICATION_MESSAGES.DEVICE_ASSIGNATION,
                     ssi:        data.sReadSSI
                 })

@@ -239,7 +239,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
             }
         }
 
-        this.CommunicationService.sendMessageToIotAdaptor({
+        this.CommunicationService.sendMessageToIotAdapter({
             operation: Constants.MESSAGES.PATIENT.ADD_TRIAL_SUBJECT,
             useCaseSpecifics:messageForIot
         })

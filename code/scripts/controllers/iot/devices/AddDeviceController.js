@@ -77,7 +77,7 @@ export default class AddDeviceController extends BreadCrumbManager {
                 }
 
                 const communicationService = getCommunicationServiceInstance();
-                communicationService.sendMessageToIotAdaptor({
+                communicationService.sendMessageToIotAdapter({
                     operation:COMMUNICATION_MESSAGES.ADD_DEVICE,
                     sReadSSI:data.sReadSSI
                 });

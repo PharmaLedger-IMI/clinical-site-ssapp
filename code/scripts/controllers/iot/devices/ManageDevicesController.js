@@ -171,7 +171,7 @@ export default class ManageDevicesController extends BreadCrumbManager {
                             this.model.message = message;
 
                             const communicationService = getCommunicationServiceInstance();
-                            communicationService.sendMessageToIotAdaptor({
+                            communicationService.sendMessageToIotAdapter({
                                 operation: COMMUNICATION_MESSAGES.REMOVE_DEVICE,
                                 uid: deviceUid
                             });
