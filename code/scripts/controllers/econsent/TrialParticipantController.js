@@ -217,13 +217,15 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
         for (const ifc of ifcs) {
             for (const version of ifc.versions) {
-                let validActions = version.actions
-                    .filter(action => action.name === 'sign' && action.type === 'tp')
-                    .filter(action => tp.did === action.tpNumber);
+                if(version.action){
+                    let validActions = version.actions
+                        .filter(action => action.name === 'sign' && action.type === 'tp')
+                        .filter(action => tp.did === action.tpNumber);
 
-                if (validActions.length > 0) {
-                    wantedAction = validActions[0];
-                    break;
+                    if (validActions.length > 0) {
+                        wantedAction = validActions[0];
+                        break;
+                    }
                 }
             }
         }
