@@ -171,13 +171,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         });
     }
 
-    _showFeedbackToast(title, message, alertType) {
-        if (typeof this.feedbackEmitter === 'function') {
-            this.feedbackEmitter(message, title, alertType);
-        }
-    }
-
-
     _attachHandlerAddTrialParticipantNumber() {
         this.onTagEvent('tp:setTpNumber', 'click', (model, target, event) => {
             event.preventDefault();
@@ -287,7 +280,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 if (err) {
                     return console.log(err);
                 }
-                this._showFeedbackToast('Result', Constants.MESSAGES.HCO.FEEDBACK.SUCCESS.ATTACH_TRIAL_PARTICIPANT_NUMBER);
                 this._sendMessageToPatient(this.model.trialUid, trialParticipant, 'Tp Number was attached');
                 this.TrialParticipantRepository.update(trialParticipant.uid, trialParticipant, callback);
             })
