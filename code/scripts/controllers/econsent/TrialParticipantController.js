@@ -179,7 +179,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 'add-tp-number',
                 (event) => {
                     this.model.tp.number = event.detail;
-                    this.sendMessageToProfessional(this.model.tp)
+
                     this._updateTrialParticipant(this.model.tp, () => {});
                     this.updateSiteStage(()=>{
                         this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.ADDED_TS_NUMBER, {
@@ -198,52 +198,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     existingTSNumbers: this.model.hcoDSU.volatile.tps.filter(tp => typeof tp.number !== "undefined").map(tp => tp.number)
                 });
         });
-    }
-
-    async sendMessageToProfessional(tp) {
-
-        let ifcs = this.model.hcoDSU.volatile.ifcs;
-
-        let wantedAction = {
-            toShowDate: 'DD/MM/YYYY'
-        };
-
-        for (const ifc of ifcs) {
-            for (const version of ifc.versions) {
-                if(version.action){
-                    let validActions = version.actions
-                        .filter(action => action.name === 'sign' && action.type === 'tp')
-                        .filter(action => tp.did === action.tpNumber);
-
-                    if (validActions.length > 0) {
-                        wantedAction = validActions[0];
-                        break;
-                    }
-                }
-            }
-        }
-
-        let messageForIot = {
-            trial: {
-                id: this.model.site.trialId,
-                name: this.model.site.name,
-                status: this.model.site.status.status
-            },
-            participant: {
-                id: tp.tpNumber,
-                name: tp.name,
-                gender: tp.gender,
-                enrolledDate: tp.enrolledDate,
-                birthdate: tp.birthdate,
-                signDate: wantedAction.toShowDate
-            }
-        }
-
-        this.CommunicationService.sendMessageToIotAdapter({
-            operation: Constants.MESSAGES.PATIENT.ADD_TRIAL_SUBJECT,
-            useCaseSpecifics:messageForIot
-        })
-
     }
 
     updateSiteStage(callback) {
