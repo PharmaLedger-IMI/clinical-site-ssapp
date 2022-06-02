@@ -356,8 +356,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         tp.trialNumber = this.model.trial.id;
         tp.status = Constants.TRIAL_PARTICIPANT_STATUS.PLANNED;
         tp.subjectName = tp.name;
-        tp.gender = tp.gender;
-        tp.birthdate = tp.birthdate;
         tp.enrolledDate = currentDate.toLocaleDateString();
         tp.trialId = this.model.trial.id;
         tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync();
@@ -446,12 +444,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     async sendMessageToPatient(operation, tp, trialSSI, shortMessage) {
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
         const siteSReadSSI = await this.HCOService.getSiteSReadSSIAsync();
-        const {did, ...tpData} = tp;
-        this.CommunicationService.sendMessage(did, {
+        this.CommunicationService.sendMessage(tp.did, {
             operation: operation,
             ssi: siteSReadSSI,
             useCaseSpecifics: {
-                tp:tpData,
+                tp:tp,
                 trialSSI: trialSSI,
                 sponsorDid: site.sponsorDid,
                 site: {
