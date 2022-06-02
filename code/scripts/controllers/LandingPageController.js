@@ -5,7 +5,6 @@ const commonServices = require("common-services");
 const Constants = commonServices.Constants;
 import ResponsesService from '../services/ResponsesService.js';
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
-import SiteService from "../services/SiteService.js";
 import HCOService from "../services/HCOService.js";
 
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
@@ -31,14 +30,12 @@ export default class LandingPageController extends WebcController {
     async initServices() {
         this.ResponsesService = new ResponsesService(this.DSUStorage);
         this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
-        //this.TrialRepository = TrialRepository.getInstance(this.DSUStorage);
 
         this.TrialService = new TrialService();
         this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
         this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
-        this.SiteService = new SiteService();
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         return this.model.hcoDSU;
@@ -88,12 +85,6 @@ export default class LandingPageController extends WebcController {
         });
     }
 
-    // attachHandlerPatients() {
-    //     this.onTagEvent('navigation:econsent-patients-list', () => {
-    //         this.navigateToPageTag('econsent-patients-list', { breadcrumb: this.model.toObject('breadcrumb') });
-    //     });
-    // }
-
     async handleIotMessages(data) {
         switch (data.operation) {
             case 'questionnaire-response': {
@@ -127,19 +118,6 @@ export default class LandingPageController extends WebcController {
             throw new Error("Sender identity is undefined. Did you forgot to add it?")
         }
         switch (data.operation) {
-
-            case 'add-trial-subject': {
-                let useCaseSpecifics = data.useCaseSpecifics;
-                let trial = useCaseSpecifics.trial;
-                let participant = useCaseSpecifics.participant;
-                let trials = await this.TrialRepository.filterAsync(`id == ${trial.id}`, 'ascending', 30);
-                if (trials.length === 0) {
-                    await this.TrialRepository.createAsync(trial);
-                }
-                participant.trialId = trial.id;
-                await this.TrialParticipantRepository.createAsync(participant);
-                break;
-            }
 
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
                 this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
