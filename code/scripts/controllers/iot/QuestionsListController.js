@@ -5,6 +5,7 @@ const {QuestionnaireService} = commonServices;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
+const {getDidServiceInstance} = commonServices.DidService;
 
 
 let getInitModel = () => {
@@ -49,6 +50,7 @@ export default class QuestionsListController extends BreadCrumbManager {
     }
 
     async initServices() {
+        this.didService = getDidServiceInstance();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
         let hcoService = new HCOService();
@@ -56,7 +58,10 @@ export default class QuestionsListController extends BreadCrumbManager {
         hcoDSUPromise.then(hcoDSU => {
             this.model.trials = hcoDSU.volatile.trial;
             this.model.selected_trial = this.model.trials.find(t => t.uid === this.model.trialSSI);
-            this.getQuestionnaire();
+            this.didService.getDID().then(did => {
+                this.model.siteDID = did;
+                this.getQuestionnaire();
+            });
         });
     }
 
@@ -117,7 +122,7 @@ export default class QuestionsListController extends BreadCrumbManager {
         });
     }
 
-    generateInitialQuestionnaire() {
+     generateInitialQuestionnaire() {
         let questionnaire = {
             resourceType: "Questionnaire",
             id: "bb",
@@ -153,7 +158,8 @@ export default class QuestionsListController extends BreadCrumbManager {
                 repeatAppointment: ""
             },
             trialSSI: this.model.trialSSI,
-            trialId: this.model.selected_trial.id
+            trialId: this.model.selected_trial.id,
+            siteDID: this.model.siteDID
         }
         this.QuestionnaireService.saveQuestionnaire(questionnaire, (err, data) => {
             if (err) {
@@ -294,16 +300,6 @@ export default class QuestionsListController extends BreadCrumbManager {
                         },
                         modalConfig);
                 });
-                this.TrialParticipantRepository.findAll((err, tps) => {
-                    if (err) {
-                        return console.log(err);
-                    }
-                    let tps_this_trial = tps.filter(tp => tp.trialId === this.model.selected_trial.id);
-                    tps_this_trial.forEach(participant => {
-                        this.sendMessageToPatient(participant.did, "CLINICAL-SITE-QUESTIONNAIRE", this.model.questionnaire.uid, "");
-                        console.log("Questionnaire sent to: " + participant.name)
-                    });
-                })
             }
         })
 

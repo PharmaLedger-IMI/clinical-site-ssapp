@@ -1,9 +1,8 @@
 import TrialService from "../services/TrialService.js";
-
 const {WebcController} = WebCardinal.controllers;
 const commonServices = require("common-services");
 const Constants = commonServices.Constants;
-import ResponsesService from '../services/ResponsesService.js';
+const {ResponsesService} = commonServices;
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import HCOService from "../services/HCOService.js";
 
@@ -28,7 +27,7 @@ export default class LandingPageController extends WebcController {
     }
 
     async initServices() {
-        this.ResponsesService = new ResponsesService(this.DSUStorage);
+        this.ResponsesService = new ResponsesService();
         this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
 
         this.TrialService = new TrialService();
@@ -87,22 +86,13 @@ export default class LandingPageController extends WebcController {
 
     async handleIotMessages(data) {
         switch (data.operation) {
-            case 'questionnaire-response': {
-                console.log('Received message', data);
+            case 'questionnaire-responses': {
                 this.ResponsesService.mount(data.ssi, (err, data) => {
                     if (err) {
                         return console.log(err);
                     }
-                    this.ResponsesService.getResponses((err, data) => {
-                        if (err) {
-                            return console.log(err);
-                        }
-                        console.log('ProfessionalSSAPPHomeController');
-                        data.forEach(response => {
-                            response.item.forEach(item => {
-                                console.log(item.answer[0], item.linkId, item.text)
-                            })
-                        })
+                    data.forEach(response => {
+                        console.log(response);
                     })
                 });
                 break;
