@@ -17,6 +17,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             tpUid: prevState.tpUid,
             participantName: prevState.participantName,
             participantDID: prevState.participantDID,
+            trialParticipantNumber: prevState.trialParticipantNumber
         };
 
         this.model.breadcrumb = this.setBreadCrumb(
@@ -47,13 +48,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 return console.error(err);
             }
             this.model.devices = devices;
-
-            // console.log("all devices are: ");
-            // console.log(this.model.devices);
-
             this.model.devices_this_trial =  this.model.devices.filter(t => t.trialUid === this.model.trialUid);
-            // console.log("all devices for this trial are: " );
-            // console.log(this.model.devices_this_trial);
         });
     }
 
@@ -74,27 +69,16 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 let assignation = {
                     deviceId: model.deviceId,
                     patientDID: model.patientDID,
+                    trialParticipantNumber: model.trialParticipantNumber,
                     trial: model.trial,
                     uid: model.uid
                 }
                 this.removeAssignation(assignation);
-                this.navigateToPageTag('confirmation-page', {
-                    confirmationMessage: "The device has been de-assigned. You can assign it to another patient.",
-                    redirectPage: 'home',
-                    breadcrumb: this.model.toObject('breadcrumb')
-                });
             });
 
             if (this.model.AssignedDevicesForChosenPatient.length>0){
                 this.model.hasAssignedDevices = true;
             }
-
-            // console.log("assigned devices: ");
-            // console.log(this.model.assignedDevices);
-            //
-            // console.log("assigned devices for chosen patient: ");
-            // console.log(this.model.AssignedDevicesForChosenPatient);
-
         } );
     }
 
@@ -103,22 +87,39 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
     }
 
     removeAssignation(assignation){
+        window.WebCardinal.loader.hidden = false;
         let chosenDeviceIndex = this.model.devices.findIndex(device => device.sk === assignation.deviceId);
         this.model.devices[chosenDeviceIndex].isAssigned = false;
         this.DeviceServices.updateDevice(this.model.devices[chosenDeviceIndex], (err, data) => {
             if (err) {
                 return console.error(err);
             }
-        });
 
-        assignation.deviceId = ""
-        assignation.patientDID = ""
-        assignation.trial = ""
+            assignation.deviceId = ""
+            assignation.patientDID = ""
+            assignation.trialParticipantNumber = ""
+            assignation.trial = ""
 
-        this.DeviceAssignationService.updateAssignedDevice(assignation, (err, data) => {
-            if (err) {
-                console.log(err);
-            }
+            this.DeviceAssignationService.updateAssignedDevice(assignation, (err, data) => {
+                if (err) {
+                    console.log(err);
+                }
+                let message = {};
+                if (err) {
+                    message.content = "An error has been occurred!";
+                    message.type = 'error';
+                } else {
+                    message.content = `The device assignation has been removed. You can assign it to another patient!`;
+                    message.type = 'success'
+                }
+                let state = {
+                    message: message,
+                    trialUid: this.model.trialUid,
+                    breadcrumb: this.model.toObject('breadcrumb')
+                }
+                window.WebCardinal.loader.hidden = true;
+                this.navigateToPageTag('econsent-trial-participants', state);
+            });
         });
     }
 
@@ -153,7 +154,8 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     availableDevices: ids,
                     participantDID: this.model.participantDID,
                     participantName: this.model.participantName,
-                    tpUid: this.model.tpUid ,
+                    tpUid: this.model.tpUid,
+                    trialParticipantNumber: this.model.trialParticipantNumber,
                     trialNumber: this.model.trialNumber,
                     trialUid: this.model.trialUid,
                     breadcrumb: this.model.toObject('breadcrumb')

@@ -318,6 +318,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 trialUid: this.model.trialUid,
                 trialNumber: model.trialNumber,
                 tpUid: model.uid,
+                trialParticipantNumber: model.number,
                 participantName: model.name,
                 participantDID: model.did,
                 breadcrumb: this.model.toObject('breadcrumb')

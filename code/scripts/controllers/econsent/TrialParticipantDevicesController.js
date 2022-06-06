@@ -48,6 +48,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
             participantName: prevState.participantName,
             participantDID: prevState.participantDID,
             trialUid: prevState.trialUid,
+            trialParticipantNumber: prevState.trialParticipantNumber,
 
             device: {
                 label: "Device ID",
@@ -77,13 +78,13 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
             if (err) {
                 return console.error(err);
             }
-            console.log("Device set to assigned.");
         });
 
         return {
             trial: this.model.trialUid,
             deviceId: this.model.device.value,
             patientDID: this.model.participantDID,
+            trialParticipantNumber: this.model.trialParticipantNumber
         };
     }
 
@@ -93,6 +94,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
                 participantDID: this.model.participantDID,
                 participantName: this.model.participantName,
                 tpUid: this.model.tpUid ,
+                trialParticipantNumber: this.model.trialParticipantNumber,
                 trialNumber: this.model.trialNumber,
                 trialUid: this.model.trialUid,
                 breadcrumb: this.model.toObject('breadcrumb')
@@ -104,6 +106,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
 
     _attachHandlerSave() {
         this.onTagEvent('save', 'click', (model, target, event) => {
+            window.WebCardinal.loader.hidden = false;
 
             this.DeviceAssignationService = new DeviceAssignationService();
             this.DeviceAssignationService.assignDevice(this.preparePatientDeviceAssignationData(), (err, data) => {
@@ -127,11 +130,12 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
                     participantDID: this.model.participantDID,
                     participantName: this.model.participantName,
                     tpUid: this.model.tpUid ,
+                    trialParticipantNumber: this.model.trialParticipantNumber,
                     trialNumber: this.model.trialNumber,
                     trialUid: this.model.trialUid,
                     breadcrumb: this.model.toObject('breadcrumb')
                 }
-
+                window.WebCardinal.loader.hidden = true;
                 this.navigateToPageTag('econsent-trial-participant-devices-list', state);
             });
         });
