@@ -11,11 +11,12 @@
                     <div slot="false" data-if="@tp.tpSigned">
                         <div class="button-group-wrapper" data-if="@hasAlreadyTpNumber">
                             <button slot="true" data-tag="tp:setTpNumber">Edit TS number</button>
-                            <button slot="false" data-tag="tp:setTpNumber">Set TS number</button>
+                            <button slot="false" data-tag="tp:setTpNumber" disabled="@isDisabled">Set TS number</button>
                         </div>
 
                     </div>
                 </div>
+
             </div>
         </div>
         <main>

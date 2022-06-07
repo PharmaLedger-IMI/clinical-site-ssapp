@@ -273,6 +273,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
             econsent['show' + bn + 'Button'] = false;
         })
         econsent['show' + buttonName + 'Button'] = true;
+
+        if(econsent['showSignButton'] === false) {
+            this.model.isDisabled = false;
+        } else
+            this.model.isDisabled = true;
         return econsent;
     }
 
@@ -293,12 +298,15 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
                                 econsent = this._showButton(econsent, 'Sign');
                                 this.model.tp.tpSigned = true;
+                                this.model.isDisabled = true;
+
                                 econsent.tsSignedDate = tpVersion.toShowDate;
                                 econsent.isManuallySigned = tpVersion.isManual;
                                 econsent.manualAttachment = tpVersion.attachment;
                                 econsent.manualKeySSI = tpVersion.fileSSI;
 
                             }
+
                             if (tpVersion.actionNeeded === Constants.ECO_STATUSES.WITHDRAW) {
                                 econsent = this._showButton(econsent, 'Contact');
                                 econsent.tsWithdrawDate = tpVersion.toShowDate;
