@@ -239,7 +239,8 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
     }
 
     buildChartFreeText(data){
-
+        let alert = document.getElementById('alert');
+        alert.innerHTML = "Free text question analysis is not available yet."
     }
 
 
