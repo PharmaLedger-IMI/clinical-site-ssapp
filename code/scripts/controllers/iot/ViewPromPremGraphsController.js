@@ -198,6 +198,56 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                     answer: 5
                 },
                 {
+                    question: "Indicate how your health is TODAY",
+                    type: "slider",
+                    uid: 353453242344353,
+                    minLabel: 4,
+                    maxLabel: 10,
+                    steps: 1,
+                    task: "prom",
+                    answer: 5
+                },
+                {
+                    question: "Indicate how your health is TODAY",
+                    type: "slider",
+                    uid: 353453242344353,
+                    minLabel: 4,
+                    maxLabel: 10,
+                    steps: 1,
+                    task: "prom",
+                    answer: 5
+                },
+                {
+                    question: "Indicate how your health is TODAY",
+                    type: "slider",
+                    uid: 353453242344353,
+                    minLabel: 4,
+                    maxLabel: 10,
+                    steps: 1,
+                    task: "prom",
+                    answer: 7
+                },
+                {
+                    question: "Indicate how your health is TODAY",
+                    type: "slider",
+                    uid: 353453242344353,
+                    minLabel: 4,
+                    maxLabel: 10,
+                    steps: 1,
+                    task: "prom",
+                    answer: 7
+                },
+                {
+                    question: "Indicate how your health is TODAY",
+                    type: "slider",
+                    uid: 353453242344353,
+                    minLabel: 4,
+                    maxLabel: 10,
+                    steps: 1,
+                    task: "prom",
+                    answer: 10
+                },
+                {
                     question: "Were you involved, as much as you wanted to be, in decisions about your care and treatment?",
                     type: "free text",
                     uid: 35345344353,

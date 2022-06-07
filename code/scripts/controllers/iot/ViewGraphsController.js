@@ -39,8 +39,8 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                     question: prevState.question,
                     answers: prevState.answers,
                     minLabel: prevState.minLabel,
-                    maxLabel: prevState.minLabel,
-                    steps: prevState.minLabel,
+                    maxLabel: prevState.maxLabel,
+                    steps: prevState.steps,
                 };
                 this.buildChartSlider(dataSlider);
                 break;
@@ -131,12 +131,61 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
 
     buildChartSlider(data){
 
-        // const labelsProm = ["I have no problems in walking about", "I have slight problems in walking about", "I have moderate problems in walking about", "I have severe problems in walking about", "I am unable to walk about"];
-        const labelsProm = [data.minLabel, data.maxLabel];
+        const minLabel = data.minLabel;
+        const maxLabel = data.maxLabel;
+        const steps = data.steps;
+        const stepTimes = (maxLabel - minLabel)/steps;
+        // console.log(maxLabel);
+        // console.log(minLabel);
+        // console.log(maxLabel-minLabel);
+        // console.log(steps);
+        // console.log(stepTimes);
+
+
+        let option = minLabel;
+        let options = [];
+        options.push(option);
+
+        for (let i = 1; i <= stepTimes; i++){
+            console.log("entra");
+            option = option + steps;
+            options.push(option);
+        }
+
+        if(! options.includes(maxLabel)){
+            console.log("entra");
+            options.push(maxLabel);
+        }
+        console.log(options);
+
+        const labels = options;
+        let mapAnswers = new Map();
+        let i = 1;
+        for(let label in labels){
+            mapAnswers.set (i, labels[label]);
+            i ++;
+        }
+        console.log(mapAnswers);
+
+
+        let counter = 0;
+        let AnswersCount = [];
+        for (const key of mapAnswers.keys()){
+            counter = 0;
+            for(let j = 0 ; j< data.answers.length; j++){
+                if(data.answers[j] === mapAnswers.get(key)){
+                    counter ++;
+                }
+            }
+            AnswersCount.push(counter);
+        }
+
+        console.log(AnswersCount);
+
         const dataProm = {
-            labels: labelsProm,
+            labels: options,
             datasets: [{
-                data: data.answers,
+                data: AnswersCount,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
                     'rgba(255, 159, 64, 0.2)',
@@ -166,14 +215,24 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                 title: {
                     display: true,
                     text: data.question
-                }
+                },
+                scales: {
+                    y: {
+                        display:true,
+                        text: 'Number of People'
+                    },
+                    x: {
+                        display:true,
+                        text: 'Options Selected'
+                    }
+                },
             }
 
         };
 
         let barChartElement = document.getElementById('Chart').getContext('2d');
         let barChart = new Chart(barChartElement,{
-            type: "scatter",
+            type: "bar",
             data: dataProm,
             options: optionsProm
         });
