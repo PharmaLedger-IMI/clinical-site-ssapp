@@ -8,10 +8,10 @@
             <div>
 
                 <div data-if="@tp.tpNumber">
-                    <div slot="false" data-if="@tp.tpSigned">
+                    <div slot="false">
                         <div class="button-group-wrapper" data-if="@hasAlreadyTpNumber">
                             <button slot="true" data-tag="tp:setTpNumber">Edit TS number</button>
-                            <button slot="false" data-tag="tp:setTpNumber" disabled="@isDisabled">Set TS number</button>
+                            <button slot="false" data-tag="tp:setTpNumber" disabled="@tsBtnIsDisabled">Set TS number</button>
                         </div>
 
                     </div>

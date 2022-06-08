@@ -274,10 +274,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         })
         econsent['show' + buttonName + 'Button'] = true;
 
-        if(econsent['showSignButton'] === false) {
-            this.model.isDisabled = false;
-        } else
-            this.model.isDisabled = true;
         return econsent;
     }
 
@@ -285,7 +281,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this.model.econsents.forEach(econsent => {
             econsent = this._showButton(econsent, 'View');
             econsent.versions.forEach(version => {
-                if (version.actions != undefined) {
+                if (version.actions !== undefined) {
                     let validVersions = version.actions.filter(action => action.tpDid === this.model.tp.did);
                     let tpVersions = validVersions.filter(action => action.type === 'tp');
                     let hcoVersions = validVersions.filter(action => action.type === 'hco');
@@ -297,8 +293,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
                             if (tpVersion.actionNeeded === Constants.ECO_STATUSES.TO_BE_SIGNED) {
 
                                 econsent = this._showButton(econsent, 'Sign');
-                                this.model.tp.tpSigned = true;
-                                this.model.isDisabled = true;
 
                                 econsent.tsSignedDate = tpVersion.toShowDate;
                                 econsent.isManuallySigned = tpVersion.isManual;
@@ -341,6 +335,14 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 econsent.lastVersion = econsent.versions[econsent.versions.length - 1].version;
             })
         })
+
+        this.model.tsBtnIsDisabled = true;
+        this.model.econsents.forEach(econsent => {
+            if(econsent['type'] === 'Mandatory' && econsent['showScheduleButton'] === true) {
+                this.model.tsBtnIsDisabled = false;
+            }
+        });
+
         return this.model.econsentsDataSource = DataSourceFactory.createDataSource(7, 10,this.model.toObject('econsents'));
     }
 
