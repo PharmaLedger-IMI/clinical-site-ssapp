@@ -365,10 +365,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         trialParticipant.actionNeeded = 'No action required';
 
 
-
         //TODO to be replace with real did anonymization procedure
-        const randomDidName = (Math.random() + 1).toString(36).substring(7);
-        const anonymizedDid = `ssi:name:iot:${randomDidName}`
 
         await this.sendMessageToPatient(
             Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_PATIENT,
@@ -376,10 +373,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 tpNumber: '',
                 gender:tp.gender,
                 birthdate:tp.birthdate,
-                anonymizedDid: anonymizedDid,
+                did: tp.did,
                 status: tp.status,
                 subjectName: tp.subjectName,
-                did: tp.did,
+                publicDid: tp.publicDid,
             },
             anonymizedTp.trialSReadSSI,
             Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.ADD_TO_TRIAL
@@ -428,7 +425,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
 
     sendConsentToPatient(operation, tp, econsentKeySSI, shortMessage) {
-        return this.CommunicationService.sendMessage(tp.did, {
+        return this.CommunicationService.sendMessage(tp.publicDid, {
             operation: operation,
             ssi: econsentKeySSI,
             useCaseSpecifics: {
@@ -445,7 +442,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     async sendMessageToPatient(operation, tp, trialSSI, shortMessage) {
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
         const siteSReadSSI = await this.HCOService.getSiteSReadSSIAsync();
-        this.CommunicationService.sendMessage(tp.did, {
+        this.CommunicationService.sendMessage(tp.publicDid, {
             operation: operation,
             ssi: siteSReadSSI,
             useCaseSpecifics: {
