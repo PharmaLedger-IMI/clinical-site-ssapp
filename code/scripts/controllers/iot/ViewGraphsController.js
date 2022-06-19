@@ -95,6 +95,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         const dataProm = {
             labels: labelsProm,
             datasets: [{
+                label: 'Number of Patients',
                 data: AnswersCount,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
@@ -125,8 +126,30 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                 title: {
                     display: true,
                     text: data.question
-                }
-            }
+                },
+            },
+            scales: {
+                yAxisID: {
+                    display:true,
+                    text: 'Number of People',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    title: {
+                        display:true,
+                        text: 'Number of People'
+                    }
+                },
+                xAxisID: {
+                    display:true,
+                    text: 'Options Selected',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    title: {
+                        display:true,
+                        text: 'Options Selected'
+                    }
+                },
+            },
 
         };
 
@@ -196,6 +219,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         const dataProm = {
             labels: options,
             datasets: [{
+                label: 'Number of Patients',
                 data: AnswersCount,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
@@ -227,12 +251,24 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                     display: true,
                     text: data.question
                 },
-                scales: {
-                    y: {
+            },
+            scales: {
+                yAxisID: {
+                    display:true,
+                    text: 'Number of People',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    title: {
                         display:true,
                         text: 'Number of People'
-                    },
-                    x: {
+                    }
+                },
+                xAxisID: {
+                    display:true,
+                    text: 'Options Selected',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    title: {
                         display:true,
                         text: 'Options Selected'
                     }
