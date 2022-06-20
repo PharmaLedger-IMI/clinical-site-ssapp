@@ -10,9 +10,30 @@
 
         <main class="items-container">
 
-            <div class="subtitle-container">
+            <div class="period-and-statistics-container">
 
-                <div class="overview-statistics">
+                <div class="period-and-statistics-item">
+                    <div data-if="@site.recruitmentPeriod.toShowDate ">
+
+                        <div class="alert alert-light" role="alert" slot="true">
+                            Recruitment period: {{@site.recruitmentPeriod.toShowDate}}
+                        </div>
+                        <div class="alert alert-light" role="alert" slot="false">
+                            Recruitment period not set yet
+                        </div>
+
+                    </div>
+
+                    <div data-if="@site.recruitmentPeriod.toShowDate">
+                        <button class="action-button" data-tag="edit-period" slot="true">Edit Period</button>
+                        <button class="action-button" data-tag="edit-period" slot="false">Set Recruitment
+                            Period
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="overview-statistics period-and-statistics-item">
 
                     <div><span>Planned</span> <span>{{@statistics.planned}}</span></div>
                     <div><span>Screened</span> <span>{{@statistics.screened}}</span></div>
@@ -21,25 +42,7 @@
                     <div><span>Declined Trial</span> <span>{{@statistics.declined}}</span></div>
                 </div>
 
-                <div data-if="@site.recruitmentPeriod.toShowDate">
-
-                    <div class="alert alert-light" role="alert" slot="true">
-                        Recruitment period: {{@site.recruitmentPeriod.toShowDate}}
-                    </div>
-                    <div class="alert alert-light" role="alert" slot="false">
-                        Recruitment period not set yet
-                    </div>
-                </div>
-
-
-                <div class="d-flex action-buttons">
-                    <div data-if="@site.recruitmentPeriod.toShowDate">
-                        <button class="action-button" data-tag="edit-period" slot="true">Edit Period</button>
-                        <button class="action-button" data-tag="edit-period" slot="false">Set Recruitment
-                            Period
-                        </button>
-                    </div>
-
+                <div class="d-flex action-buttons period-and-statistics-item">
                     <button class="action-button add-btn" data-tag="add:ts" disabled="@addParticipantsIsDisabled">Add
                         Trial Subject
                     </button>

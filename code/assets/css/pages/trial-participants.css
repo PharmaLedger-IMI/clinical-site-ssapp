@@ -30,10 +30,25 @@
     color: #fff;
     display: flex;
     justify-content: space-around;
-    background-color: #008798;
+    background-color: #818182;
     height: 55px;
+    width: 100%;
     border-radius: 0.25rem;
     align-items: center;
+}
+
+.period-and-statistics-container {
+    display:flex;
+    flex-direction: column;
+}
+
+.period-and-statistics-item {
+    display: flex;
+    margin: 10px auto;
+}
+
+h2.main-title {
+    margin-bottom: 0px;
 }
 
 .overview-statistics > div {
