@@ -1,4 +1,10 @@
 const {WebcController} = WebCardinal.controllers;
+const commonServices = require('common-services');
+const momentService = commonServices.momentService;
+const commons = {
+    YMDDateTimeFormatPattern: 'YYYY-MM-DD',
+    HourFormatPattern: "HH:mm"
+}
 
 let getInitModel = () => {
     return {
@@ -18,6 +24,20 @@ export default class SetProcedureDateController extends WebcController {
         super(...props);
         this.setModel(getInitModel());
         this._initHandlers();
+
+        if(props[0].confirmedDate) {
+            let confirmedDate = (new Date(props[0].confirmedDate)).getTime();
+            let formattedDate = this.getDateTime(confirmedDate);
+            this.model.procedureDate.value = formattedDate.date + 'T' + formattedDate.time;
+        }
+
+    }
+
+    getDateTime(timestamp) {
+        return {
+            date: momentService(timestamp).format(commons.YMDDateTimeFormatPattern),
+            time: momentService(timestamp).format(commons.HourFormatPattern)
+        };
     }
 
     _initHandlers() {

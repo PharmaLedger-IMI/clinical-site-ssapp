@@ -45,18 +45,30 @@
 
                         <div class="cell">{{@tsAcceptance}}</div>
 
-                        <div data-if="@accepted" class="cell">
-                            <div slot="true">{{@toShowDate}}</div>
+                        <div data-if="@confirmed" class="cell">
+                            <div slot="true">{{@confirmedDate}}</div>
                             <div slot="false">-</div>
                         </div>
 
                         <div class="cell">
                             <div data-if="@accepted">
-                                <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="true">
-                                    Confirm
-                                    Date
-                                </button>
+                                <div data-if="@confirmedDate">
+                                    <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="false">
+                                        Confirm
+                                        Date
+                                    </button>
+                                </div>
                             </div>
+
+                            <div data-if="@rescheduled">
+                                <div data-if="@confirmedDate">
+                                    <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="false">
+                                        Confirm
+                                        Rescheduled
+                                    </button>
+                                </div>
+                            </div>
+
                             <div data-if="@shouldBeRescheduled">
                                 <button class="link-button view-adjust-margin" data-tag="procedure:editDate"
                                         slot="true">

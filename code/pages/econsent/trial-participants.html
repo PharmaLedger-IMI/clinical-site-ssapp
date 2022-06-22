@@ -30,6 +30,12 @@
                             Period
                         </button>
                     </div>
+
+                    <div class="d-flex action-buttons">
+                        <button class="action-button add-btn" data-tag="add:ts" disabled="@addParticipantsIsDisabled">Add
+                            Trial Subject
+                        </button>
+                    </div>
                 </div>
 
 
@@ -40,12 +46,6 @@
                     <div><span>Enrolled</span> <span>{{@statistics.enrolled}}({{@statistics.percentage}})</span></div>
                     <div><span>Withdrawn</span> <span>{{@statistics.withdrew}}</span></div>
                     <div><span>Declined Trial</span> <span>{{@statistics.declined}}</span></div>
-                </div>
-
-                <div class="d-flex action-buttons period-and-statistics-item">
-                    <button class="action-button add-btn" data-tag="add:ts" disabled="@addParticipantsIsDisabled">Add
-                        Trial Subject
-                    </button>
                 </div>
 
             </div>
@@ -100,9 +100,6 @@
             </div>
 
         </main>
-        <div class="button-group-wrapper">
-            <button data-tag="back">Back</button>
-        </div>
     </div>
 
 </webc-container>

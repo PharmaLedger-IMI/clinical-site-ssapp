@@ -164,7 +164,7 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_RESPONSE: {
-                this._updateVisit(data);
+                await this._updateVisit(data);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_TRIAl_CONSENT: {
@@ -407,13 +407,17 @@ export default class LandingPageController extends WebcController {
         })
     }
 
-    _updateVisit(message) {
+    async _updateVisit(message) {
 
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         const tpDSU = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid);
         let objIndex = tpDSU?.visits?.findIndex((visit => visit.uuid === message.useCaseSpecifics.visit.id));
 
         tpDSU.visits[objIndex].accepted = message.useCaseSpecifics.visit.accepted;
         tpDSU.visits[objIndex].declined = message.useCaseSpecifics.visit.declined;
+        tpDSU.visits[objIndex].rescheduled = message.useCaseSpecifics.visit.rescheduled;
+        tpDSU.visits[objIndex].proposedDate = message.useCaseSpecifics.visit.proposedDate;
+        tpDSU.visits[objIndex].confirmedDate = message.useCaseSpecifics.visit.confirmedDate;
 
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();

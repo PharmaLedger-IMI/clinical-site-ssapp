@@ -101,18 +101,24 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         visit.confirmed = visitTp.confirmed;
                         visit.accepted = visitTp.accepted;
                         visit.declined = visitTp.declined;
+                        visit.rescheduled = visitTp.rescheduled;
                         visit.shouldBeRescheduled = false;
-                        if (!visit.accepted && !visit.declined) {
+                        if (!visit.accepted && !visit.declined && !visit.rescheduled) {
                             visit.tsAcceptance = "Required";
                         } else {
                             visit.shouldBeRescheduled = true;
                             if (visit.accepted) {
-                                visit.tsAcceptance = "Agreed";
-                            } else {
-                                visit.tsAcceptance = "Declined";
+                                    visit.tsAcceptance = "Agreed";
+                            }
+                            if (visit.declined) {
+                                    visit.tsAcceptance = "Declined";
+                            }
+                            if(visit.rescheduled) {
+                                visit.tsAcceptance = "Rescheduled";
                             }
                         }
                         visit.proposedDate = visitTp.proposedDate;
+                        visit.confirmedDate = visitTp.confirmedDate;
 
                         visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
                         if (visit.hasProposedDate) {
@@ -132,6 +138,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
         let objIndex = this.model.tp.visits.findIndex((obj => obj.uuid === visit.uuid));
         this.model.tp.visits[objIndex].proposedDate = this.model.proposedDate;
+        this.model.tp.visits[objIndex].confirmedDate = visit.confirmedDate;
         this.model.visits[objIndex].proposedDate = this.model.proposedDate;
         this.model.visits[objIndex].hasProposedDate = true;
         visit.proposedDate = this.model.tp.visits[objIndex].proposedDate;
@@ -188,22 +195,13 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.onTagClick("procedure:editDate", (model) => {
             this.showModalFromTemplate(
                 "set-procedure-date",
-                (event) => {
-                    let visitIndex = this.model.tp.visits.findIndex(v => v.pk === model.pk);
+                async (event) => {
                     let date = new Date(event.detail);
-                    this.model.tp.visits[visitIndex].date = event.detail;
-                    this.model.tp.visits[visitIndex].toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
-                    // this.model.existingVisit.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
-                    // this.model.visit = model.tp.visits[visitIndex];
-                    this.updateTrialParticipantRepository(this.model.tp.uid, this.model.tp);
-                    this.model.visits = this.model.tp.visits;
-                    let v = this.model.hcoDSU.volatile.visit[0];
-                    v.visits.visits = this.model.tp.visits;
-                    this.HCOService.updateHCOSubEntity(v, "visit", async (err, data) => {
-                        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-                    });
-                    this.sendMessageToPatient(this.model.tp.visits[visitIndex], Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
-                    this.model.visitsDataSource.updateVisits(this.model.toObject('visits'));
+                    model.proposedDate = DateTimeService.convertStringToLocaleDateTimeString(date);
+                    model.confirmed = false;
+                    this.model.proposedDate = event.detail;
+                    this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
+                    await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
                 },
                 (event) => {
                     const response = event.detail;
@@ -211,7 +209,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 {
                     controller: "modals/SetProcedureDateController",
                     disableExpanding: false,
-                    disableBackdropClosing: true
+                    disableBackdropClosing: true,
+                    confirmedDate: model.confirmedDate,
                 });
         });
     }
@@ -226,6 +225,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
                 visit: {
                     confirmed: visit.confirmed,
+                    confirmedDate: visit.confirmedDate,
                     details: visit.details,
                     toRemember: visit.toRemember,
                     procedures: visit.procedures,
@@ -251,13 +251,14 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     const response = event.detail;
                     if (response) {
                         model.confirmed = true;
-                        let visitIndex = this.model.tp.visits.findIndex(v => v.pk === model.pk);
+                        let visitIndex = this.model.tp.visits.findIndex(v => v.uuid === model.uuid);
                         this.model.tp.visits[visitIndex].confirmed = true;
+                        this.model.tp.visits[visitIndex].confirmedDate = model.proposedDate;
                         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
                             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
                             this.model.visits = this.model.tp.visits;
                             this.sendMessageToSponsor(model);
-                        })
+                        });
                     }
                 },
                 (event) => {
