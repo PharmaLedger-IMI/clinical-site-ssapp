@@ -52,7 +52,6 @@ export default class TrialManagementController extends BreadCrumbManager {
         this._attachHandlerTrialQuestionnaire();
         this._attachHandlerTrialParticipants();
         this._attachHandlerTrialVisits();
-        this._attachHandlerBack();
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
         });
@@ -91,12 +90,6 @@ export default class TrialManagementController extends BreadCrumbManager {
                 breadcrumb: this.model.toObject('breadcrumb')
             }
             this.navigateToPageTag('prom-prem-graphs', state);
-        });
-    }
-
-    _attachHandlerBack() {
-        this.onTagEvent('back', 'click', () => {
-            this.navigateToPageTag('home');
         });
     }
 

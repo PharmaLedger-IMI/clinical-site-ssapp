@@ -56,7 +56,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this._attachHandlerNavigateToEconsentVersions();
         this._attachHandlerNavigateToEconsentSign();
         this._attachHandlerAddTrialParticipantNumber();
-        this._attachHandlerGoBack();
         this._attachHandlerView();
         this._attachHandlerVisits();
         this.on('openFeedback', (e) => {
@@ -142,17 +141,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
                 ecoVersion: ecoVersion,
-                breadcrumb: this.model.toObject('breadcrumb')
-            });
-        });
-    }
-
-    _attachHandlerGoBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-trial-participants', {
-                trialUid: this.model.trialUid,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });

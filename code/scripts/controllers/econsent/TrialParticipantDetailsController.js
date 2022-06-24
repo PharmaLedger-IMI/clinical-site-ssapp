@@ -59,7 +59,6 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
     }
 
     _initHandlers() {
-        this._attachHandlerGoBack();
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
         });
@@ -152,13 +151,5 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         if (typeof this.feedbackEmitter === 'function') {
             this.feedbackEmitter(message, title, alertType);
         }
-    }
-
-    _attachHandlerGoBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
-        });
     }
 }

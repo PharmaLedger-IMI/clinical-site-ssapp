@@ -40,7 +40,6 @@ export default class EconsentSignController extends BreadCrumbManager {
 
     initHandlers() {
         this.attachHandlerEconsentSign();
-        this.attachHandlerBack();
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
         });
@@ -163,13 +162,6 @@ export default class EconsentSignController extends BreadCrumbManager {
         this.loadingTask = pdfjsLib.getDocument({data: pdfData});
         this.renderPage(this.model.pdf.currentPage);
 
-        window.addEventListener("scroll", (event) => {
-            let myDiv = event.target;
-            if (myDiv.id === 'pdf-wrapper'
-                && Math.ceil(myDiv.offsetHeight + myDiv.scrollTop) >= myDiv.scrollHeight) {
-                this.model.documentWasNotRead = false;
-            }
-        }, {capture: true});
     }
 
     renderPage = (pageNo) => {
@@ -194,6 +186,21 @@ export default class EconsentSignController extends BreadCrumbManager {
         if (thePDF !== null && currPage <= this.model.pdf.pagesNo) {
             thePDF.getPage(currPage).then(result => this.handlePages(thePDF, result));
         }
+
+        const pdfWrapper = this.querySelector("#pdf-wrapper");
+        let checkOffset = (container) => {
+            if (Math.ceil(container.offsetHeight + container.scrollTop) >= container.scrollHeight) {
+                this.model.documentWasNotRead = false;
+            }
+        }
+
+        window.addEventListener("scroll", (event) => {
+            if (event.target === pdfWrapper){
+                checkOffset(pdfWrapper);
+            }
+        }, {capture: true});
+
+        checkOffset(pdfWrapper);
     };
 
     displayFile = () => {
@@ -267,14 +274,6 @@ export default class EconsentSignController extends BreadCrumbManager {
                 return console.log(err);
             }
             console.log(trialParticipant);
-        });
-    }
-
-    attachHandlerBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
         });
     }
 

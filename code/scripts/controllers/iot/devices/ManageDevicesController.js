@@ -24,7 +24,6 @@ export default class ManageDevicesController extends BreadCrumbManager {
 
         this.attachHandlerAddDevice();
         this.attachModelHandlers();
-        this.attachHandlerGoBack();
         this.attachHandlerViewDevice();
         this.attachHandlerEditDevice();
         this.attachHandlerRemoveDevice();
@@ -114,13 +113,6 @@ export default class ManageDevicesController extends BreadCrumbManager {
             }
             ,
             'allDevices');
-    }
-
-    attachHandlerGoBack() {
-        this.onTagClick('navigation:go-back', () => {
-            console.log("Go Back button pressed");
-            this.navigateToPageTag('home', { breadcrumb: this.model.toObject('breadcrumb') });
-        });
     }
 
     attachHandlerViewDevice() {

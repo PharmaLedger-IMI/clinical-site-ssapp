@@ -45,16 +45,10 @@ export default class EditDeviceController extends BreadCrumbManager {
             this.model.trials = allTrials;
         });
 
-        this.attachHandlerGoBackButton();
         this.attachHandlerSaveButton();
 
     }
 
-    attachHandlerGoBackButton() {
-        this.onTagClick('devices:go-back', () => {
-            this.navigateToPageTag('iot-manage-devices', { breadcrumb: this.model.toObject('breadcrumb') });
-        });
-    }
 
     attachHandlerSaveButton() {
         this.onTagClick('devices:save', () => {
