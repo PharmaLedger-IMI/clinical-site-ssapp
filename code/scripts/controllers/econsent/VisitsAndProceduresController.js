@@ -41,7 +41,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     initHandlers() {
-        this.attachHandlerBack();
         this.attachHandlerDetails();
         this.attachHandlerSetDate();
         this.attachHandlerConfirm();
@@ -147,12 +146,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             this.sendMessageToPatient(visit, operation);
         })
-    }
-
-    attachHandlerBack() {
-        this.onTagClick("back", () => {
-            this.history.goBack();
-        });
     }
 
     attachHandlerDetails() {
