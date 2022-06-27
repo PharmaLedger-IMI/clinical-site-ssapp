@@ -166,7 +166,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
             this.showModalFromTemplate(
                 'add-tp-number',
                 (event) => {
-                    this.model.tp.number = event.detail;
+                    //this.model.tp.number = event.detail will not trigger a view update
+                    this.model.tp = {
+                        ...JSON.parse(JSON.stringify(this.model.tp)),
+                        number:event.detail
+                    }
 
                     this._updateTrialParticipant(this.model.tp, () => {});
                     this.updateSiteStage(()=>{
