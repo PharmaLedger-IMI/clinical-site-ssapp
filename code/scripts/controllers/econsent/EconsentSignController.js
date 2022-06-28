@@ -255,7 +255,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             }
 
             this.sendMessageToPatient(trialParticipant.did,
-                Constants.NOTIFICATIONS_TYPE.UPDATE_STATUS, {
+                Constants.MESSAGES.HCO.UPDATE_STATUS, {
                     status: Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED
                 });
         });

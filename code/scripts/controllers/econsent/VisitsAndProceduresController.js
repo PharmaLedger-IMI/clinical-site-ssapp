@@ -252,7 +252,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
                             this.model.visits = this.model.tp.visits;
                             this.sendMessageToSponsor(model);
-                            this.sendMessageToPatient(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_CONFIRMED);
+                            this.sendMessageToPatient(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
                         });
                     }
                 },

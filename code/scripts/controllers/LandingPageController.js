@@ -103,6 +103,7 @@ export default class LandingPageController extends WebcController {
 
     async handleEcoMessages(data) {
 
+        console.log('MESSAGE' , data)
         let senderIdentity = data.senderIdentity;
 
         if (typeof senderIdentity === "undefined") {
