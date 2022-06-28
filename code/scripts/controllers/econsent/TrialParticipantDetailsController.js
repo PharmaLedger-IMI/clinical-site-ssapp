@@ -2,6 +2,8 @@ import HCOService from "../../services/HCOService.js";
 import TrialService from '../../services/TrialService.js';
 
 const commonServices = require("common-services");
+const Constants = commonServices.Constants;
+
 const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
@@ -53,6 +55,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         this.TrialService = new TrialService();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
+        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         await this._initTrialParticipant(this.model.trialUid);
@@ -60,6 +63,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
     _initHandlers() {
         this._attachHandlerGoBack();
+        this._attachHandlerChangeStatus();
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
         });
@@ -159,6 +163,126 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
             event.preventDefault();
             event.stopImmediatePropagation();
             window.history.back();
+        });
+    }
+
+    _attachHandlerChangeStatus() {
+        this.onTagEvent('change-status-popup', 'click', (model, target, event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.showModalFromTemplate(
+                'change-participant-status',
+                async (event) => {
+                    console.log("Status outcome");
+                    console.log(event.detail);
+                    if (this.model.hcoDSU.volatile.tps) {
+                        const tp = this.model.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
+                        if (tp === undefined) {
+                            return console.error('Cannot find tp.');
+                        }
+                        let tpObjectToAssign = {};
+                        const currentDate = new Date();
+                        switch (event.detail) {
+                            case Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT:
+                                tpObjectToAssign = {
+                                    actionNeeded: "No action required",
+                                    status: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
+                                    endOfTreatmentDate: currentDate.toLocaleDateString()
+                                }
+                            break;
+                            case Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED:
+                                tpObjectToAssign = {
+                                    actionNeeded: "No action required",
+                                    status: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
+                                    completedDate: currentDate.toLocaleDateString()
+                                }
+                            break;
+                            case Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED:
+                                tpObjectToAssign = {
+                                    actionNeeded: "No action required",
+                                    status: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
+                                    discontinuedDate: currentDate.toLocaleDateString()
+                                }
+                            break;
+                            case Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED: 
+                                tpObjectToAssign = {
+                                    actionNeeded: "No action required",
+                                    status: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
+                                    screenFailedDate: currentDate.toLocaleDateString()
+                                }
+                            break;
+                        }
+                        Object.assign(tp, tpObjectToAssign);
+                        this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
+                            if (err) {
+                                return console.log(err);
+                            }
+                            this.TrialParticipantRepository.filter(`did == ${tp.did}`, 'ascending', 30, (err, tps) => {
+
+                                if (tps && tps.length > 0) {
+                                    Object.assign(tps[0], tpObjectToAssign);
+                                    this.TrialParticipantRepository.update(tps[0].uid, tps[0], (err, trialParticipant) => {
+                                        if (err) {
+                                            return console.log(err);
+                                        }
+                                        console.log(trialParticipant);
+                                        const sites = this.model.toObject("hcoDSU.volatile.site");
+                                        const site = sites.find(site => site.trialSReadSSI === tp.trialSReadSSI);
+                                        this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, this.model.hcoDSU.volatile.trial.uid, null);
+                                        this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
+                                            ssi: tp.uid,
+                                            consentSSI: null
+                                        }, 'Participant status changed');
+                                    });
+                                }
+                            });
+                        });
+
+                        // this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                    }
+                },
+                (event) => {
+                    const response = event.detail;
+                },
+                {
+                    controller: 'modals/ChangeParticipantStatusController',
+                    disableExpanding: false,
+                    disableBackdropClosing: true,
+                    title: 'Edit Participant Status'
+                });
+        });
+    }
+
+    sendMessageToPatient(trialParticipant, operation, ssi, shortMessage) {
+        this.CommunicationService.sendMessage(trialParticipant.did, {
+            operation: operation,
+            ssi: ssi,
+            useCaseSpecifics: {
+                tpName: trialParticipant.name,
+                did: trialParticipant.did,
+                sponsorDid: trialParticipant.sponsorDid,
+                trialSSI: ssi
+            },
+            shortDescription: shortMessage,
+        });
+    }
+
+    sendMessageToSponsor(sponsorDid, operation, data, shortMessage) {
+        this.CommunicationService.sendMessage(sponsorDid, {
+            operation: operation,
+            ...data,
+            shortDescription: shortMessage,
+        });
+    }
+
+    _saveNotification(notification, name, reccomendedAction, type) {
+        notification.type = type;
+        notification.name = name;
+        notification.recommendedAction = reccomendedAction;
+        this.NotificationsRepository.create(notification, (err, data) => {
+            if (err) {
+                return console.error(err);
+            }
         });
     }
 }

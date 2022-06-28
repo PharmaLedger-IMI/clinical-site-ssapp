@@ -1,0 +1,20 @@
+<h2 slot="header">Participant Status</h2>
+
+<div>
+	<div class="d-flex flex-column justify-content-between">
+		<div style="margin: 10px">
+			<select class="form-control" data-for="@statuses.selectOptions" required="required" value="@statuses.value">
+				<option value="@value">{{@label}}</option>
+			</select>
+			<div data-if="@statuses.invalidValue" class="d-flex flex-row">
+				<i class="red-invalid fas fa-times mr-2"></i>
+				<small class="form-text text-danger">Please select a status</small>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div>
+	<button class="btn btn-secondary" slot="footer" data-tag="cancel-change-status">Cancel</button>
+	<button class="btn btn-primary" slot="footer" data-tag="change-status">Submit</button>
+</div>

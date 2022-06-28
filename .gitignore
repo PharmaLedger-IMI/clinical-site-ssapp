@@ -3,3 +3,4 @@
 /code/scripts/bundles
 package-lock.json
 .eslintrc.json
+.prettierignore

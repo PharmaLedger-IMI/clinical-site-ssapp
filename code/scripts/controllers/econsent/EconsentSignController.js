@@ -262,6 +262,8 @@ export default class EconsentSignController extends BreadCrumbManager {
         this.model.trialParticipant.actionNeeded = 'HCO SIGNED -no action required';
         this.model.trialParticipant.tpSigned = true;
         this.model.trialParticipant.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
+        let currentDate = new Date();
+        this.model.trialParticipant.enrolledDate = currentDate.toLocaleDateString();
         this.TrialParticipantRepository.update(this.model.trialParticipant.uid, this.model.trialParticipant, (err, trialParticipant) => {
             if (err) {
                 return console.log(err);
