@@ -1,10 +1,7 @@
 const {WebcController} = WebCardinal.controllers;
 const commonServices = require('common-services');
 const momentService = commonServices.momentService;
-const commons = {
-    YMDDateTimeFormatPattern: 'YYYY-MM-DD',
-    HourFormatPattern: "HH:mm"
-}
+const Constants = commonServices.Constants;
 
 let getInitModel = () => {
     return {
@@ -35,8 +32,8 @@ export default class SetProcedureDateController extends WebcController {
 
     getDateTime(timestamp) {
         return {
-            date: momentService(timestamp).format(commons.YMDDateTimeFormatPattern),
-            time: momentService(timestamp).format(commons.HourFormatPattern)
+            date: momentService(timestamp).format(Constants.DATE_UTILS.FORMATS.YMDDateTimeFormatPattern),
+            time: momentService(timestamp).format(Constants.DATE_UTILS.FORMATS.HourFormatPattern)
         };
     }
 

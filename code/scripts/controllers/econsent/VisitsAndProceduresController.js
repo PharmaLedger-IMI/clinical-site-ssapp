@@ -5,6 +5,7 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
+const momentService  = commonServices.momentService;
 const BaseRepository = commonServices.BaseRepository;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
@@ -164,7 +165,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 "set-procedure-date",
                 (event) => {
                     let date = new Date(event.detail);
-                    this.model.proposedDate = event.detail;
+                    this.model.proposedDate = date.getTime();
                     this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
                     this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
                     this.model.visitsDataSource.updateVisits(this.model.toObject('visits'));
@@ -190,7 +191,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 "set-procedure-date",
                 async (event) => {
                     let date = new Date(event.detail);
-                    model.proposedDate = DateTimeService.convertStringToLocaleDateTimeString(date);
+                    model.proposedDate = date.getTime();
                     model.confirmed = false;
                     this.model.proposedDate = event.detail;
                     this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(date);
@@ -246,11 +247,12 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         model.confirmed = true;
                         let visitIndex = this.model.tp.visits.findIndex(v => v.uuid === model.uuid);
                         this.model.tp.visits[visitIndex].confirmed = true;
-                        this.model.tp.visits[visitIndex].confirmedDate = model.proposedDate;
+                        this.model.tp.visits[visitIndex].confirmedDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
                         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
                             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
                             this.model.visits = this.model.tp.visits;
                             this.sendMessageToSponsor(model);
+                            this.sendMessageToPatient(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_CONFIRMED);
                         });
                     }
                 },

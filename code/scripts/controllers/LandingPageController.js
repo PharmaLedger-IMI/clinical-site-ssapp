@@ -9,6 +9,7 @@ import HCOService from "../services/HCOService.js";
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
 const {getDidServiceInstance} = commonServices.DidService;
 const MessageHandlerService = commonServices.MessageHandlerService;
+const momentService = commonServices.momentService;
 
 const BaseRepository = commonServices.BaseRepository;
 const SharedStorage = commonServices.SharedStorage;
@@ -440,7 +441,12 @@ export default class LandingPageController extends WebcController {
         tpDSU.visits[objIndex].accepted = message.useCaseSpecifics.visit.accepted;
         tpDSU.visits[objIndex].declined = message.useCaseSpecifics.visit.declined;
         tpDSU.visits[objIndex].rescheduled = message.useCaseSpecifics.visit.rescheduled;
-        tpDSU.visits[objIndex].proposedDate = message.useCaseSpecifics.visit.proposedDate;
+        if(message.useCaseSpecifics.visit.rescheduled) {
+            tpDSU.visits[objIndex].proposedDate = momentService(message.useCaseSpecifics.visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+        } else {
+            tpDSU.visits[objIndex].proposedDate = message.useCaseSpecifics.visit.proposedDate;
+        }
+
         tpDSU.visits[objIndex].confirmedDate = message.useCaseSpecifics.visit.confirmedDate;
 
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
