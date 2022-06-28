@@ -235,7 +235,7 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     initTrialParticipant() {
-        this.TrialParticipantRepository.filter(`did == ${this.model.trialParticipantNumber}`, 'ascending', 30, (err, tps) => {
+        this.TrialParticipantRepository.filter(`did == ${this.model.tpDid}`, 'ascending', 30, (err, tps) => {
 
             if (tps && tps.length > 0) {
                 this.model.trialParticipant = tps[0];

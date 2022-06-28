@@ -137,7 +137,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 isManuallySigned: model.isManuallySigned,
                 manualKeySSI: model.manualKeySSI,
                 manualAttachment: model.manualAttachment,
-                trialParticipantNumber: this.model.tp.did,
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
                 ecoVersion: ecoVersion,
