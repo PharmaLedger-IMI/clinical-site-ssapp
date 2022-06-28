@@ -39,7 +39,7 @@ export default class VisitsController extends BreadCrumbManager {
 
     _initServices() {
         this.TrialService = new TrialService();
-        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
     }
 

@@ -37,7 +37,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
         this.getDevices();
         this.getAssignedDevices();
 
-        this._attachHandlerGoBack();
         this._attachHandlerAssignDevice();
     }
 
@@ -119,15 +118,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 }
                 window.WebCardinal.loader.hidden = true;
                 this.navigateToPageTag('econsent-trial-participants', state);
-            });
-        });
-    }
-
-    _attachHandlerGoBack() {
-        this.onTagClick('back', () => {
-            this.navigateToPageTag('econsent-trial-participants', {
-                trialUid : this.model.trialUid ,
-                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }

@@ -32,6 +32,8 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                     options: prevState.options,
                 };
                 this.buildChartCheckbox(dataCheckbox);
+                console.log(dataCheckbox);
+                console.log(dataCheckbox.options);
                 break;
 
             case "slider":
@@ -59,7 +61,12 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
 
     buildChartCheckbox(data){
 
-        const labelsProm = data.options;
+        let labelsProm = []
+
+        for(let i = 0; i< data.options.length; i++){
+            labelsProm.push(data.options[i].value);
+        }
+
         let mapAnswers = new Map();
         let i = 1;
         for(let label in labelsProm){
@@ -72,8 +79,10 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         let AnswersCount = [];
         for (const key of mapAnswers.keys()){
             counter = 0;
+            console.log(key);
             for(let j = 0 ; j< data.answers.length; j++){
-                if(data.answers[j] === key){
+                console.log(data.answers[j]);
+                if(data.answers[j] === mapAnswers.get(key)){
                     counter ++;
                 }
             }
@@ -86,6 +95,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         const dataProm = {
             labels: labelsProm,
             datasets: [{
+                label: 'Number of Patients',
                 data: AnswersCount,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
@@ -116,8 +126,30 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                 title: {
                     display: true,
                     text: data.question
-                }
-            }
+                },
+            },
+            scales: {
+                yAxisID: {
+                    display:true,
+                    text: 'Number of People',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    title: {
+                        display:true,
+                        text: 'Number of People'
+                    }
+                },
+                xAxisID: {
+                    display:true,
+                    text: 'Options Selected',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    title: {
+                        display:true,
+                        text: 'Options Selected'
+                    }
+                },
+            },
 
         };
 
@@ -131,15 +163,16 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
 
     buildChartSlider(data){
 
-        const minLabel = data.minLabel;
-        const maxLabel = data.maxLabel;
-        const steps = data.steps;
+        const minLabel = Number(data.minLabel);
+        const maxLabel = Number(data.maxLabel);
+        const steps = Number(data.steps);
         const stepTimes = (maxLabel - minLabel)/steps;
-        // console.log(maxLabel);
-        // console.log(minLabel);
-        // console.log(maxLabel-minLabel);
-        // console.log(steps);
-        // console.log(stepTimes);
+
+        console.log(maxLabel);
+        console.log(minLabel);
+        console.log(maxLabel-minLabel);
+        console.log(steps);
+        console.log(stepTimes);
 
 
         let option = minLabel;
@@ -150,6 +183,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
             console.log("entra");
             option = option + steps;
             options.push(option);
+            console.log(option);
         }
 
         if(! options.includes(maxLabel)){
@@ -173,7 +207,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         for (const key of mapAnswers.keys()){
             counter = 0;
             for(let j = 0 ; j< data.answers.length; j++){
-                if(data.answers[j] === mapAnswers.get(key)){
+                if(data.answers[j] == mapAnswers.get(key)){
                     counter ++;
                 }
             }
@@ -185,6 +219,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         const dataProm = {
             labels: options,
             datasets: [{
+                label: 'Number of Patients',
                 data: AnswersCount,
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.2)',
@@ -216,12 +251,24 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                     display: true,
                     text: data.question
                 },
-                scales: {
-                    y: {
+            },
+            scales: {
+                yAxisID: {
+                    display:true,
+                    text: 'Number of People',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    title: {
                         display:true,
                         text: 'Number of People'
-                    },
-                    x: {
+                    }
+                },
+                xAxisID: {
+                    display:true,
+                    text: 'Options Selected',
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    title: {
                         display:true,
                         text: 'Options Selected'
                     }

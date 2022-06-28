@@ -1,8 +1,8 @@
 <webc-container controller="econsent/VisitsAndProceduresController">
-    <div class="container main-container">
+    <div class="container main-container common-2-rows-grid">
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <h4 class="title">Visits & Procedures</h4>
+            <h5 class="generic-title">Visits & Procedures</h5>
         </div>
 
         <main>
@@ -45,18 +45,30 @@
 
                         <div class="cell">{{@tsAcceptance}}</div>
 
-                        <div data-if="@accepted" class="cell">
-                            <div slot="true">{{@toShowDate}}</div>
+                        <div data-if="@confirmed" class="cell">
+                            <div slot="true">{{@confirmedDate}}</div>
                             <div slot="false">-</div>
                         </div>
 
                         <div class="cell">
                             <div data-if="@accepted">
-                                <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="true">
-                                    Confirm
-                                    Date
-                                </button>
+                                <div data-if="@confirmedDate">
+                                    <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="false">
+                                        Confirm
+                                        Date
+                                    </button>
+                                </div>
                             </div>
+
+                            <div data-if="@rescheduled">
+                                <div data-if="@confirmedDate">
+                                    <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="false">
+                                        Confirm
+                                        Rescheduled
+                                    </button>
+                                </div>
+                            </div>
+
                             <div data-if="@shouldBeRescheduled">
                                 <button class="link-button view-adjust-margin" data-tag="procedure:editDate"
                                         slot="true">
@@ -77,8 +89,5 @@
             </div>
         </main>
 
-        <div class="button-group-wrapper">
-            <button data-tag="back">Back</button>
-        </div>
     </div>
 </webc-container>

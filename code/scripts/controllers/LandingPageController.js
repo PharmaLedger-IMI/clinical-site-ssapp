@@ -32,9 +32,9 @@ export default class LandingPageController extends WebcController {
 
         this.TrialService = new TrialService();
         this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
-        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
-        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
-        this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS, this.DSUStorage);
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
+        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS);
+        this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         return this.model.hcoDSU;
@@ -164,7 +164,7 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_RESPONSE: {
-                this._updateVisit(data);
+                await this._updateVisit(data);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_TRIAl_CONSENT: {
@@ -431,13 +431,17 @@ export default class LandingPageController extends WebcController {
         })
     }
 
-    _updateVisit(message) {
+    async _updateVisit(message) {
 
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         const tpDSU = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid);
         let objIndex = tpDSU?.visits?.findIndex((visit => visit.uuid === message.useCaseSpecifics.visit.id));
 
         tpDSU.visits[objIndex].accepted = message.useCaseSpecifics.visit.accepted;
         tpDSU.visits[objIndex].declined = message.useCaseSpecifics.visit.declined;
+        tpDSU.visits[objIndex].rescheduled = message.useCaseSpecifics.visit.rescheduled;
+        tpDSU.visits[objIndex].proposedDate = message.useCaseSpecifics.visit.proposedDate;
+        tpDSU.visits[objIndex].confirmedDate = message.useCaseSpecifics.visit.confirmedDate;
 
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();

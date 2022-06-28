@@ -1,10 +1,10 @@
 <webc-container controller="econsent/TrialParticipantDetailsController">
     <link href="./assets/css/pages/trial-participants.css" rel="stylesheet">
 
-    <div class="container main-container">
+    <div class="container main-container common-2-rows-grid">
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <h4 class="title">{{@trialParticipant.name}} {{@trialParticipant.lastName}}</h4>
+            <h5 class="generic-title">{{@trialParticipant.name}} {{@trialParticipant.lastName}}</h5>
             <div class="d-flex flex-row">
                 <label class="subtitle">{{@lastAction}}</label>
                 <div class="button-group-wrapper ml-auto">
@@ -49,9 +49,5 @@
             </div>
 
         </main>
-        <div class="button-group-wrapper">
-            <button data-tag="back">Back</button>
-        </div>
-
     </div>
 </webc-container>

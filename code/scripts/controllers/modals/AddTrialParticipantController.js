@@ -1,4 +1,5 @@
 import HCOService from '../../services/HCOService.js';
+const openDSU = require("opendsu");
 
 const {WebcController} = WebCardinal.controllers;
 const LEGAL_ENTITY_MAX_AGE = 14;
@@ -16,6 +17,13 @@ let getInitModel = () => {
             name: 'did',
             required: true,
             placeholder: 'Public identifier',
+            value: '',
+        },
+        anonymizedDID: {
+            label: 'Anonymized DID',
+            name: 'anonymized did',
+            required: false,
+            placeholder: 'Anonymized identifier',
             value: '',
         },
         birthdate: {
@@ -73,6 +81,19 @@ export default class AddTrialParticipantController extends WebcController {
         this._initHandlers();
 
         this.observeInputs();
+        this.model.anonymizedDID.value = this.generateAnonymizedDid();
+        this.refreshHandler();
+    }
+
+    generateAnonymizedDid() {
+        const crypto = openDSU.loadApi('crypto');
+        let randomDidName = $$.Buffer.from(crypto.generateRandom(20)).toString('hex');
+        const anonymizedDid = `did:ssi:name:iot:${randomDidName}`;
+        return anonymizedDid;
+    }
+
+    refreshHandler() {
+        this.onTagClick('refresh-identifier', () => this.model.anonymizedDID.value = this.generateAnonymizedDid());
     }
 
     async verifyParticipant() {
@@ -117,7 +138,7 @@ export default class AddTrialParticipantController extends WebcController {
             let birthDate = new Date(this.model.birthdate.value).getTime();
 
             let daysSinceBirth = (currentDate - birthDate) / (1000 * 3600 * 24);
-            let legalEntityMaxAge = LEGAL_ENTITY_MAX_AGE * 365
+            let legalEntityMaxAge = LEGAL_ENTITY_MAX_AGE * 365;
 
             this.model.isUnder14 = legalEntityMaxAge > daysSinceBirth;
         })
@@ -127,7 +148,8 @@ export default class AddTrialParticipantController extends WebcController {
             event.stopImmediatePropagation();
             const trialParticipant = {
                 name: this.model.name.value,
-                did: this.model.did.value,
+                publicDid: this.model.did.value,
+                did: this.model.anonymizedDID.value,
                 birthdate: this.model.birthdate.value,
                 gender: this.model.gender.value,
             };

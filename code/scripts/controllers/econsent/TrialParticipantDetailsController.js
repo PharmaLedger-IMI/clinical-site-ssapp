@@ -54,15 +54,13 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
     async _initServices() {
         this.TrialService = new TrialService();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
-        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
-        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         await this._initTrialParticipant(this.model.trialUid);
     }
 
     _initHandlers() {
-        this._attachHandlerGoBack();
         this._attachHandlerChangeStatus();
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
@@ -275,14 +273,14 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         });
     }
 
-    _saveNotification(notification, name, reccomendedAction, type) {
-        notification.type = type;
-        notification.name = name;
-        notification.recommendedAction = reccomendedAction;
-        this.NotificationsRepository.create(notification, (err, data) => {
-            if (err) {
-                return console.error(err);
-            }
-        });
-    }
+    // _saveNotification(notification, name, reccomendedAction, type) {
+    //     notification.type = type;
+    //     notification.name = name;
+    //     notification.recommendedAction = reccomendedAction;
+    //     this.NotificationsRepository.create(notification, (err, data) => {
+    //         if (err) {
+    //             return console.error(err);
+    //         }
+    //     });
+    // }
 }

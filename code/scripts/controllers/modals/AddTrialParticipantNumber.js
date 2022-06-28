@@ -19,7 +19,11 @@ export default class AddTrialParticipantNumber extends WebcController {
     constructor(...props) {
         super(...props);
         this.existingTSNumbers = props[0].existingTSNumbers.map(number => number.toString());
-        this.setModel(getInitModel());
+        this.currentTSNumber = props[0].currentTSNumber;
+        this.model = getInitModel();
+        if(this.currentTSNumber){
+            this.model.number.value = this.currentTSNumber;
+        }
         this._initHandlers();
     }
 

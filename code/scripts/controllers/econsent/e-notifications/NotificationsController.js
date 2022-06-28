@@ -28,7 +28,7 @@ export default class NotificationsController extends BreadCrumbManager {
     }
 
     initServices() {
-        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS, this.DSUStorage);
+        this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS);
     }
 
     initNotifications() {

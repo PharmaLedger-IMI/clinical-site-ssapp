@@ -38,7 +38,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
     async _initServices() {
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
-        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.model.econsentsDataSource =  await this._initConsents(this.model.trialUid);
@@ -56,7 +56,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this._attachHandlerNavigateToEconsentVersions();
         this._attachHandlerNavigateToEconsentSign();
         this._attachHandlerAddTrialParticipantNumber();
-        this._attachHandlerGoBack();
         this._attachHandlerView();
         this._attachHandlerVisits();
         this.on('openFeedback', (e) => {
@@ -147,17 +146,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         });
     }
 
-    _attachHandlerGoBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-trial-participants', {
-                trialUid: this.model.trialUid,
-                breadcrumb: this.model.toObject('breadcrumb')
-            });
-        });
-    }
-
     _attachHandlerVisits() {
         this.onTagEvent('tp:visits', 'click', (model, target, event) => {
             event.preventDefault();
@@ -178,7 +166,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
             this.showModalFromTemplate(
                 'add-tp-number',
                 (event) => {
-                    this.model.tp.number = event.detail;
+                    //this.model.tp.number = event.detail will not trigger a view update
+                    this.model.tp = {
+                        ...JSON.parse(JSON.stringify(this.model.tp)),
+                        number:event.detail
+                    }
 
                     this._updateTrialParticipant(this.model.tp, () => {});
                     this.updateSiteStage(()=>{
@@ -195,7 +187,8 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     title: 'Attach Trial Participant Number',
-                    existingTSNumbers: this.model.hcoDSU.volatile.tps.filter(tp => typeof tp.number !== "undefined").map(tp => tp.number)
+                    existingTSNumbers: this.model.hcoDSU.volatile.tps.filter(tp => typeof tp.number !== "undefined").map(tp => tp.number),
+                    currentTSNumber:this.model.tp.number
                 });
         });
     }

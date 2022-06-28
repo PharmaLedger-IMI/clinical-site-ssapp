@@ -3,7 +3,7 @@
 
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <h4 class="title">Trial E-Consent</h4>
+            <h5 class="generic-title">Trial E-Consent</h5>
         </div>
 
         <main id="pdf-wrapper">
@@ -13,13 +13,9 @@
             </div>
         </main>
 
-        <div class="button-group-wrapper">
-
-                <div class="button-group-wrapper d-flex" data-if="@controlsShouldBeVisible">
-                    <button data-tag="econsent:sign" disabled="@documentWasNotRead">Sign</button>
-                    <button data-tag="econsent:decline" disabled="@documentWasNotRead">Decline</button>
-                </div>
-            <button data-tag="back">Back</button>
+        <div class="button-group-wrapper d-flex" data-if="@controlsShouldBeVisible">
+            <button data-tag="econsent:sign" disabled="@documentWasNotRead">Sign</button>
+            <button data-tag="econsent:decline" disabled="@documentWasNotRead">Decline</button>
         </div>
 
     </div>

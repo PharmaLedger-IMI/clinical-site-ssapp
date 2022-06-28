@@ -5,6 +5,7 @@ const {QuestionnaireService} = commonServices;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
+const Constants = commonServices.Constants;
 const {getDidServiceInstance} = commonServices.DidService;
 
 
@@ -52,7 +53,7 @@ export default class QuestionsListController extends BreadCrumbManager {
     async initServices() {
         this.didService = getDidServiceInstance();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
-        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS, this.DSUStorage);
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         let hcoService = new HCOService();
         let hcoDSUPromise = hcoService.getOrCreateAsync();
         hcoDSUPromise.then(hcoDSU => {
@@ -174,7 +175,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                 }
                 let tps_this_trial = tps.filter(tp => tp.trialId === this.model.selected_trial.id);
                 tps_this_trial.forEach(participant => {
-                    this.sendMessageToPatient(participant.did, "CLINICAL-SITE-QUESTIONNAIRE", data.sReadSSI, "");
+                    this.sendMessageToPatient(participant.did, Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE, data.sReadSSI, "");
                     console.log("Questionnaire sent to: " + participant.name)
                 });
             })

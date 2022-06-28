@@ -14,9 +14,11 @@
                 </div>
                 <webc-switch condition="@currentTable">
                     <div slot="proms">
-                        <div class="container justify-content-start">
+                        <div data-if="@hasProms">
+                            <div slot="false" class="alert alert-warning text-center" role="alert">
+                                <h4 class="alert-heading">No Prom Answers yet!</h4>
+                            </div>
                             <div class="common-datatable two-column-datatable dt-2-col" slot="true">
-
                                 <webc-datatable datasource="@PromsDataSource">
                                     <div slot="header">Question</div>
                                     <div slot="header">Data Analysis</div>
@@ -31,9 +33,11 @@
                         </div>
                     </div>
                     <div slot="prems">
-                        <div class="container justify-content-start">
+                        <div data-if="@hasPrems">
+                            <div slot="false" class="alert alert-warning text-center" role="alert">
+                                <h4 class="alert-heading">No Prom Answers yet!</h4>
+                            </div>
                             <div class="common-datatable two-column-datatable dt-2-col" slot="true">
-
                                 <webc-datatable datasource="@PremsDataSource">
                                     <div slot="header">Question</div>
                                     <div slot="header">Data Analysis</div>

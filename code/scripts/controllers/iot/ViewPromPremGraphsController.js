@@ -20,64 +20,174 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
 
         this.model = this.getState();
         this.model = {
-            currentTable: "none"
+            currentTable: "none",
+            hasProms: false,
+            hasPrems: false,
         };
 
+        this.model.questionnaire = {
+            resourceType: "Questionnaire",
+            prom: [],
+            prem: [],
+        }
+
+        this.initServices();
         this.initHandlers();
+    }
 
-        const questionnaire = this.generateInitialQuestionnaire();
-
-        //PROM
-        const promQuestions = this.getPossibleProms(questionnaire); // Map -> Question and Type
-        const promAnswers = this.getAnswersForEachProm(questionnaire, promQuestions);
-        const promCheckboxOptions = this.getCheckboxOptionsForEachProm(questionnaire, promQuestions);
-        const promSliderOptions = this.getSliderOptionsForEachProm(questionnaire, promQuestions);
-
-        let promInfo = [];
-
-        promQuestions.forEach (function(value, key) {
-            let info = {
-                question: key,
-                answers: promAnswers.get(key),
-                type: value,
-                options: promCheckboxOptions.get(key),
-                minLabel:promSliderOptions.get(key).minLabel,
-                maxLabel:promSliderOptions.get(key).maxLabel,
-                steps:promSliderOptions.get(key).steps,
+    initServices() {
+        this.ResponsesService = new ResponsesService();
+        this.ResponsesService.getResponses((err, data) => {
+            if (err) {
+                return console.log(err);
             }
-            promInfo.push(info);
-        })
+            console.log(data);
+            data.forEach(response => {
+                response.forEach(answer => {
+                    console.log(answer);
+                    //let task = "prom";
+                    if(answer.question.type ==="range"){
+                        let type = "slider";
+                        if(answer.question.task === "prom"){
+                            //if(task === "prom"){
+                            let prom = {
+                                question: answer.question.title,
+                                type: type,
+                                uid: answer.question.uid,
+                                minLabel:answer.question.range.minLabel,
+                                maxLabel:answer.question.range.maxLabel,
+                                steps: answer.question.range.steps,
+                                task: "prom",
+                                answer:answer.answer
+                            }
+                            this.model.questionnaire.prom.push(prom);
 
-        this.model.promInfo = promInfo;
+                        }else if(answer.question.task === "prem"){
+                            //}else if(task === "prem"){
+                            let prem = {
+                                question: answer.question.title,
+                                type: type,
+                                uid: answer.question.uid,
+                                minLabel:answer.question.range.minLabel,
+                                maxLabel:answer.question.range.maxLabel,
+                                steps: answer.question.range.steps,
+                                task: "prem",
+                                answer:answer.answer
+                            }
+                            this.model.questionnaire.prem.push(prem);
+                        }
+                    } else if (answer.question.type ==="radio"){
+                        let type = "checkbox";
+                        if(answer.question.task === "prom"){
+                            //if(task === "prom"){
+                            let prom = {
+                                question: answer.question.title,
+                                type: type,
+                                uid: answer.question.uid,
+                                options: answer.question.options,
+                                task: "prom",
+                                answer:answer.answer
+                            }
+                            this.model.questionnaire.prom.push(prom);
 
+                        }else if(answer.question.task === "prem"){
+                            //}else if(task === "prem"){
+                            let prem = {
+                                question: answer.question.title,
+                                type: type,
+                                uid: answer.question.uid,
+                                options: answer.question.options,
+                                task: "prem",
+                                answer:answer.answer
+                            }
+                            this.model.questionnaire.prem.push(prem);
+                        }
+                    } else if (answer.question.type ==="string"){
+                        let type = "free text";
+                        if(answer.question.task === "prom"){
+                            //if(task === "prom"){
+                            let prom = {
+                                question: answer.question.title,
+                                type: type,
+                                uid: answer.question.uid,
+                                task: "prom",
+                                answer:answer.answer
+                            }
+                            this.model.questionnaire.prom.push(prom);
+
+                        }else if(answer.question.task === "prem"){
+                            //}else if(task === "prem"){
+                            let prem = {
+                                question: answer.question.title,
+                                type: type,
+                                uid: answer.question.uid,
+                                task: "prem",
+                                answer:answer.answer
+                            }
+                            this.model.questionnaire.prem.push(prem);
+                        }
+                    }
+                })
+            })
+
+
+            console.log(this.model.questionnaire);
+
+
+            //PROM
+            const promQuestions = this.getPossibleProms(this.model.questionnaire); // Map -> Question and Type
+            const promAnswers = this.getAnswersForEachProm(this.model.questionnaire, promQuestions);
+            const promCheckboxOptions = this.getCheckboxOptionsForEachProm(this.model.questionnaire, promQuestions);
+            const promSliderOptions = this.getSliderOptionsForEachProm(this.model.questionnaire, promQuestions);
+
+            let promInfo = [];
+
+            promQuestions.forEach (function(value, key) {
+                let info = {
+                    question: key,
+                    answers: promAnswers.get(key),
+                    type: value,
+                    options: promCheckboxOptions.get(key),
+                    minLabel:promSliderOptions.get(key).minLabel,
+                    maxLabel:promSliderOptions.get(key).maxLabel,
+                    steps:promSliderOptions.get(key).steps,
+                }
+                promInfo.push(info);
+            })
+            console.log(promInfo);
+            this.model.promInfo = promInfo;
+
+            //PREM
+            const premQuestions = this.getPossiblePrems(this.model.questionnaire); // Map -> Question and Type
+            const premAnswers = this.getAnswersForEachPrem(this.model.questionnaire, premQuestions);
+            const premCheckboxOptions = this.getCheckboxOptionsForEachPrem(this.model.questionnaire, premQuestions);
+            const premSliderOptions = this.getSliderOptionsForEachPrem(this.model.questionnaire, premQuestions);
+
+            let premInfo = [];
+
+            premQuestions.forEach (function(value, key) {
+                let info = {
+                    question: key,
+                    answers: premAnswers.get(key),
+                    type: value,
+                    options: premCheckboxOptions.get(key),
+                    minLabel:premSliderOptions.get(key).minLabel,
+                    maxLabel:premSliderOptions.get(key).maxLabel,
+                    steps:premSliderOptions.get(key).steps,
+                }
+                premInfo.push(info);
+            })
+            console.log(premInfo);
+            this.model.premInfo = premInfo;
+            this.buildDataSources();
+        });
+    }
+
+    buildDataSources(){
         this.model.PromsDataSource = DataSourceFactory.createDataSource(2, 10, this.model.promInfo);
-
-        //PREM
-        const premQuestions = this.getPossiblePrems(questionnaire); // Map -> Question and Type
-        const premAnswers = this.getAnswersForEachPrem(questionnaire, premQuestions);
-        const premCheckboxOptions = this.getCheckboxOptionsForEachPrem(questionnaire, premQuestions);
-        const premSliderOptions = this.getSliderOptionsForEachPrem(questionnaire, premQuestions);
-
-        let premInfo = [];
-
-        premQuestions.forEach (function(value, key) {
-            let info = {
-                question: key,
-                answers: premAnswers.get(key),
-                type: value,
-                options: premCheckboxOptions.get(key),
-                minLabel:premSliderOptions.get(key).minLabel,
-                maxLabel:premSliderOptions.get(key).maxLabel,
-                steps:premSliderOptions.get(key).steps,
-            }
-            premInfo.push(info);
-        })
-
-        this.model.premInfo = premInfo;
-
+        this.model.hasProms = true;
         this.model.PremsDataSource = DataSourceFactory.createDataSource(2, 10, this.model.premInfo);
-
-
+        this.model.hasPrems = true;
     }
 
     initHandlers(){

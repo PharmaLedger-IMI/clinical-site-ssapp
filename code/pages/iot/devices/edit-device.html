@@ -1,9 +1,9 @@
 <webc-container controller="iot/devices/EditDeviceController">
-    <div class="container main-container">
+    <div class="container main-container common-2-rows-grid">
 
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <h4 class="title">Edit Device</h4>
+            <h5 class="generic-title">Edit Device</h5>
         </div>
 
         <main data-if="@hasTrials">
@@ -21,12 +21,8 @@
 
             <div slot="true" class="button-group-wrapper">
                 <button data-tag="devices:save">Save</button>
-                <button data-tag="devices:go-back">Go back</button>
             </div>
 
-            <div slot="false" class="button-group-wrapper">
-                <button data-tag="devices:go-back">Go back</button>
-            </div>
         </main>
     </div>
 </webc-container>
