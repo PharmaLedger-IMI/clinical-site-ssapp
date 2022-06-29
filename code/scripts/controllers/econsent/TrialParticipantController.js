@@ -315,11 +315,12 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         let hcoVersionIndex = validVersions.findIndex(v => v === hcoVersion);
                         let tpVersionIndex = validVersions.findIndex(v => v === tpVersion);
                         if (hcoVersion.name === 'sign' && hcoVersionIndex > tpVersionIndex) {
-                            //econsent = this._showButton(econsent, 'View');
                             econsent = this._showButton(econsent, 'Schedule');
                         }
+                        if (hcoVersion.name === 'decline' && hcoVersionIndex > tpVersionIndex) {
+                            econsent = this._showButton(econsent, 'View');
+                        }
                         econsent.hcoDate = hcoVersion.toShowDate;
-                        this.model.tp.hcoSigned = true;
 
                     }
                 }

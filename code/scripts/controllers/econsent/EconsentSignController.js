@@ -40,6 +40,7 @@ export default class EconsentSignController extends BreadCrumbManager {
 
     initHandlers() {
         this.attachHandlerEconsentSign();
+        this.attachHandlerEconsentDecline();
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
         });
@@ -99,8 +100,41 @@ export default class EconsentSignController extends BreadCrumbManager {
                 date: currentDate.toISOString(),
                 toShowDate: currentDate.toLocaleDateString(),
             };
-            this.updateEconsentWithDetails();
+
+            let message = {
+                name: 'sign',
+                status: Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED,
+                actionNeeded: 'HCO SIGNED -no action required',
+            }
+
+            this.updateEconsentWithDetails(message);
             this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.SIGN_ECOSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.SIGN_ECONSENT);
+
+            let state = {
+                trialUid: this.model.trialUid,
+                tpUid: this.model.tpUid,
+                breadcrumb: this.model.toObject('breadcrumb')
+            }
+            this.navigateToPageTag('econsent-trial-participant', state);
+        });
+    }
+
+    attachHandlerEconsentDecline() {
+        this.onTagEvent('econsent:decline', 'click', (model, target, event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            const currentDate = new Date();
+            this.model.econsent.hcoSign = {
+                date: currentDate.toISOString(),
+                toShowDate: currentDate.toLocaleDateString(),
+            };
+            let message = {
+                name: 'decline',
+                status: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
+                actionNeeded: 'HCO DECLINED -no action required',
+            }
+            this.updateEconsentWithDetails(message);
+            this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.DECLINE_ECOSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.DECLINE_ECONSENT);
 
             let state = {
                 trialUid: this.model.trialUid,
@@ -205,9 +239,11 @@ export default class EconsentSignController extends BreadCrumbManager {
 
 
     updateEconsentWithDetails(message) {
+        console.log('message', message)
         let currentVersionIndex = this.model.econsent.versions.findIndex(eco => eco.version === this.model.ecoVersion);
         if (currentVersionIndex === -1) {
-            return console.log(`Version ${message.useCaseSpecifics.version} of the econsent ${message.ssi} does not exist.`)
+            // return console.log(`Version ${message.useCaseSpecifics.version} of the econsent ${message.ssi} does not exist.`)
+            return console.log(`Version doesn't exist`);
         }
         let currentVersion = this.model.econsent.versions[currentVersionIndex];
         if (currentVersion.actions === undefined) {
@@ -215,21 +251,24 @@ export default class EconsentSignController extends BreadCrumbManager {
         }
 
         const currentDate = new Date();
+
         currentVersion.actions.push({
-            name: 'sign',
+            name: message.name,
             tpDid: this.model.tpDid,
             type: 'hco',
-            status: Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED,
-            actionNeeded: 'HCO SIGNED -no action required',
+            status: message.status,
+            actionNeeded: message.actionNeeded,
             toShowDate: currentDate.toLocaleDateString(),
         });
+
+        console.log('currentVersion.actions', currentVersion.actions)
 
         this.model.econsent.versions[currentVersionIndex] = currentVersion;
         this.HCOService.updateHCOSubEntity(this.model.econsent, "ifcs", async (err, response) => {
             if (err) {
                 return console.log(err);
             }
-            this.updateTrialParticipantStatus()
+            this.updateTrialParticipantStatus(message)
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         });
     }
@@ -243,12 +282,15 @@ export default class EconsentSignController extends BreadCrumbManager {
         });
     }
 
-    updateTrialParticipantStatus() {
-        this.model.trialParticipant.actionNeeded = 'HCO SIGNED - no action required';
-        this.model.trialParticipant.tpSigned = true;
-        this.model.trialParticipant.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
+    updateTrialParticipantStatus(message) {
+        this.model.trialParticipant.actionNeeded = message.actionNeeded;
+        this.model.trialParticipant.tpSigned = message.name === 'sign' ? true : false;
+        this.model.trialParticipant.status = message.status;
         let currentDate = new Date();
-        this.model.trialParticipant.enrolledDate = currentDate.toLocaleDateString();
+        if(message.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
+            this.model.trialParticipant.enrolledDate = currentDate.toLocaleDateString();
+        } else  this.model.trialParticipant.discontinuedDate = currentDate.toLocaleDateString();
+
         this.TrialParticipantRepository.update(this.model.trialParticipant.uid, this.model.trialParticipant, (err, trialParticipant) => {
             if (err) {
                 return console.log(err);
@@ -256,7 +298,7 @@ export default class EconsentSignController extends BreadCrumbManager {
 
             this.sendMessageToPatient(trialParticipant.did,
                 Constants.MESSAGES.HCO.UPDATE_STATUS, {
-                    status: Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED
+                    status: message.status
                 });
         });
     }
