@@ -177,6 +177,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
                               ssi: this.model.tpUid
                         },'The stage of the site changed');
                     });
+
+                    this.model.message = {
+                        content: 'Tp Number was updated',
+                        type: 'success'
+                    }
                 },
                 (event) => {
                     const response = event.detail;
