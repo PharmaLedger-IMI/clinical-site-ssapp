@@ -239,10 +239,8 @@ export default class EconsentSignController extends BreadCrumbManager {
 
 
     updateEconsentWithDetails(message) {
-        console.log('message', message)
         let currentVersionIndex = this.model.econsent.versions.findIndex(eco => eco.version === this.model.ecoVersion);
         if (currentVersionIndex === -1) {
-            // return console.log(`Version ${message.useCaseSpecifics.version} of the econsent ${message.ssi} does not exist.`)
             return console.log(`Version doesn't exist`);
         }
         let currentVersion = this.model.econsent.versions[currentVersionIndex];
@@ -251,7 +249,6 @@ export default class EconsentSignController extends BreadCrumbManager {
         }
 
         const currentDate = new Date();
-
         currentVersion.actions.push({
             name: message.name,
             tpDid: this.model.tpDid,
@@ -260,8 +257,6 @@ export default class EconsentSignController extends BreadCrumbManager {
             actionNeeded: message.actionNeeded,
             toShowDate: currentDate.toLocaleDateString(),
         });
-
-        console.log('currentVersion.actions', currentVersion.actions)
 
         this.model.econsent.versions[currentVersionIndex] = currentVersion;
         this.HCOService.updateHCOSubEntity(this.model.econsent, "ifcs", async (err, response) => {
