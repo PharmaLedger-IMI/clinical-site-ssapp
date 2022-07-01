@@ -442,11 +442,7 @@ export default class LandingPageController extends WebcController {
         tpDSU.visits[objIndex].accepted = message.useCaseSpecifics.visit.accepted;
         tpDSU.visits[objIndex].declined = message.useCaseSpecifics.visit.declined;
         tpDSU.visits[objIndex].rescheduled = message.useCaseSpecifics.visit.rescheduled;
-        if(message.useCaseSpecifics.visit.rescheduled) {
-            tpDSU.visits[objIndex].proposedDate = momentService(message.useCaseSpecifics.visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
-        } else {
-            tpDSU.visits[objIndex].proposedDate = message.useCaseSpecifics.visit.proposedDate;
-        }
+        tpDSU.visits[objIndex].proposedDate = message.useCaseSpecifics.visit.proposedDate;
 
         tpDSU.visits[objIndex].confirmedDate = message.useCaseSpecifics.visit.confirmedDate;
 
