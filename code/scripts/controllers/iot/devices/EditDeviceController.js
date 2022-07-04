@@ -111,7 +111,8 @@ export default class EditDeviceController extends BreadCrumbManager {
             trialName: selected_trial.name,
             trialID: this.model.trial.value,
             sk: this.model.deviceId.value,
-            uid: this.model.data.uid
+            uid: this.model.data.uid,
+            isAssigned: this.model.isAssigned
         };
     }
 }
