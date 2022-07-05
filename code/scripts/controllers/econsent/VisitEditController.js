@@ -9,15 +9,17 @@ const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 let getInitModel = () => {
     return {
-        details: {
-            name: "details",
-            placeholder: "Details"
-        },
-        toRemember: {
-            name: "toRemember",
-            placeholder: "To Remember"
+            details: {
+                name: "details",
+                placeholder: "Details",
+                value: ''
+            },
+            toRemember: {
+                name: "toRemember",
+                placeholder: "To Remember",
+                value: ''
+            }
         }
-    };
 };
 
 export default class VisitEditController extends BreadCrumbManager {
@@ -27,8 +29,6 @@ export default class VisitEditController extends BreadCrumbManager {
             ...getInitModel(),
             ...this.history.win.history.state.state,
         });
-
-
         this.model = this.getState();
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -53,13 +53,11 @@ export default class VisitEditController extends BreadCrumbManager {
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         this._initHandlers();
-        this._initVisit();
+        await this._initVisit();
     }
 
     async _initVisit() {
-        this.model.visit = this.model.hcoDSU.volatile.visit[0].visits.visits.find(v => v.uuid === this.model.existingVisit.uuid);
-        this.model.details.value = this._getTextOrDefault(this.model.visit.details);
-        this.model.toRemember.value = this._getTextOrDefault(this.model.visit.toRemember);
+        this.model.visit = this.model.hcoDSU.volatile.site[0].visits.visits[0].data.find(v => v.uuid === this.model.existingVisit.uuid);
 
         this.model.tp = {
             ...this.model.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid),
@@ -83,16 +81,24 @@ export default class VisitEditController extends BreadCrumbManager {
     }
 
     _attachHandlerSaveDetails() {
-        this.onTagEvent('save', 'click', (model, target, event) => {
+        this.model.details.value = this._getTextOrDefault(this.model.details.value);
+        this.model.toRemember.value = this._getTextOrDefault(this.model.toRemember.value);
+
+        this.onTagEvent('save', 'click', async (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            let visitIndex = model.tp.visits.findIndex(v => v.pk === model.existingVisit.pk);
+            let visitIndex = model.tp.visits.findIndex(v => v.uuid === this.model.existingVisit.uuid);
             model.tp.visits[visitIndex].details = this.model.details.value;
             model.tp.visits[visitIndex].toRemember = this.model.toRemember.value;
-            model.tp.visits[visitIndex].procedures = this.model.procedures.value;
-            this.TrialParticipantRepository.updateAsync(model.tpUid, model.tp);
-            this.VisitsAndProceduresRepository.updateAsync(model.tp.visits[visitIndex].pk, model.tp.visits[visitIndex]);
-            this.sendMessageToPatient(model.tp.visits[visitIndex], Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
+            model.tp.visits[visitIndex].procedures = model.visit.procedures;
+            // let tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.model.tp.did}`);
+            // let someTp;
+            // if (tps && tps.length > 0) {
+            //     someTp = tps[0];
+            // }
+            // await this.TrialParticipantRepository.updateAsync(someTp.pk, model.tp);
+            // await this.VisitsAndProceduresRepository.updateAsync(model.tp.visits[visitIndex].uuid, model.tp.visits[visitIndex]);
+            this.sendMessageToPatient(model.tp.visits[visitIndex], Constants.MESSAGES.HCO.VISIT_CONFIRMED);
             window.history.back();
         });
     }
@@ -105,18 +111,14 @@ export default class VisitEditController extends BreadCrumbManager {
                 tpDid: this.model.tp.did,
                 trialSSI: visit.trialSSI,
                 visit: {
+                    ...visit,
                     details: visit.details,
                     toRemember: visit.toRemember,
                     procedures: visit.procedures,
-                    name: visit.name,
-                    period: visit.period,
                     consentSSI: visit.consentSSI,
-                    date: visit.date,
-                    unit: visit.unit,
-                    id: visit.id
                 },
             },
-            shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.SCHEDULE_VISIT,
+            shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT,
         });
     }
 
