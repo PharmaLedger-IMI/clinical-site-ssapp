@@ -5,6 +5,8 @@ const Constants = commonServices.Constants;
 const {ResponsesService} = commonServices;
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import HCOService from "../services/HCOService.js";
+const HealthDataService = commonServices.HealthDataService;
+const healthDataService = new HealthDataService();
 
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
 const {getDidServiceInstance} = commonServices.DidService;
@@ -159,6 +161,10 @@ export default class LandingPageController extends WebcController {
                 await mountSiteAndUpdateEntity;
                 break;
             }
+            case Constants.MESSAGES.HCO.NEW_HEALTHDATA: {
+                this._healthData(data);
+                break;
+            }
             case 'ask-question': {
                 this._saveQuestion(data);
                 break;
@@ -180,6 +186,7 @@ export default class LandingPageController extends WebcController {
                 })
                 break;
             }
+            
         }
         await this._updateHcoDSU();
     }
@@ -214,6 +221,23 @@ export default class LandingPageController extends WebcController {
 
     async _updateHcoDSU() {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+    }
+
+    async _healthData(data) {
+        healthDataService.mountObservation(data.sReadSSI, (err, healthData) => {
+            if (err) {
+                console.log(err);
+            }
+            console.log("****************** Health Data ******************************")
+            console.log(healthData);
+            this.model
+            if(healthData){
+                console.log("We have successfully retrived data");
+            }
+            else {
+                console.log("Your data is not available");
+            }  
+        });
     }
 
     async _updateEconsentWithDetails(message) {

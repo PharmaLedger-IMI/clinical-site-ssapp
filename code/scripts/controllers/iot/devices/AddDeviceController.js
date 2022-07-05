@@ -107,6 +107,7 @@ export default class AddDeviceController extends BreadCrumbManager {
                 value: this.model.deviceId.value
             }],
             status: this.model.status.value,
+            // deviceType: this.model.deviceType.value,
             manufacturer: this.model.manufacturer.value,
             deviceId: this.model.deviceId.value,
             device: [

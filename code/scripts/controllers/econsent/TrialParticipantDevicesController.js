@@ -2,6 +2,7 @@ import DeviceAssignationService from "../../services/DeviceAssignationService.js
 import DeviceServices from "../../services/DeviceServices.js";
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
+const {getDidServiceInstance} = commonServices.DidService;
 const CommunicationService = commonServices.CommunicationService;
 const COMMUNICATION_MESSAGES = {
     DEVICE_ASSIGNATION: "device_assignation"
@@ -27,6 +28,10 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
     }
 
     initServices(){
+        this.didService = getDidServiceInstance();
+        this.didService.getDID().then(did => {
+            this.model.clinicalSiteDID = did;
+        });
         this.getAllDevices();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
     }
@@ -84,6 +89,7 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
             trial: this.model.trialUid,
             deviceId: this.model.device.value,
             patientDID: this.model.participantDID,
+            clinicalSiteDID: this.model.clinicalSiteDID,
             trialParticipantNumber: this.model.trialParticipantNumber
         };
     }

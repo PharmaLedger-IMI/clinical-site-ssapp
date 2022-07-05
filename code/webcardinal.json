@@ -218,6 +218,12 @@
 			"path": "/econsent/procedures-view",
 			"src": "econsent/procedures-view.html",
 			"tag": "econsent-procedures-view"
+		},
+		{
+			"name": "Trial Participant Health Data",
+			"path": "/econsent/trial-participant-health-data",
+			"src": "econsent/trial-participant-health-data.html",
+			"tag": "econsent-trial-participant-health-data"
 		}
 	],
 	"pagesFallback": {

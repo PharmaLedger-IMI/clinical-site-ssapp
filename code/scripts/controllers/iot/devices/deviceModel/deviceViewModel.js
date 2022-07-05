@@ -44,6 +44,37 @@ function getModel(data = {}) {
             required: true,
             value: prevState.brand || "",
         },
+        // deviceType: {
+        //     label: "Device Type",
+        //     required: true,
+        //     options: [
+        //         {
+        //             label: "SpO2",
+        //             value: 'SpO2'
+        //         },
+        //         {
+        //             label: "Height",
+        //             value: 'Height'
+        //         },
+        //         {
+        //             label: "Weight",
+        //             value: 'Weight'
+        //         },
+        //         {
+        //             label: "Age",
+        //             value: 'Age'
+        //         },
+        //         {
+        //             label: "Systolic Blood Pressure",
+        //             value: 'Systolic Blood Pressure'
+        //         },
+        //         {
+        //             label: "Diastolic Blood Pressure",
+        //             value: 'Diastolic Blood Pressure'
+        //         }
+        //     ],
+        //     value: prevState.deviceType || "SpO2"
+        // },
         status: {
             label: "Device Status",
             required: true,
