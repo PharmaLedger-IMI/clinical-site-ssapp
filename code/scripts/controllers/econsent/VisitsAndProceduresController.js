@@ -254,6 +254,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         this.model.proposedDate = model.proposedDate;
                         this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(model.proposedDate);
                         await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
+                        // await this.VisitsAndProceduresRepository.createAsync(model.uuid, model);
                     }
                 },
                 (event) => {

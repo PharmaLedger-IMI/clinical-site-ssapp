@@ -55,7 +55,10 @@ export default class AddDeviceController extends BreadCrumbManager {
     }
 
     attachHandlerSaveButton() {
+
         this.onTagClick('devices:save', () => {
+
+            window.WebCardinal.loader.hidden = false;
 
             const deviceData = this.prepareDeviceData(this.model.trials);
             this.deviceServices.saveDevice(deviceData, (err, data) => {
@@ -75,6 +78,7 @@ export default class AddDeviceController extends BreadCrumbManager {
                     sReadSSI:data.sReadSSI
                 });
 
+                window.WebCardinal.loader.hidden = true;
                 this.navigateToPageTag('iot-manage-devices', {
                     message: message,
                     breadcrumb: this.model.toObject('breadcrumb')

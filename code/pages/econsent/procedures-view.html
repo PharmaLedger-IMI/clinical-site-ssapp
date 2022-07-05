@@ -5,16 +5,11 @@
         <h4 class="title">Visit: {{@visit.name}}</h4>
 
         <div>
-            <div class="d-flex justify-content-center align-items-center w-100 py-1 px-2">
-                <img alt="calendar" height='40' src="themes/clinical-site-theme/images/calendar.png"
-                     width='40'/>
-                <h5 class="subtitle">{{@toShowDate}}</h5>
-            </div>
-
             <header class="small-container">
                 <div class="row-wrapper grid-equal">
                     <label>Procedures</label>
                     <label>Status</label>
+                    <label>Actions</label>
                 </div>
             </header>
             <main class="small-container" data-for="@procedures">
@@ -22,14 +17,14 @@
                     <label>{{@name}}</label>
                     <div data-if="@status">
                         <label slot="true">{{@status}}</label>
-                        <button class="option link" data-tag="procedure:confirm" slot="false">Complete</button>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control" data-tag="select-option"  data-for="@statusList.options" value="@statusList.value" id="statusList">
+                            <option data-view-model="@"></option>
+                        </select>
                     </div>
                 </div>
             </main>
-        </div>
-
-        <div class="button-group-wrapper">
-            <button data-tag="navigation:go-back">Back</button>
         </div>
     </div>
 </webc-container>

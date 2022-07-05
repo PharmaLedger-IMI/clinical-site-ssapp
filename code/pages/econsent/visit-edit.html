@@ -13,7 +13,7 @@
                     Visit date:
                     <div data-if="@existingVisit.toShowDate">
                         <div slot="true">
-                            {{@existingVisit.toShowDate}}
+                            {{ @existingVisit.toShowDate}}
                         </div>
                         <div slot="false">
                             DD/MM/YYYY
@@ -25,19 +25,19 @@
                 <div class="margin-top-10">
                     <strong>Visit Details</strong>
                     <div>
-                        <textarea data-view-model="@details" readonly></textarea>
+                        <textarea data-view-model="@details"></textarea>
                     </div>
                 </div>
                 <div class="margin-top-10">
                     <strong>Things to remember</strong>
                     <div>
-                        <textarea data-view-model="@toRemember" readonly></textarea>
+                        <textarea data-view-model="@toRemember"></textarea>
                     </div>
                 </div>
             </div>
         </main>
         <div class="button-group-wrapper">
-            <button data-tag="back">Back</button>
+            <button data-tag="save">Save</button>
         </div>
     </div>
 </webc-container>
