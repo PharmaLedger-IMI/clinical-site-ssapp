@@ -3,8 +3,7 @@
     <div class="container main-container">
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <img alt="PharmaLedger Blockchain Enabled Healthcare"
-                 class="img-m" src="themes/clinical-site-theme/images/pharmaledger-logo.jpg"/>
+            <img alt="PharmaLedger Blockchain Enabled Healthcare" class="img-m" src="themes/clinical-site-theme/images/pharmaledger-logo.jpg"/>
             <h4 class="title">Trial Participant Health Data</h4>
         </div>
 
@@ -12,26 +11,24 @@
             <div class="alert alert-warning" role="alert" slot="false">
                 <p class="alert-heading">Sorry! No data is available to view.</p>
             </div>
-
-            <header slot="true">
-                <div class="row-wrapper grid-equal">
-                    <label>Measurement Date</label>
-                    <label>Time</label>
-                    <label>Data Type</label>
-                    <label>Value</label>
-                    <label>Unit</label>
-                </div>
-            </header>
-
-            <main data-for="@healthData" slot="true">
-                <div class="row-wrapper grid-equal">
-                    <label>{{@date}} </label>
-                    <label>{{@time}}</label>
-                    <label>{{@title}}</label>
-                    <label>{{@value}}</label>
-                    <label>{{@unit}}</label>
-                </div>
-            </main>
+            <table class="table table-striped" slot="true">
+                <thead style="background-color: #00345B; color:#FFFF; position: sticky;">
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Data Type</th>
+                    <th scope="col">Value</th>
+                  </tr>
+                </thead>
+                <tbody data-for="@healthData">
+                        <tr>
+                            <td>{{@date}}</td>
+                            <td>{{@time}}</td>
+                            <td>{{@title}}</td>
+                            <td>{{@value}} {{@unit}}</td>
+                        </tr>
+                </tbody>
+            </table>
         </div>
 
         <footer class="button-group-wrapper">

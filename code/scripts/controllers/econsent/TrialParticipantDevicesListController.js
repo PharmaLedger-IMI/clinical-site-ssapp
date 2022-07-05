@@ -128,6 +128,8 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
     removeAssignation(assignation){
         window.WebCardinal.loader.hidden = false;
         let chosenDeviceIndex = this.model.devices.findIndex(device => device.sk === assignation.deviceId);
+        console.log("************** Remove Assignation **************");
+        console.log(assignation);
         this.model.devices[chosenDeviceIndex].isAssigned = false;
         this.DeviceServices.updateDevice(this.model.devices[chosenDeviceIndex], (err, data) => {
             if (err) {
