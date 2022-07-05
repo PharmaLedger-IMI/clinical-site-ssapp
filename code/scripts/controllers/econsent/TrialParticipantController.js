@@ -56,7 +56,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this._attachHandlerNavigateToEconsentVersions();
         this._attachHandlerNavigateToEconsentSign();
         this._attachHandlerAddTrialParticipantNumber();
-        this._attachHandlerGoBack();
         this._attachHandlerView();
         this._attachHandlerVisits();
         this.on('openFeedback', (e) => {
@@ -138,21 +137,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 isManuallySigned: model.isManuallySigned,
                 manualKeySSI: model.manualKeySSI,
                 manualAttachment: model.manualAttachment,
-                trialParticipantNumber: this.model.tp.did,
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
                 ecoVersion: ecoVersion,
-                breadcrumb: this.model.toObject('breadcrumb')
-            });
-        });
-    }
-
-    _attachHandlerGoBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-trial-participants', {
-                trialUid: this.model.trialUid,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -178,7 +165,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
             this.showModalFromTemplate(
                 'add-tp-number',
                 (event) => {
-                    this.model.tp.number = event.detail;
+                    //this.model.tp.number = event.detail will not trigger a view update
+                    this.model.tp = {
+                        ...JSON.parse(JSON.stringify(this.model.tp)),
+                        number:event.detail
+                    }
 
                     this._updateTrialParticipant(this.model.tp, () => {});
                     this.updateSiteStage(()=>{
@@ -186,6 +177,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
                               ssi: this.model.tpUid
                         },'The stage of the site changed');
                     });
+
+                    this.model.message = {
+                        content: 'Tp Number was updated',
+                        type: 'success'
+                    }
                 },
                 (event) => {
                     const response = event.detail;
@@ -195,7 +191,8 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     title: 'Attach Trial Participant Number',
-                    existingTSNumbers: this.model.hcoDSU.volatile.tps.filter(tp => typeof tp.number !== "undefined").map(tp => tp.number)
+                    existingTSNumbers: this.model.hcoDSU.volatile.tps.filter(tp => typeof tp.number !== "undefined").map(tp => tp.number),
+                    currentTSNumber:this.model.tp.number
                 });
         });
     }
@@ -323,11 +320,12 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         let hcoVersionIndex = validVersions.findIndex(v => v === hcoVersion);
                         let tpVersionIndex = validVersions.findIndex(v => v === tpVersion);
                         if (hcoVersion.name === 'sign' && hcoVersionIndex > tpVersionIndex) {
-                            //econsent = this._showButton(econsent, 'View');
                             econsent = this._showButton(econsent, 'Schedule');
                         }
+                        if (hcoVersion.name === 'decline' && hcoVersionIndex > tpVersionIndex) {
+                            econsent = this._showButton(econsent, 'View');
+                        }
                         econsent.hcoDate = hcoVersion.toShowDate;
-                        this.model.tp.hcoSigned = true;
 
                     }
                 }

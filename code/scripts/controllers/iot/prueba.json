@@ -1,0 +1,21 @@
+[
+  {
+    "question":{
+      "uid":1181361796295,
+      "type":"radio",
+      "task":"prom",
+      "title":"PROM TEST QUESTION",
+      "template":"iot/questionnaire/question-radio-template",
+      "options":[{"value":"Option 1"},{"value":"Option 2"}],
+      "value":"Option 1",
+      "visible":true
+    },
+    "responseDate":1655747710518,
+    "patientDID":"did:ssi:name:iot:TrialParticipant",
+    "answer":"Option 1"
+  }
+]
+
+
+
+

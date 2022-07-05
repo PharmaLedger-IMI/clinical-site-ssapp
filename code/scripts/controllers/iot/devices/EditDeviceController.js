@@ -45,16 +45,10 @@ export default class EditDeviceController extends BreadCrumbManager {
             this.model.trials = allTrials;
         });
 
-        this.attachHandlerGoBackButton();
         this.attachHandlerSaveButton();
 
     }
 
-    attachHandlerGoBackButton() {
-        this.onTagClick('devices:go-back', () => {
-            this.navigateToPageTag('iot-manage-devices', { breadcrumb: this.model.toObject('breadcrumb') });
-        });
-    }
 
     attachHandlerSaveButton() {
         this.onTagClick('devices:save', () => {
@@ -117,7 +111,8 @@ export default class EditDeviceController extends BreadCrumbManager {
             trialName: selected_trial.name,
             trialID: this.model.trial.value,
             sk: this.model.deviceId.value,
-            uid: this.model.data.uid
+            uid: this.model.data.uid,
+            isAssigned: this.model.isAssigned
         };
     }
 }

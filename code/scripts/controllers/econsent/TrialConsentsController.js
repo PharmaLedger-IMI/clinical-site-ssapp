@@ -21,7 +21,6 @@ export default class TrialConsentsController extends BreadCrumbManager {
         );
 
         this.initServices(this.model.trialUid);
-        this._attachHandlerGoBack();
         this._attachHandlerPreview();
     }
 
@@ -61,11 +60,6 @@ export default class TrialConsentsController extends BreadCrumbManager {
         })
     }
 
-    _attachHandlerGoBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            this.navigateToPageTag('econsent-trial-management', {breadcrumb: this.model.toObject('breadcrumb')});
-        });
-    }
 
     _attachHandlerPreview() {
         this.onTagEvent('preview', 'click', (model, target, event) => {

@@ -11,6 +11,7 @@ const healthDataService = new HealthDataService();
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
 const {getDidServiceInstance} = commonServices.DidService;
 const MessageHandlerService = commonServices.MessageHandlerService;
+const momentService = commonServices.momentService;
 
 const BaseRepository = commonServices.BaseRepository;
 const SharedStorage = commonServices.SharedStorage;
@@ -104,6 +105,7 @@ export default class LandingPageController extends WebcController {
 
     async handleEcoMessages(data) {
 
+        console.log('MESSAGE' , data)
         let senderIdentity = data.senderIdentity;
 
         if (typeof senderIdentity === "undefined") {
@@ -260,23 +262,43 @@ export default class LandingPageController extends WebcController {
         let actionNeeded = 'No action required';
         let status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
         let tpSigned = false;
+        let tpObjectToAssign = {};
+        let currentDate = new Date();
         switch (message.useCaseSpecifics.action.name) {
             case 'withdraw': {
                 actionNeeded = 'TP Withdrawed';
                 status = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW;
                 this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.NOTIFICATIONS_TYPE.WITHDRAWS);
+                tpObjectToAssign = {
+                    actionNeeded,
+                    status,
+                    tpSigned,
+                    withdrewDate: currentDate.toLocaleDateString()
+                }
                 break;
             }
             case 'withdraw-intention': {
                 actionNeeded = 'Reconsent required';
                 this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.NOTIFICATIONS_TYPE.WITHDRAWS);
                 status = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW;
+                tpObjectToAssign = {
+                    actionNeeded,
+                    status,
+                    tpSigned,
+                    withdrewDate: currentDate.toLocaleDateString()
+                }
                 break;
             }
             case 'Declined': {
                 actionNeeded = 'TP Declined';
                 this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' declined', 'view trial participants', Constants.NOTIFICATIONS_TYPE.WITHDRAWS);
                 status = Constants.TRIAL_PARTICIPANT_STATUS.DECLINED;
+                tpObjectToAssign = {
+                    actionNeeded,
+                    status,
+                    tpSigned,
+                    discontinuedDate: currentDate.toLocaleDateString()
+                }
                 break;
             }
             case 'sign': {
@@ -284,6 +306,12 @@ export default class LandingPageController extends WebcController {
                 this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 actionNeeded = 'Acknowledgement required';
                 status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
+                tpObjectToAssign = {
+                    tpSigned,
+                    actionNeeded,
+                    status,
+                    screenedDate: currentDate.toLocaleDateString()
+                }
                 break;
             }
         }
@@ -301,9 +329,7 @@ export default class LandingPageController extends WebcController {
             if (tp === undefined) {
                 return console.error('Cannot find tp.');
             }
-            tp.actionNeeded = actionNeeded;
-            tp.tpSigned = tpSigned;
-            tp.status = status;
+            Object.assign(tp, tpObjectToAssign);
             this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
                 if (err) {
                     return console.log(err);
@@ -441,6 +467,7 @@ export default class LandingPageController extends WebcController {
         tpDSU.visits[objIndex].declined = message.useCaseSpecifics.visit.declined;
         tpDSU.visits[objIndex].rescheduled = message.useCaseSpecifics.visit.rescheduled;
         tpDSU.visits[objIndex].proposedDate = message.useCaseSpecifics.visit.proposedDate;
+
         tpDSU.visits[objIndex].confirmedDate = message.useCaseSpecifics.visit.confirmedDate;
 
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {

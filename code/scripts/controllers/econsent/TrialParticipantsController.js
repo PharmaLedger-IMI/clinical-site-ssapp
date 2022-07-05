@@ -346,6 +346,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             this.navigateToPageTag('trial-participant-answers', {
                 trialSSI: this.model.trialUid,
                 tpUid: model.uid,
+                participantDID: model.did,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -357,7 +358,14 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         tp.trialNumber = this.model.trial.id;
         tp.status = Constants.TRIAL_PARTICIPANT_STATUS.PLANNED;
         tp.subjectName = tp.name;
-        tp.enrolledDate = currentDate.toLocaleDateString();
+        tp.plannedDate = currentDate.toLocaleDateString();
+        tp.screenedDate = "N/A";
+        tp.enrolledDate = "N/A";
+        tp.endOfTreatmentDate = "N/A";
+        tp.completedDate = "N/A";
+        tp.discontinuedDate = "N/A";
+        tp.screenFailedDate ="N/A"
+        tp.withdrewDate = "N/A";
         tp.trialId = this.model.trial.id;
         tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync();
         let trialParticipant = await this.TrialParticipantRepository.createAsync(tp);

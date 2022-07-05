@@ -1,8 +1,8 @@
 <webc-container controller="iot/devices/ManageDevicesController">
-    <div class="container main-container">
+    <div class="container main-container manage-devices">
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <h4 class="title">IOT Devices List</h4>
+            <h5 class="generic-title">IOT Devices List</h5>
             <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>
         </div>
 
@@ -56,7 +56,6 @@
         </div>
 
         <footer class="button-group-wrapper">
-            <button data-tag="navigation:go-back">Go Back</button>
             <button data-tag="devices:add">Add Device</button>
         </footer>
     </div>

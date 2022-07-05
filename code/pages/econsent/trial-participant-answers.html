@@ -21,11 +21,11 @@
 
       <webc-switch condition="@currentTable">
         <div slot="proms">
-          <div data-if="@hasPromsAnswers">
+          <div data-if="@hasProms">
             <webc-spinner slot="loading"></webc-spinner>
             <div slot="false" class="alert alert-warning" role="alert">
-              <h4 class="alert-heading">No Proms yet!</h4>
-              <p>Add your first question!</p>
+              <h4 class="alert-heading">No PROMs yet!</h4>
+              <p>Wait for a participant to answer!</p>
             </div>
             <div class="common-datatable answers-datatable dt-4-col" slot="true">
               <webc-datatable datasource="@PromsDataSource">
@@ -43,11 +43,11 @@
           </div>
         </div>
         <div slot="prems">
-          <div data-if="@hasPremsAnswers">
+          <div data-if="@hasPrems">
             <webc-spinner slot="loading"></webc-spinner>
             <div slot="false" class="alert alert-warning" role="alert">
-              <h4 class="alert-heading">No Prems yet!</h4>
-              <p>Add your first question!</p>
+              <h4 class="alert-heading">No PREMs yet!</h4>
+              <p>Wait for a participant to answer!</p>
             </div>
             <div class="common-datatable answers-datatable dt-4-col" slot="true">
               <webc-datatable datasource="@PremsDataSource">

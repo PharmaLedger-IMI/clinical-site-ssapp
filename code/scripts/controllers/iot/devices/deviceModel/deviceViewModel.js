@@ -105,7 +105,7 @@ function getModel(data = {}) {
             value: trials.length ? trials[0].value : ""
         },
         hasTrials: trials.length > 0,
-        isAssigned: false
+        isAssigned: prevState.isAssigned || false
     }
 }
 
