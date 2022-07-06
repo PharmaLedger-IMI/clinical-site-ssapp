@@ -24,14 +24,18 @@ export default class ProceduresViewController extends BreadCrumbManager {
 
     initHandlers() {
         this.attachHandlerBack();
+        this.attachHandlerSelect();
     }
 
     updateTrialParticipant(visit) {
+        window.WebCardinal.loader.hidden = false;
         if(visit) {
             this.sendMessageToPatient(visit, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
         }
         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+            this.initProcedures();
+            window.WebCardinal.loader.hidden = true;
         });
     }
 
@@ -53,41 +57,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.initHandlers();
         this.initProcedures();
-        this.model.procedures.forEach(procedure => {
-            procedure.statusList = {
-                label: 'Is procedure complete',
-                    required: true,
-                    options: [
-                    {
-                        label: 'Select option',
-                        value: '',
-                        selected:true,
-                        hidden:true
-                    },
-                    {
-                        label: 'Completed',
-                        value: 'Completed',
-                    },
-                    {
-                        label: 'Missed',
-                        value: 'Missed',
-                    },
-                ],
-                    value: '',
-            }
-        });
-        this.onTagClick('select-option', (model) => {
-            if(model.statusList.value !== '') {
-                let procedure = {
-                    name: model.name,
-                    id: model.id,
-                    uuid: model.uuid,
-                    status: model.statusList.value,
-                }
-                this.updateProcedure(procedure);
-            }
-        })
-
     }
 
     initProcedures() {
@@ -111,12 +80,49 @@ export default class ProceduresViewController extends BreadCrumbManager {
             }
         }
 
+        this.model.procedures.forEach(procedure => {
+            procedure.statusList = {
+                label: 'Is procedure complete',
+                required: true,
+                options: [
+                    {
+                        label: 'Select option',
+                        value: '',
+                        selected:true,
+                        hidden:true
+                    },
+                    {
+                        label: 'Completed',
+                        value: 'Completed',
+                    },
+                    {
+                        label: 'Missed',
+                        value: 'Missed',
+                    },
+                ],
+                value: '',
+            }
+        });
     }
 
     attachHandlerBack() {
         this.onTagClick("navigation:go-back", () => {
             this.history.goBack();
         });
+    }
+
+    attachHandlerSelect() {
+        this.onTagClick('select-option', (model) => {
+            if(model.statusList.value !== '') {
+                let procedure = {
+                    name: model.name,
+                    id: model.id,
+                    uuid: model.uuid,
+                    status: model.statusList.value,
+                }
+                this.updateProcedure(procedure);
+            }
+        })
     }
 
     sendMessageToPatient(visit, operation) {

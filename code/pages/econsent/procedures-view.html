@@ -4,24 +4,26 @@
         <breadcrumb-navigator></breadcrumb-navigator>
         <h4 class="title">Visit: {{@visit.name}}</h4>
 
-        <div>
+        <div class="table-container">
             <header class="small-container">
                 <div class="row-wrapper grid-equal">
                     <label>Procedures</label>
-                    <label>Status</label>
                     <label>Actions</label>
+                    <label>Status</label>
                 </div>
             </header>
-            <main class="small-container" data-for="@procedures">
+            <main class="small-container table-content-container" data-for="@procedures">
                 <div class="row-wrapper grid-equal">
-                    <label>{{@name}}</label>
-                    <div data-if="@status">
-                        <label slot="true">{{@status}}</label>
+                    <div class="procedure-details-item">
+                        <label>{{@name}}</label>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group procedure-details-item">
                         <select class="form-control" data-tag="select-option"  data-for="@statusList.options" value="@statusList.value" id="statusList">
                             <option data-view-model="@"></option>
                         </select>
+                    </div>
+                    <div data-if="@status" class="procedure-details-item">
+                        <label slot="true">{{@status}}</label>
                     </div>
                 </div>
             </main>
