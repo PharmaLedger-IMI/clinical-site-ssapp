@@ -68,7 +68,9 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 }
                 console.log("*************** View Pagevalue Data ***************")
                 console.log(pageValue);
-                this.navigateToPageTag('econsent-trial-participant-health-data', pageValue);
+
+                this.navigateToPageTag('econsent-trial-participant-health-data', { breadcrumb: this.model.toObject('breadcrumb'), pageValue: pageValue} );
+
 
             });
         });

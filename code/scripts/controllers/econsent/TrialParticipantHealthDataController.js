@@ -1,15 +1,26 @@
+const commonServices = require("common-services");
+const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const {WebcController} = WebCardinal.controllers;
 
 
 
-export default class TrialParticipantHealthDataController extends WebcController {
+export default class TrialParticipantHealthDataController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
         // this.initServices();
         const prevState = this.getState() || {};
-        var data =  prevState;
+        this.model = this.getState() || {};
+        var data =  prevState.pageValue;
         // console.log("Trial Participant Health Data Controller");
         // console.log(data);
+
+        this.model.breadcrumb = this.setBreadCrumb(
+            {
+                label: "Trial Participant Device Data",
+                tag: "econsent-trial-participant-devices-list"
+            }
+        );
+
         this.model.healthData = [];
         let count = data.length-1;
         this.model.hasValue = data[count].hasValue;
@@ -36,13 +47,7 @@ export default class TrialParticipantHealthDataController extends WebcController
             console.log(this.model.healthData);
         }
         
-        this._attachHandlerGoBack();
     }
-    _attachHandlerGoBack() {
-        this.onTagClick('navigation:go-back', () => {
-            console.log("Go Back button pressed!")
-            this.navigateToPageTag('home');
-        });
-    }
+
 
 }
