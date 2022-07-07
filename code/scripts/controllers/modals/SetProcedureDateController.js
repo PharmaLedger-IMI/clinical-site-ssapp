@@ -12,7 +12,9 @@ let getInitModel = () => {
             placeholder: 'Please set the date ',
             value: '',
         },
-
+        datesInformation : '',
+        haveSuggestedInterval: false,
+        isBtnDisabled: false,
     };
 };
 
@@ -28,6 +30,26 @@ export default class SetProcedureDateController extends WebcController {
             this.model.procedureDate.value = formattedDate.date + 'T' + formattedDate.time;
         }
 
+        if(props[0].suggestedInterval) {
+            document.getElementById("procedure-date").classList.add("is-invalid");
+            this.model.haveSuggestedInterval = true;
+            let suggestedInterval = props[0].suggestedInterval;
+            let from = momentService(props[0].suggestedInterval[0]).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+            let to = momentService(props[0].suggestedInterval[1]).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+            this.model.datesInformation = `Choose a date from: ${from} to ${to}`;
+            if(!this.model.procedureDate.value) {
+                this.model.isBtnDisabled = true;
+            }
+            this.model.onChange('procedureDate.value', () => {
+                let selectedDate = new Date(this.model.procedureDate.value);
+                if(selectedDate.getTime() < suggestedInterval[0] || selectedDate.getTime() > suggestedInterval[1]) {
+                    this.model.isBtnDisabled = true;
+                } else {
+                    this.model.isBtnDisabled = false;
+                    document.getElementById("procedure-date").classList.remove("is-invalid");
+                }
+            })
+        }
     }
 
     getDateTime(timestamp) {

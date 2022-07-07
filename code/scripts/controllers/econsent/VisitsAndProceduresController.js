@@ -57,6 +57,36 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         await this.initVisits();
     }
 
+     prepareDateForVisits(receivedVisits) {
+        let visits = receivedVisits;
+        let dayInMs = 86400000; // number of milliseconds in a day
+        if(!visits[0].proposedDate) {
+            return "No proposed date for first visit!";
+        }
+        visits.map((currentVisit,index) => {
+            if(index===0) {
+                return;
+            }
+            let { windowTo, windowFrom } = currentVisit; // destr || current. ..
+            let previousVisit = visits[0];
+            if(previousVisit.proposedDate) {
+                let weeksDif = (currentVisit.week - previousVisit.week)* 7;
+                let daysDif = currentVisit.day - previousVisit.day;
+
+                let dayInRange = weeksDif + daysDif;
+
+                windowFrom = windowFrom !== 'N/A' ? windowFrom : 0;
+                windowTo = windowTo !== 'N/A' ? windowTo : 0;
+
+                let suggestedFromDate = (dayInRange + windowFrom)*dayInMs;
+                let suggestedToDate = (dayInRange + windowTo)*dayInMs;
+
+                let suggestedInterval = [previousVisit.proposedDate + suggestedFromDate, previousVisit.proposedDate + suggestedToDate];
+                currentVisit.suggestedInterval = suggestedInterval;
+            }
+        })
+    }
+
     async initVisits() {
         if(this.model.toObject("site.visits.visits").length) {
             this.model.visits = this.model.toObject("site.visits.visits").find((visit) => visit.consentId = this.model.consentId).data;
@@ -64,6 +94,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.model.siteHasVisits = this.model.visits.length > 0;
         this.extractDataVisit();
         await this.matchTpVisits();
+        this.prepareDateForVisits(this.model.visits);
     }
 
     extractDataVisit() {
@@ -146,6 +177,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             this.model.visitsDataSource.updateVisits(this.model.tp.visits);
+            this.prepareDateForVisits(this.model.tp.visits);
             await this.matchTpVisits(this.model.tp.visits);
             this.sendMessageToPatient(visit, operation);
         })
@@ -181,6 +213,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     controller: "modals/SetProcedureDateController",
                     disableExpanding: false,
                     disableBackdropClosing: true,
+                    suggestedInterval: model.suggestedInterval
                 });
         });
     }
@@ -198,7 +231,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     model.proposedDate = date.getTime();
                     model.confirmed = false;
                     model.accepted = false;
-                    this.model.proposedDate = event.detail;
+                    this.model.proposedDate = date.getTime();
                     this.model.toShowDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern)
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
                 },

@@ -53,7 +53,8 @@
                         <div class="cell">
                             <div data-if="@accepted">
                                 <div data-if="@confirmedDate">
-                                    <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="false">
+                                    <button class="link-button view-adjust-margin" data-tag="visit:confirm"
+                                            slot="false">
                                         Confirm
                                         Date
                                     </button>
@@ -62,14 +63,15 @@
 
                             <div data-if="@rescheduled">
                                 <div data-if="@confirmedDate">
-                                    <button class="link-button view-adjust-margin" data-tag="visit:confirm" slot="false">
+                                    <button class="link-button view-adjust-margin" data-tag="visit:confirm"
+                                            slot="false">
                                         Confirm
                                         Rescheduled
                                     </button>
                                 </div>
                             </div>
 
-                            <div data-if="@shouldBeRescheduled">
+                            <div data-if="@shouldBeRescheduled" slot="false">
                                 <button class="link-button view-adjust-margin" data-tag="procedure:editDate"
                                         slot="true">
                                     Reschedule
@@ -80,8 +82,10 @@
                                 </button>
                             </div>
                             <div data-if="@confirmedDate">
-                            <button class="link-button view-adjust-margin" data-tag="visit:view">Confirm Attendance </button>
-<!--                            <button class="link-button view-adjust-margin" data-tag="visit:edit">Edit</button>-->
+                                <button class="link-button view-adjust-margin" data-tag="visit:view">Confirm
+                                    Attendance
+                                </button>
+                                <!--                            <button class="link-button view-adjust-margin" data-tag="visit:edit">Edit</button>-->
                             </div>
                         </div>
 
