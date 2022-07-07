@@ -24,20 +24,8 @@ export default class ConsentPreviewController extends BreadCrumbManager {
             }
         );
 
-        this.initHandlers();
         this.initServices();
-        console.log('model ',this.model.toObject());
 
-    }
-
-    initHandlers() {
-        this.attachHandlerBack();
-    }
-
-    attachHandlerBack() {
-        this.onTagEvent('back', 'click', () => {
-            this.history.goBack();
-        });
     }
 
     initServices() {
@@ -53,7 +41,6 @@ export default class ConsentPreviewController extends BreadCrumbManager {
 
     initSiteConsentModel(trialUid, siteList) {
         const site = siteList.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid);
-        console.log('site ',site);
         let consent = site.consents.find(consent => consent.uid === this.model.consentUid);
         let version = consent.versions.find(version => version.version === this.model.versionId);
 

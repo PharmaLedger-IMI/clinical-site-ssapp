@@ -18,7 +18,6 @@ export default class TrialVisits extends BreadCrumbManager {
 
 
         this.initData();
-        this._attachHandlerBack();
         this._attachConsentChangeHandler();
     }
 
@@ -81,14 +80,6 @@ export default class TrialVisits extends BreadCrumbManager {
                 consent.selected = model.trialConsentId === consent.trialConsentId
             });
             this.changeVisitsForConsent();
-        });
-    }
-
-    _attachHandlerBack() {
-        this.onTagEvent('back', 'click', () => {
-            this.navigateToPageTag('econsent-trial-management', {
-                breadcrumb: this.model.toObject('breadcrumb')
-            });
         });
     }
 
