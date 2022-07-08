@@ -5,7 +5,7 @@ const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
 
-export default class TrialConsentsController extends BreadCrumbManager {
+export default class TrialConsentHistoryController extends BreadCrumbManager {
 
     constructor(...props) {
         super(...props);
@@ -15,14 +15,13 @@ export default class TrialConsentsController extends BreadCrumbManager {
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
-                label: "Trial Consents",
-                tag: "econsent-trial-consents"
+                label: "Trial Consent History",
+                tag: "econsent-trial-consent-history"
             }
         );
 
         this.initServices(this.model.trialUid);
         this._attachHandlerPreview();
-        this._attachHandlerViewHistory();
     }
 
     initServices(trialUid) {
@@ -37,24 +36,21 @@ export default class TrialConsentsController extends BreadCrumbManager {
             let dataSourceVersions = [];
 
             consents.forEach((consent) => {
-                let consentVersion = consent.versions[consent.versions.length-1];
-                consentVersion.consentName = consent.name;
-                consentVersion.consentType = consent.type;
-                consentVersion.versionDate = new Date(consentVersion.versionDate).toLocaleDateString();
-                consentVersion.consentUid = consent.uid;
-                consentVersion.isEmpty = false;
-                consentVersion.trialConsentId = consent.trialConsentId
-
-                let emptyObj = {
-                    consentName : '',
-                    consentType : '',
-                    versionDate : '',
-                    version: '',
-                    isEmpty: true,
+                if(consent.trialConsentId !== this.model.trialConsentId) {
+                    return;
                 }
+                let consentVersion = consent.versions.map(version => {
+                    version.consentName = consent.name;
+                    version.consentType = consent.type;
+                    version.versionDate = new Date(version.versionDate).toLocaleDateString();
+                    version.consentUid = consent.uid;
+                    version.isEmpty = false;
+                    return version;
+                });
 
-                dataSourceVersions.push(consentVersion, emptyObj);
+                dataSourceVersions.push(...consentVersion);
             });
+
             this.model.dataSourceVersions = DataSourceFactory.createDataSource(5, 10, dataSourceVersions);
             this.model.dataSourceInitialized = true;
         })
@@ -72,13 +68,4 @@ export default class TrialConsentsController extends BreadCrumbManager {
         });
     }
 
-    _attachHandlerViewHistory() {
-        this.onTagEvent('view-history', 'click', (model, target, event) => {
-            this.navigateToPageTag('econsent-trial-consent-history', {
-                breadcrumb: this.model.toObject('breadcrumb'),
-                trialUid: this.model.trialUid,
-                trialConsentId: model.trialConsentId,
-            });
-        });
-    }
 }

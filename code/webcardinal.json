@@ -130,6 +130,12 @@
 			"tag": "econsent-trial-consents"
 		},
 		{
+			"name": "Consent History",
+			"path": "/econsent/trial-consent-history",
+			"src": "econsent/trial-consent-history.html",
+			"tag": "econsent-trial-consent-history"
+		},
+		{
 			"name": "Trial Participants",
 			"path": "/econsent/trial-participants",
 			"src": "econsent/trial-participants.html",
