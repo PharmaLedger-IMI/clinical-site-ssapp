@@ -11,6 +11,8 @@ let getInitModel = () => {
             required: true,
             placeholder: 'Please set the date ',
             value: '',
+            min:'',
+            max:''
         },
         datesInformation : '',
         haveSuggestedInterval: false,
@@ -34,6 +36,14 @@ export default class SetProcedureDateController extends WebcController {
             document.getElementById("procedure-date").classList.add("is-invalid");
             this.model.haveSuggestedInterval = true;
             let suggestedInterval = props[0].suggestedInterval;
+
+            let firstIntervalDate = (new Date(suggestedInterval[0])).getTime();
+            let secondIntervalDate = (new Date(suggestedInterval[1])).getTime();
+            let firstDateFormatted = this.getDateTime(firstIntervalDate);
+            let secondDateFormatted = this.getDateTime(secondIntervalDate);
+            this.model.procedureDate.min = firstDateFormatted.date + 'T' + firstDateFormatted.time;
+            this.model.procedureDate.max = secondDateFormatted.date + 'T' + secondDateFormatted.time;
+
             let from = momentService(props[0].suggestedInterval[0]).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
             let to = momentService(props[0].suggestedInterval[1]).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
             this.model.datesInformation = `Choose a date from: ${from} to ${to}`;
@@ -44,6 +54,7 @@ export default class SetProcedureDateController extends WebcController {
                 let selectedDate = new Date(this.model.procedureDate.value);
                 if(selectedDate.getTime() < suggestedInterval[0] || selectedDate.getTime() > suggestedInterval[1]) {
                     this.model.isBtnDisabled = true;
+
                 } else {
                     this.model.isBtnDisabled = false;
                     document.getElementById("procedure-date").classList.remove("is-invalid");

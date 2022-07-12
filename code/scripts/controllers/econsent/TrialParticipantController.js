@@ -323,6 +323,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                             econsent = this._showButton(econsent, 'Schedule');
                         }
                         if (hcoVersion.name === 'decline' && hcoVersionIndex > tpVersionIndex) {
+                            econsent.hcoDeclined = 'Declined';
                             econsent = this._showButton(econsent, 'View');
                         }
                         econsent.hcoDate = hcoVersion.toShowDate;

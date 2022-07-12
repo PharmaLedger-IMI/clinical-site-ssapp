@@ -56,7 +56,13 @@
                         </div>
                     </div>
 
-                    <div class="cell">{{@hcoDate}}</div>
+                    <div class="cell">{{@hcoDate}}
+                        <div data-if="@hcoDeclined" class="cell">
+                            <div slot="true">
+                                <label class="table-cell red">{{@hcoDeclined}}</label>
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="cell">
                         <div data-if="@showSignButton">
