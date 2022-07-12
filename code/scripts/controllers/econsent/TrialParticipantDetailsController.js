@@ -236,7 +236,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                             });
                         });
 
-                        // this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                        // this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                     }
                 },
                 (event) => {

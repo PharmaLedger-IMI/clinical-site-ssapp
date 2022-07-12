@@ -114,28 +114,28 @@ export default class LandingPageController extends WebcController {
         switch (data.operation) {
 
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
-                this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 await this.sendRefreshConsentsToTrialParticipants(data);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_CONSENT: {
-                this._saveNotification(data, 'New ecosent  was added', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                this._saveNotification(data, 'New ecosent  was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 await this.sendRefreshConsentsToTrialParticipants(data);
                 break;
             }
             case Constants.MESSAGES.HCO.SITE_STATUS_CHANGED: {
-                this._saveNotification(data, 'The status of site was changed', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                this._saveNotification(data, 'The status of site was changed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
 
                 break;
             }
             case Constants.MESSAGES.HCO.UPDATE_BASE_PROCEDURES: {
-                this._saveNotification(data, 'New procedure was added ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                this._saveNotification(data, 'New procedure was added ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 await this._saveVisit(data.ssi);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_SITE: {
 
-                this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 const mountSiteAndUpdateEntity = new Promise((resolve => {
                     this.HCOService.mountSite(data.ssi, (err, site) => {
                         if (err) {
@@ -176,7 +176,7 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_TRIAl_CONSENT: {
-                this._saveNotification(data, 'New consent was added to trial  ', 'view trial', Constants.NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                this._saveNotification(data, 'New consent was added to trial  ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 break;
             }
             case Constants.MESSAGES.HCO.UPDATE_ECOSENT: {
@@ -268,7 +268,7 @@ export default class LandingPageController extends WebcController {
             case 'withdraw': {
                 actionNeeded = 'TP Withdrawed';
                 status = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW;
-                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.NOTIFICATIONS_TYPE.WITHDRAWS);
+                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 tpObjectToAssign = {
                     actionNeeded,
                     status,
@@ -279,7 +279,7 @@ export default class LandingPageController extends WebcController {
             }
             case 'withdraw-intention': {
                 actionNeeded = 'Reconsent required';
-                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.NOTIFICATIONS_TYPE.WITHDRAWS);
+                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 status = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW;
                 tpObjectToAssign = {
                     actionNeeded,
@@ -291,7 +291,7 @@ export default class LandingPageController extends WebcController {
             }
             case 'Declined': {
                 actionNeeded = 'TP Declined';
-                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' declined', 'view trial participants', Constants.NOTIFICATIONS_TYPE.WITHDRAWS);
+                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' declined', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 status = Constants.TRIAL_PARTICIPANT_STATUS.DECLINED;
                 tpObjectToAssign = {
                     actionNeeded,
@@ -303,7 +303,7 @@ export default class LandingPageController extends WebcController {
             }
             case 'sign': {
                 tpSigned = true;
-                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 actionNeeded = 'Acknowledgement required';
                 status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
                 tpObjectToAssign = {
@@ -453,7 +453,7 @@ export default class LandingPageController extends WebcController {
             }
             let notification = message;
 
-            this._saveNotification(notification, message.shortDescription, 'view questions', Constants.NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS);
+            this._saveNotification(notification, message.shortDescription, 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS);
         })
     }
 
@@ -474,7 +474,7 @@ export default class LandingPageController extends WebcController {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             let notification = message;
             notification.tpUid = data.uid;
-            this._saveNotification(notification, message.shortDescription, 'view visits', Constants.NOTIFICATIONS_TYPE.MILESTONES_REMINDERS);
+            this._saveNotification(notification, message.shortDescription, 'view visits', Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS);
         });
 
     }
