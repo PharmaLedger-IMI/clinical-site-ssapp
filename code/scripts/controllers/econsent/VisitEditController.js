@@ -6,7 +6,7 @@ const CommunicationService = commonServices.CommunicationService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-
+//TODO check issue #241
 let getInitModel = () => {
     return {
             details: {
