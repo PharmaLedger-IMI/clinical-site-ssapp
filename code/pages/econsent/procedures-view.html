@@ -1,10 +1,12 @@
 <webc-container controller="econsent/ProceduresViewController">
 
-    <div class="container main-container">
-        <breadcrumb-navigator></breadcrumb-navigator>
-        <h4 class="title">Visit: {{@visit.name}}</h4>
+    <div class="container main-container stepper-3-rows-grid">
+        <div class="container flex-container">
+            <breadcrumb-navigator></breadcrumb-navigator>
+            <h5 class="generic-title">Visit: {{@visit.name}}</h5>
+        </div>
 
-        <div class="table-container">
+        <div class="container">
             <header class="small-container">
                 <div class="row-wrapper grid-equal">
                     <label>Procedures</label>
@@ -12,7 +14,7 @@
                     <label>Status</label>
                 </div>
             </header>
-            <main class="small-container table-content-container" data-for="@procedures">
+            <main class="small-container" data-for="@procedures">
                 <div class="row-wrapper grid-equal">
                     <div class="procedure-details-item">
                         <label>{{@name}}</label>
@@ -28,5 +30,10 @@
                 </div>
             </main>
         </div>
+
+        <div class="button-group-wrapper">
+            <button data-tag="confirm-procedures">Update</button>
+        </div>
+
     </div>
 </webc-container>
