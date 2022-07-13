@@ -61,7 +61,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         let visits = receivedVisits;
         let dayInMs = 86400000; // number of milliseconds in a day
         if(!visits[0].proposedDate) {
-            return "No proposed date for first visit!";
+            return console.error("No proposed date for first visit!");
         }
         visits.map((currentVisit,index) => {
             if(index===0) {

@@ -10,24 +10,30 @@
             <div class="notification-button-wrapper">
                 <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Trial Updates
-                    <div data-if="@notTypes.trialUpdates">
-                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
+                    <div data-if="@unreadTrialUpdates" class="notifications-container">
+                        <label class="notificationList-badge">
+                            <span class="notifications-number">{{@unreadTrialUpdates}}</span>
+                        </label>
                     </div>
                 </button>
             </div>
             <div class="notification-button-wrapper">
                 <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Withdraws
-                    <div data-if="@notTypes.withdraws">
-                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
+                    <div data-if="@unreadWithdraws" class="notifications-container">
+                        <label class="notificationList-badge">
+                            <span class="notifications-number">{{@unreadWithdraws}}</span>
+                        </label>
                     </div>
                 </button>
             </div>
             <div class="notification-button-wrapper">
                 <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Consent Updates
-                    <div data-if="@notTypes.consentUpdates">
-                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
+                    <div data-if="@unreadConsentUpdates" class="notifications-container">
+                        <label class="notificationList-badge">
+                            <span class="notifications-number">{{@unreadConsentUpdates}}</span>
+                        </label>
                     </div>
                 </button>
             </div>
@@ -35,16 +41,20 @@
             <div class="notification-button-wrapper">
                 <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Milestones Reminders
-                    <div data-if="@notTypes.milestones">
-                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
+                    <div data-if="@unreadMilestones" class="notifications-container">
+                        <label class="notificationList-badge">
+                            <span class="notifications-number">{{@unreadMilestones}}</span>
+                        </label>
                     </div>
                 </button>
             </div>
             <div class="notification-button-wrapper">
                 <button class="notification-button" data-tag="navigation:econsent-notifications-list">
                     Trial Subject Questions
-                    <div data-if="@notTypes.questions">
-                        <img height='30' src="themes/clinical-site-theme/images/bell.png" width='34'/>
+                    <div data-if="@unreadQuestions" class="notifications-container">
+                        <label class="notificationList-badge">
+                            <span class="notifications-number">{{@unreadQuestions}}</span>
+                        </label>
                     </div>
                 </button>
             </div>

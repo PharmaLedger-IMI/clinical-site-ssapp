@@ -1,3 +1,4 @@
+import {getNotificationsService} from "../../../services/NotificationsService.js";
 const commonServices = require('common-services');
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
@@ -11,6 +12,7 @@ export default class NotificationsListController extends BreadCrumbManager {
 
         const prevState = this.getState() || {};
         this.model.notificationType = prevState.notType;
+        this.notificationService = getNotificationsService();
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -40,8 +42,14 @@ export default class NotificationsListController extends BreadCrumbManager {
                 return console.log(err);
             }
 
-            this.model.notifications = data.filter(not => not.type.trim() === this.model.notificationType.trim());
+            this.model.notifications = data.filter(not => this.model.notificationType.indexOf(not.type.trim()) > 1);
         });
+    }
+
+    async markNotificationHandler(model) {
+        window.WebCardinal.loader.hidden = false;
+        await this.notificationService.changeNotificationStatus(model.pk);
+        window.WebCardinal.loader.hidden = true;
     }
 
     attachModelHandlers() {
@@ -58,24 +66,33 @@ export default class NotificationsListController extends BreadCrumbManager {
     }
 
     attachHandlerTrialParticipants() {
-        this.onTagClick('navigation:goToAction', (model) => {
+        this.onTagClick('navigation:goToAction', async (model) => {
+            await this.markNotificationHandler(model);
+
             if (model.recommendedAction === 'view trial') {
-                this.navigateToPageTag('econsent-trial-participants', model.ssi);
+                console.log('test',this.HCOService.getAnchorId(model.ssi) )
+                this.navigateToPageTag('econsent-trial-participants', {
+                    breadcrumb: this.model.toObject('breadcrumb'),
+                    trialUid: model.trialUid,
+                    });
             }
 
             if (model.recommendedAction === 'view trial participants') {
-                this.navigateToPageTag('econsent-trial-participants', model.ssi);
+                this.navigateToPageTag('econsent-trial-participants', {
+                    trialUid: model.useCaseSpecifics.trialSSI,
+                    breadcrumb: this.model.toObject('breadcrumb')});
             }
 
             if (model.recommendedAction === 'view visits') {
-                this.navigateToPageTag('econsent-visits-procedures', {
-                    trialSSI: this.model.ssi,
-                    tpUid: this.model.tpUid,
-                });
+            //     this.navigateToPageTag('econsent-visits-procedures', {
+            //         breadcrumb: this.model.toObject('breadcrumb')
+            // });
             }
 
             if (model.recommendedAction === 'view questions') {
-                this.navigateToPageTag('econsent-questions');
+                this.navigateToPageTag('econsent-questions', {
+                    breadcrumb: this.model.toObject('breadcrumb')
+                });
             }
         });
     }

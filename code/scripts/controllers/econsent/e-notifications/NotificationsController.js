@@ -32,20 +32,27 @@ export default class NotificationsController extends BreadCrumbManager {
     }
 
     initNotifications() {
-        this.model.notTypes.trialUpdates = true;
-        this.model.notTypes.consentUpdates = true;
-
         this.NotificationsRepository.findAll((err, data) => {
             if (err) {
                 return console.log(err);
             }
 
             this.model.notifications = data;
-            this.model.notTypes.trialUpdates = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES)?.length > 0;
-            this.model.notTypes.withdraws = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS)?.length > 0;
-            this.model.notTypes.consentUpdates = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES)?.length > 0;
-            this.model.notTypes.milestones = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS)?.length > 0;
-            this.model.notTypes.questions = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS)?.length > 0;
+
+            let trialUpdates = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES.notificationTitle);
+            this.model.unreadTrialUpdates = trialUpdates.filter((x) => !x.read).length > 0 ? trialUpdates.filter((x) => !x.read).length : null;
+
+            let withdraws = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS.notificationTitle);
+            this.model.unreadWithdraws = withdraws.filter((x) => !x.read).length > 0 ? withdraws.filter((x) => !x.read).length : null;
+
+            let consentUpdates = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES.notificationTitle);
+            this.model.unreadConsentUpdates = consentUpdates.filter((x) => !x.read).length > 0 ? consentUpdates.filter((x) => !x.read).length : null;
+
+            let milestones = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS.notificationTitle);
+            this.model.unreadMilestones = milestones.filter((x) => !x.read).length > 0 ? milestones.filter((x) => !x.read).length : null;
+
+            let questions = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS.notificationTitle);
+            this.model.unreadQuestions = questions.filter((x) => !x.read).length > 0 ? questions.filter((x) => !x.read).length : null;
         });
     }
 
@@ -64,13 +71,6 @@ export default class NotificationsController extends BreadCrumbManager {
     getInitModel() {
         return {
             notifications: [],
-            notTypes: {
-                trialUpdates: false,
-                withdraws: false,
-                consentUpdates: false,
-                milestones: false,
-                questions: false
-            }
         };
     }
 }

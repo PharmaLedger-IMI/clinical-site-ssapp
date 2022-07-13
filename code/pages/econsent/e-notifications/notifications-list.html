@@ -18,7 +18,11 @@
 
             <main data-for="@notifications" slot="true">
                 <div class="row-wrapper grid-equal">
-                    <label>{{@name}}</label>
+                    <label>{{@name}}
+                        <div data-if="@read" data-tag="view-notification">>
+                            <i class="fa fa-star" slot="false"></i>
+                            <i class="fa fa-star-o" slot="true"></i>
+                        </div></label>
                     <div class="d-flex justify-content-center align-items-center">
                         <button class="link-button" data-tag="navigation:goToAction">{{@recommendedAction}}</button>
                     </div>
