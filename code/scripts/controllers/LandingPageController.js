@@ -5,13 +5,13 @@ const Constants = commonServices.Constants;
 const {ResponsesService} = commonServices;
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import HCOService from "../services/HCOService.js";
+import DeviceAssignationService from "../services/DeviceAssignationService.js";
 const HealthDataService = commonServices.HealthDataService;
 const healthDataService = new HealthDataService();
 
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
 const {getDidServiceInstance} = commonServices.DidService;
 const MessageHandlerService = commonServices.MessageHandlerService;
-const momentService = commonServices.momentService;
 
 const BaseRepository = commonServices.BaseRepository;
 const SharedStorage = commonServices.SharedStorage;
@@ -35,6 +35,7 @@ export default class LandingPageController extends WebcController {
 
         this.TrialService = new TrialService();
         this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
+        this.DeviceAssignationService = new DeviceAssignationService();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS);
         this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS);
@@ -232,7 +233,18 @@ export default class LandingPageController extends WebcController {
             }
             console.log("****************** Health Data ******************************")
             console.log(healthData);
-            this.model
+            this.DeviceAssignationService.getAssignedDevices((err, devices) => {
+                if (err) {
+                    return console.log(err);
+                }
+                let assignedDevice = devices.find(device => device.deviceId === data.deviceId);
+                assignedDevice.healthDataIdentifier = healthData.uid;
+                this.DeviceAssignationService.updateAssignedDevice(assignedDevice, (err) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                })
+            });
             if(healthData){
                 console.log("We have successfully retrived data");
             }

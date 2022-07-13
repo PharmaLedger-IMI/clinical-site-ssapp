@@ -3,7 +3,6 @@ import DeviceServices from "../../services/DeviceServices.js";
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
-const HealthDataService = commonServices.HealthDataService;
 
 export default class TrialParticipantDevicesListController extends BreadCrumbManager {
 
@@ -20,7 +19,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             participantDID: prevState.participantDID,
             trialParticipantNumber: prevState.trialParticipantNumber
         };
-        this.healthDataService = new HealthDataService();
         this.model.breadcrumb = this.setBreadCrumb(
             {
                 label: "Trial Participant Devices List",
@@ -35,49 +33,17 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
         this.model.hasAssignedDevices = false;
         this.model.available_devices_for_assignation = [];
 
-        this.onTagClick("view-iot-data", () => {
-            this.healthDataService.getAllObservations((err, data)=>{
-                if(err){
-                    console.log(err);
-                }
-                var pageValue = [];
-                console.log("*************** View IoT Data ***************")
-                console.log(data);
-                
-                if(data.length){
-                    // let countData = data.length - 1;
-                    for(let i=0; i<data.length;  i++){
-                        var result = data[i];
-                        let tempVal =  result.filter(o => o.sk.includes(this.model.trialParticipantNumber));
-                        for(let j=0; j<tempVal.length; j++){
-                            pageValue.push(tempVal[j]);
-                        }
-                    }
-                    if(pageValue.length){
-                        pageValue.push({hasValue:true});
-                    }
-                    else {
-                        pageValue.push({hasValue:false});
-                    }
-                    
-                }
-                else {
-                    
-                    pageValue.push({hasValue:false});
-                    console.log("Didn't find any value!");
-                }
-                console.log("*************** View Pagevalue Data ***************")
-                console.log(pageValue);
+        this.onTagClick("view-iot-data", (model) => {
 
-                this.navigateToPageTag('econsent-trial-participant-health-data', { breadcrumb: this.model.toObject('breadcrumb'), pageValue: pageValue} );
-
-
+            this.navigateToPageTag('econsent-trial-participant-health-data', {
+                breadcrumb: this.model.toObject('breadcrumb'),
+                deviceId: model.deviceId,
+                trialParticipantNumber: this.model.trialParticipantNumber
             });
         });
 
         this.getDevices();
         this.getAssignedDevices();
-
         this._attachHandlerAssignDevice();
     }
     

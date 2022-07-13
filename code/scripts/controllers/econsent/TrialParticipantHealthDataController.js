@@ -1,18 +1,61 @@
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-const {WebcController} = WebCardinal.controllers;
+import DeviceAssignationService from "../../services/DeviceAssignationService.js";
 
+const HealthDataService = commonServices.HealthDataService;
 
 
 export default class TrialParticipantHealthDataController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
-        // this.initServices();
-        const prevState = this.getState() || {};
-        this.model = this.getState() || {};
-        var data =  prevState.pageValue;
-        // console.log("Trial Participant Health Data Controller");
-        // console.log(data);
+        this.model = this.getState();
+        this.model.dataLoaded = false;
+
+        const healthDataService = new HealthDataService();
+        const deviceAssignationService = new DeviceAssignationService();
+
+        deviceAssignationService.getAssignedDevices((err, assignedDevices) => {
+            const device = assignedDevices.find(assignedDevice => assignedDevice.deviceId === this.model.deviceId);
+            if (!device.healthDataIdentifier) {
+                this.model.hasHealthData = false;
+                this.model.dataLoaded = true;
+                return;
+            }
+
+            healthDataService.getAllObservations((err, observationsDSUs) => {
+                if (err) {
+                    console.log(err);
+                }
+
+                let observations = [];
+                observationsDSUs.forEach(observationDSU => {
+                    if (observationDSU.uid === device.healthDataIdentifier) {
+                        const patientObservations = observationDSU.observations.filter(observation => observation.sk.includes(this.model.trialParticipantNumber))
+                        observations = observations.concat(...patientObservations);
+                    }
+                });
+
+
+                this.model.healthData = observations.map(observation => {
+
+                    let fullDateTime1 = observation.effectiveDateTime;
+                    let date = fullDateTime1.split("T");
+                    let time = date[1].split(".");
+
+                    return {
+                        title: observation.code.text,
+                        value: observation.valueQuantity.value,
+                        unit: observation.valueQuantity.unit,
+                        date: date[0],
+                        time: time[0]
+                    }
+                });
+
+                this.model.hasHealthData = this.model.healthData.length > 0;
+                this.model.dataLoaded = true;
+
+            });
+        })
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -21,33 +64,5 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
             }
         );
 
-        this.model.healthData = [];
-        let count = data.length-1;
-        this.model.hasValue = data[count].hasValue;
-        console.log("Trial Participant Health Data Has Value");
-        console.log(data[count].hasValue)
-
-        if(data){
-            for(let i=0; i<count; i++){
-                let data1 = data[i];
-                console.log("Trial Participant Health Data Inside Loop");
-                console.log(data1)
-                let fullDateTime1 = data1.effectiveDateTime;
-                let dateTime1 =  fullDateTime1.split("T");
-                let time1 = dateTime1[1].split(".");
-                this.model.healthData.push({
-                    title: data1.code.text,
-                    value: data1.valueQuantity.value,
-                    unit: data1.valueQuantity.unit,
-                    date: dateTime1[0],
-                    time: time1[0]
-                });
-            }
-            
-            console.log(this.model.healthData);
-        }
-        
     }
-
-
 }
