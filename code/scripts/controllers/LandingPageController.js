@@ -5,6 +5,8 @@ const Constants = commonServices.Constants;
 const {ResponsesService} = commonServices;
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import HCOService from "../services/HCOService.js";
+import {getNotificationsService} from "../services/NotificationsService.js";
+
 const HealthDataService = commonServices.HealthDataService;
 const healthDataService = new HealthDataService();
 
@@ -27,6 +29,22 @@ export default class LandingPageController extends WebcController {
         this.initServices().then(() => {
             this.initHandlers();
         });
+
+        this.notificationService = getNotificationsService();
+        this.notificationService.onNotification(this.getNumberOfNotifications.bind(this));
+        this.getNumberOfNotifications();
+    }
+
+    getNumberOfNotifications() {
+        this.notificationService.getNumberOfUnreadNotifications().then(numberOfNotifications => {
+            {
+                if(numberOfNotifications) {
+                    this.model.notificationsNumber = numberOfNotifications;
+                    console.log('numberOfNotifications', numberOfNotifications);
+                    this.model.hasNotifications = true;
+                } else this.model.hasNotifications = false;
+            }
+        })
     }
 
     async initServices() {
@@ -90,6 +108,8 @@ export default class LandingPageController extends WebcController {
     async handleIotMessages(data) {
         switch (data.operation) {
             case 'questionnaire-responses': {
+                await this._saveNotification(data, 'New questionnaire update', 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS);
+
                 this.ResponsesService.mount(data.ssi, (err, data) => {
                     if (err) {
                         return console.log(err);
@@ -114,28 +134,28 @@ export default class LandingPageController extends WebcController {
         switch (data.operation) {
 
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
-                this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                await this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 await this.sendRefreshConsentsToTrialParticipants(data);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_CONSENT: {
-                this._saveNotification(data, 'New ecosent  was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                await this._saveNotification(data, 'New ecosent  was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 await this.sendRefreshConsentsToTrialParticipants(data);
                 break;
             }
             case Constants.MESSAGES.HCO.SITE_STATUS_CHANGED: {
-                this._saveNotification(data, 'The status of site was changed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this._saveNotification(data, 'The status of site was changed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
 
                 break;
             }
             case Constants.MESSAGES.HCO.UPDATE_BASE_PROCEDURES: {
-                this._saveNotification(data, 'New procedure was added ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this._saveNotification(data, 'New procedure was added ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 await this._saveVisit(data.ssi);
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_SITE: {
 
-                this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 const mountSiteAndUpdateEntity = new Promise((resolve => {
                     this.HCOService.mountSite(data.ssi, (err, site) => {
                         if (err) {
@@ -176,7 +196,7 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_TRIAl_CONSENT: {
-                this._saveNotification(data, 'New consent was added to trial  ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this._saveNotification(data, 'New consent was added to trial  ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 break;
             }
             case Constants.MESSAGES.HCO.UPDATE_ECOSENT: {
@@ -268,7 +288,7 @@ export default class LandingPageController extends WebcController {
             case 'withdraw': {
                 actionNeeded = 'TP Withdrawed';
                 status = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW;
-                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
+                await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 tpObjectToAssign = {
                     actionNeeded,
                     status,
@@ -279,7 +299,7 @@ export default class LandingPageController extends WebcController {
             }
             case 'withdraw-intention': {
                 actionNeeded = 'Reconsent required';
-                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
+                await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 status = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW;
                 tpObjectToAssign = {
                     actionNeeded,
@@ -291,7 +311,7 @@ export default class LandingPageController extends WebcController {
             }
             case 'Declined': {
                 actionNeeded = 'TP Declined';
-                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' declined', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
+                await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' declined', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 status = Constants.TRIAL_PARTICIPANT_STATUS.DECLINED;
                 tpObjectToAssign = {
                     actionNeeded,
@@ -303,7 +323,7 @@ export default class LandingPageController extends WebcController {
             }
             case 'sign': {
                 tpSigned = true;
-                this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 actionNeeded = 'Acknowledgement required';
                 status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
                 tpObjectToAssign = {
@@ -375,16 +395,24 @@ export default class LandingPageController extends WebcController {
         });
     }
 
+    async _saveNotification(message, name, recommendedAction, notificationInfo) {
 
-    _saveNotification(notification, name, reccomendedAction, type) {
-        notification.type = type;
-        notification.name = name;
-        notification.recommendedAction = reccomendedAction;
-        this.NotificationsRepository.create(notification, (err, data) => {
-            if (err) {
-                return console.error(err);
-            }
-        });
+        console.log('notification message:', message)
+
+        let notification = {
+            ...message,
+            recommendedAction: recommendedAction,
+            ssi: message.ssi,
+            viewed: false,
+            read: false,
+            date: Date.now(),
+            name: name,
+            type: notificationInfo.notificationTitle,
+            tagPage: notificationInfo.tagPage,
+            state: notificationInfo.state
+        }
+
+        return await this.notificationService.insertNotification(notification);
     }
 
     async _saveVisit(message) {
@@ -447,13 +475,13 @@ export default class LandingPageController extends WebcController {
     }
 
     _saveQuestion(message) {
-        this.QuestionsRepository.create(message.useCaseSpecifics.question.pk, message.useCaseSpecifics.question, (err, data) => {
+        this.QuestionsRepository.create(message.useCaseSpecifics.question.pk, message.useCaseSpecifics.question,async (err, data) => {
             if (err) {
                 console.log(err);
             }
             let notification = message;
 
-            this._saveNotification(notification, message.shortDescription, 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS);
+            await this._saveNotification(notification, message.shortDescription, 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS);
         })
     }
 
@@ -474,7 +502,7 @@ export default class LandingPageController extends WebcController {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             let notification = message;
             notification.tpUid = data.uid;
-            this._saveNotification(notification, message.shortDescription, 'view visits', Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS);
+            await this._saveNotification(notification, message.shortDescription, 'view visits', Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS);
         });
 
     }
