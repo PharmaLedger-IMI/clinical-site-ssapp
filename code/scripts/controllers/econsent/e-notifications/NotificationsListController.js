@@ -70,7 +70,6 @@ export default class NotificationsListController extends BreadCrumbManager {
             await this.markNotificationHandler(model);
 
             if (model.recommendedAction === 'view trial') {
-                console.log('test',this.HCOService.getAnchorId(model.ssi) )
                 this.navigateToPageTag('econsent-trial-participants', {
                     breadcrumb: this.model.toObject('breadcrumb'),
                     trialUid: model.trialUid,

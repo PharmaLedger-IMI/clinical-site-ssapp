@@ -23,8 +23,8 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     initHandlers() {
-        this.attachHandlerBack();
         this.attachHandlerSelect();
+        this.attachHandlerConfirm();
     }
 
     updateTrialParticipant(visit) {
@@ -46,7 +46,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
         visitTp.procedures = this.model.procedures;
         let obj = this.model.tp.visits.findIndex((obj => obj.uuid == visitTp.uuid));
         this.model.tp.visits[obj] = visitTp;
-        this.updateTrialParticipant(this.model.tp.visits[obj]);
     }
 
     async initServices() {
@@ -105,12 +104,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
         });
     }
 
-    attachHandlerBack() {
-        this.onTagClick("navigation:go-back", () => {
-            this.history.goBack();
-        });
-    }
-
     attachHandlerSelect() {
         this.onTagClick('select-option', (model) => {
             if(model.statusList.value !== '') {
@@ -122,6 +115,13 @@ export default class ProceduresViewController extends BreadCrumbManager {
                 }
                 this.updateProcedure(procedure);
             }
+        })
+    }
+
+    attachHandlerConfirm() {
+        this.onTagClick('confirm-procedures', (model) => {
+            let index = this.model.tp.visits.findIndex(visit => visit.uuid === this.model.visitUuid);
+            this.updateTrialParticipant(this.model.tp.visits[index]);
         })
     }
 
