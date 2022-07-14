@@ -122,6 +122,12 @@ export default class ProceduresViewController extends BreadCrumbManager {
         this.onTagClick('confirm-procedures', (model) => {
             let index = this.model.tp.visits.findIndex(visit => visit.uuid === this.model.visitUuid);
             this.updateTrialParticipant(this.model.tp.visits[index]);
+            this.navigateToPageTag('econsent-visits-procedures', {
+                trialUid: this.model.trialUid,
+                tpUid: this.model.tpUid,
+                consentId:this.model.consentId,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
         })
     }
 
