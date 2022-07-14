@@ -14,7 +14,7 @@
                 <p>Add your first device!</p>
             </div>
             
-            <div class="common-datatable econsents dt-7-col" slot="true">
+            <div class="common-datatable devices-datatable dt-8-col" slot="true">
 
                 <div class="m-2 d-flex flex-column">
                     <label>Search device:</label>
@@ -31,6 +31,7 @@
                     <div slot="header">Brand</div>
                     <div slot="header">Model</div>
                     <div slot="header">Status</div>
+                    <div slot="header">Assignation Status</div>
                     <div slot="header">Trial Name</div>
                     <div slot="header">Trial ID</div>
                     <div slot="header">Options</div>
@@ -39,7 +40,8 @@
                     <div class="cell">{{ @deviceId }}</div>
                     <div class="cell">{{ @brand }}</div>
                     <div class="cell">{{ @modelNumber }}</div>
-                    <div class="cell">{{ @status }}</div>
+                    <div class="cell" >{{ @status }}</div>
+                    <div class="cell" style="text-transform:capitalize;">{{ @isAssigned }}</div>
                     <div class="cell">{{ @trialName }}</div>
                     <div class="cell">{{ @trialID }}</div>
                     <div class="cell">
