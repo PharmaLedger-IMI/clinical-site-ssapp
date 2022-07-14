@@ -60,7 +60,7 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
         this.model.breadcrumb = this.setBreadCrumb(
             {
                 label: "Trial Participant Device Data",
-                tag: "econsent-trial-participant-devices-list"
+                tag: "econsent-trial-participant-health-data"
             }
         );
 
