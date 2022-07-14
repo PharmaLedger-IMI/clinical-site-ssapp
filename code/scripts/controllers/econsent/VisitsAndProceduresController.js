@@ -316,7 +316,9 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     attachHandlerViewVisit() {
         this.onTagClick("visit:view", (model) => {
             this.navigateToPageTag('econsent-procedures-view', {
+                trialUid: this.model.trialUid,
                 tpUid: this.model.tpUid,
+                consentId:this.model.consentId,
                 visitUuid: model.uuid,
                 breadcrumb: this.model.toObject('breadcrumb')
             });

@@ -23,7 +23,6 @@ export default class NotificationsController extends BreadCrumbManager {
     }
 
     initHandlers() {
-        this.attachHandlerBack();
         this.attachHandlerNotificationsList();
     }
 
@@ -59,12 +58,6 @@ export default class NotificationsController extends BreadCrumbManager {
     attachHandlerNotificationsList() {
         this.onTagClick('navigation:econsent-notifications-list', (model, target) => {
             this.navigateToPageTag('econsent-notifications-list', { notType: target.textContent, breadcrumb: this.model.toObject('breadcrumb') });
-        });
-    }
-
-    attachHandlerBack() {
-        this.onTagClick('navigation:go-back', () => {
-            this.history.goBack();
         });
     }
 
