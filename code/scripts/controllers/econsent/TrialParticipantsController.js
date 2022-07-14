@@ -5,6 +5,8 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
+const JWTService = commonServices.JWTService;
+const DidService = commonServices.DidService;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
@@ -79,6 +81,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     async _initServices() {
         this.HCOService = new HCOService();
         this.TrialService = new TrialService();
+        this.JWTService = new JWTService();
+        this.DIDService = DidService.getDidServiceInstance();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         return await this.initializeData();
@@ -372,16 +376,19 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         const anonymizedTp  = await this.HCOService.addTrialParticipantAsync(tp);
         trialParticipant.actionNeeded = 'No action required';
 
-
-        //TODO to be replace with real did anonymization procedure
-
+        const tpClaims = {
+            subjectClaims: {anonymizedDID: tp.did},
+            publicClaims: {}
+        };
+        const clinicalSiteDID = await this.DIDService.getDID();
+        const anonymousDIDVc = await this.JWTService.createVerifiableCredentialForAnonymousPatient(clinicalSiteDID, tp.publicDid, tpClaims);
         await this.sendMessageToPatient(
             Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_PATIENT,
             {
                 tpNumber: '',
                 gender:tp.gender,
                 birthdate:tp.birthdate,
-                did: tp.did,
+                anonymousDIDVc: anonymousDIDVc,
                 status: tp.status,
                 subjectName: tp.subjectName,
                 publicDid: tp.publicDid,
