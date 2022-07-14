@@ -82,6 +82,23 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 let suggestedToDate = (dayInRange + windowTo)*dayInMs;
 
                 let suggestedInterval = [previousVisit.proposedDate + suggestedFromDate, previousVisit.proposedDate + suggestedToDate];
+
+                if(windowTo === 0 || windowFrom === 0) {
+                    let firstDate = suggestedInterval[0];
+                    let date = new Date(firstDate);
+                    let todayMs = (date.getHours()*3600 + date.getMinutes()*60 + date.getSeconds()) * 1000;
+                    let firstDateMinimized = firstDate - todayMs;
+                    let secondDateMaximized = firstDateMinimized + (24*3600 * 1000) - 60*1000;
+
+                    suggestedInterval = [firstDateMinimized, secondDateMaximized];
+                } else {
+                    let firstDate = new Date(suggestedInterval[0]);
+                    let todayMs = (firstDate.getHours() * 3600 + firstDate.getMinutes() * 60 + firstDate.getSeconds())*1000;
+                    let firstDateMinimized = suggestedInterval[0] - todayMs;
+                    let secondDateMaximized = (new Date(suggestedInterval[1])).setHours(23, 59);
+
+                    suggestedInterval = [firstDateMinimized, secondDateMaximized];
+                }
                 currentVisit.suggestedInterval = suggestedInterval;
             }
         })
@@ -161,6 +178,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     async updateTrialParticipantVisit(visit, operation) {
+        window.WebCardinal.loader.hidden = false;
         if (!this.model.tp.visits) {
             this.model.tp.visits = this.visits;
         }
@@ -180,6 +198,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.prepareDateForVisits(this.model.tp.visits);
             await this.matchTpVisits(this.model.tp.visits);
             this.sendMessageToPatient(visit, operation);
+            window.WebCardinal.loader.hidden = true;
         })
     }
 
