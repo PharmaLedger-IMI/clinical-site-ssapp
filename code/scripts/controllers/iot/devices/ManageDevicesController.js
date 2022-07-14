@@ -83,11 +83,13 @@ export default class ManageDevicesController extends BreadCrumbManager {
 
 
     init() {
+
         this.deviceServices.getDevice((err, devices) => {
             if (err) {
                 return console.error(err);
             }
             this.model.allDevices = devices;
+            this.model.allAssignedDevices = devices.filter(dv => dv.isAssigned === true);
             this.model.devicesDataSource = DataSourceFactory.createDataSource(7, 10, this.model.allDevices);
             this.model.devicesDataSource.__proto__.updateDevices = function (devices) {
                 this.model.allDevices = devices;
@@ -131,7 +133,6 @@ export default class ManageDevicesController extends BreadCrumbManager {
 
     attachHandlerRemoveDevice() {
         this.onTagClick('remove', (model) => {
-            console.log("Remove Device button pressed", model);
 
             const modalConfig = {
                 controller: "modals/ConfirmationAlertController",
@@ -142,6 +143,14 @@ export default class ManageDevicesController extends BreadCrumbManager {
             };
 
             const deviceUid = model.uid;
+            let checkDeviceAssigned = this.model.allAssignedDevices.find(d => d.uid===deviceUid);
+            if (checkDeviceAssigned) {
+                this.model.message = {
+                    content: 'This device cannot be removed. It is assigned to a trial participant. Please remove the assignation first to be able to remove the device.',
+                    type: 'error'
+                }
+                return;
+            }
 
             this.showModalFromTemplate(
                 "confirmation-alert",
