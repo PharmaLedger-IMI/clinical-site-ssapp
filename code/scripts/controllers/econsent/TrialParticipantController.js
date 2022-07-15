@@ -311,7 +311,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                                 }
                             }
                             if (tpVersion.actionNeeded === Constants.ECO_STATUSES.DECLINED) {
-                                econsent.tsDeclined = 'Declined';
+                                econsent.tsDeclined = true;
                             }
                         }
                     }
@@ -323,7 +323,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                             econsent = this._showButton(econsent, 'Schedule');
                         }
                         if (hcoVersion.name === 'decline' && hcoVersionIndex > tpVersionIndex) {
-                            econsent.hcoDeclined = 'Declined';
+                            econsent.hcoDeclined = true;
                             econsent = this._showButton(econsent, 'View');
                         }
                         econsent.hcoDate = hcoVersion.toShowDate;
