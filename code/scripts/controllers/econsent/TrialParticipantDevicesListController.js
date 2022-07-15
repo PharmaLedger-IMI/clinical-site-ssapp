@@ -11,6 +11,8 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
 
         const prevState = this.getState() || {};
         this.model = this.getState();
+        
+
         this.model = {
             trialUid: prevState.trialUid,
             trialNumber: prevState.trialNumber,
@@ -32,6 +34,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
         this.model.AssignedDevicesForChosenPatient = [];
         this.model.hasAssignedDevices = false;
         this.model.available_devices_for_assignation = [];
+        this.model.deviceList = [];
 
         this.onTagClick("view-iot-data", (model) => {
 
@@ -65,11 +68,19 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             if (err) {
                 return console.error(err);
             }
-
+            var devices = this.model.devices;
             this.model.assignedDevices = assignedDevices;
             this.model.AssignedDevicesForChosenPatient = assignedDevices.filter(ad => ad.patientDID === this.model.participantDID);
-            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(8, 10, this.model.AssignedDevicesForChosenPatient);
-            const { AssignedDevicesForChosenPatientDataSource } = this.model;
+            let tempAssignedDeviceList = this.model.AssignedDevicesForChosenPatient;
+            for(let i=0; i<tempAssignedDeviceList.length; i++){
+                let tempDevice = devices.filter(device=>{
+                    return device.deviceId === tempAssignedDeviceList[i].deviceId
+                });
+                this.model.deviceList.push(tempDevice[0]);
+            }
+            console.log(this.model.deviceList);
+            // this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(5, 10, this.model.AssignedDevicesForChosenPatient);
+            // const { AssignedDevicesForChosenPatientDataSource } = this.model;
             this.onTagClick("assignedDevice-prev-page", () => AssignedDevicesForChosenPatientDataSource.goToPreviousPage());
             this.onTagClick("assignedDevice-next-page", () => AssignedDevicesForChosenPatientDataSource.goToNextPage());
             this.onTagClick("remove-assignation", (model) => {
