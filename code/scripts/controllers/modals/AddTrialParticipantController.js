@@ -1,5 +1,7 @@
 import HCOService from '../../services/HCOService.js';
 const openDSU = require("opendsu");
+const commonServices = require("common-services");
+const { getDidServiceInstance } = commonServices.DidService;
 
 const {WebcController} = WebCardinal.controllers;
 const LEGAL_ENTITY_MAX_AGE = 14;
@@ -81,19 +83,24 @@ export default class AddTrialParticipantController extends WebcController {
         this._initHandlers();
 
         this.observeInputs();
-        this.model.anonymizedDID.value = this.generateAnonymizedDid();
+        this.generateAnonymizedDid();
         this.refreshHandler();
     }
 
     generateAnonymizedDid() {
         const crypto = openDSU.loadApi('crypto');
         let randomDidName = $$.Buffer.from(crypto.generateRandom(20)).toString('hex');
-        const anonymizedDid = `did:ssi:name:iot:${randomDidName}`;
-        return anonymizedDid;
+        const didService = getDidServiceInstance();
+        didService.getWalletDomain().then(walletDomain => {
+            const anonymizedDid = `did:ssi:name:${walletDomain}:${randomDidName}`;
+            this.model.anonymizedDID.value = anonymizedDid;
+        }).catch((err) => {
+            console.log(err);
+        });
     }
 
     refreshHandler() {
-        this.onTagClick('refresh-identifier', () => this.model.anonymizedDID.value = this.generateAnonymizedDid());
+        this.onTagClick('refresh-identifier', this.generateAnonymizedDid.bind(this));
     }
 
     async verifyParticipant() {
