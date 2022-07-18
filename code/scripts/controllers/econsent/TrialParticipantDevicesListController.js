@@ -11,7 +11,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
 
         const prevState = this.getState() || {};
         this.model = this.getState();
-        
 
         this.model = {
             trialUid: prevState.trialUid,
@@ -32,9 +31,8 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
         this.model.devices_this_trial = [];
         this.model.assignedDevices = [];
         this.model.AssignedDevicesForChosenPatient = [];
-        this.model.hasAssignedDevices = false;
         this.model.available_devices_for_assignation = [];
-        this.model.deviceList = [];
+        this.deviceList = [];
 
         this.onTagClick("view-iot-data", (model) => {
 
@@ -72,23 +70,19 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             this.model.assignedDevices = assignedDevices;
             this.model.AssignedDevicesForChosenPatient = assignedDevices.filter(ad => ad.patientDID === this.model.participantDID);
             let tempAssignedDeviceList = this.model.AssignedDevicesForChosenPatient;
-            for(let i=0; i<tempAssignedDeviceList.length; i++){
-                let tempDevice = devices.filter(device=>{
-                    return device.deviceId === tempAssignedDeviceList[i].deviceId
-                });
-                this.model.deviceList.push({
-                    deviceId:  tempDevice[0].deviceId,
-                    modelNumber:  tempDevice[0].modelNumber,
-                    brand:  tempDevice[0].brand,
-                    status:  tempDevice[0].status,
-                });
+            for (let i = 0; i < tempAssignedDeviceList.length; i++) {
+
+                this.deviceList = this.deviceList.concat(devices.filter(device => device.deviceId === tempAssignedDeviceList[i].deviceId).map(device => {
+                    return {
+                        ...tempAssignedDeviceList[i],
+                        deviceId: device.deviceId,
+                        modelNumber: device.modelNumber,
+                        brand: device.brand,
+                        status: device.status,
+                    }
+                }));
             }
-            // console.log(this.model.deviceList);
-            this.model.AssignedDevicesForChosenPatient =  this.model.deviceList;
-           
-            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(5, 10, this.model.AssignedDevicesForChosenPatient);
-            console.log("******** Test ***********");
-            console.log(this.model.AssignedDevicesForChosenPatientDataSource);
+            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(5, 10, this.deviceList);
             const { AssignedDevicesForChosenPatientDataSource } = this.model;
             this.onTagClick("assignedDevice-prev-page", () => AssignedDevicesForChosenPatientDataSource.goToPreviousPage());
             this.onTagClick("assignedDevice-next-page", () => AssignedDevicesForChosenPatientDataSource.goToNextPage());
@@ -103,9 +97,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 this.removeAssignation(assignation);
             });
 
-            if (this.model.AssignedDevicesForChosenPatient.length>0){
-                this.model.hasAssignedDevices = true;
-            }
+            this.model.hasAssignedDevices = this.model.AssignedDevicesForChosenPatient.length > 0;
         } );
     }
 
@@ -113,23 +105,18 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
         this.model.available_devices_for_assignation =  this.model.devices_this_trial.filter(device => device.isAssigned === false);
     }
 
-    removeAssignation(assignation){
+    removeAssignation(deasignedDevice){
         window.WebCardinal.loader.hidden = false;
-        let chosenDeviceIndex = this.model.devices.findIndex(device => device.sk === assignation.deviceId);
-        console.log("************** Remove Assignation **************");
-        console.log(assignation);
+        let chosenDeviceIndex = this.model.devices.findIndex(device => device.sk === deasignedDevice.deviceId);
         this.model.devices[chosenDeviceIndex].isAssigned = false;
         this.DeviceServices.updateDevice(this.model.devices[chosenDeviceIndex], (err, data) => {
             if (err) {
                 return console.error(err);
             }
 
-            assignation.deviceId = ""
-            assignation.patientDID = ""
-            assignation.trialParticipantNumber = ""
-            assignation.trial = ""
+            deasignedDevice.assignation = false;
 
-            this.DeviceAssignationService.updateAssignedDevice(assignation, (err, data) => {
+            this.DeviceAssignationService.updateAssignedDevice(deasignedDevice, (err, data) => {
                 if (err) {
                     console.log(err);
                 }
