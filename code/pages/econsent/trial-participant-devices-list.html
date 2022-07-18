@@ -13,31 +13,25 @@
                 <h4 class="alert-heading">There are no assigned devices yet!</h4>
                 <p>Assign one device for this patient.</p>
             </div>
-            <table class="table table-striped" slot="true">
-                <thead style="background-color: #00345B; color:#FFFF; position: sticky;" >
-                <tr>
-                    <th scope="col">Device ID</th>
-                    <th scope="col">Brand</th>
-                    <th scope="col">Model</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Options</th>
-                </tr>
-                </thead>
-                <tbody data-for="@deviceList">
-                        <tr>
-                            <td>{{@deviceId}}</td>
-                            <td>{{@brand}}</td>
-                            <td>{{@modelNumber}}</td>
-                            <td>{{@status}}</td>
-                            <td>
-                                <button class="link-button" data-tag="view-iot-data">View Data</button>
-                                <label> | </label>
-                                <button class="link-button" data-tag="remove-assignation">Remove Assignation</button>
-                            </td>
-                        </tr>
-                </tbody>
-            </table>
-
+            <div class="common-datatable econsents dt-5-col" slot="true" >
+                <webc-datatable datasource="@AssignedDevicesForChosenPatientDataSource">
+                    <div slot="header">Device ID</div>
+                    <div slot="header">Brand</div>
+                    <div slot="header">Model</div>
+                    <div slot="header">Status</div>
+                    <div slot="header">Options</div>
+            
+                    <div class="cell">{{@deviceId}}</div>
+                    <div class="cell">{{@brand}}</div>
+                    <div class="cell">{{@modelNumber}}</div>
+                    <div class="cell">{{@status}}</div>
+                    <div class="cell">
+                        <button class="link-button" data-tag="view-iot-data">View</button>
+                        <label> | </label>
+                        <button class="link-button" data-tag="remove-assignation">Remove Assignation</button>
+                    </div>
+                </webc-datatable>
+            </div>
         </div>
         <footer class="button-group-wrapper">
             <button data-tag="assign-device">Assign Device</button>
@@ -46,22 +40,3 @@
 </webc-container>
 
 
-/* <div class="common-datatable econsents" slot="false">
-    <webc-datatable datasource="@AssignedDevicesForChosenPatientDataSource">
-        <div slot="header">Device ID</div>
-        <div slot="header">Brand</div>
-        <div slot="header">Model</div>
-        <div slot="header">Status</div>
-        <div slot="header">Options</div>
-
-        <div class="cell">{{@deviceId}}</div>
-        <div class="cell">{{@brand}}</div>
-        <div class="cell">{{@modelNumber}}</div>
-         <div class="cell">{{@status}}</div>
-    <div class="cell">
-            <button class="link-button" data-tag="view-iot-data">View</button>
-            <label> | </label>
-            <button class="link-button" data-tag="remove-assignation">Remove Assignation</button>
-        </div>
-    </webc-datatable>
-</div> */

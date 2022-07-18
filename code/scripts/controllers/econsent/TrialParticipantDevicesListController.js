@@ -76,11 +76,20 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 let tempDevice = devices.filter(device=>{
                     return device.deviceId === tempAssignedDeviceList[i].deviceId
                 });
-                this.model.deviceList.push(tempDevice[0]);
+                this.model.deviceList.push({
+                    deviceId:  tempDevice[0].deviceId,
+                    modelNumber:  tempDevice[0].modelNumber,
+                    brand:  tempDevice[0].brand,
+                    status:  tempDevice[0].status,
+                });
             }
-            console.log(this.model.deviceList);
-            // this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(5, 10, this.model.AssignedDevicesForChosenPatient);
-            // const { AssignedDevicesForChosenPatientDataSource } = this.model;
+            // console.log(this.model.deviceList);
+            this.model.AssignedDevicesForChosenPatient =  this.model.deviceList;
+           
+            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(5, 10, this.model.AssignedDevicesForChosenPatient);
+            console.log("******** Test ***********");
+            console.log(this.model.AssignedDevicesForChosenPatientDataSource);
+            const { AssignedDevicesForChosenPatientDataSource } = this.model;
             this.onTagClick("assignedDevice-prev-page", () => AssignedDevicesForChosenPatientDataSource.goToPreviousPage());
             this.onTagClick("assignedDevice-next-page", () => AssignedDevicesForChosenPatientDataSource.goToNextPage());
             this.onTagClick("remove-assignation", (model) => {
