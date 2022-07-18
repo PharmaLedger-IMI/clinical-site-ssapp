@@ -26,11 +26,21 @@
                     <div class="cell">{{@brand}}</div>
                     <div class="cell">{{@modelNumber}}</div>
                     <div class="cell">{{@status}}</div>
-                    <div class="cell">{{@assignation}}</div>
+                    <div class="cell" data-if="@isStillAssigned">
+
+                            <span slot="true" class="badge badge-primary">{{@assignationDateString}}</span>
+                            <div slot="false">
+                                <span class="badge badge-success">{{@assignationDateString}}</span>
+                                -
+                                <span class="badge badge-success">{{@assignationCompleteDateString}}</span>
+                            </div>
+
+
+                    </div>
                     <div class="cell">
                         <button class="link-button" data-tag="view-iot-data">View</button>
                         <label> | </label>
-                        <div data-if="@assignation">
+                        <div data-if="@isStillAssigned">
                             <button slot="true" class="link-button" data-tag="remove-assignation">Remove Assignation</button>
                             <button slot="false" class="link-button" disabled>Remove Assignation</button>
                         </div>

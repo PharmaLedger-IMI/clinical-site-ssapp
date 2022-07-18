@@ -66,19 +66,24 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             if (err) {
                 return console.error(err);
             }
-            var devices = this.model.devices;
+            let devices = this.model.devices;
             this.model.assignedDevices = assignedDevices;
             this.model.AssignedDevicesForChosenPatient = assignedDevices.filter(ad => ad.patientDID === this.model.participantDID);
             let tempAssignedDeviceList = this.model.AssignedDevicesForChosenPatient;
             for (let i = 0; i < tempAssignedDeviceList.length; i++) {
-
-                this.deviceList = this.deviceList.concat(devices.filter(device => device.deviceId === tempAssignedDeviceList[i].deviceId).map(device => {
+                let deviceAssignation = tempAssignedDeviceList[i];
+                this.deviceList = this.deviceList.concat(devices.filter(device => device.deviceId === deviceAssignation.deviceId).map(device => {
                     return {
-                        ...tempAssignedDeviceList[i],
+                        ...deviceAssignation,
+                        isStillAssigned:typeof deviceAssignation.assignationCompleteDate === "undefined",
+                        assignationDateString: new Date(deviceAssignation.assignationDate).toLocaleString(),
+                        assignationCompleteDateString: deviceAssignation.assignationCompleteDate ? new Date(deviceAssignation.assignationCompleteDate).toLocaleString():"",
                         deviceId: device.deviceId,
                         modelNumber: device.modelNumber,
                         brand: device.brand,
-                        status: device.status,
+                        status: device.status
+
+
                     }
                 }));
             }
@@ -92,7 +97,11 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     patientDID: model.patientDID,
                     trialParticipantNumber: model.trialParticipantNumber,
                     trial: model.trial,
-                    uid: model.uid
+                    uid: model.uid,
+                    assignationDate:model.assignationDate,
+                    assignationCompleteDate : Date.now(),
+                    isStillAssigned:false,
+
                 }
                 this.removeAssignation(assignation);
             });
@@ -114,7 +123,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 return console.error(err);
             }
 
-            deasignedDevice.assignation = false;
 
             this.DeviceAssignationService.updateAssignedDevice(deasignedDevice, (err, data) => {
                 if (err) {
