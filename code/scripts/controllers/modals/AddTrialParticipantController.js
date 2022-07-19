@@ -29,7 +29,7 @@ let getInitModel = () => {
             value: '',
         },
         birthdate: {
-            label: 'Birth Date',
+            label: 'Date of Birth',
             name: 'date',
             required: true,
             dataFormat: 'MM YYYY',
@@ -52,7 +52,7 @@ let getInitModel = () => {
             value: '',
         },
         gender: {
-            label: 'Select your gender',
+            label: 'Gender',
             required: true,
             options: [
                 {
