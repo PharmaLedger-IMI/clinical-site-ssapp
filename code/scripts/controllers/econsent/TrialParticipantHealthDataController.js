@@ -3,7 +3,7 @@ const BreadCrumbManager = commonServices.getBreadCrumbManager();
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
 
 const HealthDataService = commonServices.HealthDataService;
-
+const DataSourceFactory = commonServices.getDataSourceFactory();
 
 export default class TrialParticipantHealthDataController extends BreadCrumbManager {
     constructor(...props) {
@@ -41,7 +41,6 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
                     let fullDateTime1 = observation.effectiveDateTime;
                     let date = fullDateTime1.split("T");
                     let time = date[1].split(".");
-
                     return {
                         title: observation.code.text,
                         value: observation.valueQuantity.value,
@@ -50,6 +49,8 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
                         time: time[0]
                     }
                 });
+                this.model.PatientHealthDataSource = DataSourceFactory.createDataSource(4, 10, this.model.healthData);
+                // const { AssignedDevicesForChosenPatientDataSource } = this.model;
 
                 this.model.hasHealthData = this.model.healthData.length > 0;
                 this.model.dataLoaded = true;

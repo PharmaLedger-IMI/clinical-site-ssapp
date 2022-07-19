@@ -7,29 +7,29 @@
             <h4 class="title">Trial Participant Health Data</h4>
         </div>
 
-        <div class="container" data-if="@hasHealthData">
-            <webc-spinner slot="loading"></webc-spinner>
-            <div class="alert alert-warning" role="alert" slot="false">
-                <p class="alert-heading">Sorry! No data is available to view.</p>
+        <div data-if="@hasHealthData">
+            <webc-spinner slot="loading"></webc-spinner> 
+            <div slot="false" class="alert alert-warning text-center" role="alert">
+                <h4 class="alert-heading">There are no patient observations yet!</h4>
+                <p>Assign one device for this patient.</p>
             </div>
-            <table class="table table-striped" slot="true">
-                <thead style="background-color: #00345B; color:#FFFF; position: sticky;">
-                  <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Time</th>
-                    <th scope="col">Data Type</th>
-                    <th scope="col">Value</th>
-                  </tr>
-                </thead>
-                <tbody data-for="@healthData">
-                        <tr>
-                            <td>{{@date}}</td>
-                            <td>{{@time}}</td>
-                            <td>{{@title}}</td>
-                            <td>{{@value}} {{@unit}}</td>
-                        </tr>
-                </tbody>
-            </table>
+            <div class="common-datatable health-data-table dt-4-col" slot="true" >
+                <webc-datatable datasource="@PatientHealthDataSource">
+                    <div slot="header">Date</div>
+                    <div slot="header">Time</div>
+                    <div slot="header">Data Type</div>
+                    <div slot="header">Value</div>
+            
+                    <div class="cell">
+                        <span class="badge badge-primary"> {{@date}} </span>
+                    </div>
+                    <div class="cell">
+                        <span class="badge badge-success"> {{@time}}</span>
+                        </div>
+                    <div class="cell">{{@title}}</div>
+                    <div class="cell">{{@value}} {{@unit}}</div>
+                </webc-datatable>
+            </div>
         </div>
 
     </div>
