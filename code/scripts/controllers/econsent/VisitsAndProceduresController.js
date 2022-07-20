@@ -27,7 +27,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.dataSourceInitialized = true;
             this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'))
             this.model.visitsDataSource.__proto__.updateVisits = function (visits) {
-                this.model.trialParticipants = visits;
                 this.model.tableData = visits;
 
                 this.getElement().dataSize = visits.length;
@@ -106,7 +105,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
     async initVisits() {
         if(this.model.toObject("site.visits.visits").length) {
-            this.model.visits = this.model.toObject("site.visits.visits").find((visit) => visit.consentId = this.model.consentId).data;
+            this.model.visits = this.model.toObject("site.visits.visits").find((visit) => visit.consentId === this.model.consentId).data;
         }
         this.model.siteHasVisits = this.model.visits.length > 0;
         this.extractDataVisit();
@@ -150,17 +149,17 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         visit.rescheduled = visitTp.rescheduled;
                         visit.shouldBeRescheduled = false;
                         if (!visit.accepted && !visit.declined && !visit.rescheduled) {
-                            visit.tsAcceptance = "Required";
+                            visit.tsAcceptance = "required";
                         } else {
                             visit.shouldBeRescheduled = true;
                             if (visit.accepted) {
-                                    visit.tsAcceptance = "Agreed";
+                                    visit.tsAcceptance = "agreed";
                             }
                             if (visit.declined) {
-                                    visit.tsAcceptance = "Declined";
+                                    visit.tsAcceptance = "declined";
                             }
                             if(visit.rescheduled) {
-                                visit.tsAcceptance = "Rescheduled";
+                                visit.tsAcceptance = "rescheduled";
                             }
                         }
                         visit.proposedDate = visitTp.proposedDate;
@@ -179,24 +178,35 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
     async updateTrialParticipantVisit(visit, operation) {
         window.WebCardinal.loader.hidden = false;
-        if (!this.model.tp.visits) {
-            this.model.tp.visits = this.visits;
+
+        if(!this.model.tp.visits){
+            this.model.tp.visits = [];
         }
 
-        let objIndex = this.model.tp.visits.findIndex((obj => obj.uuid === visit.uuid));
-        this.model.tp.visits[objIndex].toShowDate = visit.toShowDate;
-        this.model.tp.visits[objIndex].proposedDate = this.model.proposedDate;
-        this.model.tp.visits[objIndex].hasProposedDate = visit.hasProposedDate;
-        this.model.tp.visits[objIndex].confirmedDate = visit.confirmedDate;
-        this.model.tp.visits[objIndex].confirmed = visit.confirmed;
-        this.model.visits[objIndex].proposedDate = this.model.proposedDate;
-        this.model.visits[objIndex].hasProposedDate = true;
+        this.model.visits.forEach(visit=>{
+            if (!this.model.tp.visits.some(tpVisit => tpVisit.uuid === visit.uuid)) {
+                this.model.tp.visits.push(JSON.parse(JSON.stringify(visit)));
+            }
+        })
+
+        let tpVisitIndex = this.model.tp.visits.findIndex((obj => obj.uuid === visit.uuid));
+        let consentVisitIndex = this.model.visits.findIndex((obj => obj.uuid === visit.uuid));
+        this.model.tp.visits[tpVisitIndex].toShowDate = visit.toShowDate;
+        this.model.tp.visits[tpVisitIndex].proposedDate = this.model.proposedDate;
+        this.model.tp.visits[tpVisitIndex].hasProposedDate = visit.hasProposedDate;
+        this.model.tp.visits[tpVisitIndex].confirmedDate = visit.confirmedDate;
+        this.model.tp.visits[tpVisitIndex].confirmed = visit.confirmed;
+        this.model.visits[consentVisitIndex].proposedDate = this.model.proposedDate;
+        this.model.visits[consentVisitIndex].hasProposedDate = true;
 
         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-            this.model.visitsDataSource.updateVisits(this.model.tp.visits);
-            this.prepareDateForVisits(this.model.tp.visits);
-            await this.matchTpVisits(this.model.tp.visits);
+            const currentConsentVisits = this.model.tp.visits.filter(tpVisit=>{
+                return this.model.visits.some(visit => tpVisit.uuid === visit.uuid)
+            })
+            this.model.visitsDataSource.updateVisits(currentConsentVisits);
+            this.prepareDateForVisits(currentConsentVisits);
+            await this.matchTpVisits(currentConsentVisits);
             this.sendMessageToPatient(visit, operation);
             window.WebCardinal.loader.hidden = true;
         })
@@ -306,7 +316,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         this.model.proposedDate = model.proposedDate;
                         this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(model.proposedDate);
                         await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
-                        // await this.VisitsAndProceduresRepository.createAsync(model.uuid, model);
                     }
                 },
                 (event) => {
@@ -316,7 +325,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     controller: "modals/ConfirmationAlertController",
                     disableExpanding: false,
                     disableBackdropClosing: true,
-                    question: "Are you sure you want to confirm this visit, The patient attended to visit ? ",
+                    question: "Are you sure you want to confirm this visit?",
                     title: "Confirm visit",
                 });
         });

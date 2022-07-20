@@ -59,7 +59,22 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     initProcedures() {
-        this.model.visit = this.model.hcoDSU.volatile.site[0].visits.visits[0].data.find(v => v.uuid === this.model.visitUuid);
+        const sites = this.model.toObject("hcoDSU.volatile.site");
+        const site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
+
+        for (let i = 0; i < site.visits.visits.length; i++) {
+            const visits = site.visits.visits[i];
+            const visit = visits.data.find(v => v.uuid === this.model.visitUuid);
+            if (visit) {
+                this.model.visit = visit;
+                break;
+            }
+        }
+
+        if (!this.model.visit) {
+            throw Error("Visit not found!");
+        }
+
         this.model.tp = this.model.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
         this.model.procedures = this.model.visit.procedures;
         if (!this.model.tp.visits || this.model.tp.visits.length < 1) {
@@ -67,6 +82,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
             this.updateTrialParticipant();
 
         } else {
+            debugger;
             let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visitUuid) [0];
 
             if (visitTp) {

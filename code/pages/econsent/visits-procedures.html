@@ -43,7 +43,14 @@
                             <div slot="false">-</div>
                         </div>
 
-                        <div class="cell">{{@tsAcceptance}}</div>
+                        <div class="cell">
+                            <webc-switch condition="@tsAcceptance">
+                                <span slot="required" class="badge badge-primary">Required</span>
+                                <span slot="agreed" class="badge badge-success">Agreed</span>
+                                <span slot="declined" class="badge badge-danger">Declined</span>
+                                <span slot="rescheduled" class="badge badge-secondary">Rescheduled</span>
+                            </webc-switch>
+                        </div>
 
                         <div data-if="@confirmed" class="cell">
                             <div slot="true">{{@confirmedDate}}</div>
