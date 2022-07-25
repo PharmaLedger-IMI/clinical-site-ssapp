@@ -272,6 +272,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     confirmedDate: model.confirmedDate,
+                    suggestedInterval: model.suggestedInterval,
                 });
         });
     }
