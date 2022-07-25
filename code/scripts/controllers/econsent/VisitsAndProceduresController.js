@@ -196,6 +196,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.model.tp.visits[tpVisitIndex].hasProposedDate = visit.hasProposedDate;
         this.model.tp.visits[tpVisitIndex].confirmedDate = visit.confirmedDate;
         this.model.tp.visits[tpVisitIndex].confirmed = visit.confirmed;
+        this.model.tp.visits[tpVisitIndex].suggestedInterval = visit.suggestedInterval;
         this.model.visits[consentVisitIndex].proposedDate = this.model.proposedDate;
         this.model.visits[consentVisitIndex].hasProposedDate = true;
 
@@ -298,7 +299,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     unit: visit.unit,
                     uid: visit.uuid,
                     id: visit.id,
-                    proposedDate: visit.proposedDate
+                    proposedDate: visit.proposedDate,
+                    suggestedInterval: visit.suggestedInterval
                 },
             },
             shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.SCHEDULE_VISIT,
