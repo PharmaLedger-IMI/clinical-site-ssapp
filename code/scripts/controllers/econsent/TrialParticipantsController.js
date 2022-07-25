@@ -126,9 +126,9 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         const recruitmentPeriod = this.model.site.recruitmentPeriod;
         let isInRecruitmentPeriod = false;
         if (typeof recruitmentPeriod === "object") {
-            const today = new Date();
-            const startDate = new Date(recruitmentPeriod.startDate)
-            const endDate = new Date(recruitmentPeriod.endDate);
+            const today = (new Date()).getTime();
+            const startDate = (new Date(recruitmentPeriod.startDate)).setHours(0,0,0);
+            const endDate = (new Date(recruitmentPeriod.endDate)).setHours(23,59,59);
 
             if (startDate <= today && today <= endDate) {
                 isInRecruitmentPeriod = true;
