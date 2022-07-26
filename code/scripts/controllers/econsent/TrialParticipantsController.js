@@ -428,9 +428,9 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 return siteConsentsKeySSis.includes(icf.genesisUid)
             });
 
-            const promises = trialConsents.map((econsent)=> {
+            const promises = trialConsents.map((econsent, index)=> {
                 return this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
-                    econsent.keySSI, null);
+                    econsent.keySSI, index,null);
 
             });
             await Promise.all(promises);
@@ -439,18 +439,26 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
 
-    sendConsentToPatient(operation, tp, econsentKeySSI, shortMessage) {
-        return this.CommunicationService.sendMessage(tp.publicDid, {
-            operation: operation,
-            ssi: econsentKeySSI,
-            useCaseSpecifics: {
-                subjectName: tp.subjectName,
-                tpName: tp.name,
-                did: tp.did,
-                sponsorDid: tp.sponsorDid,
-            },
-            shortDescription: shortMessage,
-        });
+    sendConsentToPatient(operation, tp, econsentKeySSI, index, shortMessage) {
+        return new Promise((resolve) => {
+
+            setTimeout(async () => {
+                await this.CommunicationService.sendMessage(tp.publicDid, {
+                    operation: operation,
+                    ssi: econsentKeySSI,
+                    useCaseSpecifics: {
+                        subjectName: tp.subjectName,
+                        tpName: tp.name,
+                        did: tp.did,
+                        sponsorDid: tp.sponsorDid,
+                    },
+                    shortDescription: shortMessage,
+                });
+                resolve();
+
+            }, index * 10);
+
+        })
     }
 
 
