@@ -319,6 +319,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         this.model.proposedDate = model.proposedDate;
                         this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(model.proposedDate);
                         await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
+
+                        if(this.model.site.status.stage !== 'Conducting') {
+                            this.updateSiteStage();
+                        }
                     }
                 },
                 (event) => {
@@ -331,6 +335,20 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     question: "Are you sure you want to confirm this visit?",
                     title: "Confirm visit",
                 });
+        });
+    }
+
+    updateSiteStage() {
+        const site = this.model.site;
+        this.HCOService.getHCOSubEntity(site.status.uid, "/site/" + site.uid + "/status", (err, statusDSU) => {
+            statusDSU.stage = 'Conducting';
+            this.HCOService.updateHCOSubEntity(statusDSU, "/site/" + site.uid + "/status", (err, dsu) => {
+                this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
+                    stageInfo: {
+                        siteSSI: this.model.site.uid
+                    }
+                }, 'The stage of the site changed');
+            });
         });
     }
 
@@ -361,18 +379,26 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
     }
 
-    sendMessageToSponsor(visit) {
+    sendMessageToSponsor(data, infos, shortDescription) {
+        if(data === Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS) {
+            return this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
+                operation: data,
+                ...infos,
+                shortDescription: shortDescription,
+            });
+        }
+
         const currentDate = new Date();
         let sendObject = {
             operation: Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_CONFIRMED,
             ssi: this.model.econsentUid,
             useCaseSpecifics: {
-                trialSSI: visit.trialSSI,
+                trialSSI: data.trialSSI,
                 tpNumber: this.model.tp.number,
                 tpDid: this.model.tp.did,
 
                 visit: {
-                    id: visit.id,
+                    id: data.id,
                     date: DateTimeService.getCurrentDateAsISOString(),
                     toShowDate: currentDate.toLocaleDateString(),
                 },
