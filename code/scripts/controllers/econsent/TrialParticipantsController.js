@@ -456,7 +456,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 });
                 resolve();
 
-            }, index * 10);
+            }, index * 100);
 
         })
     }
