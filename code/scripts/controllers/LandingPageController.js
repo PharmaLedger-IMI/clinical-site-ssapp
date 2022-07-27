@@ -136,7 +136,9 @@ export default class LandingPageController extends WebcController {
 
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
                 await this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
-                await this.sendRefreshConsentsToTrialParticipants(data);
+                this.HCOService.refreshSite(async ()=> {
+                    await this.sendRefreshConsentsToTrialParticipants(data);
+                });
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_CONSENT: {
