@@ -24,7 +24,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         );
 
         this.initServices().then(() => {
-            this.model.dataSourceInitialized = true;
+            this.model.dataSourceInitialized = this.model.visits.length ? true : false;
             this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'))
             this.model.visitsDataSource.__proto__.updateVisits = function (visits) {
                 this.model.tableData = visits;
@@ -56,51 +56,54 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         await this.initVisits();
     }
 
-     prepareDateForVisits(receivedVisits) {
-        let visits = receivedVisits;
-        let dayInMs = 86400000; // number of milliseconds in a day
-        if(!visits[0].proposedDate) {
-            return console.error("No proposed date for first visit!");
-        }
-        visits.map((currentVisit,index) => {
-            if(index===0) {
-                return;
+    prepareDateForVisits(receivedVisits) {
+        if (receivedVisits.length > 0) {
+
+            let visits = receivedVisits;
+            let dayInMs = 86400000; // number of milliseconds in a day
+            if (!visits[0].proposedDate) {
+                return console.error("No proposed date for first visit!");
             }
-            let { windowTo, windowFrom } = currentVisit; // destr || current. ..
-            let previousVisit = visits[0];
-            if(previousVisit.proposedDate) {
-                let weeksDif = (currentVisit.week - previousVisit.week)* 7;
-                let daysDif = currentVisit.day - previousVisit.day;
-
-                let dayInRange = weeksDif + daysDif;
-
-                windowFrom = windowFrom !== 'N/A' ? windowFrom : 0;
-                windowTo = windowTo !== 'N/A' ? windowTo : 0;
-
-                let suggestedFromDate = (dayInRange + windowFrom)*dayInMs;
-                let suggestedToDate = (dayInRange + windowTo)*dayInMs;
-
-                let suggestedInterval = [previousVisit.proposedDate + suggestedFromDate, previousVisit.proposedDate + suggestedToDate];
-
-                if(windowTo === 0 || windowFrom === 0) {
-                    let firstDate = suggestedInterval[0];
-                    let date = new Date(firstDate);
-                    let todayMs = (date.getHours()*3600 + date.getMinutes()*60 + date.getSeconds()) * 1000;
-                    let firstDateMinimized = firstDate - todayMs;
-                    let secondDateMaximized = firstDateMinimized + (24*3600 * 1000) - 60*1000;
-
-                    suggestedInterval = [firstDateMinimized, secondDateMaximized];
-                } else {
-                    let firstDate = new Date(suggestedInterval[0]);
-                    let todayMs = (firstDate.getHours() * 3600 + firstDate.getMinutes() * 60 + firstDate.getSeconds())*1000;
-                    let firstDateMinimized = suggestedInterval[0] - todayMs;
-                    let secondDateMaximized = (new Date(suggestedInterval[1])).setHours(23, 59);
-
-                    suggestedInterval = [firstDateMinimized, secondDateMaximized];
+            visits.map((currentVisit, index) => {
+                if (index === 0) {
+                    return;
                 }
-                currentVisit.suggestedInterval = suggestedInterval;
-            }
-        })
+                let {windowTo, windowFrom} = currentVisit;
+                let previousVisit = visits[0];
+                if (previousVisit.proposedDate) {
+                    let weeksDif = (currentVisit.week - previousVisit.week) * 7;
+                    let daysDif = currentVisit.day - previousVisit.day;
+
+                    let dayInRange = weeksDif + daysDif;
+
+                    windowFrom = windowFrom !== 'N/A' ? windowFrom : 0;
+                    windowTo = windowTo !== 'N/A' ? windowTo : 0;
+
+                    let suggestedFromDate = (dayInRange + windowFrom) * dayInMs;
+                    let suggestedToDate = (dayInRange + windowTo) * dayInMs;
+
+                    let suggestedInterval = [previousVisit.proposedDate + suggestedFromDate, previousVisit.proposedDate + suggestedToDate];
+
+                    if (windowTo === 0 || windowFrom === 0) {
+                        let firstDate = suggestedInterval[0];
+                        let date = new Date(firstDate);
+                        let todayMs = (date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds()) * 1000;
+                        let firstDateMinimized = firstDate - todayMs;
+                        let secondDateMaximized = firstDateMinimized + (24 * 3600 * 1000) - 60 * 1000;
+
+                        suggestedInterval = [firstDateMinimized, secondDateMaximized];
+                    } else {
+                        let firstDate = new Date(suggestedInterval[0]);
+                        let todayMs = (firstDate.getHours() * 3600 + firstDate.getMinutes() * 60 + firstDate.getSeconds()) * 1000;
+                        let firstDateMinimized = suggestedInterval[0] - todayMs;
+                        let secondDateMaximized = (new Date(suggestedInterval[1])).setHours(23, 59);
+
+                        suggestedInterval = [firstDateMinimized, secondDateMaximized];
+                    }
+                    currentVisit.suggestedInterval = suggestedInterval;
+                }
+            })
+        }
     }
 
     async initVisits() {
