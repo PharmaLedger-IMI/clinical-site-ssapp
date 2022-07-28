@@ -82,15 +82,14 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                         modelNumber: device.modelNumber,
                         brand: device.brand,
                         status: device.status
-
-
                     }
                 }));
             }
-            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(5, 10, this.deviceList);
-            const { AssignedDevicesForChosenPatientDataSource } = this.model;
-            this.onTagClick("assignedDevice-prev-page", () => AssignedDevicesForChosenPatientDataSource.goToPreviousPage());
-            this.onTagClick("assignedDevice-next-page", () => AssignedDevicesForChosenPatientDataSource.goToNextPage());
+            // console.log(this.deviceList);
+            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(6, 10, this.deviceList);
+            const { AssignedDevicesForChosenPatientDataSources } = this.model;
+            this.onTagClick("assignedDevice-prev-page", () => AssignedDevicesForChosenPatientDataSources.goToPreviousPage());
+            this.onTagClick("assignedDevice-next-page", () => AssignedDevicesForChosenPatientDataSources.goToNextPage());
             this.onTagClick("remove-assignation", (model) => {
                 let assignation = {
                     deviceId: model.deviceId,
