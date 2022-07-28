@@ -14,7 +14,9 @@ export default class EditDeviceController extends BreadCrumbManager {
 
         const prevState = this.getState() || {};
         this.model = this.getState();
-        this.model.breadcrumb = this.setBreadCrumb(
+        console.log("This is the model")
+        console.log(this.model)
+       this.model.breadcrumb = this.setBreadCrumb(
             {
                 label: "Edit Device",
                 tag: "iot-edit-device"
@@ -22,29 +24,52 @@ export default class EditDeviceController extends BreadCrumbManager {
         );
 
         this.deviceServices = new DeviceServices();
-        let hcoService = new HCOService();
-        let hcoDSUPromise = hcoService.getOrCreateAsync();
-        hcoDSUPromise.then(hcoDSU => {
+        console.log(this.model.data.isAssigned)
+        if(this.model.data.isAssigned){
+            console.log("Is assigned");
             let allTrials = [];
-            let listTrials = hcoDSU.volatile.trial;
-            for (let trial in listTrials) {
-                let trialFormat = {
-                    label: "",
-                    value: "",
-                    ssi: ""
-                };
-                trialFormat.label = listTrials[trial].name + " - " + listTrials[trial].id;
-                trialFormat.value = listTrials[trial].id;
-                trialFormat.ssi = listTrials[trial].uid;
-                trialFormat.name = listTrials[trial].name;
-                allTrials.push(trialFormat);
-            }
-
+            let trialFormat = {
+                label: "",
+                value: "",
+                ssi: ""
+            };
+            trialFormat.label = this.model.data.trialName + " - " + this.model.data.trialID;
+            trialFormat.value = this.model.data.trialID;
+            trialFormat.ssi = this.model.data.trialUid;
+            trialFormat.name = this.model.data.trialName;
+            allTrials.push(trialFormat);
             let trialsState = { prevState: prevState.data, trials: allTrials }
             this.model = modelSetter(trialsState, true);
-            this.model.trials = allTrials;
-        });
+            this.model.trial.options = allTrials;
 
+        }
+        else{
+            let hcoService = new HCOService();
+            let hcoDSUPromise = hcoService.getOrCreateAsync();
+            hcoDSUPromise.then(hcoDSU => {
+                let allTrials = [];
+                let listTrials = hcoDSU.volatile.trial;
+                for (let trial in listTrials) {
+                    let trialFormat = {
+                        label: "",
+                        value: "",
+                        ssi: ""
+                    };
+                    trialFormat.label = listTrials[trial].name + " - " + listTrials[trial].id;
+                    trialFormat.value = listTrials[trial].id;
+                    trialFormat.ssi = listTrials[trial].uid;
+                    trialFormat.name = listTrials[trial].name;
+                    allTrials.push(trialFormat);
+                }
+    
+                let trialsState = { prevState: prevState.data, trials: allTrials }
+                this.model = modelSetter(trialsState, true);
+                this.model.trials = allTrials;
+            });
+        }
+        
+        console.log("This is updated model")
+        console.log(this.model)
         this.attachHandlerSaveButton();
 
     }

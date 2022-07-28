@@ -126,7 +126,6 @@ export default class ManageDevicesController extends BreadCrumbManager {
 
     attachHandlerEditDevice() {
         this.onTagClick('edit', (model) => {
-            console.log("Edit Device button pressed", model);
             this.navigateToPageTag('iot-edit-device', { data: model, breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
