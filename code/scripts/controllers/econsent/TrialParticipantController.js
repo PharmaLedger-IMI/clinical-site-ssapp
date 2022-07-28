@@ -65,7 +65,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
     async _initConsents(trialUid) {
 
-
         let ifcs = this.model.hcoDSU.volatile.ifcs;
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
 
@@ -320,6 +319,10 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         let hcoVersionIndex = validVersions.findIndex(v => v === hcoVersion);
                         let tpVersionIndex = validVersions.findIndex(v => v === tpVersion);
                         if (hcoVersion.name === 'sign' && hcoVersionIndex > tpVersionIndex) {
+                            econsent.test = true;
+                            econsent = this._showButton(econsent, 'View');
+                        }
+                        if (hcoVersion.name === 'sign' && hcoVersionIndex > tpVersionIndex && this.model.tp.number!==undefined) {
                             econsent = this._showButton(econsent, 'Schedule');
                         }
                         if (hcoVersion.name === 'decline' && hcoVersionIndex > tpVersionIndex) {
@@ -337,7 +340,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
         this.model.tsBtnIsDisabled = true;
         this.model.econsents.forEach(econsent => {
-            if(econsent['type'] === 'Mandatory' && econsent['showScheduleButton'] === true) {
+            if((econsent['type'] === 'Mandatory' && econsent.test === true) || (econsent['type'] === 'Mandatory' && econsent['showScheduleButton'] === true)) {
                 this.model.tsBtnIsDisabled = false;
             }
         });
