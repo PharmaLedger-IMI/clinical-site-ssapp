@@ -108,7 +108,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
     }
 
     getAvailableDevicesToAssign(){
-        this.model.available_devices_for_assignation =  this.model.devices_this_trial.filter(device => device.isAssigned === false);
+        this.model.available_devices_for_assignation =  this.model.devices_this_trial.filter(device => device.isAssigned === false && device.status==="Active");
     }
 
     removeAssignation(deasignedDevice){
