@@ -97,6 +97,10 @@ export default class EconsentVersionsController extends BreadCrumbManager {
                 if (econsentVersion.hcoSign) {
                     econsentVersion.hcpApproval = consent.hcoSign.toShowDate;
                 }
+
+                let validActions = econsentVersion.actions.filter(action => action.tpDid === this.model.tpDid);
+                econsentVersion.actions = validActions;
+
                 return econsentVersion;
             });
         }
