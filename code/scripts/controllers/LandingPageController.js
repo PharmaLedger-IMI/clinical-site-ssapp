@@ -255,17 +255,20 @@ export default class LandingPageController extends WebcController {
             if (err) {
                 console.log(err);
             }
-            console.log("****************** Health Data ******************************")
-            console.log(healthData);
+            
             this.DeviceAssignationService.getAssignedDevices((err, devices) => {
+                console.log("****************** Health Data ******************************")
+                console.log(healthData);
                 if (err) {
                     return console.log(err);
                 }
                 let assignedDevice = devices.find(device => device.deviceId === data.deviceId);
-                
+                console.log("****************** Health Data Identifier ******************************")
+                console.log(assignedDevice.healthDataIdentifier)
                 if(!assignedDevice.healthDataIdentifier){
                     assignedDevice.healthDataIdentifier = [];
                 }
+                
                 assignedDevice.healthDataIdentifier.push(healthData.uid);
                 // console.log("****************** Assign Devices ******************************")
                 // console.log(assignedDevice);
