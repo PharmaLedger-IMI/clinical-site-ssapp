@@ -85,7 +85,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     }
                 }));
             }
-            // console.log(this.deviceList);
             this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(6, 10, this.deviceList);
             const { AssignedDevicesForChosenPatientDataSources } = this.model;
             this.onTagClick("assignedDevice-prev-page", () => AssignedDevicesForChosenPatientDataSources.goToPreviousPage());
@@ -100,7 +99,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     assignationDate:model.assignationDate,
                     assignationCompleteDate : Date.now(),
                     isStillAssigned:false,
-
                 }
                 this.removeAssignation(assignation);
             });
@@ -121,8 +119,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             if (err) {
                 return console.error(err);
             }
-
-
             this.DeviceAssignationService.updateAssignedDevice(deasignedDevice, (err, data) => {
                 if (err) {
                     console.log(err);
