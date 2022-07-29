@@ -63,6 +63,17 @@
                         </p>
                     </div>
 
+                    <div slot="true">
+                        <div class="m-2 d-flex flex-column">
+                            <label>Search trial participant:</label>
+                            <input class="form-control" id="search-field" data-view-model="@search" event-name="filters-changed" />
+                        </div>
+
+                        <div class="m-2" data-if="@noResults">
+                            <strong>There are no results for your search!</strong>
+                        </div>
+                    </div>
+
                     <webc-datatable datasource="@trialParticipantsDataSource" slot="true">
 
                         <div slot="no-data" class="alert alert-warning" role="alert">

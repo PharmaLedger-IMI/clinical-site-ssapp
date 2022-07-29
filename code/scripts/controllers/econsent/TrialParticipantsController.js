@@ -39,6 +39,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             }
         );
 
+        this.model.search = {
+            required: false,
+            placeholder: 'Search trial participant by name or assigned number',
+            value: '',
+        };
+
         this._initServices().then(() => {
             this.model.dataSourceInitialized = true;
             this.model.trialParticipantsDataSource = DataSourceFactory.createDataSource(6, 5, this.model.toObject('trialParticipants'));
@@ -52,6 +58,49 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         });
 
         this._initHandlers();
+        this.observeSearchInput();
+    }
+
+    observeSearchInput() {
+        this.model.onChange('search.value', () => {
+            this.filterData();
+        });
+    }
+
+    filterData() {
+        let searchKeys = ['name', 'lastName', 'number'];
+
+        let trialParticipants = this.model.toObject('trialParticipants');
+
+        if (this.model.search.value.trim() !== '') {
+            let filteredTps = trialParticipants.filter(tp => {
+
+                let keys = Object.keys(tp);
+                for (let key of keys) {
+                    for (let searchKey of searchKeys) {
+                        if (tp[key].toString().toUpperCase().search(this.model.search.value.toUpperCase()) !== -1 && searchKey === key) {
+                            return true;
+                        }
+                    }
+                }
+
+                return false;
+            });
+
+            console.log('filteredTps', filteredTps);
+
+            this.model.trialParticipantsDataSource.updateParticipants(JSON.parse(JSON.stringify(filteredTps)));
+            if (filteredTps.length === 0) {
+                this.model.noResults = true;
+            }
+            else {
+                this.model.noResults = false;
+            }
+        }
+        else {
+            this.model.trialParticipantsDataSource.updateParticipants(trialParticipants);
+            this.model.noResults = false;
+        }
     }
 
     getStatistics() {
