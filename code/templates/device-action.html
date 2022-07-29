@@ -28,7 +28,7 @@
     <div class="form-row">
         <div class="form-group">
             <label class="col-form-label">{{@trial.label}}</label>
-            <select class="form-control" data-for="@trial.options" value="@trial.value">
+            <select class="form-control" data-for="@trial.options" disabled="@isAssigned" value="@trial.value">
                 <option value="@value">{{@label}}</option>
             </select>
         </div>

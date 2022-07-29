@@ -1,10 +1,12 @@
 import HCOService from "../../../services/HCOService.js"
 import DeviceServices from "../../../services/DeviceServices.js";
+import DeviceAssignationService from "../../../services/DeviceAssignationService.js";
+
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-const { getCommunicationServiceInstance } = commonServices.CommunicationService;
-import { COMMUNICATION_MESSAGES } from "../../../utils/CommunicationMessages.js";
-import { modelSetter } from "./deviceModel/deviceViewModel.js";
+const {getCommunicationServiceInstance} = commonServices.CommunicationService;
+import {COMMUNICATION_MESSAGES} from "../../../utils/CommunicationMessages.js";
+import {modelSetter} from "./deviceModel/deviceViewModel.js";
 
 
 export default class EditDeviceController extends BreadCrumbManager {
@@ -14,9 +16,8 @@ export default class EditDeviceController extends BreadCrumbManager {
 
         const prevState = this.getState() || {};
         this.model = this.getState();
-        console.log("This is the model")
-        console.log(this.model)
-       this.model.breadcrumb = this.setBreadCrumb(
+
+        this.model.breadcrumb = this.setBreadCrumb(
             {
                 label: "Edit Device",
                 tag: "iot-edit-device"
@@ -24,52 +25,40 @@ export default class EditDeviceController extends BreadCrumbManager {
         );
 
         this.deviceServices = new DeviceServices();
-        console.log(this.model.data.isAssigned)
-        if(this.model.data.isAssigned){
-            console.log("Is assigned");
-            let allTrials = [];
-            let trialFormat = {
-                label: "",
-                value: "",
-                ssi: ""
-            };
-            trialFormat.label = this.model.data.trialName + " - " + this.model.data.trialID;
-            trialFormat.value = this.model.data.trialID;
-            trialFormat.ssi = this.model.data.trialUid;
-            trialFormat.name = this.model.data.trialName;
-            allTrials.push(trialFormat);
-            let trialsState = { prevState: prevState.data, trials: allTrials }
-            this.model = modelSetter(trialsState, true);
-            this.model.trial.options = allTrials;
+        this.deviceAssignationService = new DeviceAssignationService();
 
+        if (this.model.data.isAssigned) {
+
+            this.deviceAssignationService.getAssignedDevices((err, assignationDevices) => {
+                const assignationDevice = assignationDevices.find(assignationDevice => assignationDevice.deviceId === this.model.data.deviceId);
+                this.model.trialParticipantNumber = assignationDevice.trialParticipantNumber;
+            })
         }
-        else{
-            let hcoService = new HCOService();
-            let hcoDSUPromise = hcoService.getOrCreateAsync();
-            hcoDSUPromise.then(hcoDSU => {
-                let allTrials = [];
-                let listTrials = hcoDSU.volatile.trial;
-                for (let trial in listTrials) {
-                    let trialFormat = {
-                        label: "",
-                        value: "",
-                        ssi: ""
-                    };
-                    trialFormat.label = listTrials[trial].name + " - " + listTrials[trial].id;
-                    trialFormat.value = listTrials[trial].id;
-                    trialFormat.ssi = listTrials[trial].uid;
-                    trialFormat.name = listTrials[trial].name;
-                    allTrials.push(trialFormat);
+
+        let hcoService = new HCOService();
+        let hcoDSUPromise = hcoService.getOrCreateAsync();
+        hcoDSUPromise.then(hcoDSU => {
+            let listTrials = hcoDSU.volatile.trial;
+
+            let allTrials = listTrials.filter(trial => {
+                if (!this.model.data.isAssigned) {
+                    return true;
                 }
-    
-                let trialsState = { prevState: prevState.data, trials: allTrials }
-                this.model = modelSetter(trialsState, true);
-                this.model.trials = allTrials;
-            });
-        }
-        
-        console.log("This is updated model")
-        console.log(this.model)
+                return this.model.data.trialID === trial.id
+            }).map(trial => {
+                return {
+                    label: trial.name + " - " + trial.id,
+                    value: trial.id,
+                    ssi: trial.uid,
+                    name: trial.name
+                };
+            })
+
+            let trialsState = {prevState: prevState.data, trials: allTrials}
+            this.model = modelSetter(trialsState, true);
+            this.model.trials = allTrials;
+        });
+
         this.attachHandlerSaveButton();
 
     }
