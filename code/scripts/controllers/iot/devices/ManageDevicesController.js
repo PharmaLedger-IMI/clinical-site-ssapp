@@ -24,18 +24,15 @@ export default class ManageDevicesController extends BreadCrumbManager {
 
         this.attachHandlerAddDevice();
         this.attachModelHandlers();
-        this.attachHandlerViewDevice();
         this.attachHandlerEditDevice();
-        this.attachHandlerRemoveDevice();
+        this.attachHandlerArchiveDevice();
 
-        let search = {
+        this.model.search = {
             label: 'Search for a trial',
             required: false,
             placeholder: 'Trial name...',
             value: '',
         };
-
-        this.model.search = search;
 
         this.init();
         this.observeSearchInput();
@@ -84,13 +81,13 @@ export default class ManageDevicesController extends BreadCrumbManager {
 
     init() {
 
-        this.deviceServices.getDevice((err, devices) => {
+        this.deviceServices.getDevices((err, devices) => {
             if (err) {
                 return console.error(err);
             }
-            this.model.allDevices = devices;
+            this.model.allDevices = devices.filter(device => device.archived !== true);
             this.model.allAssignedDevices = devices.filter(dv => dv.isAssigned === true);
-            this.model.devicesDataSource = DataSourceFactory.createDataSource(7, 10, this.model.allDevices);
+            this.model.devicesDataSource = DataSourceFactory.createDataSource(7, 5, this.model.allDevices);
             this.model.devicesDataSource.__proto__.updateDevices = function (devices) {
                 this.model.allDevices = devices;
                 this.model.tableData = devices;
@@ -117,35 +114,28 @@ export default class ManageDevicesController extends BreadCrumbManager {
             'allDevices');
     }
 
-    attachHandlerViewDevice() {
-        this.onTagClick('view', (model) => {
-            console.log("Patient Status button pressed", model);
-            this.navigateToPageTag('patient-status', { data: model, breadcrumb: this.model.toObject('breadcrumb') });
-        });
-    }
-
     attachHandlerEditDevice() {
         this.onTagClick('edit', (model) => {
             this.navigateToPageTag('iot-edit-device', { data: model, breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 
-    attachHandlerRemoveDevice() {
-        this.onTagClick('remove', (model) => {
+    attachHandlerArchiveDevice() {
+        this.onTagClick('archive', (model) => {
 
             const modalConfig = {
                 controller: "modals/ConfirmationAlertController",
                 disableExpanding: false,
                 disableBackdropClosing: true,
-                question: "Are you sure you want to delete this device? ",
-                title: "Delete device",
+                question: "Are you sure you want to archive this device? ",
+                title: "Archive device",
             };
 
             const deviceUid = model.uid;
             let checkDeviceAssigned = this.model.allAssignedDevices.find(d => d.uid===deviceUid);
             if (checkDeviceAssigned) {
                 this.model.message = {
-                    content: 'This device cannot be removed. It is assigned to a trial participant. Please remove the assignation first to be able to remove the device.',
+                    content: 'This device cannot be archived. It is assigned to a trial participant. Please remove the assignation first to be able to archive the device.',
                     type: 'error'
                 }
                 return;
@@ -156,17 +146,22 @@ export default class ManageDevicesController extends BreadCrumbManager {
                 (event) => {
 
                     if (event.type === 'confirmed') {
+                        window.WebCardinal.loader.hidden = false;
 
                         let message = {};
 
-                        this.deviceServices.deleteDevice(deviceUid, (err, data) => {
+
+
+                        this.deviceServices.getDevice(deviceUid, (err, device) => {
                             if (err) {
                                 message.content = "An error has been occurred!";
                                 message.type = 'error';
                             } else {
-                                message.content = `The device has been deleted!`;
+                                message.content = `The device has been archived!`;
                                 message.type = 'success'
                             }
+                            device.archived = true;
+                            device.status = "Inactive";
 
                             this.model.message = message;
 
@@ -176,15 +171,16 @@ export default class ManageDevicesController extends BreadCrumbManager {
                                 uid: deviceUid
                             });
 
+                            this.deviceServices.updateDevice(device, () => {
+                                let removedDeviceIdx = this.model.allDevices.findIndex(device => device.uid === deviceUid);
+
+                                this.model.allDevices.splice(removedDeviceIdx, 1);
+                                this.model.devicesDataSource.updateDevices(this.model.allDevices);
+                                window.WebCardinal.loader.hidden = true;
+                            })
+
                         });
 
-                        this.deviceServices.getDevice((err, devices) => {
-                            if (err) {
-                                return console.error(err);
-                            }
-                            this.model.allDevices = devices;
-                            this.model.devicesDataSource.updateDevices(devices);
-                        });
                     }
                 }, this.emptyCallback, modalConfig);
 

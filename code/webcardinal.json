@@ -10,30 +10,6 @@
 			"tag": "home"
 		},
 		{
-			"name": "patient-status",
-			"path": "/general/patients/patient-status",
-			"src": "general/patients/patient-status.html",
-			"tag": "patient-status"
-		},
-		{
-			"name": "patient-device-history",
-			"path": "/general/patients/patient-device-history",
-			"src": "general/patients/patient-device-history.html",
-			"tag": "patient-device-history"
-		},
-		{
-			"name": "patient-consent-status",
-			"path": "/general/patients/patient-consent-status",
-			"src": "general/patients/patient-consent-status.html",
-			"tag": "patient-consent-status"
-		},
-		{
-			"name": "patient-alert-history",
-			"path": "/general/patients/patient-alert-history",
-			"src": "general/patients/patient-alert-history.html",
-			"tag": "patient-alert-history"
-		},
-		{
 			"name": "notifications",
 			"path": "/econsent/e-notifications/notifications",
 			"src": "econsent/e-notifications/notifications.html",
@@ -64,22 +40,10 @@
 			"tag": "iot-add-device"
 		},
 		{
-			"name": "add-device-summary",
-			"path": "/iot/devices/add-device-summary",
-			"src": "iot/devices/add-device-summary.html",
-			"tag": "iot-add-device-summary"
-		},
-		{
 			"name": "edit-device",
 			"path": "/iot/devices/edit-device",
 			"src": "iot/devices/edit-device.html",
 			"tag": "iot-edit-device"
-		},
-		{
-			"name": "list-all-devices",
-			"path": "/iot/devices/list-all-devices",
-			"src": "iot/devices/list-all-devices.html",
-			"tag": "iot-list-all-devices"
 		},
 		{
 			"name": "questions-list",

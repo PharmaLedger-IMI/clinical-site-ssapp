@@ -51,12 +51,12 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
 
     getDevices() {
         this.DeviceServices = new DeviceServices();
-        this.DeviceServices.getDevice((err, devices) => {
+        this.DeviceServices.getDevices((err, devices) => {
             if (err) {
                 return console.error(err);
             }
             this.model.devices = devices;
-            this.model.devices_this_trial =  this.model.devices.filter(t => t.trialUid === this.model.trialUid);
+            this.model.devices_this_trial =  this.model.devices.filter(device => device.trialUid === this.model.trialUid);
         });
     }
 
