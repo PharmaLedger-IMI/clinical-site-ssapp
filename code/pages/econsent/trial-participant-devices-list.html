@@ -1,32 +1,34 @@
 <webc-container controller="econsent/TrialParticipantDevicesListController">
 
-    <div class="container main-container common-4-rows-grid">
+    <div class="container main-container">
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
             <h5 class="generic-title">Assigned Devices for patient: {{@participantName}} </h5>
         </div>
         <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>
 
-        <div data-if="@hasAssignedDevices" class="container flex-container">
-            <webc-spinner slot="loading"></webc-spinner> 
-            <div slot="false" class="alert alert-warning text-center" role="alert">
-                <h4 class="alert-heading">There are no assigned devices yet!</h4>
-                <p>Assign one device for this patient.</p>
-            </div>
-            <div class="common-datatable device-assignation-table dt-6-col" slot="true" >
-                <webc-datatable datasource="@AssignedDevicesForChosenPatientDataSource">
-                    <div slot="header">Device ID</div>
-                    <div slot="header">Brand</div>
-                    <div slot="header">Model</div>
-                    <div slot="header">Status</div>
-                    <div slot="header">Assignation</div>
-                    <div slot="header">Options</div>
-            
-                    <div class="cell">{{@deviceId}}</div>
-                    <div class="cell">{{@brand}}</div>
-                    <div class="cell">{{@modelNumber}}</div>
-                    <div class="cell">{{@status}}</div>
-                    <div class="cell" data-if="@isStillAssigned">
+        <main>
+            <div data-if="@hasAssignedDevices">
+                <webc-spinner slot="loading"></webc-spinner>
+                <div slot="false" class="alert alert-warning text-center" role="alert">
+                    <h4 class="alert-heading">There are no assigned devices yet!</h4>
+                    <p>Assign one device for this patient.</p>
+                </div>
+                <div class="common-datatable device-assignation-table dt-6-col" slot="true" >
+
+                    <webc-datatable datasource="@AssignedDevicesForChosenPatientDataSource">
+                        <div slot="header">Device ID</div>
+                        <div slot="header">Brand</div>
+                        <div slot="header">Model</div>
+                        <div slot="header">Status</div>
+                        <div slot="header">Assignation</div>
+                        <div slot="header">Options</div>
+
+                        <div class="cell">{{@deviceId}}</div>
+                        <div class="cell">{{@brand}}</div>
+                        <div class="cell">{{@modelNumber}}</div>
+                        <div class="cell">{{@status}}</div>
+                        <div class="cell" data-if="@isStillAssigned">
                             <span slot="true" class="badge badge-primary">{{@assignationDateString}}</span>
                             <div slot="false">
                                 <span class="badge badge-success">{{@assignationDateString}}</span>
@@ -35,18 +37,20 @@
                             </div>
 
 
-                    </div>
-                    <div class="cell">
-                        <button class="link-button" data-tag="view-iot-data">View</button>
-                        <label> | </label>
-                        <div data-if="@isStillAssigned">
-                            <button slot="true" class="link-button" data-tag="remove-assignation">Remove Assignation</button>
-                            <button slot="false" class="link-button" disabled>Remove Assignation</button>
                         </div>
-                    </div>
-                </webc-datatable>
+                        <div class="cell">
+                            <button class="link-button" data-tag="view-iot-data">View</button>
+                            <label> | </label>
+                            <div data-if="@isStillAssigned">
+                                <button slot="true" class="link-button" data-tag="remove-assignation">Remove Assignation</button>
+                                <button slot="false" class="link-button" disabled>Remove Assignation</button>
+                            </div>
+                        </div>
+                    </webc-datatable>
+                </div>
             </div>
-        </div>
+        </main>
+
         <footer class="button-group-wrapper">
             <button data-tag="assign-device">Assign Device</button>
         </footer>
