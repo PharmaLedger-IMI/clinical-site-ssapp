@@ -1,39 +1,39 @@
     <div class="form-row">
         <div class="form-group">
-            <label class="col-form-label" for="@deviceName.name">{{@deviceName.label}}</label>
-            <input class="form-control" data-view-model="@deviceName" id="@deviceName.name" value="@deviceName.value" />
+            <label class="col-form-label required" for="@deviceName.name">{{@deviceName.label}} </label>
+            <input class="form-control" data-view-model="@deviceName" id="@deviceName.name" value="@deviceName.value" required="required" />
         </div>
     </div>
     <div class="form-row">
         <div class="form-group">
-            <label class="col-form-label" for="@deviceId.name">{{@deviceId.label}}</label>
+            <label class="col-form-label required" for="@deviceId.name">{{@deviceId.label}}</label>
             <input class="form-control" data-view-model="@deviceId" id="@deviceId.name" value="@deviceId.value" />
         </div>
         <div class="form-group">
-            <label class="col-form-label" for="@manufacturer.name">{{@manufacturer.label}}</label>
+            <label class="col-form-label required" for="@manufacturer.name">{{@manufacturer.label}}</label>
             <input class="form-control" data-view-model="@manufacturer" id="@manufacturer.name"
                 value="@manufacturer.value" />
         </div>
     </div>
     <div class="form-row">
         <div class="form-group">
-            <label class="col-form-label" for="@modelNumber.name">{{@modelNumber.label}}</label>
+            <label class="col-form-label required" for="@modelNumber.name">{{@modelNumber.label}}</label>
             <input class="form-control" data-view-model="@modelNumber" id="@modelNumber.name" value="@modelNumber.value" />
         </div>
         <div class="form-group">
-            <label class="col-form-label" for="@brand.name">{{@brand.label}}</label>
+            <label class="col-form-label required" for="@brand.name">{{@brand.label}}</label>
             <input class="form-control" data-view-model="@brand" id="@brand.name" value="@brand.value" />
         </div>
     </div>
     <div class="form-row">
         <div class="form-group">
-            <label class="col-form-label">{{@trial.label}}</label>
+            <label class="col-form-label required">{{@trial.label}}</label>
             <select class="form-control" data-for="@trial.options" value="@trial.value">
                 <option value="@value">{{@label}}</option>
             </select>
         </div>
         <div class="form-group">
-            <label class="col-form-label">{{@status.label}}</label>
+            <label class="col-form-label required">{{@status.label}}</label>
             <select class="form-control" data-for="@status.options" value="@status.value">
                 <option value="@value">{{@label}}</option>
             </select>

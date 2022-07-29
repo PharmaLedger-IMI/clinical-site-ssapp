@@ -56,35 +56,54 @@ export default class AddDeviceController extends BreadCrumbManager {
 
     attachHandlerSaveButton() {
 
-        this.onTagClick('devices:save', () => {
-
+        this.onTagClick('devices:save', () => {            
             window.WebCardinal.loader.hidden = false;
-
-            const deviceData = this.prepareDeviceData(this.model.trials);
-            this.deviceServices.saveDevice(deviceData, (err, data) => {
-                let message = {};
-
-                if (err) {
-                    message.content = "An error has been occurred!";
-                    message.type = 'error';
-                } else {
-                    message.content = `The device has been added!`;
-                    message.type = 'success'
+            let deviceId = this.model.deviceId.value;
+            let deviceName = this.model.deviceName.value;
+            let status = this.model.status.value;
+            let manufacturer = this.model.manufacturer.value;
+            let modelNumber = this.model.modelNumber.value;
+            let brand = this.model.brand.value;
+            if(deviceId.length === 0 || !deviceId.trim() || deviceName.length === 0 || !deviceName.trim() || status.length === 0 || !status.trim()|| manufacturer.length === 0 || !manufacturer.trim() || modelNumber.length === 0 || !modelNumber.trim()|| brand.length === 0 || !brand.trim()){
+                let message = {
+                    content: `All fields are mandatory!`,
+                    type: 'error'
                 }
-
-                const communicationService = getCommunicationServiceInstance();
-                communicationService.sendMessageToIotAdapter({
-                    operation:COMMUNICATION_MESSAGES.ADD_DEVICE,
-                    sReadSSI:data.sReadSSI
-                });
-
                 window.WebCardinal.loader.hidden = true;
                 this.navigateToPageTag('iot-manage-devices', {
                     message: message,
                     breadcrumb: this.model.toObject('breadcrumb')
                 });
-            });
+                return console.log("Enter Title");
+            }
+            else {
+                const deviceData = this.prepareDeviceData(this.model.trials);
+                this.deviceServices.saveDevice(deviceData, (err, data) => {
+                    let message = {};
+
+                    if (err) {
+                        message.content = "An error has been occurred!";
+                        message.type = 'error';
+                    } else {
+                        message.content = `The device has been added!`;
+                        message.type = 'success'
+                    }
+
+                    const communicationService = getCommunicationServiceInstance();
+                    communicationService.sendMessageToIotAdapter({
+                        operation:COMMUNICATION_MESSAGES.ADD_DEVICE,
+                        sReadSSI:data.sReadSSI
+                    });
+
+                    window.WebCardinal.loader.hidden = true;
+                    this.navigateToPageTag('iot-manage-devices', {
+                        message: message,
+                        breadcrumb: this.model.toObject('breadcrumb')
+                    });
+                });
+            }
         });
+        
     }
 
     prepareDeviceData(trial_list) {
