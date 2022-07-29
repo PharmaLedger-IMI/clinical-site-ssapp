@@ -226,7 +226,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                         console.log(trialParticipant);
                                         const sites = this.model.toObject("hcoDSU.volatile.site");
                                         const site = sites.find(site => site.trialSReadSSI === tp.trialSReadSSI);
-                                        this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, this.model.hcoDSU.volatile.trial.uid, null);
+                                        this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.UPDATE_STATUS, null, null, tp.status);
                                         this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
                                             ssi: tp.uid,
                                             consentSSI: null
@@ -251,10 +251,11 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         });
     }
 
-    sendMessageToPatient(trialParticipant, operation, ssi, shortMessage) {
+    sendMessageToPatient(trialParticipant, operation, ssi, shortMessage, status = null) {
         this.CommunicationService.sendMessage(trialParticipant.did, {
             operation: operation,
             ssi: ssi,
+            status,
             useCaseSpecifics: {
                 tpName: trialParticipant.name,
                 did: trialParticipant.did,

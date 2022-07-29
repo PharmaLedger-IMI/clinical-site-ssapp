@@ -1,9 +1,28 @@
 // eslint-disable-next-line no-undef
 const { WebcController } = WebCardinal.controllers;
-const commonServices = require("common-services");
+const commonServices = require('common-services');
 const Constants = commonServices.Constants;
 
 export default class ChangeParticipantStatusController extends WebcController {
+  statusOptions = [
+    {
+      value: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
+    },
+    {
+      value: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
+    },
+    {
+      value: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
+    },
+    {
+      value: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
+    },
+  ];
+
   statusesTemplate = {
     label: 'Select consent',
     placeholder: 'Please select a status',
@@ -19,24 +38,8 @@ export default class ChangeParticipantStatusController extends WebcController {
     this.setModel({
       statuses: {
         ...this.statusesTemplate,
-        selectOptions: [
-					{
-						value: "End Of Treatment",
-						label:"End Of Treatment"
-					},
-					{
-						value: "Completed",
-						label:"Completed"
-					},
-					{
-						value: "Discontinued",
-						label:"Discontinued"
-					},
-					{
-						value: "Screen Failed",
-						label:"Screen Failed"
-					}
-				]
+        selectOptions: this.statusOptions,
+        value: this.statusOptions[0].value,
       },
     });
 
@@ -54,9 +57,9 @@ export default class ChangeParticipantStatusController extends WebcController {
           return;
         }
 
-				const outcome = this.model.statuses.value;
-				window.WebCardinal.loader.hidden = true;
-				this.send('confirmed', outcome);
+        const outcome = this.model.statuses.value;
+        window.WebCardinal.loader.hidden = true;
+        this.send('confirmed', outcome);
       } catch (error) {
         window.WebCardinal.loader.hidden = true;
         this.send('closed', new Error('There was an issue creating the visits'));
