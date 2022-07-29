@@ -44,7 +44,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
         });
 
         this.getDevices();
-        this.getAssignedDevices();
         this._attachHandlerAssignDevice();
     }
     
@@ -57,6 +56,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             }
             this.model.devices = devices;
             this.model.devices_this_trial =  this.model.devices.filter(device => device.trialUid === this.model.trialUid);
+            this.getAssignedDevices();
         });
     }
 
@@ -85,10 +85,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     }
                 }));
             }
-            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(6, 10, this.deviceList);
-            const { AssignedDevicesForChosenPatientDataSources } = this.model;
-            this.onTagClick("assignedDevice-prev-page", () => AssignedDevicesForChosenPatientDataSources.goToPreviousPage());
-            this.onTagClick("assignedDevice-next-page", () => AssignedDevicesForChosenPatientDataSources.goToNextPage());
+            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(6, 5, this.deviceList);
             this.onTagClick("remove-assignation", (model) => {
                 let assignation = {
                     deviceId: model.deviceId,
