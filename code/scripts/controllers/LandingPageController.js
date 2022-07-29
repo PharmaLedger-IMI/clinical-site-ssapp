@@ -136,12 +136,16 @@ export default class LandingPageController extends WebcController {
 
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
                 await this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
-                await this.sendRefreshConsentsToTrialParticipants(data);
+                this.HCOService.refreshSite(async ()=> {
+                    await this.sendRefreshConsentsToTrialParticipants(data);
+                });
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_CONSENT: {
                 await this._saveNotification(data, 'New ecosent  was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
-                await this.sendRefreshConsentsToTrialParticipants(data);
+                this.HCOService.refreshSite(async ()=>{
+                    await this.sendRefreshConsentsToTrialParticipants(data);
+                })
                 break;
             }
             case Constants.MESSAGES.HCO.SITE_STATUS_CHANGED: {
@@ -251,14 +255,23 @@ export default class LandingPageController extends WebcController {
             if (err) {
                 console.log(err);
             }
-            console.log("****************** Health Data ******************************")
-            console.log(healthData);
+            
             this.DeviceAssignationService.getAssignedDevices((err, devices) => {
                 if (err) {
                     return console.log(err);
                 }
                 let assignedDevice = devices.find(device => device.deviceId === data.deviceId);
-                assignedDevice.healthDataIdentifier = healthData.uid;
+                console.log(assignedDevice.healthDataIdentifier)
+                if(!assignedDevice.healthDataIdentifier){
+                    assignedDevice.healthDataIdentifier = [];
+                }
+                else if(typeof assignedDevice.healthDataIdentifier === 'object' && assignedDevice.healthDataIdentifier !== null){
+                    let tempHealth = assignedDevice.healthDataIdentifier;
+                    assignedDevice.healthDataIdentifier = [];
+                    assignedDevice.healthDataIdentifier.push(tempHealth);
+
+                }
+                assignedDevice.healthDataIdentifier.push(healthData.uid);
                 this.DeviceAssignationService.updateAssignedDevice(assignedDevice, (err) => {
                     if (err) {
                         console.log(err);

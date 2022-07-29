@@ -7,7 +7,7 @@
         </div>
         <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>
 
-        <div data-if="@hasAssignedDevices">
+        <div data-if="@hasAssignedDevices" class="container flex-container">
             <webc-spinner slot="loading"></webc-spinner> 
             <div slot="false" class="alert alert-warning text-center" role="alert">
                 <h4 class="alert-heading">There are no assigned devices yet!</h4>
@@ -27,7 +27,6 @@
                     <div class="cell">{{@modelNumber}}</div>
                     <div class="cell">{{@status}}</div>
                     <div class="cell" data-if="@isStillAssigned">
-
                             <span slot="true" class="badge badge-primary">{{@assignationDateString}}</span>
                             <div slot="false">
                                 <span class="badge badge-success">{{@assignationDateString}}</span>

@@ -288,6 +288,15 @@ export default class HCOService extends DSUService {
         return this.PATH + '/' + this.ssi + '/' + subItem;
     }
 
+    refreshSite = (callback) => {
+        this.getSiteSReadSSI((err, ssi) => {
+            if (err) {
+                throw err;
+            }
+            this.refreshDSU(ssi, callback);
+        })
+    }
+
     getSiteSReadSSI = (callback) => {
         const sitePath = this._getSubPath('site');
         this.getEntityMountSSI(sitePath, callback);

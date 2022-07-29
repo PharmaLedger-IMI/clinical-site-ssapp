@@ -24,7 +24,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         );
 
         this.initServices().then(() => {
-            this.model.dataSourceInitialized = true;
+            this.model.dataSourceInitialized = this.model.visits.length ? true : false;
             this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'))
             this.model.visitsDataSource.__proto__.updateVisits = function (visits) {
                 this.model.tableData = visits;
@@ -56,51 +56,54 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         await this.initVisits();
     }
 
-     prepareDateForVisits(receivedVisits) {
-        let visits = receivedVisits;
-        let dayInMs = 86400000; // number of milliseconds in a day
-        if(!visits[0].proposedDate) {
-            return console.error("No proposed date for first visit!");
-        }
-        visits.map((currentVisit,index) => {
-            if(index===0) {
-                return;
+    prepareDateForVisits(receivedVisits) {
+        if (receivedVisits.length > 0) {
+
+            let visits = receivedVisits;
+            let dayInMs = 86400000; // number of milliseconds in a day
+            if (!visits[0].proposedDate) {
+                return console.error("No proposed date for first visit!");
             }
-            let { windowTo, windowFrom } = currentVisit; // destr || current. ..
-            let previousVisit = visits[0];
-            if(previousVisit.proposedDate) {
-                let weeksDif = (currentVisit.week - previousVisit.week)* 7;
-                let daysDif = currentVisit.day - previousVisit.day;
-
-                let dayInRange = weeksDif + daysDif;
-
-                windowFrom = windowFrom !== 'N/A' ? windowFrom : 0;
-                windowTo = windowTo !== 'N/A' ? windowTo : 0;
-
-                let suggestedFromDate = (dayInRange + windowFrom)*dayInMs;
-                let suggestedToDate = (dayInRange + windowTo)*dayInMs;
-
-                let suggestedInterval = [previousVisit.proposedDate + suggestedFromDate, previousVisit.proposedDate + suggestedToDate];
-
-                if(windowTo === 0 || windowFrom === 0) {
-                    let firstDate = suggestedInterval[0];
-                    let date = new Date(firstDate);
-                    let todayMs = (date.getHours()*3600 + date.getMinutes()*60 + date.getSeconds()) * 1000;
-                    let firstDateMinimized = firstDate - todayMs;
-                    let secondDateMaximized = firstDateMinimized + (24*3600 * 1000) - 60*1000;
-
-                    suggestedInterval = [firstDateMinimized, secondDateMaximized];
-                } else {
-                    let firstDate = new Date(suggestedInterval[0]);
-                    let todayMs = (firstDate.getHours() * 3600 + firstDate.getMinutes() * 60 + firstDate.getSeconds())*1000;
-                    let firstDateMinimized = suggestedInterval[0] - todayMs;
-                    let secondDateMaximized = (new Date(suggestedInterval[1])).setHours(23, 59);
-
-                    suggestedInterval = [firstDateMinimized, secondDateMaximized];
+            visits.map((currentVisit, index) => {
+                if (index === 0) {
+                    return;
                 }
-                currentVisit.suggestedInterval = suggestedInterval;
-            }
-        })
+                let {windowTo, windowFrom} = currentVisit;
+                let previousVisit = visits[0];
+                if (previousVisit.proposedDate) {
+                    let weeksDif = (currentVisit.week - previousVisit.week) * 7;
+                    let daysDif = currentVisit.day - previousVisit.day;
+
+                    let dayInRange = weeksDif + daysDif;
+
+                    windowFrom = windowFrom !== 'N/A' ? windowFrom : 0;
+                    windowTo = windowTo !== 'N/A' ? windowTo : 0;
+
+                    let suggestedFromDate = (dayInRange + windowFrom) * dayInMs;
+                    let suggestedToDate = (dayInRange + windowTo) * dayInMs;
+
+                    let suggestedInterval = [previousVisit.proposedDate + suggestedFromDate, previousVisit.proposedDate + suggestedToDate];
+
+                    if (windowTo === 0 || windowFrom === 0) {
+                        let firstDate = suggestedInterval[0];
+                        let date = new Date(firstDate);
+                        let todayMs = (date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds()) * 1000;
+                        let firstDateMinimized = firstDate - todayMs;
+                        let secondDateMaximized = firstDateMinimized + (24 * 3600 * 1000) - 60 * 1000;
+
+                        suggestedInterval = [firstDateMinimized, secondDateMaximized];
+                    } else {
+                        let firstDate = new Date(suggestedInterval[0]);
+                        let todayMs = (firstDate.getHours() * 3600 + firstDate.getMinutes() * 60 + firstDate.getSeconds()) * 1000;
+                        let firstDateMinimized = suggestedInterval[0] - todayMs;
+                        let secondDateMaximized = (new Date(suggestedInterval[1])).setHours(23, 59);
+
+                        suggestedInterval = [firstDateMinimized, secondDateMaximized];
+                    }
+                    currentVisit.suggestedInterval = suggestedInterval;
+                }
+            })
+        }
     }
 
     async initVisits() {
@@ -196,6 +199,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.model.tp.visits[tpVisitIndex].hasProposedDate = visit.hasProposedDate;
         this.model.tp.visits[tpVisitIndex].confirmedDate = visit.confirmedDate;
         this.model.tp.visits[tpVisitIndex].confirmed = visit.confirmed;
+        this.model.tp.visits[tpVisitIndex].suggestedInterval = visit.suggestedInterval;
         this.model.visits[consentVisitIndex].proposedDate = this.model.proposedDate;
         this.model.visits[consentVisitIndex].hasProposedDate = true;
 
@@ -272,6 +276,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     confirmedDate: model.confirmedDate,
+                    suggestedInterval: model.suggestedInterval,
                 });
         });
     }
@@ -297,7 +302,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     unit: visit.unit,
                     uid: visit.uuid,
                     id: visit.id,
-                    proposedDate: visit.proposedDate
+                    proposedDate: visit.proposedDate,
+                    suggestedInterval: visit.suggestedInterval
                 },
             },
             shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.SCHEDULE_VISIT,
@@ -316,6 +322,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         this.model.proposedDate = model.proposedDate;
                         this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(model.proposedDate);
                         await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
+
+                        if(this.model.site.status.stage === Constants.HCO_STAGE_STATUS.ENROLLING) {
+                            this.updateSiteStage();
+                        }
                     }
                 },
                 (event) => {
@@ -328,6 +338,20 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     question: "Are you sure you want to confirm this visit?",
                     title: "Confirm visit",
                 });
+        });
+    }
+
+    updateSiteStage() {
+        const site = this.model.site;
+        this.HCOService.getHCOSubEntity(site.status.uid, "/site/" + site.uid + "/status", (err, statusDSU) => {
+            statusDSU.stage = Constants.HCO_STAGE_STATUS.CONDUCTING;
+            this.HCOService.updateHCOSubEntity(statusDSU, "/site/" + site.uid + "/status", (err, dsu) => {
+                this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
+                        stageInfo: {
+                            siteSSI: this.model.site.uid
+                        }
+                },'The stage of the site changed');
+            });
         });
     }
 
@@ -358,25 +382,12 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
     }
 
-    sendMessageToSponsor(visit) {
-        const currentDate = new Date();
-        let sendObject = {
-            operation: Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_CONFIRMED,
-            ssi: this.model.econsentUid,
-            useCaseSpecifics: {
-                trialSSI: visit.trialSSI,
-                tpNumber: this.model.tp.number,
-                tpDid: this.model.tp.did,
-
-                visit: {
-                    id: visit.id,
-                    date: DateTimeService.getCurrentDateAsISOString(),
-                    toShowDate: currentDate.toLocaleDateString(),
-                },
-            },
-            shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.VISIT_CONFIRMED,
-        };
-        this.CommunicationService.sendMessage(this.model.site.sponsorDid, sendObject);
+    sendMessageToSponsor(operation, data, shortDescription) {
+        this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
+            operation: operation,
+            ...data,
+            shortDescription: shortDescription,
+        });
     }
 
     getInitModel() {

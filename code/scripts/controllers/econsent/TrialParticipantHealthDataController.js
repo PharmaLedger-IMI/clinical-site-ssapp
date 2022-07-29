@@ -16,6 +16,8 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
 
         deviceAssignationService.getAssignedDevices((err, assignedDevices) => {
             const device = assignedDevices.find(assignedDevice => assignedDevice.deviceId === this.model.deviceId);
+            console.log("************* Health Identifier *************")
+            console.log(device.healthDataIdentifier);
             if (!device.healthDataIdentifier) {
                 this.model.hasHealthData = false;
                 this.model.dataLoaded = true;
@@ -28,16 +30,16 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
                 }
 
                 let observations = [];
+                console.log("************* All Observation *************")
+                console.log(observationsDSUs);
                 observationsDSUs.forEach(observationDSU => {
-                    if (observationDSU.uid === device.healthDataIdentifier) {
-                        const patientObservations = observationDSU.observations.filter(observation => observation.sk.includes(this.model.trialParticipantNumber))
+                    if (device.healthDataIdentifier.includes(observationDSU.uid)) {
+                        const patientObservations = observationDSU.observations.filter(observation => observation.sk.includes(this.model.trialParticipantNumber));
                         observations = observations.concat(...patientObservations);
                     }
                 });
 
-
                 this.model.healthData = observations.map(observation => {
-
                     let fullDateTime1 = observation.effectiveDateTime;
                     let date = fullDateTime1.split("T");
                     let time = date[1].split(".");
@@ -49,12 +51,10 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
                         time: time[0]
                     }
                 });
+                // console.log(this.model.healthData)
                 this.model.PatientHealthDataSource = DataSourceFactory.createDataSource(4, 10, this.model.healthData);
-                // const { AssignedDevicesForChosenPatientDataSource } = this.model;
-
                 this.model.hasHealthData = this.model.healthData.length > 0;
                 this.model.dataLoaded = true;
-
             });
         })
 

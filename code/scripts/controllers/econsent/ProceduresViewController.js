@@ -82,7 +82,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
             this.updateTrialParticipant();
 
         } else {
-            debugger;
             let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visitUuid) [0];
 
             if (visitTp) {

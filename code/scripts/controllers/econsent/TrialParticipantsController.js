@@ -126,9 +126,9 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         const recruitmentPeriod = this.model.site.recruitmentPeriod;
         let isInRecruitmentPeriod = false;
         if (typeof recruitmentPeriod === "object") {
-            const today = new Date();
-            const startDate = new Date(recruitmentPeriod.startDate)
-            const endDate = new Date(recruitmentPeriod.endDate);
+            const today = (new Date()).getTime();
+            const startDate = (new Date(recruitmentPeriod.startDate)).setHours(0,0,0);
+            const endDate = (new Date(recruitmentPeriod.endDate)).setHours(23,59,59);
 
             if (startDate <= today && today <= endDate) {
                 isInRecruitmentPeriod = true;
@@ -428,9 +428,9 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 return siteConsentsKeySSis.includes(icf.genesisUid)
             });
 
-            const promises = trialConsents.map((econsent)=> {
+            const promises = trialConsents.map((econsent, index)=> {
                 return this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
-                    econsent.keySSI, null);
+                    econsent.keySSI, index,null);
 
             });
             await Promise.all(promises);
@@ -439,18 +439,26 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
 
-    sendConsentToPatient(operation, tp, econsentKeySSI, shortMessage) {
-        return this.CommunicationService.sendMessage(tp.publicDid, {
-            operation: operation,
-            ssi: econsentKeySSI,
-            useCaseSpecifics: {
-                subjectName: tp.subjectName,
-                tpName: tp.name,
-                did: tp.did,
-                sponsorDid: tp.sponsorDid,
-            },
-            shortDescription: shortMessage,
-        });
+    sendConsentToPatient(operation, tp, econsentKeySSI, index, shortMessage) {
+        return new Promise((resolve) => {
+
+            setTimeout(async () => {
+                await this.CommunicationService.sendMessage(tp.publicDid, {
+                    operation: operation,
+                    ssi: econsentKeySSI,
+                    useCaseSpecifics: {
+                        subjectName: tp.subjectName,
+                        tpName: tp.name,
+                        did: tp.did,
+                        sponsorDid: tp.sponsorDid,
+                    },
+                    shortDescription: shortMessage,
+                });
+                resolve();
+
+            }, index * 100);
+
+        })
     }
 
 

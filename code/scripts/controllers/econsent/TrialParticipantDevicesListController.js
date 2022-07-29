@@ -82,15 +82,13 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                         modelNumber: device.modelNumber,
                         brand: device.brand,
                         status: device.status
-
-
                     }
                 }));
             }
-            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(5, 10, this.deviceList);
-            const { AssignedDevicesForChosenPatientDataSource } = this.model;
-            this.onTagClick("assignedDevice-prev-page", () => AssignedDevicesForChosenPatientDataSource.goToPreviousPage());
-            this.onTagClick("assignedDevice-next-page", () => AssignedDevicesForChosenPatientDataSource.goToNextPage());
+            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(6, 10, this.deviceList);
+            const { AssignedDevicesForChosenPatientDataSources } = this.model;
+            this.onTagClick("assignedDevice-prev-page", () => AssignedDevicesForChosenPatientDataSources.goToPreviousPage());
+            this.onTagClick("assignedDevice-next-page", () => AssignedDevicesForChosenPatientDataSources.goToNextPage());
             this.onTagClick("remove-assignation", (model) => {
                 let assignation = {
                     deviceId: model.deviceId,
@@ -101,7 +99,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     assignationDate:model.assignationDate,
                     assignationCompleteDate : Date.now(),
                     isStillAssigned:false,
-
                 }
                 this.removeAssignation(assignation);
             });
@@ -111,7 +108,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
     }
 
     getAvailableDevicesToAssign(){
-        this.model.available_devices_for_assignation =  this.model.devices_this_trial.filter(device => device.isAssigned === false);
+        this.model.available_devices_for_assignation =  this.model.devices_this_trial.filter(device => device.isAssigned === false && device.status==="Active");
     }
 
     removeAssignation(deasignedDevice){
@@ -122,8 +119,6 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             if (err) {
                 return console.error(err);
             }
-
-
             this.DeviceAssignationService.updateAssignedDevice(deasignedDevice, (err, data) => {
                 if (err) {
                     console.log(err);

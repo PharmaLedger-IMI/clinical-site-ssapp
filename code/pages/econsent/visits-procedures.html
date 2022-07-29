@@ -10,12 +10,9 @@
             <div data-if="@dataSourceInitialized">
                 <webc-spinner slot="loading"></webc-spinner>
 
-                <div class="alert alert-light d-flex justify-content-center" role="alert" slot="false">
-                    <p>
-                        No visits yet!
-                    </p>
+                <div class="alert alert-warning" role="alert" slot="false">
+                    <h4 class="alert-heading">No visits yet!</h4>
                 </div>
-
 
                 <div class="common-datatable visits-procedures dt-9-col" slot="true" data-if="@siteHasVisits">
 
