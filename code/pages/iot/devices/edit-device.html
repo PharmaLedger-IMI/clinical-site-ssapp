@@ -16,6 +16,12 @@
             </div>
 
             <div slot="true" class="form-container">
+                <div data-if="@isAssigned">
+                    <div class="alert alert-info" role="alert">
+                        This device is assigned to patient with TP number:<b>{{@trialParticipantNumber}}</b>
+                    </div>
+                </div>
+
                 <webc-template template="device-action" data-view-model="@" class="w-100"></webc-template>
             </div>
 

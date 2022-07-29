@@ -41,15 +41,20 @@
                     <div class="cell">{{ @brand }}</div>
                     <div class="cell">{{ @modelNumber }}</div>
                     <div class="cell" >{{ @status }}</div>
-                    <div class="cell" style="text-transform:capitalize;">{{ @isAssigned }}</div>
+
+                    <div class="cell">
+                        <div data-if="@isAssigned">
+                            <span slot="true" class="badge badge-success">Assigned</span>
+                            <span slot="false" class="badge badge-primary">Available for Assignment</span>
+                        </div>
+                    </div>
+
                     <div class="cell">{{ @trialName }}</div>
                     <div class="cell">{{ @trialID }}</div>
                     <div class="cell">
-                        <button class="link-button" data-tag="view">View</button>
-                        <label> | </label>
                         <button class="link-button" data-tag="edit">Edit</button>
                         <label> | </label>
-                        <button class="link-button" data-tag="remove">Remove</button>
+                        <button class="link-button" data-tag="archive">Archive</button>
                     </div>
 
                 </webc-datatable>

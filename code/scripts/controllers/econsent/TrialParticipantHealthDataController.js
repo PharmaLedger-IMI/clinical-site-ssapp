@@ -17,8 +17,8 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
         deviceAssignationService.getAssignedDevices((err, assignedDevices) => {
             const device = assignedDevices.find(assignedDevice => assignedDevice.deviceId === this.model.deviceId);
             console.log("************* Health Identifier *************")
-            console.log(device.healthDataIdentifier);
-            if (!device.healthDataIdentifier) {
+            console.log(device.healthDataIdentifiers);
+            if (!device.healthDataIdentifiers) {
                 this.model.hasHealthData = false;
                 this.model.dataLoaded = true;
                 return;
@@ -33,7 +33,7 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
                 console.log("************* All Observation *************")
                 console.log(observationsDSUs);
                 observationsDSUs.forEach(observationDSU => {
-                    if (device.healthDataIdentifier.includes(observationDSU.uid)) {
+                    if (device.healthDataIdentifiers.includes(observationDSU.uid)) {
                         const patientObservations = observationDSU.observations.filter(observation => observation.sk.includes(this.model.trialParticipantNumber));
                         observations = observations.concat(...patientObservations);
                     }

@@ -38,7 +38,8 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
 
     getAllDevices(){
         this.DeviceServices = new DeviceServices();
-        this.DeviceServices.getDevice((err, devices) => {
+        this.DeviceServices.getDevices((err, devices) => {
+            devices = devices.filter(device => device.archived !== true);
             if (err) {
                 return console.error(err);
             }
