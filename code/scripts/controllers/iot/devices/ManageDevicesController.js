@@ -1,9 +1,11 @@
 import DeviceServices from "../../../services/DeviceServices.js"
+import {COMMUNICATION_MESSAGES} from "../../../utils/CommunicationMessages.js";
+import DeviceAssignationService from "../../../services/DeviceAssignationService.js";
+
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const { getCommunicationServiceInstance } = commonServices.CommunicationService;
-import { COMMUNICATION_MESSAGES } from "../../../utils/CommunicationMessages.js";
 
 
 export default class ManageDevicesController extends BreadCrumbManager {
@@ -87,7 +89,28 @@ export default class ManageDevicesController extends BreadCrumbManager {
             }
             this.model.allDevices = devices.filter(device => device.archived !== true);
             this.model.allAssignedDevices = devices.filter(dv => dv.isAssigned === true);
-            this.model.devicesDataSource = DataSourceFactory.createDataSource(7, 5, this.model.allDevices);
+            this.getAssignedDevices();
+        });
+
+    }
+
+    getAssignedDevices(){
+        this.DeviceAssignationService = new DeviceAssignationService();
+        this.DeviceAssignationService.getAssignedDevices( (err, assignedDevices) => {
+            if (err) {
+                return console.error(err);
+            }
+            let devices = this.model.allDevices;
+            this.model.assignedDevices = assignedDevices;
+            this.model.mappedDevices =  devices.map(device => {
+                if(device.isAssigned === true) {
+                    let assignedDevice = assignedDevices.find(item => item.deviceId === device.deviceId);
+                    device.tpNumber = assignedDevice.trialParticipantNumber;
+                }
+                return device;
+            });
+
+            this.model.devicesDataSource = DataSourceFactory.createDataSource(7, 5, this.model.toObject('mappedDevices'));
             this.model.devicesDataSource.__proto__.updateDevices = function (devices) {
                 this.model.allDevices = devices;
                 this.model.tableData = devices;
@@ -95,8 +118,8 @@ export default class ManageDevicesController extends BreadCrumbManager {
                 this.forceUpdate(true);
             }
         });
-
     }
+
 
     attachHandlerAddDevice() {
         this.onTagClick('devices:add', () => {
@@ -108,10 +131,10 @@ export default class ManageDevicesController extends BreadCrumbManager {
         this.model.addExpression(
             'deviceListNotEmpty',
             () => {
-                return this.model.allDevices && this.model.allDevices.length > 0
+                return this.model.mappedDevices && this.model.mappedDevices.length > 0
             }
             ,
-            'allDevices');
+            'mappedDevices');
     }
 
     attachHandlerEditDevice() {
