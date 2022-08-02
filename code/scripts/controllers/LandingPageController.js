@@ -83,7 +83,6 @@ export default class LandingPageController extends WebcController {
     }
 
     _attachMessageHandlers() {
-        this.CommunicationService = getCommunicationServiceInstance();
         MessageHandlerService.init(async (data) => {
             data = JSON.parse(data);
 
