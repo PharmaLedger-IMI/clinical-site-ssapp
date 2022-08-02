@@ -25,6 +25,17 @@ export default class LandingPageController extends WebcController {
         this.model = this.getInitialModel();
 
         this.didService = getDidServiceInstance();
+
+        this.model.publicDidReady = false;
+        this.CommunicationService = getCommunicationServiceInstance();
+        this.CommunicationService.onPrimaryDidReady((err, didDocument)=>{
+
+            if(err){
+                throw err;
+            }
+            this.model.publicDidReady = true;
+        })
+
         this._attachMessageHandlers();
         this.initServices().then(() => {
             this.initHandlers();
