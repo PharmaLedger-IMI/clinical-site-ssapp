@@ -226,6 +226,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
     _updateTrialParticipant(trialParticipant, callback) {
 
         const tpDsuUpdate = (callback) => {
+            trialParticipant.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER;
             this.HCOService.updateHCOSubEntity(trialParticipant, "tps", (err, trialParticipant) => {
                 if (err) {
                     return console.log(err);

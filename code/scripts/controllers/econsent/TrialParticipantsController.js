@@ -230,20 +230,39 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         break;
                     }
                     case 'withdraw-intention': {
-                        actionNeeded = 'Reconsent required';
+                        actionNeeded = 'Call TP';
                         break;
                     }
                     case 'sign': {
                         switch (lastAction.action.type) {
                             case 'hco': {
-                                actionNeeded = 'Consented by HCO';
+                                actionNeeded = 'Set TP Number';
                                 break;
                             }
                             case 'tp': {
-                                actionNeeded = 'Acknowledgement required';
+                                actionNeeded = 'Consent Review';
                                 break;
                             }
                         }
+                    }
+                }
+
+                switch(tp.actionNeeded) {
+                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER: {
+                        actionNeeded = 'Schedule Visit';
+                        break;
+                    }
+                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED: {
+                        actionNeeded = 'Confirm Visit';
+                        break;
+                    }
+                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED: {
+                        actionNeeded = 'Visit Detail Review';
+                        break;
+                    }
+                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED: {
+                        actionNeeded = 'No action required';
+                        break;
                     }
                 }
 
@@ -256,8 +275,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
     async _getEconsentActionsMappedByUser(trialUid) {
         let actions = {};
-        (await this.TrialService.getEconsentsAsync(trialUid))
-            .forEach(econsent => {
+        const siteConsentsUids = this.model.site.consents.map(consent => consent.uid);
+        let econsents = this.model.hcoDSU.volatile.ifcs.filter(ifc => siteConsentsUids.includes(ifc.genesisUid));
+
+        console.log('econsents', econsents)
+        econsents.forEach(econsent => {
                 if (econsent.versions === undefined) {
                     return actions;
                 }
