@@ -58,10 +58,16 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         });
 
         this._initHandlers();
-        this.observeSearchInput();
+        this.addSearchHandlers();
     }
 
-    observeSearchInput() {
+    addSearchHandlers() {
+
+        this.model.addExpression(
+            'hasTps',
+            () => this.model.trialParticipants && this.model.trialParticipants.length > 0,
+            'trialParticipants');
+
         this.model.onChange('search.value', () => {
             this.filterData();
         });
@@ -143,7 +149,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
     _initHandlers() {
-        this.attachExpression();
         this._attachHandlerAddTrialParticipant();
         this._attachHandlerNavigateToParticipant();
         this._attachHandlerViewTrialParticipantDetails();
@@ -318,13 +323,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     title: 'Add Trial Participant',
                 });
         });
-    }
-
-    attachExpression() {
-        this.model.addExpression(
-            'showSearch',
-            () => this.model.trialParticipants && this.model.trialParticipants.length > 0,
-            'trialParticipants');
     }
 
     _attachHandlerEditRecruitmentPeriod() {
