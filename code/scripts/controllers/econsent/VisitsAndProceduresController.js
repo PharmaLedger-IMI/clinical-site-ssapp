@@ -203,6 +203,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.model.visits[consentVisitIndex].proposedDate = this.model.proposedDate;
         this.model.visits[consentVisitIndex].hasProposedDate = true;
 
+        if(this.actionNeeded) {
+            this.model.tp.actionNeeded = this.actionNeeded;
+        }
+
         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             const currentConsentVisits = this.model.tp.visits.filter(tpVisit=>{
@@ -321,6 +325,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         model.confirmedDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
                         this.model.proposedDate = model.proposedDate;
                         this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(model.proposedDate);
+
+                        if(this.model.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED || this.model.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED) {
+                            this.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED;
+                        }
+
                         await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
 
                         if(this.model.site.status.stage === Constants.HCO_STAGE_STATUS.ENROLLING) {

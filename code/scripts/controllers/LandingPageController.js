@@ -176,9 +176,6 @@ export default class LandingPageController extends WebcController {
                         if (err) {
                             return console.log(err);
                         }
-                        if (err) {
-                            return console.log(err);
-                        }
 
                         this.HCOService.mountTrial(site.trialSReadSSI, (err, trial) => {
                             if (err) {
@@ -527,6 +524,18 @@ export default class LandingPageController extends WebcController {
         tpDSU.visits[objIndex].proposedDate = message.useCaseSpecifics.visit.proposedDate;
 
         tpDSU.visits[objIndex].confirmedDate = message.useCaseSpecifics.visit.confirmedDate;
+
+        console.log('message', message);
+        console.log('tpdsu', tpDSU);
+        let visit = message.useCaseSpecifics.visit;
+
+        if(visit.accepted) {
+            tpDSU.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED;
+        }
+
+        if(visit.rescheduled && visit.confirmed === false) {
+            tpDSU.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED;
+        }
 
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
