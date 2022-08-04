@@ -93,11 +93,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 return false;
             });
 
-            console.log('filteredTps', filteredTps);
-
             this.model.trialParticipantsDataSource.updateParticipants(JSON.parse(JSON.stringify(filteredTps)));
             if (filteredTps.length === 0) {
                 this.model.noResults = true;
+                this.model.trialParticipantsDataSource.updateParticipants(trialParticipants);
             }
             else {
                 this.model.noResults = false;
