@@ -2,6 +2,8 @@ import HCOService from '../../services/HCOService.js';
 const openDSU = require("opendsu");
 const commonServices = require("common-services");
 const { getDidServiceInstance } = commonServices.DidService;
+const momentService = commonServices.momentService;
+const Constants = commonServices.Constants;
 
 const {WebcController} = WebCardinal.controllers;
 const LEGAL_ENTITY_MAX_AGE = 14;
@@ -35,6 +37,7 @@ let getInitModel = () => {
             dataFormat: 'MM YYYY',
             type: 'month',
             value: '',
+            max: '',
         },
         isUnder14:false,
         didParent1: {
@@ -85,6 +88,10 @@ export default class AddTrialParticipantController extends WebcController {
         this.observeInputs();
         this.generateAnonymizedDid();
         this.refreshHandler();
+
+        let now = (new Date()).getTime();
+        let formattedNow = this.getDateTime(now);
+        this.model.birthdate.max = formattedNow.date;
     }
 
     generateAnonymizedDid() {
@@ -138,9 +145,14 @@ export default class AddTrialParticipantController extends WebcController {
         this._attachHandlerSubmit();
     }
 
-    _attachHandlerSubmit() {
+    getDateTime(timestamp) {
+        return {
+            date: momentService(timestamp).format(Constants.DATE_UTILS.FORMATS.YearMonthPattern),
+        };
+    }
 
-        this.model.onChange("birthdate",()=>{
+    _attachHandlerSubmit() {
+        this.model.onChange("birthdate.value",()=>{
             let currentDate = Date.now()
             let birthDate = new Date(this.model.birthdate.value).getTime();
 
