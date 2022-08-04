@@ -215,10 +215,13 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
                 let tpActions = actions[tp.did];
                 let actionNeeded = 'No action required';
+                let notificationColor;
                 if (tpActions === undefined || tpActions.length === 0) {
+                    notificationColor = 'primary';
                     return {
                         ...tp,
-                        actionNeeded: actionNeeded
+                        actionNeeded: actionNeeded,
+                        notificationColor: notificationColor
                     }
                 }
                 let lastAction = tpActions[tpActions.length - 1];
@@ -226,20 +229,24 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 switch (lastAction.action.name) {
                     case 'withdraw': {
                         actionNeeded = 'TP Withdrawed';
+                        notificationColor = 'danger';
                         break;
                     }
                     case 'withdraw-intention': {
                         actionNeeded = 'Call TP';
+                        notificationColor = 'warning';
                         break;
                     }
                     case 'sign': {
                         switch (lastAction.action.type) {
                             case 'hco': {
                                 actionNeeded = 'Set TP Number';
+                                notificationColor = 'success';
                                 break;
                             }
                             case 'tp': {
                                 actionNeeded = 'Consent Review';
+                                notificationColor = 'success';
                                 break;
                             }
                         }
@@ -249,25 +256,30 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 switch(tp.actionNeeded) {
                     case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER: {
                         actionNeeded = 'Schedule Visit';
+                        notificationColor = 'success';
                         break;
                     }
                     case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED: {
                         actionNeeded = 'Confirm Visit';
+                        notificationColor = 'success';
                         break;
                     }
                     case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED: {
                         actionNeeded = 'Visit Detail Review';
+                        notificationColor = 'warning';
                         break;
                     }
                     case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED: {
                         actionNeeded = 'No action required';
+                        notificationColor = 'primary';
                         break;
                     }
                 }
 
                 return {
                     ...tp,
-                    actionNeeded: actionNeeded
+                    actionNeeded: actionNeeded,
+                    notificationColor: notificationColor
                 }
             })
     }

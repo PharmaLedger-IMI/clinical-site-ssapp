@@ -96,7 +96,16 @@
                         <div class="cell">{{@number}}</div>
                         <div class="cell">{{@birthdate}}</div>
                         <div class="cell">{{@status}}</div>
-                        <div class="cell">{{@actionNeeded}}</div>
+
+                        <div class="cell">
+                            <webc-switch condition="@notificationColor">
+                                <span slot="success" class="badge badge-success">{{@actionNeeded}}</span>
+                                <span slot="warning" class="badge badge-warning">{{@actionNeeded}}</span>
+                                <span slot="danger" class="badge badge-danger">{{@actionNeeded}}</span>
+                                <span slot="primary" class="badge badge-primary">{{@actionNeeded}}</span>
+                            </webc-switch>
+                        </div>
+
                         <div class="cell">
                             <button class="link-button" data="@id" data-tag="tp:status">Status</button>
                             <label> | </label>
