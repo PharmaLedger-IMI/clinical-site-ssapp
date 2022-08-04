@@ -1,4 +1,5 @@
 import HCOService from '../../services/HCOService.js';
+
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const {QuestionnaireService} = commonServices;
@@ -25,11 +26,18 @@ export default class QuestionsListController extends BreadCrumbManager {
         const prevState = this.getState() || {};
         this.model = this.getState();
         this.model = {
+            pageIsInitialized:false,
             ...getInitModel(),
             trialSSI: prevState.trialSSI,
-            hasProms: false,
-            hasPrems: false,
-            currentTable: "none"
+            prom: {
+                hasQuestions: false
+            },
+            prem: {
+                hasQuestions: false
+            },
+            currentTable: "prom",
+            promSelected: true,
+            premSelected: false
         };
 
         this.model.breadcrumb = this.setBreadCrumb(
@@ -43,7 +51,7 @@ export default class QuestionsListController extends BreadCrumbManager {
         this.initServices();
     }
 
-    initHandlers(){
+    initHandlers() {
         this._attachHandlerAddNewQuestion();
         this._attachHandlerPromQuestions();
         this._attachHandlerPremQuestions();
@@ -74,10 +82,10 @@ export default class QuestionsListController extends BreadCrumbManager {
                 (event) => {
                     const response = event.detail;
                     this.model.response = response;
-                    this.model.questionnaire.schedule.startDate = this.model.response.startDate;
-                    this.model.questionnaire.schedule.endDate = this.model.response.endDate;
-                    this.model.questionnaire.schedule.repeatAppointment = this.model.response.frequencyType.value;
-                    this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
+                    this.questionnaire.schedule.startDate = this.model.response.startDate;
+                    this.questionnaire.schedule.endDate = this.model.response.endDate;
+                    this.questionnaire.schedule.repeatAppointment = this.model.response.frequencyType.value;
+                    this.QuestionnaireService.updateQuestionnaire(this.questionnaire, (err, data) => {
                         if (err) {
                             console.log(err);
                         }
@@ -85,15 +93,13 @@ export default class QuestionsListController extends BreadCrumbManager {
                         console.log(data);
                     });
                 },
-                (event) => {
-                    const response = event.detail;
-                },
+                (event) => {},
                 {
                     controller: 'modals/SetFrequencyQuestionnaire',
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     title: 'Set Frequency Questionnaire',
-                    schedule: this.model.questionnaire.schedule
+                    schedule: this.questionnaire.schedule
                 }
             );
 
@@ -101,29 +107,72 @@ export default class QuestionsListController extends BreadCrumbManager {
     }
 
     _attachHandlerAddNewQuestion() {
-        this.onTagEvent('new:question', 'click', (model, target, event) => {
-            let state = {
-                trialSSI: this.model.selected_trial.uid,
-                trialName: this.model.selected_trial.name,
-                breadcrumb: this.model.toObject('breadcrumb')
-            }
-            this.navigateToPageTag('add-questions', state);
-        });
+
+
+        const addQuestionHandler = () => {
+            this.showModalFromTemplate(
+                'questionnaire/add-question',
+                async (event) => {
+                    let question = event.detail;
+
+
+                    question = Object.assign(question, {
+                        task: this.model.currentTable
+                    });
+
+                    let questionnaireDatasource = this.model[this.model.currentTable].questionsDataSource;
+                    this.questionnaire[this.model.currentTable].push(question);
+
+                    this.QuestionnaireService.updateQuestionnaire(this.questionnaire, (err) => {
+                        const message = {}
+
+                        if (err) {
+                            console.log(err);
+                            message.content = "An error has been occurred!";
+                            message.type = 'error';
+                        } else {
+                            message.content = "The question has been added!";
+                            message.type = 'success';
+                        }
+
+                        this.model.message = message;
+
+                        window.WebCardinal.loader.hidden = true;
+                        questionnaireDatasource.updateRecords();
+                    });
+                },
+                (event) => {},
+                {
+                    controller: 'modals/questionnaire/AddQuestionController',
+                    disableExpanding: false,
+                    disableBackdropClosing: true,
+                    questionType: this.model.currentTable.toUpperCase(),
+                });
+
+        }
+
+        this.onTagEvent('new:prem-question', 'click', addQuestionHandler.bind(this))
+        this.onTagEvent('new:prom-question', 'click', addQuestionHandler.bind(this))
     }
 
     _attachHandlerPromQuestions() {
-        this.onTagEvent('new:prom', 'click', (model, target, event) => {
-            this.model.currentTable = "proms"
+        this.onTagEvent('view:prom', 'click', (model, target, event) => {
+            this.model.currentTable = "prom";
+            this.model.promSelected = true;
+            this.model.premSelected = false;
         });
     }
 
     _attachHandlerPremQuestions() {
-        this.onTagEvent('new:prem', 'click', (model, target, event) => {
-            this.model.currentTable = "prems"
+        this.onTagEvent('view:prem', 'click', (model, target, event) => {
+            this.model.currentTable = "prem";
+            this.model.promSelected = false;
+            this.model.premSelected = true;
         });
     }
 
-     generateInitialQuestionnaire() {
+    generateInitialQuestionnaire(callback) {
+        window.WebCardinal.loader.hidden = false;
         let questionnaire = {
             resourceType: "Questionnaire",
             id: "bb",
@@ -149,10 +198,8 @@ export default class QuestionsListController extends BreadCrumbManager {
                     ]
                 }
             ],
-            prom: [
-            ],
-            prem: [
-            ],
+            prom: [],
+            prem: [],
             schedule: {
                 startDate: "",
                 endDate: "",
@@ -167,17 +214,19 @@ export default class QuestionsListController extends BreadCrumbManager {
                 console.log(err);
             }
             console.log("Initial Questionnaire Generated!")
-            this.model.questionnaire = data;
+            this.questionnaire = data;
 
             this.TrialParticipantRepository.findAll((err, tps) => {
                 if (err) {
                     return console.log(err);
                 }
-                let tps_this_trial = tps.filter(tp => tp.trialId === this.model.selected_trial.id);
-                tps_this_trial.forEach(participant => {
+                let trialTps = tps.filter(tp => tp.trialId === this.model.selected_trial.id);
+                trialTps.forEach(participant => {
                     this.sendMessageToPatient(participant.did, Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE, data.sReadSSI, "");
                     console.log("Questionnaire sent to: " + participant.name)
                 });
+                window.WebCardinal.loader.hidden = true;
+                callback();
             })
         });
     }
@@ -194,11 +243,12 @@ export default class QuestionsListController extends BreadCrumbManager {
         });
     }
 
-    getQuestionnaire(){
+    getQuestionnaire() {
+
         this.QuestionnaireService = new QuestionnaireService();
         const getQuestions = () => {
-            return new Promise ((resolve, reject) => {
-                this.QuestionnaireService.getAllQuestionnaires((err, data ) => {
+            return new Promise((resolve, reject) => {
+                this.QuestionnaireService.getAllQuestionnaires((err, data) => {
                     if (err) {
                         return reject(err);
                     }
@@ -208,109 +258,80 @@ export default class QuestionsListController extends BreadCrumbManager {
         }
 
         getQuestions().then(data => {
-            this.model.questionnaire = data.filter(data => data.trialSSI === this.model.trialSSI)[0];
-            if (!this.model.questionnaire){
-                console.log("Initial Questionnaire is not created. Generating now the initial questionnaire for this trial.");
-                this.generateInitialQuestionnaire();
+
+            const createDataSourceHandlers = () =>{
+                this.onTagClick("question-edit", (model) => {
+                    let state =
+                        {
+                            questionID: model.uid,
+                            trialSSI: this.model.selected_trial.uid,
+                            trialName: this.model.selected_trial.name,
+                            breadcrumb: this.model.toObject('breadcrumb')
+                        }
+                    this.navigateToPageTag('edit-questions', state)
+                });
+                this.onTagClick("question-delete", (model) => {
+                    const modalConfig = {
+                        controller: "modals/ConfirmationAlertController",
+                        disableExpanding: false,
+                        disableBackdropClosing: true,
+                        question: "Are you sure that you want to delete this question? ",
+                        title: "Delete question",
+                    };
+                    this.showModalFromTemplate(
+                        "confirmation-alert",
+                        (event) => {
+
+                            let index = this.questionnaire[this.model.currentTable].findIndex(element => element.uid === model.uid);
+                            this.questionnaire[this.model.currentTable].splice(index, 1);
+                            this.QuestionnaireService.updateQuestionnaire(this.questionnaire, (err, data) => {
+                                if (err) {
+                                    console.log(err);
+                                }
+                                this.model[this.model.currentTable].questionsDataSource.updateRecords();
+                            });
+                        },
+                        (event) => {
+                            console.log("cancel");
+                        },
+                        modalConfig);
+                });
             }
-            else{
+
+            const createDataSources = () => {
+
+                const generateDataSource = (modelChain, questions)=>{
+                    const self = this;
+                    this.model[modelChain].hasQuestions = questions.length !== 0;
+                    this.model[modelChain].questionsDataSource = DataSourceFactory.createDataSource(3, 6, questions);
+                    this.model[modelChain].questionsDataSource.updateRecords = function () {
+                        self.model[modelChain].hasQuestions = questions.length !== 0;
+                        if (typeof this.getElement === "function") {
+                            this.getElement().dataSize = questions.length;
+                            this.forceUpdate(true);
+                        }
+                    }
+
+                }
+                generateDataSource("prom",this.questionnaire.prom);
+                generateDataSource("prem",this.questionnaire.prem);
+
+                this.model.pageIsInitialized = true;
+                createDataSourceHandlers();
+            }
+
+
+            this.questionnaire = data.find(data => data.trialSSI === this.model.trialSSI);
+            if (!this.questionnaire) {
+                console.log("Initial Questionnaire is not created. Generating now the initial questionnaire for this trial.");
+                this.generateInitialQuestionnaire(createDataSources);
+            } else {
                 console.log("Initial Questionnaire is loaded.")
-                this.model.hasProms = this.model.questionnaire.prom.length !== 0;
-                this.model.PromsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prom);
-                this.model.PromsDataSource.__proto__.updateRecords = function() {
-                    this.forceUpdate(true);
-                }
-                const { PromsDataSource } = this.model;
-                this.onTagClick("prom-prev-page", () => PromsDataSource.goToPreviousPage());
-                this.onTagClick("prom-next-page", () => PromsDataSource.goToNextPage());
-                this.onTagClick("prom-edit", (model) => {
-                    let state =
-                        {
-                            questionID: model.uid,
-                            trialSSI: this.model.selected_trial.uid,
-                            trialName: this.model.selected_trial.name,
-                            breadcrumb: this.model.toObject('breadcrumb')
-                        }
-                    this.navigateToPageTag('edit-questions', state)
-                });
-                this.onTagClick("prom-delete", (model) => {
-                    const modalConfig = {
-                        controller: "modals/ConfirmationAlertController",
-                        disableExpanding: false,
-                        disableBackdropClosing: true,
-                        question: "Are you sure that you want to delete this question? ",
-                        title: "Delete question",
-                    };
-                    this.showModalFromTemplate(
-                        "confirmation-alert",
-                        (event) => {
-                            let index = this.model.questionnaire.prom.findIndex(element => element.uid === model.uid);
-                            this.model.questionnaire.prom.splice(index, 1);
-                            this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                this.model.PromsDataSource.updateRecords();
-                            });
-                        },
-                        (event) => {
-                            console.log("cancel");
-                        },
-                        modalConfig);
-                });
-                this.model.hasPrems = this.model.questionnaire.prem.length !== 0;
-                this.model.PremsDataSource = DataSourceFactory.createDataSource(3, 6, this.model.questionnaire.prem);
-                this.model.PremsDataSource.__proto__.updateRecords = function() {
-                    this.forceUpdate(true);
-                }
-                const { PremsDataSource } = this.model;
-                this.onTagClick("prem-prev-page", () => PremsDataSource.goToPreviousPage());
-                this.onTagClick("prem-next-page", () => PremsDataSource.goToNextPage());
-                this.onTagClick("prem-edit", (model) => {
-                    let state =
-                        {
-                            questionID: model.uid,
-                            trialSSI: this.model.selected_trial.uid,
-                            trialName: this.model.selected_trial.name,
-                            breadcrumb: this.model.toObject('breadcrumb')
-                        }
-                    this.navigateToPageTag('edit-questions', state)
-                });
-                this.onTagClick("prem-delete", (model) => {
-                    const modalConfig = {
-                        controller: "modals/ConfirmationAlertController",
-                        disableExpanding: false,
-                        disableBackdropClosing: true,
-                        question: "Are you sure that you want to delete this question? ",
-                        title: "Delete question",
-                    };
-                    this.showModalFromTemplate(
-                        "confirmation-alert",
-                        (event) => {
-                            let index = this.model.questionnaire.prem.findIndex(element => element.uid === model.uid);
-                            this.model.questionnaire.prem.splice(index, 1);
-                            this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                                this.model.PremsDataSource.updateRecords();
-                            });
-                        },
-                        (event) => {
-                            console.log("cancel");
-                        },
-                        modalConfig);
-                });
+                createDataSources();
+
             }
         })
 
     }
-
-
-
-
-
-
-
 
 }

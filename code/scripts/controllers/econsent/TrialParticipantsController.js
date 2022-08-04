@@ -2,11 +2,8 @@ import HCOService from '../../services/HCOService.js';
 import TrialService from '../../services/TrialService.js';
 
 const commonServices = require("common-services");
-const CommunicationService = commonServices.CommunicationService;
-const Constants = commonServices.Constants;
+const {CommunicationService, QuestionnaireService, Constants, JWTService, DidService} = commonServices;
 const BaseRepository = commonServices.BaseRepository;
-const JWTService = commonServices.JWTService;
-const DidService = commonServices.DidService;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
@@ -138,6 +135,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.JWTService = new JWTService();
         this.DIDService = DidService.getDidServiceInstance();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
+        this.QuestionnaireService = new QuestionnaireService();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         return await this.initializeData();
     }
@@ -516,14 +514,54 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 return siteConsentsKeySSis.includes(icf.genesisUid)
             });
 
-            const promises = trialConsents.map((econsent, index)=> {
+            const consentsPromises = trialConsents.map((econsent, index)=> {
                 return this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
                     econsent.keySSI, index,null);
 
             });
-            await Promise.all(promises);
+
+            const questionnairePromise = this.sendQuestionnaireToPatient(tp.publicDid);
+            await Promise.all([...consentsPromises,questionnairePromise]);
             window.WebCardinal.loader.hidden = true;
         });
+    }
+
+    sendQuestionnaireToPatient(patientDid){
+
+        return new Promise((resolve, reject)=>{
+            this.QuestionnaireService.getAllQuestionnaires((err, questionnaires) => {
+                if (err) {
+                    reject (err);
+                }
+
+                const sendMessageToPatient = (trialParticipant, operation, ssi, shortMessage) => {
+                    this.CommunicationService.sendMessage(trialParticipant, {
+                        operation: operation,
+                        ssi: ssi,
+                        useCaseSpecifics: {
+                            did: trialParticipant.did,
+                            trialSSI: this.model.trialSSI
+                        },
+                        shortDescription: shortMessage,
+                    });
+                }
+
+                const trialQuestionnaire = questionnaires.find(questionnaire => questionnaire.trialSSI === this.model.trialUid);
+                if(!trialQuestionnaire){
+                    return resolve();
+                }
+
+                this.QuestionnaireService.getQuestionnaireSReadSSI(trialQuestionnaire,(err, sReadSSI)=>{
+                    if(err){
+                        reject(err);
+                    }
+                    sendMessageToPatient(patientDid, Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE, sReadSSI, "");
+                    resolve();
+                })
+
+            })
+        })
+
     }
 
 
