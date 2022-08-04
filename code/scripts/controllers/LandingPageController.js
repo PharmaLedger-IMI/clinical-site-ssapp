@@ -327,7 +327,6 @@ export default class LandingPageController extends WebcController {
             case 'withdraw-intention': {
                 actionNeeded = 'Reconsent required';
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
-                status = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW;
                 tpObjectToAssign = {
                     actionNeeded,
                     status,
