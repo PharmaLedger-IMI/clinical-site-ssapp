@@ -11,7 +11,7 @@ let getInitModel = () => {
             required: true,
             placeholder: 'Please set the date ',
             value: '',
-            min:'',
+            min: '',
             max:''
         },
         datesInformation : '',
@@ -25,6 +25,24 @@ export default class SetProcedureDateController extends WebcController {
         super(...props);
         this.setModel(getInitModel());
         this._initHandlers();
+
+        let now = (new Date()).getTime();
+        let formattedNow = this.getDateTime(now);
+        this.model.procedureDate.min = formattedNow.date + 'T' + formattedNow.time;
+        this.model.onChange('procedureDate.value', () => {
+            let selectedDate = new Date(this.model.procedureDate.value);
+            if(selectedDate.getTime() < now) {
+                this.model.isBtnDisabled = true;
+                document.getElementById("procedure-date").classList.add("is-invalid");
+                let from = momentService(now).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                this.model.haveSuggestedInterval = true;
+                this.model.datesInformation = `Choose a date from: ${from}`;
+            } else {
+                this.model.isBtnDisabled = false;
+                document.getElementById("procedure-date").classList.remove("is-invalid");
+            }
+        })
+
 
         if(props[0].confirmedDate) {
             let confirmedDate = (new Date(props[0].confirmedDate)).getTime();
