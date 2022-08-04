@@ -534,28 +534,22 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     reject (err);
                 }
 
-                const sendMessageToPatient = (trialParticipant, operation, ssi, shortMessage) => {
-                    this.CommunicationService.sendMessage(trialParticipant, {
-                        operation: operation,
-                        ssi: ssi,
-                        useCaseSpecifics: {
-                            did: trialParticipant.did,
-                            trialSSI: this.model.trialSSI
-                        },
-                        shortDescription: shortMessage,
-                    });
-                }
-
                 const trialQuestionnaire = questionnaires.find(questionnaire => questionnaire.trialSSI === this.model.trialUid);
                 if(!trialQuestionnaire){
                     return resolve();
                 }
 
-                this.QuestionnaireService.getQuestionnaireSReadSSI(trialQuestionnaire,(err, sReadSSI)=>{
+                this.QuestionnaireService.getQuestionnaireSReadSSI(trialQuestionnaire,async (err, sReadSSI)=>{
                     if(err){
                         reject(err);
                     }
-                    sendMessageToPatient(patientDid, Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE, sReadSSI, "");
+
+                    await this.CommunicationService.sendMessage(patientDid, {
+                        operation: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
+                        ssi: sReadSSI,
+                        shortDescription: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
+                    });
+
                     resolve();
                 })
 
