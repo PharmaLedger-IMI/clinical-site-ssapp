@@ -137,6 +137,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
     async initializeData() {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.tps = await this.TrialParticipantRepository.findAllAsync();
         return await this._initTrial(this.model.trialUid);
     }
 
@@ -185,11 +186,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     async _getTrialParticipantsMappedWithActionRequired(actions) {
         let tpsMappedByDID = {};
 
-        let tps = await this.TrialParticipantRepository.findAllAsync();
-        if (tps.length === 0) {
+        if (this.tps.length === 0) {
             return [];
         }
-        tps.forEach(tp => tpsMappedByDID[tp.did] = tp);
+        this.tps.forEach(tp => tpsMappedByDID[tp.did] = tp);
 
         let trialParticipants = this.model.hcoDSU.volatile.tps;
 
@@ -327,6 +327,14 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.onTagEvent('add:ts', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
+            let tpsDIDs = [];
+            //include both anonymous and public DIDs
+            if(this.tps){
+                tpsDIDs = this.tps.map(tp => tp.publicDid);
+            }
+            if(this.model.hcoDSU.volatile.tps){
+                tpsDIDs = tpsDIDs.concat(this.model.hcoDSU.volatile.tps.map(tp => tp.did));
+            }
             this.showModalFromTemplate(
                 'add-new-tp',
                 async (event) => {
@@ -335,15 +343,13 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     this._showFeedbackToast('Result', Constants.MESSAGES.HCO.FEEDBACK.SUCCESS.ADD_TRIAL_PARTICIPANT);
                     this.model.trialParticipantsDataSource.updateParticipants(this.model.toObject('trialParticipants'))
                 },
-                (event) => {
-                    const response = event.detail;
-                }
-                ,
+                (event) => {},
                 {
                     controller: 'modals/AddTrialParticipantController',
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     title: 'Add Trial Participant',
+                    tpsDIDs: tpsDIDs
                 });
         });
     }

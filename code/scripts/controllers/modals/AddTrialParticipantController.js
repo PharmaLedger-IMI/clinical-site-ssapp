@@ -1,4 +1,3 @@
-import HCOService from '../../services/HCOService.js';
 const openDSU = require("opendsu");
 const commonServices = require("common-services");
 const { getDidServiceInstance } = commonServices.DidService;
@@ -83,6 +82,7 @@ let getInitModel = () => {
 export default class AddTrialParticipantController extends WebcController {
     constructor(...props) {
         super(...props);
+        this.tpsDIDs = props[0].tpsDIDs;
         this.setModel(getInitModel());
         this._initHandlers();
 
@@ -107,10 +107,6 @@ export default class AddTrialParticipantController extends WebcController {
         this.onTagClick('refresh-identifier', this.generateAnonymizedDid.bind(this));
     }
 
-    async verifyParticipant() {
-        this.HCOService = new HCOService();
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-    }
 
     async observeInputs() {
         const validateInputs = async () => {
@@ -125,13 +121,8 @@ export default class AddTrialParticipantController extends WebcController {
             if(didSegments.some(segment => segment.trim() === '')) {
                 return this.model.isBtnDisabled = true;
             }
-            await this.verifyParticipant();
-            if (this.model.hcoDSU.volatile.tps && this.model.hcoDSU.volatile.tps.length > 0) {
-                let tps = this.model.toObject('hcoDSU.volatile.tps');
-                this.model.isBtnDisabled = tps.some(tp => tp.did === this.model.did.value);
-            } else {
-                this.model.isBtnDisabled = false;
-            }
+            this.model.isBtnDisabled = this.tpsDIDs.some(tpDid => tpDid === this.model.did.value);
+
         }
 
         this.model.onChange('name.value', validateInputs);
