@@ -37,6 +37,7 @@ let getInitModel = () => {
             dataFormat: 'MM YYYY',
             type: 'month',
             value: '',
+            min: '',
             max: '',
         },
         isUnder14:false,
@@ -92,6 +93,10 @@ export default class AddTrialParticipantController extends WebcController {
         let now = (new Date()).getTime();
         let formattedNow = this.getDateTime(now);
         this.model.birthdate.max = formattedNow.date;
+
+        let minimumDate = (new Date('01/01/1900')).getTime();
+        let formattedMinimumDate = this.getDateTime(minimumDate);
+        this.model.birthdate.min = formattedMinimumDate.date;
     }
 
     generateAnonymizedDid() {
