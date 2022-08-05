@@ -77,12 +77,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
         let userActions = await this._getUserActionsFromEconsents(keySSI, this.model.trialParticipant.did);
         userActions = userActions.filter(ua => ua.action.type === 'tp');
-        let userActionsToShow = [
-            {
-                name: 'Enrolled',
-                date: this.model.trialParticipant.enrolledDate
-            }
-        ];
+        let userActionsToShow = [];
         userActions.forEach(ua => {
             let actualAction = ua.action;
             userActionsToShow.push({
@@ -206,6 +201,13 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                 tpObjectToAssign = {
                                     actionNeeded: "No action required",
                                     status: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
+                                    screenFailedDate: currentDate.toLocaleDateString()
+                                }
+                            break;
+                            case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN:
+                                tpObjectToAssign = {
+                                    actionNeeded: "No action required",
+                                    status: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
                                     screenFailedDate: currentDate.toLocaleDateString()
                                 }
                             break;

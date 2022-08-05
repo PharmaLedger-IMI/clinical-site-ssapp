@@ -21,6 +21,10 @@ export default class ChangeParticipantStatusController extends WebcController {
       value: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
       label: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
     },
+    {
+      value: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
+    },
   ];
 
   statusesTemplate = {
