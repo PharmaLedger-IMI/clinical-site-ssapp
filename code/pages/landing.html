@@ -1,9 +1,9 @@
 <webc-container controller="LandingPageController">
-    <div class="container flex-container">
-        <img alt="PharmaLedger Blockchain Enabled Healthcare" src="themes/clinical-site-theme/images/pharmaledger-logo.jpg"
+    <div class="container flex-container" data-if="@publicDidReady">
+        <img slot="true" alt="PharmaLedger Blockchain Enabled Healthcare" src="themes/clinical-site-theme/images/pharmaledger-logo.jpg"
              class="img-xl"/>
-        <div data-if="@publicDidReady">
-            <div slot="true" class="button-group-wrapper">
+        <div slot="true">
+            <div class="button-group-wrapper">
                 <button data-tag="navigation:econsent-trial-management">E-Consent Trial Management</button>
                 <button data-tag="navigation:iot-manage-devices">Manage Devices</button>
                 <button data-tag="navigation:econsent-visits">Visits</button>
@@ -17,15 +17,15 @@
                 </div>
             </div>
 
-            <div slot="false" class="d-flex flex-column align-items-center justify-content-center wallet-initializing-info">
-                <div class="row">
-                    <div class="spinner-border text-info" role="status">
-                        <span class="sr-only">Loading...</span>
-                    </div>
+        </div>
+        <div slot="false" class="d-flex flex-column align-items-center justify-content-center wallet-initializing-info">
+            <div class="row">
+                <div class="spinner-border text-info" role="status">
+                    <span class="sr-only">Loading...</span>
                 </div>
-                <div class="row">
-                    <strong>Wallet is initializing...</strong>
-                </div>
+            </div>
+            <div class="row">
+                <strong>Wallet is initializing...</strong>
             </div>
         </div>
     </div>
