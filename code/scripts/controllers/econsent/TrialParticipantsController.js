@@ -24,7 +24,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.setModel({
             ...getInitModel(),
             trialUid: state.trialUid,
-            previousScreened: 0
+            previousScreened: 0,
+            hasNoSearchResults:false,
         });
 
 
@@ -91,17 +92,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             });
 
             this.model.trialParticipantsDataSource.updateParticipants(JSON.parse(JSON.stringify(filteredTps)));
-            if (filteredTps.length === 0) {
-                this.model.noResults = true;
-                this.model.trialParticipantsDataSource.updateParticipants(trialParticipants);
-            }
-            else {
-                this.model.noResults = false;
-            }
+            this.model.hasNoSearchResults = filteredTps.length === 0;
         }
         else {
             this.model.trialParticipantsDataSource.updateParticipants(trialParticipants);
-            this.model.noResults = false;
+            this.model.hasNoSearchResults = false;
         }
     }
 

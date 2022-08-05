@@ -71,54 +71,59 @@
                                        event-name="filters-changed"/>
                             </div>
 
-                            <div class="m-2" data-if="@noResults">
-                                <strong>There are no results for your search!</strong>
+                            <div class="m-2" data-if="@hasNoSearchResults">
+                                <div class="alert alert-warning" role="alert">
+                                    Search filter does not match any results.
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <webc-datatable datasource="@trialParticipantsDataSource" slot="true">
+                    <div slot="true" data-if="@hasNoSearchResults">
+                        <webc-datatable datasource="@trialParticipantsDataSource" slot="false">
 
-                        <div slot="no-data" class="alert alert-warning" role="alert">
-                            <h4 class="alert-heading">No trial participants yet!</h4>
-                            <p>Add your first trial participants!</p>
-                        </div>
+                            <div slot="no-data" class="alert alert-warning" role="alert">
+                                <h4 class="alert-heading">No trial participants yet!</h4>
+                                <p>Add your first trial participants!</p>
+                            </div>
 
-                        <div slot="header">Name</div>
-                        <div slot="header">Number</div>
-                        <div slot="header">Birthday</div>
-                        <div slot="header">Status</div>
-                        <div slot="header">Notification for action</div>
-                        <div slot="header">Overview</div>
+                            <div slot="header">Name</div>
+                            <div slot="header">Number</div>
+                            <div slot="header">Birthday</div>
+                            <div slot="header">Status</div>
+                            <div slot="header">Notification for action</div>
+                            <div slot="header">Overview</div>
 
 
-                        <div class="cell">{{@name}}{{@lastName}}</div>
-                        <div class="cell">{{@number}}</div>
-                        <div class="cell">{{@birthdate}}</div>
-                        <div class="cell">{{@status}}</div>
+                            <div class="cell">{{@name}}{{@lastName}}</div>
+                            <div class="cell">{{@number}}</div>
+                            <div class="cell">{{@birthdate}}</div>
+                            <div class="cell">{{@status}}</div>
 
-                        <div class="cell">
-                            <webc-switch condition="@notificationColor">
-                                <span slot="success" class="badge badge-success">{{@actionNeeded}}</span>
-                                <span slot="warning" class="badge badge-warning">{{@actionNeeded}}</span>
-                                <span slot="danger" class="badge badge-danger">{{@actionNeeded}}</span>
-                                <span slot="primary" class="badge badge-primary">{{@actionNeeded}}</span>
-                            </webc-switch>
-                        </div>
+                            <div class="cell">
+                                <webc-switch condition="@notificationColor">
+                                    <span slot="success" class="badge badge-success">{{@actionNeeded}}</span>
+                                    <span slot="warning" class="badge badge-warning">{{@actionNeeded}}</span>
+                                    <span slot="danger" class="badge badge-danger">{{@actionNeeded}}</span>
+                                    <span slot="primary" class="badge badge-primary">{{@actionNeeded}}</span>
+                                </webc-switch>
+                            </div>
 
-                        <div class="cell">
-                            <button class="link-button" data="@id" data-tag="tp:status">Status</button>
-                            <label> | </label>
-                            <button class="link-button" data="@id" data-tag="tp:details">Consents</button>
-                            <label> | </label>
-                            <button class="link-button" data="@" data-tag="tp:devices" disabled="@cannotManageDevices">
-                                Devices
-                            </button>
-                            <label> | </label>
-                            <button class="link-button" data="@id" data-tag="tp:answers" >Answers</button>
-                        </div>
+                            <div class="cell">
+                                <button class="link-button" data="@id" data-tag="tp:status">Status</button>
+                                <label> | </label>
+                                <button class="link-button" data="@id" data-tag="tp:details">Consents</button>
+                                <label> | </label>
+                                <button class="link-button" data="@" data-tag="tp:devices" disabled="@cannotManageDevices">
+                                    Devices
+                                </button>
+                                <label> | </label>
+                                <button class="link-button" data="@id" data-tag="tp:answers" >Answers</button>
+                            </div>
 
-                    </webc-datatable>
+                        </webc-datatable>
+                    </div>
+
                 </div>
             </div>
 
