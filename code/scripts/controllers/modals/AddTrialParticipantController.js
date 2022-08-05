@@ -37,8 +37,8 @@ let getInitModel = () => {
             dataFormat: 'MM YYYY',
             type: 'month',
             value: '',
-            min: '',
-            max: '',
+            min: momentService((new Date('1900-01-01'))).format(Constants.DATE_UTILS.FORMATS.YearMonthPattern),
+            max: momentService(Date.now()).format(Constants.DATE_UTILS.FORMATS.YearMonthPattern),
         },
         isUnder14:false,
         didParent1: {
@@ -89,14 +89,6 @@ export default class AddTrialParticipantController extends WebcController {
         this.observeInputs();
         this.generateAnonymizedDid();
         this.refreshHandler();
-
-        let now = (new Date()).getTime();
-        let formattedNow = this.getDateTime(now);
-        this.model.birthdate.max = formattedNow.date;
-
-        let minimumDate = (new Date('01/01/1900')).getTime();
-        let formattedMinimumDate = this.getDateTime(minimumDate);
-        this.model.birthdate.min = formattedMinimumDate.date;
     }
 
     generateAnonymizedDid() {
