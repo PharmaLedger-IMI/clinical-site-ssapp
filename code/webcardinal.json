@@ -52,12 +52,6 @@
 			"tag": "questions-list"
 		},
 		{
-			"name": "add-questions",
-			"path": "/iot/add-questions",
-			"src": "iot/add-questions.html",
-			"tag": "add-questions"
-		},
-		{
 			"name": "edit-questions",
 			"path": "/iot/edit-questions",
 			"src": "iot/edit-questions.html",

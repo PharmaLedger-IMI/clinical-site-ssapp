@@ -2,11 +2,8 @@ import HCOService from '../../services/HCOService.js';
 import TrialService from '../../services/TrialService.js';
 
 const commonServices = require("common-services");
-const CommunicationService = commonServices.CommunicationService;
-const Constants = commonServices.Constants;
+const {CommunicationService, QuestionnaireService, Constants, JWTService, DidService} = commonServices;
 const BaseRepository = commonServices.BaseRepository;
-const JWTService = commonServices.JWTService;
-const DidService = commonServices.DidService;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
@@ -27,7 +24,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.setModel({
             ...getInitModel(),
             trialUid: state.trialUid,
-            previousScreened: 0
+            previousScreened: 0,
+            hasNoSearchResults:false,
         });
 
 
@@ -94,17 +92,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             });
 
             this.model.trialParticipantsDataSource.updateParticipants(JSON.parse(JSON.stringify(filteredTps)));
-            if (filteredTps.length === 0) {
-                this.model.noResults = true;
-                this.model.trialParticipantsDataSource.updateParticipants(trialParticipants);
-            }
-            else {
-                this.model.noResults = false;
-            }
+            this.model.hasNoSearchResults = filteredTps.length === 0;
         }
         else {
             this.model.trialParticipantsDataSource.updateParticipants(trialParticipants);
-            this.model.noResults = false;
+            this.model.hasNoSearchResults = false;
         }
     }
 
@@ -138,6 +130,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.JWTService = new JWTService();
         this.DIDService = DidService.getDidServiceInstance();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
+        this.QuestionnaireService = new QuestionnaireService();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         return await this.initializeData();
     }
@@ -212,10 +205,13 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
                 let tpActions = actions[tp.did];
                 let actionNeeded = 'No action required';
+                let notificationColor;
                 if (tpActions === undefined || tpActions.length === 0) {
+                    notificationColor = 'primary';
                     return {
                         ...tp,
-                        actionNeeded: actionNeeded
+                        actionNeeded: actionNeeded,
+                        notificationColor: notificationColor
                     }
                 }
                 let lastAction = tpActions[tpActions.length - 1];
@@ -223,20 +219,24 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 switch (lastAction.action.name) {
                     case 'withdraw': {
                         actionNeeded = 'TP Withdrawed';
+                        notificationColor = 'danger';
                         break;
                     }
                     case 'withdraw-intention': {
                         actionNeeded = 'Call TP';
+                        notificationColor = 'warning';
                         break;
                     }
                     case 'sign': {
                         switch (lastAction.action.type) {
                             case 'hco': {
                                 actionNeeded = 'Set TP Number';
+                                notificationColor = 'success';
                                 break;
                             }
                             case 'tp': {
                                 actionNeeded = 'Consent Review';
+                                notificationColor = 'success';
                                 break;
                             }
                         }
@@ -246,25 +246,30 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 switch(tp.actionNeeded) {
                     case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER: {
                         actionNeeded = 'Schedule Visit';
+                        notificationColor = 'success';
                         break;
                     }
                     case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED: {
                         actionNeeded = 'Confirm Visit';
+                        notificationColor = 'success';
                         break;
                     }
                     case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED: {
                         actionNeeded = 'Visit Detail Review';
+                        notificationColor = 'warning';
                         break;
                     }
                     case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED: {
                         actionNeeded = 'No action required';
+                        notificationColor = 'primary';
                         break;
                     }
                 }
 
                 return {
                     ...tp,
-                    actionNeeded: actionNeeded
+                    actionNeeded: actionNeeded,
+                    notificationColor: notificationColor
                 }
             })
     }
@@ -469,14 +474,48 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 return siteConsentsKeySSis.includes(icf.genesisUid)
             });
 
-            const promises = trialConsents.map((econsent, index)=> {
+            const consentsPromises = trialConsents.map((econsent, index)=> {
                 return this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
                     econsent.keySSI, index,null);
 
             });
-            await Promise.all(promises);
+
+            const questionnairePromise = this.sendQuestionnaireToPatient(tp.publicDid);
+            await Promise.all([...consentsPromises,questionnairePromise]);
             window.WebCardinal.loader.hidden = true;
         });
+    }
+
+    sendQuestionnaireToPatient(patientDid){
+
+        return new Promise((resolve, reject)=>{
+            this.QuestionnaireService.getAllQuestionnaires((err, questionnaires) => {
+                if (err) {
+                    reject (err);
+                }
+
+                const trialQuestionnaire = questionnaires.find(questionnaire => questionnaire.trialSSI === this.model.trialUid);
+                if(!trialQuestionnaire){
+                    return resolve();
+                }
+
+                this.QuestionnaireService.getQuestionnaireSReadSSI(trialQuestionnaire,async (err, sReadSSI)=>{
+                    if(err){
+                        reject(err);
+                    }
+
+                    await this.CommunicationService.sendMessage(patientDid, {
+                        operation: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
+                        ssi: sReadSSI,
+                        shortDescription: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
+                    });
+
+                    resolve();
+                })
+
+            })
+        })
+
     }
 
 
