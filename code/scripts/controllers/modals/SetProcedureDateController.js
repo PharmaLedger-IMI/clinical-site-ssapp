@@ -33,13 +33,13 @@ export default class SetProcedureDateController extends WebcController {
             let selectedDate = new Date(this.model.procedureDate.value);
             if(selectedDate.getTime() < now) {
                 this.model.isBtnDisabled = true;
-                document.getElementById("procedure-date").classList.add("is-invalid");
+                this.getProcedureDateElement().classList.add("is-invalid");
                 let from = momentService(now).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
                 this.model.haveSuggestedInterval = true;
                 this.model.datesInformation = `Choose a date from: ${from}`;
             } else {
                 this.model.isBtnDisabled = false;
-                document.getElementById("procedure-date").classList.remove("is-invalid");
+                this.getProcedureDateElement().classList.remove("is-invalid");
             }
         })
 
@@ -51,7 +51,7 @@ export default class SetProcedureDateController extends WebcController {
         }
 
         if(props[0].suggestedInterval) {
-            document.getElementById("procedure-date").classList.add("is-invalid");
+            this.getProcedureDateElement().classList.add("is-invalid");
             this.model.haveSuggestedInterval = true;
             let suggestedInterval = props[0].suggestedInterval;
 
@@ -75,10 +75,14 @@ export default class SetProcedureDateController extends WebcController {
 
                 } else {
                     this.model.isBtnDisabled = false;
-                    document.getElementById("procedure-date").classList.remove("is-invalid");
+                    this.getProcedureDateElement().classList.remove("is-invalid");
                 }
             })
         }
+    }
+
+    getProcedureDateElement() {
+        return this.querySelector('#procedure-date');
     }
 
     getDateTime(timestamp) {

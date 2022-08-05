@@ -36,7 +36,7 @@ let getInitModel = () => {
             dataFormat: 'MM YYYY',
             type: 'month',
             value: '',
-            min: momentService((new Date('1900-01-01'))).format(Constants.DATE_UTILS.FORMATS.YearMonthPattern),
+            min: '1900-01',
             max: momentService(Date.now()).format(Constants.DATE_UTILS.FORMATS.YearMonthPattern),
         },
         isUnder14:false,
@@ -131,12 +131,6 @@ export default class AddTrialParticipantController extends WebcController {
 
     _initHandlers() {
         this._attachHandlerSubmit();
-    }
-
-    getDateTime(timestamp) {
-        return {
-            date: momentService(timestamp).format(Constants.DATE_UTILS.FORMATS.YearMonthPattern),
-        };
     }
 
     _attachHandlerSubmit() {
