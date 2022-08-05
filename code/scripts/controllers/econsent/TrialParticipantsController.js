@@ -155,7 +155,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this._attachHandlerViewTrialParticipantStatus();
         this._attachHandlerViewTrialParticipantDevices();
         this._attachHandlerGoBack();
-        this._attachHandlerEditRecruitmentPeriod();
         this.on('openFeedback', (e) => {
             this.feedbackEmitter = e.detail;
         });
@@ -171,13 +170,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         let actions = await this._getEconsentActionsMappedByUser(trialUid);
         this.model.trialParticipants = await this._getTrialParticipantsMappedWithActionRequired(actions);
         this.checkIfCanAddParticipants();
-        this.model.onChange("site.recruitmentPeriod",this.checkIfCanAddParticipants.bind(this));
         this.getStatistics();
     }
 
-
     checkIfCanAddParticipants(){
-        const recruitmentPeriod = this.model.site.recruitmentPeriod;
+        const recruitmentPeriod = this.model.trial.recruitmentPeriod;
         let isInRecruitmentPeriod = false;
         if (typeof recruitmentPeriod === "object") {
             const today = (new Date()).getTime();
@@ -344,38 +341,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     title: 'Add Trial Participant',
                 });
         });
-    }
-
-    _attachHandlerEditRecruitmentPeriod() {
-
-        this.onTagEvent('edit-period', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.showModalFromTemplate(
-                'edit-recruitment-period',
-                (event) => {
-                    const response = event.detail;
-                    this.model.site.recruitmentPeriod = response;
-                    this.model.site.recruitmentPeriod.toShowDate = new Date(response.startDate).toLocaleDateString() + ' - ' + new Date(response.endDate).toLocaleDateString();
-                    this.HCOService.updateHCOSubEntity(this.model.site, "site", async (err, data) => {
-
-                    });
-
-                },
-                (event) => {
-                    const response = event.detail;
-                },
-                {
-                    controller: 'modals/EditRecruitmentPeriodController',
-                    disableExpanding: false,
-                    disableBackdropClosing: true,
-                    title: 'Edit Recruitment Period',
-                    recruitmentPeriod: this.model.site.recruitmentPeriod
-                }
-            );
-
-        });
-
     }
 
     _attachHandlerViewTrialParticipantStatus() {
