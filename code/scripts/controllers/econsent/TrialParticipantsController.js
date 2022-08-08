@@ -143,7 +143,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
     _initHandlers() {
         this._attachHandlerAddTrialParticipant();
-        this._attachHandlerNavigateToParticipant();
         this._attachHandlerViewTrialParticipantDetails();
         this._attachHandlerViewAnswersDetails();
         this._attachHandlerViewTrialParticipantStatus();
@@ -309,18 +308,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 })
             });
         return actions;
-    }
-
-    _attachHandlerNavigateToParticipant() {
-        this.onTagEvent('navigate:tp', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-trial-participant', {
-                trialSSI: this.model.trialSSI,
-                tpUid: model.uid,
-                trialParticipantNumber: model.number,
-            });
-        });
     }
 
     _attachHandlerAddTrialParticipant() {
