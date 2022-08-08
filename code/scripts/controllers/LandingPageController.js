@@ -37,9 +37,8 @@ export default class LandingPageController extends WebcController {
         })
 
         this._attachMessageHandlers();
-        this.initServices().then(() => {
-            this.initHandlers();
-        });
+        this.initHandlers();
+        this.initServices();
 
         this.notificationService = getNotificationsService();
         this.notificationService.onNotification(this.getNumberOfNotifications.bind(this));
@@ -75,10 +74,18 @@ export default class LandingPageController extends WebcController {
     }
 
     initHandlers() {
-        this.attachHandlerManageDevices();
-        this.attachHandlerListOfPatients();
-        this.attachHandlerVisits();
-        this.attachHandlerEconsentTrialManagement();
+        const pageHandlers = [
+            {eventTag: "navigation:iot-manage-devices", pageTag: "iot-manage-devices"},
+            {eventTag: "navigation:econsent-notifications", pageTag: "econsent-notifications"},
+            {eventTag: "navigation:econsent-visits", pageTag: "econsent-visits"},
+            {eventTag: "navigation:econsent-trial-management", pageTag: "econsent-trial-management"}
+        ];
+
+        pageHandlers.forEach(pageHandler => {
+            this.onTagClick(pageHandler.eventTag, () => {
+                this.navigateToPageTag(pageHandler.pageTag, {breadcrumb: this.model.toObject('breadcrumb')});
+            })
+        })
 
     }
 
@@ -90,30 +97,6 @@ export default class LandingPageController extends WebcController {
             await this.handleEcoMessages(data);
 
         })
-    }
-
-    attachHandlerManageDevices() {
-        this.onTagClick('navigation:iot-manage-devices', () => {
-            this.navigateToPageTag('iot-manage-devices', {breadcrumb: this.model.toObject('breadcrumb')});
-        });
-    }
-
-    attachHandlerListOfPatients() {
-        this.onTagClick('navigation:econsent-notifications', () => {
-            this.navigateToPageTag('econsent-notifications', {breadcrumb: this.model.toObject('breadcrumb')});
-        });
-    }
-
-    attachHandlerVisits() {
-        this.onTagClick('navigation:econsent-visits', () => {
-            this.navigateToPageTag('econsent-visits', {breadcrumb: this.model.toObject('breadcrumb')});
-        });
-    }
-
-    attachHandlerEconsentTrialManagement() {
-        this.onTagClick('navigation:econsent-trial-management', () => {
-            this.navigateToPageTag('econsent-trial-management', {breadcrumb: this.model.toObject('breadcrumb')});
-        });
     }
 
     async handleIotMessages(data) {
