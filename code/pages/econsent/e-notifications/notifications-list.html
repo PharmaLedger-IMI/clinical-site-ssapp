@@ -1,37 +1,37 @@
 <webc-container controller="econsent/e-notifications/NotificationsListController">
-    <div class="container main-container">
+    <div class="container main-container common-2-rows-grid">
 
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <h4 class="title">Notifications list</h4>
+            <h5 class="generic-title">Notifications list</h5>
         </div>
 
-        <main class="small-container" data-if="@notificationsListEmpty">
-            <label class="no-data" slot="false">No available notifications</label>
+        <div data-if="@notificationsListEmpty">
+            <webc-spinner slot="loading"></webc-spinner>
+            <div slot="true">
+                <div class="alert alert-light d-flex justify-content-center" role="alert">No available notifications</div>
+            </div>
 
-            <header slot="true">
-                <div class="row-wrapper grid-equal">
-                    <label>Notification</label>
-                    <label>Recommended Action</label>
-                </div>
-            </header>
+            <div class="common-datatable notifications-datatable dt-2-col" slot="false">
+                <webc-datatable datasource="@notificationsDatasource">
+                    <div slot="header">Notification</div>
+                    <div slot="header">Recommended Action</div>
 
-            <main data-for="@notifications" slot="true">
-                <div class="row-wrapper grid-equal">
-                    <label>{{@name}}
-                        <div data-if="@read" data-tag="view-notification">>
+
+                    <div class="cell">
+                        <div data-if="@read" data-tag="view-notification" class="mr-2">
                             <i class="fa fa-star" slot="false"></i>
                             <i class="fa fa-star-o" slot="true"></i>
-                        </div></label>
-                    <div class="d-flex justify-content-center align-items-center">
+                        </div>
+                        <span>{{@name}}</span>
+                    </div>
+                    <div class="cell ">
                         <button class="link-button" data-tag="navigation:goToAction">{{@recommendedAction}}</button>
                     </div>
-                </div>
-            </main>
-        </main>
+                </webc-datatable>
+            </div>
 
-        <footer class="button-group-wrapper">
-            <button data-tag="navigation:go-back">Go Back</button>
-        </footer>
-    </div>
+
+        </div>
+        </div>
 </webc-container>
