@@ -5,7 +5,7 @@ const momentService = commonServices.momentService;
 const Constants = commonServices.Constants;
 
 const {WebcController} = WebCardinal.controllers;
-const LEGAL_ENTITY_MAX_AGE = 14;
+const LEGAL_ENTITY_MAX_AGE = 18;
 let getInitModel = () => {
     return {
         name: {
@@ -39,7 +39,7 @@ let getInitModel = () => {
             min: '1900-01',
             max: momentService(Date.now()).format(Constants.DATE_UTILS.FORMATS.YearMonthPattern),
         },
-        isUnder14:false,
+        isUnder18:false,
         didParent1: {
             label: 'Parent 1 Public Identifier',
             name: 'did',
@@ -141,7 +141,7 @@ export default class AddTrialParticipantController extends WebcController {
             let daysSinceBirth = (currentDate - birthDate) / (1000 * 3600 * 24);
             let legalEntityMaxAge = LEGAL_ENTITY_MAX_AGE * 365;
 
-            this.model.isUnder14 = legalEntityMaxAge > daysSinceBirth;
+            this.model.isUnder18 = legalEntityMaxAge > daysSinceBirth;
         })
 
         this.onTagEvent('tp:submit', 'click', (model, target, event) => {
