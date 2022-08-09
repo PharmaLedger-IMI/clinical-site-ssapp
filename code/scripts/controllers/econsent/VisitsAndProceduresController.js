@@ -208,6 +208,12 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         }
 
         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
+            if (err) {
+                this.model.message = {
+                    content: `An error has been occurred!`,
+                    type:'error'
+                }
+            }
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             const currentConsentVisits = this.model.tp.visits.filter(tpVisit=>{
                 return this.model.visits.some(visit => tpVisit.uuid === visit.uuid)
@@ -242,6 +248,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     model.toShowDate = this.model.toShowDate;
                     model.hasProposedDate = true;
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
+                    this.model.message = {
+                        content: `${model.name} have been scheduled! Wait for TP response!`,
+                        type: 'success'
+                    }
                 },
                 (event) => {
                     const response = event.detail;
@@ -271,6 +281,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     this.model.proposedDate = date.getTime();
                     this.model.toShowDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern)
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
+                    this.model.message = {
+                        content: `${model.name} have been rescheduled! Wait for TP response!`,
+                        type: 'success'
+                    }
                 },
                 (event) => {
                     const response = event.detail;
@@ -334,6 +348,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
                         if(this.model.site.status.stage === Constants.HCO_STAGE_STATUS.ENROLLING) {
                             this.updateSiteStage();
+                        }
+                        this.model.message = {
+                            content: `${model.name} have been confirmed!`,
+                            type: 'success'
                         }
                     }
                 },
