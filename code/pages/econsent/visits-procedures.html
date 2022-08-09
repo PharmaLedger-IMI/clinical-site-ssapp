@@ -25,7 +25,7 @@
                         <div slot="header">+Days</div>
                         <div slot="header">-Days</div>
                         <div slot="header">Proposed date</div>
-                        <div slot="header">Ts Acceptance</div>
+                        <div slot="header">Appointment Status</div>
                         <div slot="header">Planned Date</div>
                         <div slot="header">Actions</div>
 
@@ -44,9 +44,12 @@
                         <div class="cell">
                             <webc-switch condition="@tsAcceptance">
                                 <span slot="required" class="badge badge-primary">Required</span>
-                                <span slot="agreed" class="badge badge-success">Agreed</span>
+                                <span slot="agreed" class="badge badge-primary">Confirmed</span>
+                                <span slot="confirmed-by-both" class="badge badge-success">Confirmed</span>
                                 <span slot="declined" class="badge badge-danger">Declined</span>
                                 <span slot="rescheduled" class="badge badge-secondary">Rescheduled</span>
+                                <span slot="rescheduled-by-hco" class="badge badge-secondary"> Rescheduled</span>
+                                <span slot="scheduled" class="badge badge-primary">Scheduled</span>
                             </webc-switch>
                         </div>
 

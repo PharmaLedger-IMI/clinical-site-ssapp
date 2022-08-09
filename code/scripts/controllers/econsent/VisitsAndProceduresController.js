@@ -151,8 +151,19 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         visit.declined = visitTp.declined;
                         visit.rescheduled = visitTp.rescheduled;
                         visit.shouldBeRescheduled = false;
+                        visit.proposedDate = visitTp.proposedDate;
+                        visit.confirmedDate = visitTp.confirmedDate;
+
+                        visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
+                        if (visit.hasProposedDate) {
+                            visit.toShowDate = momentService(visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                        }
+
                         if (!visit.accepted && !visit.declined && !visit.rescheduled) {
                             visit.tsAcceptance = "required";
+                            if(visit.hasProposedDate) {
+                                visit.tsAcceptance = "scheduled";
+                            }
                         } else {
                             visit.shouldBeRescheduled = true;
                             if (visit.accepted) {
@@ -165,12 +176,12 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                                 visit.tsAcceptance = "rescheduled";
                             }
                         }
-                        visit.proposedDate = visitTp.proposedDate;
-                        visit.confirmedDate = visitTp.confirmedDate;
+                        if(visit.confirmed) {
+                            visit.tsAcceptance = "confirmed-by-both";
+                        }
 
-                        visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
-                        if (visit.hasProposedDate) {
-                            visit.toShowDate = momentService(visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                        if(visit.hcoRescheduled) {
+                            visit.tsAcceptance = "rescheduled-by-hco"
                         }
 
                     }
@@ -200,6 +211,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.model.tp.visits[tpVisitIndex].confirmedDate = visit.confirmedDate;
         this.model.tp.visits[tpVisitIndex].confirmed = visit.confirmed;
         this.model.tp.visits[tpVisitIndex].suggestedInterval = visit.suggestedInterval;
+        this.model.tp.visits[tpVisitIndex].hcoRescheduled = visit.hcoRescheduled;
         this.model.visits[consentVisitIndex].proposedDate = this.model.proposedDate;
         this.model.visits[consentVisitIndex].hasProposedDate = true;
 
@@ -279,7 +291,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     model.confirmed = false;
                     model.accepted = false;
                     this.model.proposedDate = date.getTime();
-                    this.model.toShowDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern)
+                    this.model.toShowDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                    model.hcoRescheduled = true;
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
                     this.model.message = {
                         content: `${model.name} have been rescheduled! Wait for TP response!`,
@@ -337,6 +350,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     if (response) {
                         model.confirmed = true;
                         model.confirmedDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                        model.hcoRescheduled = false;
                         this.model.proposedDate = model.proposedDate;
                         this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(model.proposedDate);
 
