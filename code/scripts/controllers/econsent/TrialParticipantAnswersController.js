@@ -1,10 +1,7 @@
 import HCOService from "../../services/HCOService.js";
 
 const commonServices = require("common-services");
-const {QuestionnaireService} = commonServices;
 const {ResponsesService} = commonServices;
-const CommunicationService = commonServices.CommunicationService;
-const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
 
@@ -34,7 +31,8 @@ export default class TrialParticipantAnswersController extends BreadCrumbManager
             ...getInitModel(),
             trialSSI: prevState.trialSSI,
             tpUid: prevState.tpUid,
-            patientDID: prevState.participantDID
+            patientDID: prevState.participantDID,
+            patientName:prevState.patientName
         };
 
         this.model.breadcrumb = this.setBreadCrumb(

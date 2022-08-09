@@ -4,7 +4,7 @@
 
     <div class="container flex-container">
       <breadcrumb-navigator></breadcrumb-navigator>
-      <h2 class="main-title">Trial: {{@selected_trial.name}}</h2>
+      <h5 class="generic-title">Questionnaire Answers for: {{@patientName}}</h5>
       <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>
     </div>
 
@@ -30,7 +30,7 @@
 
               <div slot="false" class="alert alert-warning text-center" role="alert">
                 <h4 class="alert-heading">No PROMs Answers yet!</h4>
-                <p>Wait for a participant to answer!</p>
+                <p>Wait for participant to answer!</p>
               </div>
 
               <div class="common-datatable answers-datatable dt-4-col" slot="true">
@@ -54,7 +54,7 @@
 
               <div slot="false" class="alert alert-warning text-center" role="alert">
                 <h4 class="alert-heading">No PREMs Answers yet!</h4>
-                <p>Wait for a participant to answer!</p>
+                <p>Wait for participant to answer!</p>
               </div>
 
               <div class="common-datatable answers-datatable dt-4-col" slot="true">
