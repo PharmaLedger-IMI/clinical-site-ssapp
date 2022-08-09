@@ -209,7 +209,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
             if (err) {
-                this.model.message = {
+                return this.model.message = {
                     content: `An error has been occurred!`,
                     type:'error'
                 }
@@ -346,9 +346,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
                         await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
 
-                        if(this.model.site.status.stage === Constants.HCO_STAGE_STATUS.ENROLLING) {
-                            this.updateSiteStage();
-                        }
                         this.model.message = {
                             content: `${model.name} have been confirmed!`,
                             type: 'success'
@@ -368,19 +365,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         });
     }
 
-    updateSiteStage() {
-        const site = this.model.site;
-        this.HCOService.getHCOSubEntity(site.status.uid, "/site/" + site.uid + "/status", (err, statusDSU) => {
-            statusDSU.stage = Constants.HCO_STAGE_STATUS.CONDUCTING;
-            this.HCOService.updateHCOSubEntity(statusDSU, "/site/" + site.uid + "/status", (err, dsu) => {
-                this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
-                        stageInfo: {
-                            siteSSI: this.model.site.uid
-                        }
-                },'The stage of the site changed');
-            });
-        });
-    }
 
     attachHandlerEditVisit() {
         this.onTagClick("visit:edit", (model) => {
