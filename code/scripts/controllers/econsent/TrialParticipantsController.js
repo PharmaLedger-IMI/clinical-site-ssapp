@@ -376,7 +376,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             this.navigateToPageTag('econsent-trial-participant', {
                 trialUid: this.model.trialUid,
                 tpUid: model.uid,
-                trialParticipantNumber: model.name,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
