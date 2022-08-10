@@ -207,7 +207,7 @@ export default class QuestionsListController extends BreadCrumbManager {
 
         }
 
-        this.onTagEvent('edit', 'click',(model) => {
+        this.onTagEvent('question-edit"', 'click',(model) => {
             editQuestionHandler.call(this,[model])
         })
     }
