@@ -51,11 +51,11 @@ export default class SetFrequencyQuestionnaire extends WebcController {
             schedule: props[0].schedule
         };
         this._initHandlers();
-        if (this.model.schedule) {
-            this.model.startDate.value = this.model.schedule.startDate;
-            this.model.endDate.value = this.model.schedule.endDate;
-            this.model.frequencyType.value = this.model.schedule.repeatAppointment;
-        }
+        Object.keys(this.model.schedule).forEach(key => {
+            if(this.model.schedule[key]) {
+                this.model[key].value = this.model.schedule[key];
+            }
+        })
     }
 
     _initHandlers() {

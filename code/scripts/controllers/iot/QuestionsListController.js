@@ -53,6 +53,7 @@ export default class QuestionsListController extends BreadCrumbManager {
 
     initHandlers() {
         this._attachHandlerAddNewQuestion();
+        this._attachHandlerEditQuestion();
         this._attachHandlerPromQuestions();
         this._attachHandlerPremQuestions();
         this._attachHandlerSetFrequency();
@@ -84,7 +85,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                     this.model.response = response;
                     this.questionnaire.schedule.startDate = this.model.response.startDate;
                     this.questionnaire.schedule.endDate = this.model.response.endDate;
-                    this.questionnaire.schedule.repeatAppointment = this.model.response.frequencyType.value;
+                    this.questionnaire.schedule.frequencyType = this.model.response.frequencyType.value;
                     this.QuestionnaireService.updateQuestionnaire(this.questionnaire, (err, data) => {
                         if (err) {
                             console.log(err);
@@ -111,7 +112,7 @@ export default class QuestionsListController extends BreadCrumbManager {
 
         const addQuestionHandler = () => {
             this.showModalFromTemplate(
-                'questionnaire/add-question',
+                'questionnaire/add-edit-question',
                 async (event) => {
                     let question = event.detail;
 
@@ -146,6 +147,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                     controller: 'modals/questionnaire/AddQuestionController',
                     disableExpanding: false,
                     disableBackdropClosing: true,
+                    action: 'Create',
                     questionType: this.model.currentTable.toUpperCase(),
                 });
 
@@ -153,6 +155,61 @@ export default class QuestionsListController extends BreadCrumbManager {
 
         this.onTagEvent('new:prem-question', 'click', addQuestionHandler.bind(this))
         this.onTagEvent('new:prom-question', 'click', addQuestionHandler.bind(this))
+    }
+
+    _attachHandlerEditQuestion() {
+
+        const editQuestionHandler = (model) => {
+            this.showModalFromTemplate(
+                'questionnaire/add-edit-question',
+                async (event) => {
+                    let updatedQuestion = event.detail;
+                    updatedQuestion = Object.assign(updatedQuestion, {
+                        task: this.model.currentTable
+                    });
+
+                    let questionnaireDatasource = this.model[this.model.currentTable].questionsDataSource;
+
+                    let questionIndex = this.questionnaire[this.model.currentTable].findIndex(question => question.uid === updatedQuestion.uid)
+                    this.questionnaire[this.model.currentTable][questionIndex] = updatedQuestion;
+
+                    this.QuestionnaireService.updateQuestionnaire(this.questionnaire, (err) => {
+                        const message = {}
+
+                        if (err) {
+                            console.log(err);
+                            message.content = "An error has been occurred!";
+                            message.type = 'error';
+                        } else {
+                            message.content = "The question has been updated!";
+                            message.type = 'success';
+                        }
+
+                        this.model.message = message;
+
+                        window.WebCardinal.loader.hidden = true;
+                        questionnaireDatasource.updateRecords();
+                    });
+                },
+                (event) => {},
+                {
+                    controller: 'modals/questionnaire/EditQuestionController',
+                    disableExpanding: false,
+                    disableBackdropClosing: true,
+                    questionType: this.model.currentTable.toUpperCase(),
+                    action: 'Edit',
+                    state: {
+                        questionID: model[0].uid,
+                        trialSSI: this.model.selected_trial.uid,
+                        trialName: this.model.selected_trial.name,
+                    }
+                });
+
+        }
+
+        this.onTagEvent('edit', 'click',(model) => {
+            editQuestionHandler.call(this,[model])
+        })
     }
 
     _attachHandlerPromQuestions() {
@@ -203,7 +260,7 @@ export default class QuestionsListController extends BreadCrumbManager {
             schedule: {
                 startDate: "",
                 endDate: "",
-                repeatAppointment: ""
+                frequencyType: ""
             },
             trialSSI: this.model.trialSSI,
             trialId: this.model.selected_trial.id,
@@ -260,16 +317,6 @@ export default class QuestionsListController extends BreadCrumbManager {
         getQuestions().then(data => {
 
             const createDataSourceHandlers = () =>{
-                this.onTagClick("question-edit", (model) => {
-                    let state =
-                        {
-                            questionID: model.uid,
-                            trialSSI: this.model.selected_trial.uid,
-                            trialName: this.model.selected_trial.name,
-                            breadcrumb: this.model.toObject('breadcrumb')
-                        }
-                    this.navigateToPageTag('edit-questions', state)
-                });
                 this.onTagClick("question-delete", (model) => {
                     const modalConfig = {
                         controller: "modals/ConfirmationAlertController",

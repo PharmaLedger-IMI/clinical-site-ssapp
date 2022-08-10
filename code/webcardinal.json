@@ -52,12 +52,6 @@
 			"tag": "questions-list"
 		},
 		{
-			"name": "edit-questions",
-			"path": "/iot/edit-questions",
-			"src": "iot/edit-questions.html",
-			"tag": "edit-questions"
-		},
-		{
 			"name": "Trial Participant Answers",
 			"path": "/econsent/trial-participant-answers",
 			"src": "econsent/trial-participant-answers.html",

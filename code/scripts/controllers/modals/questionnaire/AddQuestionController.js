@@ -7,11 +7,11 @@ export default class AddTrialParticipantController extends WebcController {
     constructor(...props) {
         super(...props);
 
-
         this.model = {
             currentView: "none",
             currentAnswerType: "none",
             questionType : props[0].questionType,
+            action: props[0].action,
             formIsInvalid:true,
             ...this.getQuestionsFormModel()
         };
