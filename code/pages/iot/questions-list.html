@@ -28,7 +28,7 @@
                     <div slot="prom">
 
                         <div class="button-group-wrapper d-flex flex-row justify-content-end p-1">
-                            <button data-tag="new:prom-question">Add New PROM Question</button>
+                            <button data-tag="new:question">Add New PROM Question</button>
                         </div>
 
                         <div data-if="@prom.hasQuestions">
@@ -47,7 +47,7 @@
                                     <div class="cell">{{ @type }}</div>
                                     <div class="cell">{{ @question }}</div>
                                     <div class="cell">
-                                        <label data-tag="question-edit" class="link option">Edit</label>
+                                        <label data-tag="edit:question" class="link option">Edit</label>
                                         <label> | </label>
                                         <label data-tag="question-delete" class="link option">Delete</label>
                                     </div>
@@ -58,7 +58,7 @@
                     <div slot="prem">
 
                         <div class="button-group-wrapper d-flex flex-row justify-content-end p-1">
-                            <button data-tag="new:prem-question">Add New PREM Question</button>
+                            <button data-tag="new:question">Add New PREM Question</button>
                         </div>
 
 
@@ -78,7 +78,7 @@
                                     <div class="cell">{{ @type }}</div>
                                     <div class="cell">{{ @question }}</div>
                                     <div class="cell">
-                                        <label data-tag="question-edit" class="link option">Edit</label>
+                                        <label data-tag="edit:question" class="link option">Edit</label>
                                         <label> | </label>
                                         <label data-tag="question-delete" class="link option">Delete</label>
                                     </div>

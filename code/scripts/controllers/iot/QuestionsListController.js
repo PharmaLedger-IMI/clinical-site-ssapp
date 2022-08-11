@@ -9,6 +9,10 @@ const BaseRepository = commonServices.BaseRepository;
 const Constants = commonServices.Constants;
 const {getDidServiceInstance} = commonServices.DidService;
 
+const ACTIONS = {
+    CREATE:"Create",
+    EDIT:"Edit"
+}
 
 let getInitModel = () => {
     return {
@@ -53,7 +57,6 @@ export default class QuestionsListController extends BreadCrumbManager {
 
     initHandlers() {
         this._attachHandlerAddNewQuestion();
-        this._attachHandlerEditQuestion();
         this._attachHandlerPromQuestions();
         this._attachHandlerPremQuestions();
         this._attachHandlerSetFrequency();
@@ -108,111 +111,81 @@ export default class QuestionsListController extends BreadCrumbManager {
     }
 
     _attachHandlerAddNewQuestion() {
-
-
-        const addQuestionHandler = () => {
-            this.showModalFromTemplate(
-                'questionnaire/add-edit-question',
-                async (event) => {
-                    let question = event.detail;
-
-
-                    question = Object.assign(question, {
-                        task: this.model.currentTable
-                    });
-
-                    let questionnaireDatasource = this.model[this.model.currentTable].questionsDataSource;
-                    this.questionnaire[this.model.currentTable].push(question);
-
-                    this.QuestionnaireService.updateQuestionnaire(this.questionnaire, (err) => {
-                        const message = {}
-
-                        if (err) {
-                            console.log(err);
-                            message.content = "An error has been occurred!";
-                            message.type = 'error';
-                        } else {
-                            message.content = "The question has been added!";
-                            message.type = 'success';
-                        }
-
-                        this.model.message = message;
-
-                        window.WebCardinal.loader.hidden = true;
-                        questionnaireDatasource.updateRecords();
-                    });
-                },
-                (event) => {},
-                {
-                    controller: 'modals/questionnaire/AddOrEditQuestionController',
-                    disableExpanding: false,
-                    disableBackdropClosing: true,
-                    model:{
-                        action: 'Create',
-                        questionType: this.model.currentTable.toUpperCase(),
-                    }
-                });
-
-        }
-
-        this.onTagEvent('new:prem-question', 'click', addQuestionHandler.bind(this))
-        this.onTagEvent('new:prom-question', 'click', addQuestionHandler.bind(this))
-    }
-
-    _attachHandlerEditQuestion() {
-
-        const editQuestionHandler = (model) => {
-            this.showModalFromTemplate(
-                'questionnaire/add-edit-question',
-                async (event) => {
-                    let updatedQuestion = event.detail;
-                    updatedQuestion = Object.assign(updatedQuestion, {
-                        task: this.model.currentTable
-                    });
-
-                    let questionnaireDatasource = this.model[this.model.currentTable].questionsDataSource;
-
-                    let questionIndex = this.questionnaire[this.model.currentTable].findIndex(question => question.uid === updatedQuestion.uid)
-                    this.questionnaire[this.model.currentTable][questionIndex] = updatedQuestion;
-
-                    this.QuestionnaireService.updateQuestionnaire(this.questionnaire, (err) => {
-                        const message = {}
-
-                        if (err) {
-                            console.log(err);
-                            message.content = "An error has been occurred!";
-                            message.type = 'error';
-                        } else {
-                            message.content = "The question has been updated!";
-                            message.type = 'success';
-                        }
-
-                        this.model.message = message;
-
-                        window.WebCardinal.loader.hidden = true;
-                        questionnaireDatasource.updateRecords();
-                    });
-                },
-                (event) => {},
-                {
-                    controller: 'modals/questionnaire/AddOrEditQuestionController',
-                    disableExpanding: false,
-                    disableBackdropClosing: true,
-                    model: {
-                        action: 'Edit',
-                        questionType: this.model.currentTable.toUpperCase(),
-                        questionID: model[0].uid,
-                        trialSSI: this.model.selected_trial.uid,
-                        trialName: this.model.selected_trial.name,
-                    }
-                });
-
-        }
-
-        this.onTagEvent('question-edit', 'click',(model) => {
-            editQuestionHandler.call(this,[model])
+        this.onTagEvent('new:question', 'click', this.openQuestionModal.bind(this)(ACTIONS.CREATE))
+        this.onTagEvent('edit:question', 'click', (model) => {
+            this.openQuestionModal.bind(this)(ACTIONS.EDIT, model.uid)();
         })
     }
+
+    openQuestionModal(type,questionUid){
+        let model;
+        switch (type) {
+            case ACTIONS.CREATE:
+                model = {
+                    action: ACTIONS.CREATE,
+                    questionType: this.model.currentTable.toUpperCase(),
+                }
+                break;
+            case ACTIONS.EDIT:
+                model = {
+                    action: ACTIONS.EDIT,
+                    questionType: this.model.currentTable.toUpperCase(),
+                    questionID: questionUid,
+                    trialSSI: this.model.selected_trial.uid,
+                    trialName: this.model.selected_trial.name,
+                }
+                break;
+        }
+
+        return () => {
+            const handleQuestionModalResponse = async (event) => {
+                let question = event.detail;
+                question = Object.assign(question, {
+                    task: this.model.currentTable
+                });
+
+                let questionnaireDatasource = this.model[this.model.currentTable].questionsDataSource;
+
+                let questionIndex = this.questionnaire[this.model.currentTable].findIndex(q => q.uid === question.uid)
+                if (questionIndex === -1) {
+                    this.questionnaire[this.model.currentTable].push(question);
+                }
+                else{
+                    this.questionnaire[this.model.currentTable][questionIndex] = question;
+                }
+
+                this.QuestionnaireService.updateQuestionnaire(this.questionnaire, (err) => {
+                    const message = {}
+
+                    if (err) {
+                        console.log(err);
+                        message.content = "An error has been occurred!";
+                        message.type = 'error';
+                    } else {
+                        message.content = `The question has been ${type === ACTIONS.CREATE ? "added" : "updated"}!`;
+                        message.type = 'success';
+                    }
+
+                    this.model.message = message;
+
+                    window.WebCardinal.loader.hidden = true;
+                    questionnaireDatasource.updateRecords();
+                });
+            };
+            this.showModalFromTemplate(
+                'questionnaire/add-edit-question',
+                handleQuestionModalResponse,
+                (event) => {},
+                {
+                    controller: 'modals/questionnaire/AddOrEditQuestionController',
+                    disableExpanding: false,
+                    disableBackdropClosing: true,
+                    model: model
+                });
+
+        }
+   }
+
 
     _attachHandlerPromQuestions() {
         this.onTagEvent('view:prom', 'click', (model, target, event) => {
