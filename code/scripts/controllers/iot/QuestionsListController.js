@@ -8,7 +8,7 @@ const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
 const Constants = commonServices.Constants;
 const {getDidServiceInstance} = commonServices.DidService;
-import { ACTIONS } from "../../utils/utils.js";
+import { QUESTION_ACTIONS } from "../../utils/utils.js";
 
 let getInitModel = () => {
     return {
@@ -107,24 +107,24 @@ export default class QuestionsListController extends BreadCrumbManager {
     }
 
     _attachHandlerAddNewQuestion() {
-        this.onTagEvent('new:question', 'click', this.openQuestionModal.bind(this)(ACTIONS.CREATE))
+        this.onTagEvent('new:question', 'click', this.openQuestionModal.bind(this)(QUESTION_ACTIONS.CREATE))
         this.onTagEvent('edit:question', 'click', (model) => {
-            this.openQuestionModal.bind(this)(ACTIONS.EDIT, model.uid)();
+            this.openQuestionModal.bind(this)(QUESTION_ACTIONS.EDIT, model.uid)();
         })
     }
 
     openQuestionModal(type,questionUid){
         let model;
         switch (type) {
-            case ACTIONS.CREATE:
+            case QUESTION_ACTIONS.CREATE:
                 model = {
-                    action: ACTIONS.CREATE,
+                    action: QUESTION_ACTIONS.CREATE,
                     questionType: this.model.currentTable.toUpperCase(),
                 }
                 break;
-            case ACTIONS.EDIT:
+            case QUESTION_ACTIONS.EDIT:
                 model = {
-                    action: ACTIONS.EDIT,
+                    action: QUESTION_ACTIONS.EDIT,
                     questionType: this.model.currentTable.toUpperCase(),
                     questionID: questionUid,
                     trialSSI: this.model.selected_trial.uid,
@@ -158,7 +158,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                         message.content = "An error has been occurred!";
                         message.type = 'error';
                     } else {
-                        message.content = `The question has been ${type === ACTIONS.CREATE ? "added" : "updated"}!`;
+                        message.content = `The question has been ${type === QUESTION_ACTIONS.CREATE ? "added" : "updated"}!`;
                         message.type = 'success';
                     }
 

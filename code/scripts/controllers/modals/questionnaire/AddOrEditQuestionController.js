@@ -1,7 +1,7 @@
 const commonServices = require("common-services");
 const {WebcController} = WebCardinal.controllers;
 const {QuestionnaireService} = commonServices;
-import { ACTIONS } from "../../../utils/utils.js";
+import { QUESTION_ACTIONS } from "../../../utils/utils.js";
 
 export default class AddOrEditQuestionController extends WebcController {
     constructor(...props) {
@@ -12,11 +12,11 @@ export default class AddOrEditQuestionController extends WebcController {
             ...this.getQuestionsFormModel()
         }
 
-        if(this.model.action === ACTIONS.EDIT) {
+        if(this.model.action === QUESTION_ACTIONS.EDIT) {
             this.initServices();
         }
 
-        if(this.model.action === ACTIONS.CREATE) {
+        if(this.model.action === QUESTION_ACTIONS.CREATE) {
             this.model.currentAnswerType = "none";
         }
 
@@ -119,7 +119,7 @@ export default class AddOrEditQuestionController extends WebcController {
                     this.model.answer.label = "Insert the options one by one";
                     this.model.answer.placeholder = "For each option hit OK";
 
-                    if(this.model.action === ACTIONS.CREATE || this.model.chosenQuestion.type !== 'checkbox') {
+                    if(this.model.action === QUESTION_ACTIONS.CREATE || this.model.chosenQuestion.type !== 'checkbox') {
                         this.model.answers = [{
                             optionValue: "",
                             optionNumber: 1,
@@ -149,7 +149,7 @@ export default class AddOrEditQuestionController extends WebcController {
                 type: this.model.answerType.value,
             }
 
-            if(this.model.action === ACTIONS.EDIT) {
+            if(this.model.action === QUESTION_ACTIONS.EDIT) {
                 question.uid = this.model.chosenQuestion.uid;
             } else question.uid = this.randomQuestionId();
 
