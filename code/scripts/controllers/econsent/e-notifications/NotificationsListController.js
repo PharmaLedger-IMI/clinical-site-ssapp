@@ -77,7 +77,7 @@ export default class NotificationsListController extends BreadCrumbManager {
             }
 
             if (model.recommendedAction === 'view questions') {
-                this.navigateToPageTag('econsent-questions', {
+                this.navigateToPageTag('trial-participant-answers', {
                     breadcrumb: this.model.toObject('breadcrumb')
                 });
             }
