@@ -8,11 +8,7 @@ const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
 const Constants = commonServices.Constants;
 const {getDidServiceInstance} = commonServices.DidService;
-
-const ACTIONS = {
-    CREATE:"Create",
-    EDIT:"Edit"
-}
+import { ACTIONS } from "../../utils/utils.js";
 
 let getInitModel = () => {
     return {
