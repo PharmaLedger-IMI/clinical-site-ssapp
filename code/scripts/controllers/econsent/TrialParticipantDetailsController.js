@@ -206,7 +206,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                             break;
                             case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN:
                                 tpObjectToAssign = {
-                                    actionNeeded: "No action required",
+                                    actionNeeded: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
                                     status: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
                                     screenFailedDate: currentDate.toLocaleDateString()
                                 }

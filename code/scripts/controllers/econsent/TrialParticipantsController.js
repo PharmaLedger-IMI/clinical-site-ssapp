@@ -217,11 +217,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
                 switch (lastAction.action.name) {
                     case 'withdraw': {
-                        actionNeeded = 'Withdraw TP';
-                        notificationColor = 'danger';
-                        break;
-                    }
-                    case 'withdraw-intention': {
                         actionNeeded = 'Contact TP';
                         notificationColor = 'warning';
                         break;
@@ -262,6 +257,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         actionNeeded = 'No action required';
                         notificationColor = 'primary';
                         break;
+                    }
+                    case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN: {
+                        actionNeeded = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN;
+                        notificationColor = 'danger'
                     }
                 }
 
