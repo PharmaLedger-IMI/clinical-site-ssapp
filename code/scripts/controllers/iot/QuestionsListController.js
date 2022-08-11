@@ -144,7 +144,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                 },
                 (event) => {},
                 {
-                    controller: 'modals/questionnaire/AddQuestionController',
+                    controller: 'modals/questionnaire/AddOrEditQuestionController',
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     action: 'Create',
@@ -193,7 +193,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                 },
                 (event) => {},
                 {
-                    controller: 'modals/questionnaire/EditQuestionController',
+                    controller: 'modals/questionnaire/AddOrEditQuestionController',
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     questionType: this.model.currentTable.toUpperCase(),

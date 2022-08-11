@@ -3,9 +3,12 @@ const commonServices = require("common-services");
 const {WebcController} = WebCardinal.controllers;
 const {QuestionnaireService} = commonServices;
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const ACTIONS = {
+    EDIT: 'Edit',
+    ADD: 'Create'
+}
 
-
-export default class EditQuestionController extends WebcController {
+export default class AddOrEditQuestionController extends WebcController {
     constructor(...props) {
         super(...props);
 
@@ -13,21 +16,33 @@ export default class EditQuestionController extends WebcController {
 
         this.model = {
             action: props[0].action,
-            trialSSI: state.trialSSI,
-            trialName: state.trialName,
-            questionID: state.questionID,
-            view: "none",
             formIsInvalid:true,
             ...this.getQuestionsFormModel()
         };
 
-        this.initServices();
-        this.initHandlers();
+        if(this.model.action === ACTIONS.EDIT) {
+            this.model = {
+                trialSSI: state.trialSSI,
+                trialName: state.trialName,
+                questionID: state.questionID,
+                view: "none",
+            }
 
+            this.initServices();
+            this.initHandlers();
+        }
 
-        this.monitorAnswerType();
-        this.attachHandlerEditAnswer();
-        this.attachHandlerSave();
+        if(this.model.action === ACTIONS.ADD) {
+            this.model = {
+                currentView: "none",
+                currentAnswerType: "none",
+                questionType : props[0].questionType,
+            };
+        }
+
+        this.monitorAnswerType(this.model.action);
+        this.attachHandlerAddOrEditAnswer();
+        this.attachHandlerSaveQuestion(this.model.action);
 
         this.model.onChange("question",this.validateForm.bind(this))
         this.model.onChange("answers",this.validateForm.bind(this))
@@ -168,7 +183,7 @@ export default class EditQuestionController extends WebcController {
         }
     }
 
-    monitorAnswerType(){
+    monitorAnswerType(actionType){
         this.model.onChange('answerType.value', () => {
             switch (this.model.answerType.value) {
                 case "checkbox":
@@ -176,6 +191,15 @@ export default class EditQuestionController extends WebcController {
                     this.model.answer.disabled = false;
                     this.model.answer.label = "Insert the options one by one";
                     this.model.answer.placeholder = "For each option hit OK";
+
+                    if(actionType === ACTIONS.ADD || this.model.chosenQuestion.type !== 'checkbox') {
+                        this.model.answers = [{
+                            optionValue: "",
+                            optionNumber: 1,
+                            removalIsDisabled:true
+                        }];
+                    }
+
                     break;
                 case "slider":
                     this.model.currentAnswerType = "slider-answer";
@@ -188,7 +212,7 @@ export default class EditQuestionController extends WebcController {
         });
     }
 
-    attachHandlerSave() {
+    attachHandlerSaveQuestion(actionType) {
         this.onTagEvent('save:question', 'click', (model, target, event) => {
 
             window.WebCardinal.loader.hidden = false;
@@ -196,8 +220,11 @@ export default class EditQuestionController extends WebcController {
             let question = {
                 question: this.model.question.value,
                 type: this.model.answerType.value,
-                uid: this.model.chosenQuestion.uid,
             }
+
+            if(actionType === ACTIONS.EDIT) {
+                question.uid = this.model.chosenQuestion.uid;
+            } else question.uid = this.randomQuestionId();
 
             switch (this.model.answerType.value) {
                 case "slider":
@@ -218,7 +245,13 @@ export default class EditQuestionController extends WebcController {
         });
     }
 
-    attachHandlerEditAnswer() {
+    randomQuestionId(){
+        let max = Date.now();
+        let qId = Math.floor(Math.random() * max);
+        return qId;
+    }
+
+    attachHandlerAddOrEditAnswer() {
 
         let performValidationConstraints = () => {
             this.model.answers[0].removalIsDisabled = this.model.answers.length === 1;
