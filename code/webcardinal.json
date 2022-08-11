@@ -160,12 +160,6 @@
 			"tag": "consent-preview"
 		},
 		{
-			"name": "Questions",
-			"path": "/econsent/questions",
-			"src": "econsent/questions.html",
-			"tag": "econsent-questions"
-		},
-		{
 			"name": "ProceduresView",
 			"path": "/econsent/procedures-view",
 			"src": "econsent/procedures-view.html",
