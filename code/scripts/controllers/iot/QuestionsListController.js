@@ -147,8 +147,10 @@ export default class QuestionsListController extends BreadCrumbManager {
                     controller: 'modals/questionnaire/AddOrEditQuestionController',
                     disableExpanding: false,
                     disableBackdropClosing: true,
-                    action: 'Create',
-                    questionType: this.model.currentTable.toUpperCase(),
+                    model:{
+                        action: 'Create',
+                        questionType: this.model.currentTable.toUpperCase(),
+                    }
                 });
 
         }
@@ -196,9 +198,9 @@ export default class QuestionsListController extends BreadCrumbManager {
                     controller: 'modals/questionnaire/AddOrEditQuestionController',
                     disableExpanding: false,
                     disableBackdropClosing: true,
-                    questionType: this.model.currentTable.toUpperCase(),
-                    action: 'Edit',
-                    state: {
+                    model: {
+                        action: 'Edit',
+                        questionType: this.model.currentTable.toUpperCase(),
                         questionID: model[0].uid,
                         trialSSI: this.model.selected_trial.uid,
                         trialName: this.model.selected_trial.name,

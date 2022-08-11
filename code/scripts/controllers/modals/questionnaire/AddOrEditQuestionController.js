@@ -1,8 +1,6 @@
 const commonServices = require("common-services");
-
 const {WebcController} = WebCardinal.controllers;
 const {QuestionnaireService} = commonServices;
-const DataSourceFactory = commonServices.getDataSourceFactory();
 const ACTIONS = {
     EDIT: 'Edit',
     ADD: 'Create'
@@ -11,38 +9,23 @@ const ACTIONS = {
 export default class AddOrEditQuestionController extends WebcController {
     constructor(...props) {
         super(...props);
-
-        let state = props[0].state;
-
         this.model = {
-            action: props[0].action,
-            formIsInvalid:true,
+            ...this.model.toObject(),
+            formIsInvalid: true,
             ...this.getQuestionsFormModel()
-        };
+        }
 
         if(this.model.action === ACTIONS.EDIT) {
-            this.model = {
-                trialSSI: state.trialSSI,
-                trialName: state.trialName,
-                questionID: state.questionID,
-                view: "none",
-            }
-
             this.initServices();
-            this.initHandlers();
         }
 
         if(this.model.action === ACTIONS.ADD) {
-            this.model = {
-                currentView: "none",
-                currentAnswerType: "none",
-                questionType : props[0].questionType,
-            };
+            this.model.currentAnswerType = "none";
         }
 
-        this.monitorAnswerType(this.model.action);
+        this.monitorAnswerType();
         this.attachHandlerAddOrEditAnswer();
-        this.attachHandlerSaveQuestion(this.model.action);
+        this.attachHandlerSaveQuestion();
 
         this.model.onChange("question",this.validateForm.bind(this))
         this.model.onChange("answers",this.validateForm.bind(this))
@@ -50,9 +33,6 @@ export default class AddOrEditQuestionController extends WebcController {
     }
 
 
-    initHandlers() {
-        this._attachHandlerEdit();
-    }
 
     initServices() {
         this.QuestionnaireService = new QuestionnaireService();
@@ -82,12 +62,10 @@ export default class AddOrEditQuestionController extends WebcController {
 
             switch (this.model.chosenQuestion.type) {
                 case "free text":
-                    this.model.view = "freetext"
                     this.model.question.value = this.model.chosenQuestion.question;
                     this.model.answerType.value = "free text";
                     break;
                 case "slider":
-                    this.model.view = "slider"
                     this.model.answerType.value = "slider";
                     this.model.question.value = this.model.chosenQuestion.question;
                     this.model.slider.minimum.value = this.model.chosenQuestion.minLabel;
@@ -95,7 +73,6 @@ export default class AddOrEditQuestionController extends WebcController {
                     this.model.slider.steps.value = this.model.chosenQuestion.steps;
                     break;
                 case "checkbox":
-                    this.model.view = "checkbox"
                     this.model.question.value = this.model.chosenQuestion.question;
                     this.model.options = this.model.chosenQuestion.options;
                     this.model.hasOptions = this.model.options.length !== 0;
@@ -112,53 +89,6 @@ export default class AddOrEditQuestionController extends WebcController {
                     break;
             }
         })
-    }
-
-    _attachHandlerEdit() {
-        this.onTagEvent('update', 'click', (model, target, event) => {
-            window.WebCardinal.loader.hidden = false;
-
-            switch (this.model.chosenQuestion.task) {
-                case "prem":
-                    this.model.questionnaire.prem[this.model.indexPrems].question = this.model.question.value;
-                    break;
-                case "prom":
-                    this.model.questionnaire.prom[this.model.indexProms].question = this.model.question.value;
-                    break;
-            }
-
-            switch (this.model.chosenQuestion.type) {
-                case "slider":
-                    switch (this.model.chosenQuestion.task) {
-                        case "prem":
-                            this.model.questionnaire.prem[this.model.indexPrems].minLabel = this.model.slider.minimum.value;
-                            this.model.questionnaire.prem[this.model.indexPrems].maxLabel = this.model.slider.maximum.value;
-                            this.model.questionnaire.prem[this.model.indexPrems].steps = this.model.slider.steps.value;
-                            break;
-                        case "prom":
-                            this.model.questionnaire.prom[this.model.indexProms].minLabel = this.model.slider.minimum.value;
-                            this.model.questionnaire.prom[this.model.indexProms].maxLabel = this.model.slider.maximum.value;
-                            this.model.questionnaire.prom[this.model.indexProms].steps = this.model.slider.steps.value;
-                            break;
-                    }
-                    break;
-            }
-
-            this.QuestionnaireService.updateQuestionnaire(this.model.questionnaire, (err, data) => {
-                let message ={}
-
-                if (err) {
-                    console.log(err);
-                    message.content = "An error has been occurred!";
-                    message.type = 'error';
-                } else {
-                    message.content = "The question has been updated!";
-                    message.type = 'success';
-                }
-
-                window.WebCardinal.loader.hidden = true;
-            });
-        });
     }
 
     validateForm(){
@@ -183,7 +113,7 @@ export default class AddOrEditQuestionController extends WebcController {
         }
     }
 
-    monitorAnswerType(actionType){
+    monitorAnswerType(){
         this.model.onChange('answerType.value', () => {
             switch (this.model.answerType.value) {
                 case "checkbox":
@@ -192,7 +122,7 @@ export default class AddOrEditQuestionController extends WebcController {
                     this.model.answer.label = "Insert the options one by one";
                     this.model.answer.placeholder = "For each option hit OK";
 
-                    if(actionType === ACTIONS.ADD || this.model.chosenQuestion.type !== 'checkbox') {
+                    if(this.model.action === ACTIONS.ADD || this.model.chosenQuestion.type !== 'checkbox') {
                         this.model.answers = [{
                             optionValue: "",
                             optionNumber: 1,
@@ -212,7 +142,7 @@ export default class AddOrEditQuestionController extends WebcController {
         });
     }
 
-    attachHandlerSaveQuestion(actionType) {
+    attachHandlerSaveQuestion() {
         this.onTagEvent('save:question', 'click', (model, target, event) => {
 
             window.WebCardinal.loader.hidden = false;
@@ -222,7 +152,7 @@ export default class AddOrEditQuestionController extends WebcController {
                 type: this.model.answerType.value,
             }
 
-            if(actionType === ACTIONS.EDIT) {
+            if(this.model.action === ACTIONS.EDIT) {
                 question.uid = this.model.chosenQuestion.uid;
             } else question.uid = this.randomQuestionId();
 
