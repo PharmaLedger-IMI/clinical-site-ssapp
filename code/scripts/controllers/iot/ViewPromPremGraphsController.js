@@ -4,6 +4,7 @@ const {ResponsesService} = commonServices;
 const {QuestionnaireService} = commonServices;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const {Constants} = commonServices;
 
 export default class ViewPromPremGraphsController extends BreadCrumbManager  {
     constructor(...props) {
@@ -20,9 +21,12 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
 
         this.model = this.getState();
         this.model = {
-            currentTable: "none",
+            currentTable: "proms",
+            promSelected: true,
+            premSelected: false,
             hasProms: false,
             hasPrems: false,
+            pageIsInitialized: false,
         };
 
         this.model.questionnaire = {
@@ -35,6 +39,39 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         this.initHandlers();
     }
 
+
+    filterAnswers(answer) {
+        let question = {
+            question: answer.question.title,
+            uid: answer.question.uid,
+            answer:answer.answer
+        }
+
+        if (answer.question.type === Constants.QUESTION_TYPES.FREE_TEXT) {
+            question.type = Constants.QUESTION_TYPES.FREE_TEXT;
+        }
+
+        if (answer.question.type === Constants.QUESTION_TYPES.SLIDER) {
+            question.minLabel = answer.question.slider.minLabel;
+            question.maxLabel = answer.question.slider.maxLabel;
+            question.steps = answer.question.slider.steps;
+            question.type = Constants.QUESTION_TYPES.SLIDER;
+        }
+
+        if (answer.question.type === Constants.QUESTION_TYPES.CHECKBOX) {
+            question.type = Constants.QUESTION_TYPES.CHECKBOX;
+            question.options = answer.question.options;
+        }
+
+        if(answer.question.task === "prom") {
+            question.task = "prom"
+            this.model.questionnaire.prom.push(question)
+        } else {
+            question.task = "prem"
+            this.model.questionnaire.prem.push(question)
+        }
+    }
+
     initServices() {
         this.ResponsesService = new ResponsesService();
         this.ResponsesService.getResponses((err, data) => {
@@ -44,95 +81,10 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
             console.log(data);
             data.forEach(response => {
                 response.forEach(answer => {
-                    console.log(answer);
-                    //let task = "prom";
-                    if(answer.question.type ==="range"){
-                        let type = "slider";
-                        if(answer.question.task === "prom"){
-                            //if(task === "prom"){
-                            let prom = {
-                                question: answer.question.title,
-                                type: type,
-                                uid: answer.question.uid,
-                                minLabel:answer.question.range.minLabel,
-                                maxLabel:answer.question.range.maxLabel,
-                                steps: answer.question.range.steps,
-                                task: "prom",
-                                answer:answer.answer
-                            }
-                            this.model.questionnaire.prom.push(prom);
-
-                        }else if(answer.question.task === "prem"){
-                            //}else if(task === "prem"){
-                            let prem = {
-                                question: answer.question.title,
-                                type: type,
-                                uid: answer.question.uid,
-                                minLabel:answer.question.range.minLabel,
-                                maxLabel:answer.question.range.maxLabel,
-                                steps: answer.question.range.steps,
-                                task: "prem",
-                                answer:answer.answer
-                            }
-                            this.model.questionnaire.prem.push(prem);
-                        }
-                    } else if (answer.question.type ==="radio"){
-                        let type = "checkbox";
-                        if(answer.question.task === "prom"){
-                            //if(task === "prom"){
-                            let prom = {
-                                question: answer.question.title,
-                                type: type,
-                                uid: answer.question.uid,
-                                options: answer.question.options,
-                                task: "prom",
-                                answer:answer.answer
-                            }
-                            this.model.questionnaire.prom.push(prom);
-
-                        }else if(answer.question.task === "prem"){
-                            //}else if(task === "prem"){
-                            let prem = {
-                                question: answer.question.title,
-                                type: type,
-                                uid: answer.question.uid,
-                                options: answer.question.options,
-                                task: "prem",
-                                answer:answer.answer
-                            }
-                            this.model.questionnaire.prem.push(prem);
-                        }
-                    } else if (answer.question.type ==="string"){
-                        let type = "free text";
-                        if(answer.question.task === "prom"){
-                            //if(task === "prom"){
-                            let prom = {
-                                question: answer.question.title,
-                                type: type,
-                                uid: answer.question.uid,
-                                task: "prom",
-                                answer:answer.answer
-                            }
-                            this.model.questionnaire.prom.push(prom);
-
-                        }else if(answer.question.task === "prem"){
-                            //}else if(task === "prem"){
-                            let prem = {
-                                question: answer.question.title,
-                                type: type,
-                                uid: answer.question.uid,
-                                task: "prem",
-                                answer:answer.answer
-                            }
-                            this.model.questionnaire.prem.push(prem);
-                        }
-                    }
+                    this.filterAnswers(answer);
                 })
             })
-
-
             console.log(this.model.questionnaire);
-
 
             //PROM
             const promQuestions = this.getPossibleProms(this.model.questionnaire); // Map -> Question and Type
@@ -188,6 +140,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         this.model.hasProms = true;
         this.model.PremsDataSource = DataSourceFactory.createDataSource(2, 10, this.model.premInfo);
         this.model.hasPrems = true;
+        this.model.pageIsInitialized = true;
     }
 
     initHandlers(){
@@ -198,13 +151,17 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
 
     _attachHandlerPromQuestions() {
         this.onTagEvent('charts:prom', 'click', (model, target, event) => {
-            this.model.currentTable = "proms"
+            this.model.currentTable = "proms";
+            this.model.promSelected = true;
+            this.model.premSelected = false;
         });
     }
 
     _attachHandlerPremQuestions() {
         this.onTagEvent('charts:prem', 'click', (model, target, event) => {
-            this.model.currentTable = "prems"
+            this.model.currentTable = "prems";
+            this.model.promSelected = false;
+            this.model.premSelected = true;
         });
     }
 
@@ -212,7 +169,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         this.onTagClick("data-analysis", (model) => {
             let state = {};
             switch(model.type) {
-                case "checkbox":
+                case Constants.QUESTION_TYPES.CHECKBOX:
                     state =
                         {
                             question: model.question,
@@ -223,7 +180,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                         }
                     break;
 
-                case "slider":
+                case Constants.QUESTION_TYPES.SLIDER:
                     state =
                         {
                             question: model.question,
@@ -236,7 +193,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                         }
                     break;
 
-                case "free text":
+                case Constants.QUESTION_TYPES.FREE_TEXT:
                     state =
                         {
                             question: model.question,
@@ -337,7 +294,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         for (const key of promQuestions.keys()) {
             while (j < ArrayLenQuestionnaire){
                 if(key === questionnaire.prom[j].question){
-                    if(promQuestions.get(key) === "checkbox"){
+                    if(promQuestions.get(key) === Constants.QUESTION_TYPES.CHECKBOX){
                         checkboxOptions = (questionnaire.prom[j].options);
                     }
                 }
@@ -360,7 +317,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         for (const key of premQuestions.keys()) {
             while (j < ArrayLenQuestionnaire){
                 if(key === questionnaire.prem[j].question){
-                    if(premQuestions.get(key) === "checkbox"){
+                    if(premQuestions.get(key) === Constants.QUESTION_TYPES.CHECKBOX){
                         checkboxOptions = (questionnaire.prem[j].options);
                     }
                 }
@@ -383,7 +340,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         for (const key of promQuestions.keys()) {
             while (j < ArrayLenQuestionnaire){
                 if(key === questionnaire.prom[j].question){
-                    if(promQuestions.get(key) === "slider"){
+                    if(promQuestions.get(key) === Constants.QUESTION_TYPES.SLIDER){
                         sliderOptions ={
                             minLabel: questionnaire.prom[j].minLabel,
                             maxLabel: questionnaire.prom[j].maxLabel,
@@ -410,7 +367,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
         for (const key of premQuestions.keys()) {
             while (j < ArrayLenQuestionnaire){
                 if(key === questionnaire.prem[j].question){
-                    if(premQuestions.get(key) === "slider"){
+                    if(premQuestions.get(key) === Constants.QUESTION_TYPES.SLIDER){
                         sliderOptions ={
                             minLabel: questionnaire.prem[j].minLabel,
                             maxLabel: questionnaire.prem[j].maxLabel,
