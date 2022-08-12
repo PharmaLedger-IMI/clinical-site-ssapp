@@ -112,12 +112,6 @@
 			"tag": "econsent-visit-edit"
 		},
 		{
-			"name": "Visits",
-			"path": "/econsent/visits",
-			"src": "econsent/visits.html",
-			"tag": "econsent-visits"
-		},
-		{
 			"name": "Trial Participant",
 			"path": "/econsent/trial-participant",
 			"src": "econsent/trial-participant.html",

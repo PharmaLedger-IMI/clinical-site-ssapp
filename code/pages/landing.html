@@ -2,11 +2,10 @@
     <div class="container flex-container" data-if="@publicDidReady">
         <img slot="true" alt="PharmaLedger Blockchain Enabled Healthcare" src="themes/clinical-site-theme/images/pharmaledger-logo.jpg"
              class="img-xl"/>
-        <div slot="true">
+        <div slot="true" class="parent-container">
             <div class="button-group-wrapper">
                 <button data-tag="navigation:econsent-trial-management">E-Consent Trial Management</button>
                 <button data-tag="navigation:iot-manage-devices">Manage Devices</button>
-                <button data-tag="navigation:econsent-visits">Visits</button>
                 <div class="notifications-btn">
                     <button data-tag="navigation:econsent-notifications">Notifications</button>
                     <div data-if="@hasNotifications" class="notifications-container">

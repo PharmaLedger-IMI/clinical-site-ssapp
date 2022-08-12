@@ -77,7 +77,6 @@ export default class LandingPageController extends WebcController {
         const pageHandlers = [
             {eventTag: "navigation:iot-manage-devices", pageTag: "iot-manage-devices"},
             {eventTag: "navigation:econsent-notifications", pageTag: "econsent-notifications"},
-            {eventTag: "navigation:econsent-visits", pageTag: "econsent-visits"},
             {eventTag: "navigation:econsent-trial-management", pageTag: "econsent-trial-management"}
         ];
 
