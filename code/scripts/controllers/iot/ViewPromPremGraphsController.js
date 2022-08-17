@@ -137,9 +137,9 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
 
     buildDataSources(){
         this.model.PromsDataSource = DataSourceFactory.createDataSource(2, 10, this.model.promInfo);
-        this.model.hasProms = true;
+        this.model.hasProms = this.model.toObject('promInfo').length !== 0;
         this.model.PremsDataSource = DataSourceFactory.createDataSource(2, 10, this.model.premInfo);
-        this.model.hasPrems = true;
+        this.model.hasPrems = this.model.toObject('premInfo').length !== 0;
         this.model.pageIsInitialized = true;
     }
 

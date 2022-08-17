@@ -1,6 +1,6 @@
 <webc-container controller="iot/ViewPromPremGraphsController">
 
-    <div class="container main-container">
+    <div class="container main-container stepper-3-rows-grid">
 
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
@@ -43,7 +43,7 @@
                     <div slot="prems">
                         <div data-if="@hasPrems">
                             <div slot="false" class="alert alert-warning text-center" role="alert">
-                                <h4 class="alert-heading">No Prom Answers yet!</h4>
+                                <h4 class="alert-heading">No Prem Answers yet!</h4>
                             </div>
                             <div class="common-datatable view-graphs-datatable dt-2-col" slot="true">
                                 <webc-datatable datasource="@PremsDataSource">
@@ -63,6 +63,11 @@
             </div>
 
 
+        </div>
+
+        <div>
+            <p class="m-0">*PROM: Patient Reported Outcome Measures.</p>
+            <p class="m-0">*PREM: Patient Reported Experience Measures.</p>
         </div>
     </div>
 
