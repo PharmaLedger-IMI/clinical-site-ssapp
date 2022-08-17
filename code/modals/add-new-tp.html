@@ -11,7 +11,7 @@
 
             <div class="form-group">
                 <label for="patientDID">{{@did.label}}</label>
-                <div class="input-group">
+                <div class="input-group" is-invalid="@didDoesNotExist">
                     <input id="patientDID" class="form-control" value="@did.value" placeholder="@did.placeholder"/>
                     <div class="input-group-append">
                         <button class="btn btn-outline-secondary share-did-btn" type="button">
@@ -19,6 +19,12 @@
                         </button>
                     </div>
                 </div>
+                <div data-if="@didDoesNotExist">
+                    <div class="invalid-feedback d-block">
+                        <i class="fa fa-exclamation-circle"></i>This DID does not exist.
+                    </div>
+                </div>
+
 
             </div>
 

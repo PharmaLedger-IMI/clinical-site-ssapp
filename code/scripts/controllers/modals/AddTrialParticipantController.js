@@ -1,6 +1,7 @@
 const openDSU = require("opendsu");
 const commonServices = require("common-services");
-const { getDidServiceInstance } = commonServices.DidService;
+const { DidService } = commonServices;
+const {getCommunicationServiceInstance} = commonServices.CommunicationService
 const momentService = commonServices.momentService;
 const Constants = commonServices.Constants;
 
@@ -40,6 +41,7 @@ let getInitModel = () => {
             max: momentService(Date.now()).format(Constants.DATE_UTILS.FORMATS.YearMonthPattern),
         },
         isUnder18:false,
+        didDoesNotExist:false,
         didParent1: {
             label: 'Parent 1 Public Identifier',
             name: 'did',
@@ -83,7 +85,9 @@ export default class AddTrialParticipantController extends WebcController {
     constructor(...props) {
         super(...props);
         this.tpsDIDs = props[0].tpsDIDs;
-        this.setModel(getInitModel());
+        this.didService = DidService.getDidServiceInstance();
+        this.communicationService = getCommunicationServiceInstance();
+        this.model = getInitModel();
         this._initHandlers();
 
         this.observeInputs();
@@ -94,8 +98,7 @@ export default class AddTrialParticipantController extends WebcController {
     generateAnonymizedDid() {
         const crypto = openDSU.loadApi('crypto');
         let randomDidName = $$.Buffer.from(crypto.generateRandom(20)).toString('hex');
-        const didService = getDidServiceInstance();
-        didService.getWalletDomain().then(walletDomain => {
+        this.didService.getWalletDomain().then(walletDomain => {
             const anonymizedDid = `did:ssi:name:${walletDomain}:${randomDidName}`;
             this.model.anonymizedDID.value = anonymizedDid;
         }).catch((err) => {
@@ -110,6 +113,7 @@ export default class AddTrialParticipantController extends WebcController {
 
     async observeInputs() {
         const validateInputs = async () => {
+            this.model.didDoesNotExist = false;
             if(this.model.name.value.trim() === '' || this.model.did.value.trim() === '') {
                 return this.model.isBtnDisabled = true;
             }
@@ -144,7 +148,8 @@ export default class AddTrialParticipantController extends WebcController {
             this.model.isUnder18 = legalEntityMaxAge > daysSinceBirth;
         })
 
-        this.onTagEvent('tp:submit', 'click', (model, target, event) => {
+        this.onTagEvent('tp:submit', 'click', async(model, target, event) => {
+            window.WebCardinal.loader.hidden = false;
             event.preventDefault();
             event.stopImmediatePropagation();
             const trialParticipant = {
@@ -154,7 +159,21 @@ export default class AddTrialParticipantController extends WebcController {
                 birthdate: this.model.birthdate.value,
                 gender: this.model.gender.value,
             };
-            this.send('confirmed', trialParticipant);
+
+
+            try{
+                let tpPublicDidData = DidService.getDidData(trialParticipant.publicDid);
+                await this.communicationService.resolveDidDocument(tpPublicDidData);
+                this.model.didDoesNotExist = false;
+                window.WebCardinal.loader.hidden = true;
+                this.send('confirmed', trialParticipant);
+            }
+            catch (e) {
+                this.model.didDoesNotExist = true;
+                window.WebCardinal.loader.hidden = true;
+            }
+
+
         });
     }
 }
