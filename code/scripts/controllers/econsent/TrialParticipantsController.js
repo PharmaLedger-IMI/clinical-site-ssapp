@@ -274,8 +274,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
     async _getEconsentActionsMappedByUser(trialUid) {
         let actions = {};
+        let econsents = [];
         const siteConsentsUids = this.model.site.consents.map(consent => consent.uid);
-        let econsents = this.model.hcoDSU.volatile.ifcs.filter(ifc => siteConsentsUids.includes(ifc.genesisUid));
+        if(this.model.hcoDSU.volatile.ifcs){
+             econsents = this.model.hcoDSU.volatile.ifcs.filter(ifc => siteConsentsUids.includes(ifc.genesisUid));
+        }
+
 
         console.log('econsents', econsents)
         econsents.forEach(econsent => {
