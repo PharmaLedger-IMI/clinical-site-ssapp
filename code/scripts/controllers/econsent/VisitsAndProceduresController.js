@@ -41,7 +41,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.attachHandlerConfirm();
         this.attachHandlerEditDate();
         this.attachHandlerViewVisit();
-        this.attachHandlerEditVisit();
     }
 
     async initServices() {
@@ -379,16 +378,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         });
     }
 
-
-    attachHandlerEditVisit() {
-        this.onTagClick("visit:edit", (model) => {
-            this.navigateToPageTag("econsent-visit-edit", {
-                tpUid: this.model.tpUid,
-                existingVisit: model,
-                breadcrumb: this.model.toObject('breadcrumb')
-            });
-        });
-    }
 
     attachHandlerViewVisit() {
         this.onTagClick("visit:view", (model) => {
