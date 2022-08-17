@@ -14,7 +14,7 @@ const healthDataService = new HealthDataService();
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
 const {getDidServiceInstance} = commonServices.DidService;
 const MessageHandlerService = commonServices.MessageHandlerService;
-
+const JWTService = commonServices.JWTService;
 const BaseRepository = commonServices.BaseRepository;
 const SharedStorage = commonServices.SharedStorage;
 
@@ -126,6 +126,12 @@ export default class LandingPageController extends WebcController {
         }
         switch (data.operation) {
 
+            case Constants.MESSAGES.PATIENT.TP_IS_UNAVAILABLE:{
+                await this._saveNotification(data, 'TP is unavailable', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this.markTpAsUnavailable(data);
+                break;
+            }
+
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
                 await this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 this.HCOService.refreshSite(async ()=> {
@@ -205,6 +211,23 @@ export default class LandingPageController extends WebcController {
             
         }
         await this._updateHcoDSU();
+    }
+
+    async markTpAsUnavailable(data) {
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        if (this.model.hcoDSU.volatile.tps) {
+
+            const JWTServiceInstance = new JWTService();
+            const {verifyCredentialStatus} = await JWTServiceInstance.verifyCredential(data.anonymousDIDVc);
+            const anonymizedDID = verifyCredentialStatus.vc.credentialSubject.anonymizedDID;
+            let tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === anonymizedDID);
+            tp.status = Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE;
+            this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
+                if (err) {
+                    return console.log(err);
+                }
+            });
+        }
     }
 
     async sendRefreshConsentsToTrialParticipants(data) {
