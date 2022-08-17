@@ -1,7 +1,5 @@
-const { WebcController } = WebCardinal.controllers;
 const commonServices = require("common-services");
 const {ResponsesService} = commonServices;
-const {QuestionnaireService} = commonServices;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const {Constants} = commonServices;
