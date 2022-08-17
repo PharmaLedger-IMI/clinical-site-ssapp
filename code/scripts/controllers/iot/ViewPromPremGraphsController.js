@@ -220,20 +220,14 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
             }
             i++;
         }
-        if(questionType === 'prom') {
-            this.model.promQuestions = questions;
-        }
 
-        if(questionType === 'prem') {
-            this.model.premQuestions = questions;
-        }
         return questions;
     }
 
     getAnswersForQuestion(questionType, questions) {
         const arrLength = this.model.questionnaire[questionType].length;
         let answers = [];
-        let QuestionAndAnswer = new Map();
+        let questionAndAnswer = new Map();
         let j=0;
         for (const key of questions.keys()) {
             while (j < arrLength){
@@ -242,24 +236,18 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                 }
                 j++;
             }
-            QuestionAndAnswer.set(key,answers);
+            questionAndAnswer.set(key,answers);
             answers = [];
             j=0;
         }
 
-        if(questionType === 'prom') {
-            this.model.promAnswers = QuestionAndAnswer;
-        }
-        if(questionType === 'prem') {
-            this.model.premAnswers = QuestionAndAnswer;
-        }
-        return QuestionAndAnswer;
+        return questionAndAnswer;
     }
 
     getCheckboxOptionsForQuestion(questionType, questions) {
         const arrLength = this.model.questionnaire[questionType].length;
         let checkboxOptions = [];
-        let QuestionAndCheckboxOptions = new Map();
+        let questionAndCheckboxOptions = new Map();
         let j=0;
         for (const key of questions.keys()) {
             while (j < arrLength){
@@ -270,26 +258,18 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                 }
                 j++;
             }
-            QuestionAndCheckboxOptions.set(key,checkboxOptions);
+            questionAndCheckboxOptions.set(key,checkboxOptions);
             checkboxOptions = [];
             j=0;
         }
 
-        if(questionType === 'prom') {
-            this.model.promOptions = QuestionAndCheckboxOptions;
-        }
-
-        if(questionType === 'prem') {
-            this.model.premOptions = QuestionAndCheckboxOptions;
-        }
-
-        return QuestionAndCheckboxOptions;
+        return questionAndCheckboxOptions;
     }
 
     getSliderOptionsForEachQuestion(questionType, questions) {
         const arrLength = this.model.questionnaire[questionType].length;
         let sliderOptions = {};
-        let QuestionAndSliderOptions = new Map();
+        let questionAndSliderOptions = new Map();
         let j=0;
         for (const key of questions.keys()) {
             while (j < arrLength){
@@ -304,19 +284,12 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                 }
                 j++;
             }
-            QuestionAndSliderOptions.set(key,sliderOptions);
+            questionAndSliderOptions.set(key,sliderOptions);
             sliderOptions = {};
             j=0;
         }
 
-        if(questionType === 'prom') {
-            this.model.promOptions = QuestionAndSliderOptions;
-        }
-
-        if(questionType === 'prem') {
-            this.model.premOptions = QuestionAndSliderOptions;
-        }
-        return QuestionAndSliderOptions;
+        return questionAndSliderOptions;
     }
 
 }
