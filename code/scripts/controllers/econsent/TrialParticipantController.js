@@ -32,7 +32,17 @@ export default class TrialParticipantController extends BreadCrumbManager {
             }
         );
 
-        this._initServices();
+        this._initServices().then( () => {
+            this.model.econsentsDataSource = DataSourceFactory.createDataSource(7, 10, this.model.toObject('econsents'));
+            this.model.econsentsDataSource.__proto__.updateEconsents = function (econsents) {
+                this.model.econsents = econsents;
+                this.model.tableData = econsents;
+
+                this.getElement().dataSize = econsents.length;
+                this.forceUpdate(true);
+            }
+        });
+
         this._initHandlers();
     }
 
@@ -41,7 +51,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this.model.econsentsDataSource =  await this._initConsents(this.model.trialUid);
+        await this._initConsents(this.model.trialUid);
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
         if(this.model.tp.number !== undefined) {
@@ -87,6 +97,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         let nonObfuscatedTps = await this.TrialParticipantRepository.filterAsync(`did == ${trialParticipant.did}`);
         if (nonObfuscatedTps.length > 0) {
             trialParticipant.name = nonObfuscatedTps[0].name;
+            trialParticipant.number = nonObfuscatedTps[0].number;
         }
         this.model.tp = trialParticipant;
         return this._computeEconsentsWithActions();
@@ -163,19 +174,25 @@ export default class TrialParticipantController extends BreadCrumbManager {
             event.stopImmediatePropagation();
             this.showModalFromTemplate(
                 'add-tp-number',
-                (event) => {
+                async (event) => {
                     //this.model.tp.number = event.detail will not trigger a view update
                     this.model.tp = {
                         ...JSON.parse(JSON.stringify(this.model.tp)),
                         number:event.detail
                     }
 
-                    this._updateTrialParticipant(this.model.tp, () => {});
                     this.updateSiteStage(()=>{
                         this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.ADDED_TS_NUMBER, {
                               ssi: this.model.tpUid
                         },'The stage of the site changed');
                     });
+
+                    this._updateTrialParticipant(this.model.tp, async () => {
+                        let cons = await this._initConsents(this.model.trialUid);
+                        this.model.econsentsDataSource.updateEconsents(cons);
+                    });
+
+                    this.model.hasAlreadyTpNumber = true;
 
                     this.model.message = {
                         content: 'Tp Number was updated',
@@ -227,18 +244,19 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
         const tpDsuUpdate = (callback) => {
             trialParticipant.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER;
-            this.HCOService.updateHCOSubEntity(trialParticipant, "tps", (err, trialParticipant) => {
+            this.HCOService.updateHCOSubEntity(trialParticipant, "tps", (err, tp) => {
                 if (err) {
                     return console.log(err);
                 }
-                this._sendMessageToPatient(this.model.trialUid, trialParticipant, 'Tp Number was attached');
-                this.TrialParticipantRepository.update(trialParticipant.uid, trialParticipant, callback);
+                this._sendMessageToPatient(this.model.trialUid, tp, 'Tp Number was attached');
+                this.TrialParticipantRepository.update(this.model.trialParticipant.pk, tp, callback);
             })
         }
 
+        this.model.trialParticipant.number = trialParticipant.number;
         if(this.model.tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
             this.model.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
-            this.TrialParticipantRepository.update(this.model.trialParticipant.uid, this.model.trialParticipant, (err, trialParticipant) => {
+            this.TrialParticipantRepository.update(this.model.trialParticipant.pk, this.model.trialParticipant, (err, trialParticipant) => {
                 if (err) {
                     return console.log(err);
                 }
@@ -346,7 +364,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
             }
         });
 
-        return this.model.econsentsDataSource = DataSourceFactory.createDataSource(7, 10,this.model.toObject('econsents'));
+        return this.model.toObject('econsents');
     }
 
     _sendMessageToSponsor(operation, data, shortDescription) {
