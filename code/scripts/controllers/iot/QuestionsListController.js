@@ -114,24 +114,26 @@ export default class QuestionsListController extends BreadCrumbManager {
     }
 
     openQuestionModal(type,questionUid){
-        let model;
-        switch (type) {
-            case QUESTION_ACTIONS.CREATE:
-                model = {
-                    action: QUESTION_ACTIONS.CREATE,
-                    questionType: this.model.currentTable.toUpperCase(),
-                }
-                break;
-            case QUESTION_ACTIONS.EDIT:
-                model = {
-                    action: QUESTION_ACTIONS.EDIT,
-                    questionType: this.model.currentTable.toUpperCase(),
-                    questionID: questionUid,
-                    trialSSI: this.model.selected_trial.uid,
-                    trialName: this.model.selected_trial.name,
-                }
-                break;
+
+        const getModel = () => {
+            switch (type) {
+                case QUESTION_ACTIONS.CREATE:
+                    return {
+                        action: QUESTION_ACTIONS.CREATE,
+                        questionType: this.model.currentTable.toUpperCase(),
+                    }
+                case QUESTION_ACTIONS.EDIT:
+                    return {
+                        action: QUESTION_ACTIONS.EDIT,
+                        questionType: this.model.currentTable.toUpperCase(),
+                        questionID: questionUid,
+                        trialSSI: this.model.selected_trial.uid,
+                        trialName: this.model.selected_trial.name,
+                    }
+            }
         }
+
+
 
         return () => {
             const handleQuestionModalResponse = async (event) => {
@@ -176,7 +178,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                     controller: 'modals/questionnaire/AddOrEditQuestionController',
                     disableExpanding: false,
                     disableBackdropClosing: true,
-                    model: model
+                    model: getModel()
                 });
 
         }
