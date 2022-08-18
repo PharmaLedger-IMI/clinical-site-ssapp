@@ -22,7 +22,6 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         super(...props);
         this.setModel({
             ...getInitModel(),
-            ...this.history.win.history.state.state,
             consentsSigned: [],
             userActionsToShow: []
         });

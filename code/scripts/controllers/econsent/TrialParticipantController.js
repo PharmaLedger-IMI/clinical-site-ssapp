@@ -20,7 +20,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         super(...props);
         this.setModel({
             ...getInitModel(),
-            ...this.history.win.history.state.state,
         });
 
 
