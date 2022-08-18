@@ -538,7 +538,7 @@ export default class LandingPageController extends WebcController {
             tpDSU.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED;
         }
 
-        if(visit.rescheduled && visit.confirmed === false) {
+        if(visit.rescheduled || visit.declined) {
             tpDSU.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED;
         }
 

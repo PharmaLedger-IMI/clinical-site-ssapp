@@ -104,7 +104,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-versions', {
                 econsentUid: model.uid,
-                trialParticipantNumber: this.model.trialParticipantNumber,
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
                 breadcrumb: this.model.toObject('breadcrumb')

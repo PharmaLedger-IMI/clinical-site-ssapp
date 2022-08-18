@@ -247,7 +247,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         break;
                     }
                     case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED: {
-                        actionNeeded = 'Visit Detail Review';
+                        actionNeeded = 'Review Visit';
                         notificationColor = 'warning';
                         break;
                     }
