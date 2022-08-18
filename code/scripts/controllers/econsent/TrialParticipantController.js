@@ -33,11 +33,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
         );
 
         this._initServices().then( () => {
-            this.model.econsentsDataSource = DataSourceFactory.createDataSource(7, 10, this.model.toObject('econsents'));
+            this.model.econsentsDataSource = DataSourceFactory.createDataSource(7, 10, this.econsents);
             this.model.econsentsDataSource.__proto__.updateEconsents = function (econsents) {
-                this.model.econsents = econsents;
                 this.model.tableData = econsents;
-
                 this.getElement().dataSize = econsents.length;
                 this.forceUpdate(true);
             }
@@ -54,11 +52,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         await this._initConsents(this.model.trialUid);
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
-        if(this.model.tp.number !== undefined) {
-            this.model.hasAlreadyTpNumber = true;
-        } else {
-            this.model.hasAlreadyTpNumber = false;
-        }
+        this.model.hasTpNumber = this.model.tp.number !== undefined;
         this.initTrialParticipant();
     }
 
@@ -83,7 +77,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
             return siteConsentsKeySSis.indexOf(icf.genesisUid) > -1
         })
 
-        this.model.econsents = trialConsents.map(consent => {
+        this.econsents = trialConsents.map(consent => {
             return {
                 ...consent,
                 versionDateAsString: DateTimeService.convertStringToLocaleDate(consent.versions[0].versionDate)
@@ -175,7 +169,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
             this.showModalFromTemplate(
                 'add-tp-number',
                 async (event) => {
-                    //this.model.tp.number = event.detail will not trigger a view update
+                    window.WebCardinal.loader.hidden = false;
                     this.model.tp = {
                         ...JSON.parse(JSON.stringify(this.model.tp)),
                         number:event.detail
@@ -190,9 +184,10 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     this._updateTrialParticipant(this.model.tp, async () => {
                         let cons = await this._initConsents(this.model.trialUid);
                         this.model.econsentsDataSource.updateEconsents(cons);
+                        window.WebCardinal.loader.hidden = true;
                     });
 
-                    this.model.hasAlreadyTpNumber = true;
+                    this.model.hasTpNumber = true;
 
                     this.model.message = {
                         content: 'Tp Number was updated',
@@ -293,7 +288,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
     }
 
     _computeEconsentsWithActions() {
-        this.model.econsents.forEach(econsent => {
+        this.econsents.forEach(econsent => {
             econsent = this._showButton(econsent, 'View');
             econsent.versions.forEach(version => {
                 if (version.actions !== undefined) {
@@ -358,13 +353,13 @@ export default class TrialParticipantController extends BreadCrumbManager {
         })
 
         this.model.tsBtnIsDisabled = true;
-        this.model.econsents.forEach(econsent => {
+        this.econsents.forEach(econsent => {
             if((econsent['type'] === 'Mandatory' && econsent.test === true) || (econsent['type'] === 'Mandatory' && econsent['showScheduleButton'] === true)) {
                 this.model.tsBtnIsDisabled = false;
             }
         });
 
-        return this.model.toObject('econsents');
+        return this.econsents;
     }
 
     _sendMessageToSponsor(operation, data, shortDescription) {

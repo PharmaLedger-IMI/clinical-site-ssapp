@@ -47,9 +47,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             this.model.dataSourceInitialized = true;
             this.model.trialParticipantsDataSource = DataSourceFactory.createDataSource(6, 5, this.model.toObject('trialParticipants'));
             this.model.trialParticipantsDataSource.__proto__.updateParticipants = function (trialParticipants) {
-                this.model.trialParticipants = trialParticipants;
                 this.model.tableData = trialParticipants;
-
                 this.getElement().dataSize = trialParticipants.length;
                 this.forceUpdate(true);
             }

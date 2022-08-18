@@ -28,7 +28,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'))
             this.model.visitsDataSource.__proto__.updateVisits = function (visits) {
                 this.model.tableData = visits;
-
                 this.getElement().dataSize = visits.length;
                 this.forceUpdate(true);
             }
