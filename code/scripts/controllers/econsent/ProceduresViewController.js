@@ -42,7 +42,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
     updateProcedure(procedure) {
         let objIndex = this.model.procedures.findIndex((obj => obj.id == procedure.id));
         this.model.procedures[objIndex] = procedure;
-        let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visitUuid) [0];
+        let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
         visitTp.procedures = this.model.procedures;
         let obj = this.model.tp.visits.findIndex((obj => obj.uuid == visitTp.uuid));
         this.model.tp.visits[obj] = visitTp;
@@ -59,22 +59,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     initProcedures() {
-        const sites = this.model.toObject("hcoDSU.volatile.site");
-        const site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
-
-        for (let i = 0; i < site.visits.visits.length; i++) {
-            const visits = site.visits.visits[i];
-            const visit = visits.data.find(v => v.uuid === this.model.visitUuid);
-            if (visit) {
-                this.model.visit = visit;
-                break;
-            }
-        }
-
-        if (!this.model.visit) {
-            throw Error("Visit not found!");
-        }
-
         this.model.tp = this.model.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
         this.model.procedures = this.model.visit.procedures;
         if (!this.model.tp.visits || this.model.tp.visits.length < 1) {
@@ -82,7 +66,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
             this.updateTrialParticipant();
 
         } else {
-            let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visitUuid) [0];
+            let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
 
             if (visitTp) {
                 this.model.procedures = visitTp.procedures;
@@ -135,12 +119,14 @@ export default class ProceduresViewController extends BreadCrumbManager {
 
     attachHandlerConfirm() {
         this.onTagClick('confirm-procedures', (model) => {
-            let index = this.model.tp.visits.findIndex(visit => visit.uuid === this.model.visitUuid);
+            let index = this.model.tp.visits.findIndex(visit => visit.uuid === this.model.visit.uuid);
             this.updateTrialParticipant(this.model.tp.visits[index]);
             this.navigateToPageTag('econsent-visits-procedures', {
                 trialUid: this.model.trialUid,
                 tpUid: this.model.tpUid,
+                trialId: this.model.trialId,
                 consentId:this.model.consentId,
+                consentVersion: this.model.consentVersion,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         })
@@ -165,7 +151,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
     getInitModel() {
         return {
             procedures: [],
-            visit: {},
             ...this.getState(),
         };
     }

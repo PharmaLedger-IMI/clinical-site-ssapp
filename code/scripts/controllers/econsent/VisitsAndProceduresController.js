@@ -105,8 +105,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     async initVisits() {
-        if(this.model.toObject("site.visits.visits").length) {
-            this.model.visits = this.model.toObject("site.visits.visits").find((visit) => visit.consentId === this.model.consentId).data;
+        if (this.model.toObject("site.visits.visits").length) {
+            const {trialId, consentId, consentVersion} = this.model;
+            const selectedVisit = this.model.toObject("site.visits.visits")
+                .find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === consentVersion);
+            this.model.visits = selectedVisit ? (selectedVisit.visits || []) : [];
         }
         this.model.siteHasVisits = this.model.visits.length > 0;
         this.extractDataVisit();
@@ -383,8 +386,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.navigateToPageTag('econsent-procedures-view', {
                 trialUid: this.model.trialUid,
                 tpUid: this.model.tpUid,
+                trialId: this.model.trialId,
                 consentId:this.model.consentId,
-                visitUuid: model.uuid,
+                consentVersion: this.model.consentVersion,
+                visits: this.model.toObject("visits"),
+                visit: model,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -393,14 +399,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     async initSite() {
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
-    }
-
-    sendMessageToSponsor(operation, data, shortDescription) {
-        this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
-            operation: operation,
-            ...data,
-            shortDescription: shortDescription,
-        });
     }
 
     getInitModel() {

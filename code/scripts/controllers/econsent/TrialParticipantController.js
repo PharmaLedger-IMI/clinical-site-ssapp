@@ -153,8 +153,10 @@ export default class TrialParticipantController extends BreadCrumbManager {
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-visits-procedures', {
                 trialUid: this.model.trialUid,
+                trialId: this.model.site.trialId,
                 tpUid: this.model.tpUid,
-                consentId:model.trialConsentId,
+                consentId: model.trialConsentId,
+                consentVersion: model.trialConsentVersion,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });

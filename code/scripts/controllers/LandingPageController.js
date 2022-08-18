@@ -157,7 +157,6 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_SITE: {
-
                 await this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 const mountSiteAndUpdateEntity = new Promise((resolve => {
                     this.HCOService.mountSite(data.ssi, (err, site) => {
@@ -174,6 +173,7 @@ export default class LandingPageController extends WebcController {
                                 if (err) {
                                     return console.log(err);
                                 }
+
                                 this.sendMessageToSponsor(senderIdentity, Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_SPONSOR, {ssi: this.HCOService.ssi}, null);
                                 resolve();
                             })
@@ -208,7 +208,7 @@ export default class LandingPageController extends WebcController {
                 })
                 break;
             }
-            
+
         }
         await this._updateHcoDSU();
     }
@@ -267,7 +267,7 @@ export default class LandingPageController extends WebcController {
             if (err) {
                 console.log(err);
             }
-            
+
             this.DeviceAssignationService.getAssignedDevices((err, devices) => {
                 if (err) {
                     return console.log(err);
@@ -290,7 +290,7 @@ export default class LandingPageController extends WebcController {
             }
             else {
                 console.log("Your data is not available");
-            }  
+            }
         });
     }
 
@@ -460,9 +460,8 @@ export default class LandingPageController extends WebcController {
                         uuid: item.uuid,
                         visitWindow: item.visitWindow,
                         trialSSI: message,
-                    }
+                    };
 
-                    //visitToBeAdded.consentsSSI.push(consent.keySSI);
                     let weaksFrom = item.weeks?.filter(weak => weak.type === 'weekFrom' || weak.type === 'week');
                     if (weaksFrom)
                         visitToBeAdded.weakFrom = weaksFrom[0]?.value;
@@ -478,8 +477,9 @@ export default class LandingPageController extends WebcController {
                         visitToBeAdded.minus = minus[0]?.value;
 
                     item.procedures.forEach((procedure) => {
-                        procedure.consent.consentSSI = this.model.hcoDSU.volatile.site[0].consents.find((consent => consent.name === procedure.consent.name)).keySSI;
-                    })
+                        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.HCOService.getAnchorId(trialSSI));
+                        procedure.consent.consentSSI = site.consents.find((consent => consent.name === procedure.consent.name)).keySSI;
+                    });
 
                     this.VisitsAndProceduresRepository.findBy(visitToBeAdded.uuid, (err, existingVisit) => {
                         if (err || !existingVisit) {
@@ -490,20 +490,18 @@ export default class LandingPageController extends WebcController {
                                 }
                             })
                         } else if (existingVisit) {
-                            //visitToBeAdded.consentsSSI.push(existingVisit.consentsSSI);
                             visitToBeAdded.procedures.push(existingVisit.procedures);
 
                             this.VisitsAndProceduresRepository.update(visitToBeAdded.uuid, visitToBeAdded, (err, visitCreated) => {
                                 if (err) {
                                     return console.error(err);
                                 }
-                            })
+                            });
                         }
-                    })
-
-                })
+                    });
+                });
             }
-        })
+        });
     }
 
     _saveQuestion(message) {

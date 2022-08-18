@@ -11,7 +11,6 @@ export default class TrialConsentsController extends BreadCrumbManager {
         super(...props);
 
         this.model = this.getState();
-        const {breadcrumb, ...state} = this.model;
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -23,6 +22,7 @@ export default class TrialConsentsController extends BreadCrumbManager {
         this.initServices(this.model.trialUid);
         this._attachHandlerPreview();
         this._attachHandlerViewHistory();
+        this._attachHandlerTrialVisits();
     }
 
     initServices(trialUid) {
@@ -60,9 +60,8 @@ export default class TrialConsentsController extends BreadCrumbManager {
         })
     }
 
-
     _attachHandlerPreview() {
-        this.onTagEvent('preview', 'click', (model, target, event) => {
+        this.onTagEvent('preview', 'click', (model) => {
             this.navigateToPageTag('consent-preview', {
                 breadcrumb: this.model.toObject('breadcrumb'),
                 trialUid: this.model.trialUid,
@@ -73,12 +72,25 @@ export default class TrialConsentsController extends BreadCrumbManager {
     }
 
     _attachHandlerViewHistory() {
-        this.onTagEvent('view-history', 'click', (model, target, event) => {
+        this.onTagEvent('view-history', 'click', (model) => {
             this.navigateToPageTag('econsent-trial-consent-history', {
                 breadcrumb: this.model.toObject('breadcrumb'),
                 trialUid: this.model.trialUid,
                 trialConsentId: model.trialConsentId,
             });
+        });
+    }
+
+    _attachHandlerTrialVisits() {
+        this.onTagEvent('visits', 'click', (model) => {
+            let state = {
+                breadcrumb: this.model.toObject('breadcrumb'),
+                trialUid: this.model.trialUid,
+                trialId: this.model.trial.id,
+                consentId: model.trialConsentId,
+                consentVersion: model.trialConsentVersion
+            }
+            this.navigateToPageTag('trial-visits', state);
         });
     }
 }
