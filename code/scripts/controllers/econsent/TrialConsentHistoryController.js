@@ -76,7 +76,7 @@ export default class TrialConsentHistoryController extends BreadCrumbManager {
                 trialId: this.model.trial.id,
                 trialUid: this.model.trialUid,
                 consentId: consent.trialConsentId,
-                consentVersion: consent.trialConsentVersion,
+                consentVersion: model.trialConsentVersion,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });

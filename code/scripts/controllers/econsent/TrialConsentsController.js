@@ -83,14 +83,15 @@ export default class TrialConsentsController extends BreadCrumbManager {
 
     _attachHandlerTrialVisits() {
         this.onTagEvent('visits', 'click', (model) => {
-            let state = {
-                breadcrumb: this.model.toObject('breadcrumb'),
-                trialUid: this.model.trialUid,
+            const consent = this.model.site.consents.find(c => c.uid === model.consentUid);
+
+            this.navigateToPageTag('trial-visits', {
                 trialId: this.model.trial.id,
-                consentId: model.trialConsentId,
-                consentVersion: model.trialConsentVersion
-            }
-            this.navigateToPageTag('trial-visits', state);
+                trialUid: this.model.trialUid,
+                consentId: consent.trialConsentId,
+                consentVersion: model.trialConsentVersion,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
         });
     }
 }
