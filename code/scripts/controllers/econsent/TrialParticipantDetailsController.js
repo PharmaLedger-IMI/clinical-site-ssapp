@@ -61,9 +61,6 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
     _initHandlers() {
         this._attachHandlerChangeStatus();
-        this.on('openFeedback', (e) => {
-            this.feedbackEmitter = e.detail;
-        });
     }
 
     async _initTrialParticipant(keySSI) {
@@ -141,20 +138,6 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                 })
             });
         return userActions;
-    }
-
-    _showFeedbackToast(title, message, alertType = 'toast') {
-        if (typeof this.feedbackEmitter === 'function') {
-            this.feedbackEmitter(message, title, alertType);
-        }
-    }
-
-    _attachHandlerGoBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
-        });
     }
 
     _attachHandlerChangeStatus() {

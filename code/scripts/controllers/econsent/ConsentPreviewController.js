@@ -62,12 +62,6 @@ export default class ConsentPreviewController extends BreadCrumbManager {
     };
 
     displayFile = () => {
-        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-            const file = new File([this.rawBlob], this.fileName);
-            window.navigator.msSaveOrOpenBlob(file);
-            return;
-        }
-
         window.URL = window.URL || window.webkitURL;
         this.loadPdfOrTextFile();
     };

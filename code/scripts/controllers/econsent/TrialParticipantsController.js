@@ -145,10 +145,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this._attachHandlerViewAnswersDetails();
         this._attachHandlerViewTrialParticipantStatus();
         this._attachHandlerViewTrialParticipantDevices();
-        this._attachHandlerGoBack();
-        this.on('openFeedback', (e) => {
-            this.feedbackEmitter = e.detail;
-        });
     }
 
     async _initTrial(trialUid) {
@@ -336,7 +332,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 async (event) => {
                     const response = event.detail;
                     await this.createTpDsu(response);
-                    this._showFeedbackToast('Result', Constants.MESSAGES.HCO.FEEDBACK.SUCCESS.ADD_TRIAL_PARTICIPANT);
                     this.model.trialParticipantsDataSource.updateParticipants(this.model.toObject('trialParticipants'))
                 },
                 (event) => {},
@@ -563,18 +558,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 },
             },
             shortDescription: shortMessage,
-        });
-    }
-
-    _showFeedbackToast(title, message, alertType = 'toast') {
-        if (typeof this.feedbackEmitter === 'function') {
-            this.feedbackEmitter(message, title, alertType);
-        }
-    }
-
-    _attachHandlerGoBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            this.navigateToPageTag('econsent-trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 

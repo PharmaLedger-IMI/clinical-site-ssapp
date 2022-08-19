@@ -61,9 +61,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this._attachHandlerAddTrialParticipantNumber();
         this._attachHandlerView();
         this._attachHandlerVisits();
-        this.on('openFeedback', (e) => {
-            this.feedbackEmitter = e.detail;
-        });
     }
 
     async _initConsents(trialUid) {

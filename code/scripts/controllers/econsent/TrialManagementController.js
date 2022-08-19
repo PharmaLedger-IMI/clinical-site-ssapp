@@ -51,9 +51,6 @@ export default class TrialManagementController extends BreadCrumbManager {
         this._attachHandlerViewDataAnalysis();
         this._attachHandlerTrialQuestionnaire();
         this._attachHandlerTrialParticipants();
-        this.on('openFeedback', (e) => {
-            this.feedbackEmitter = e.detail;
-        });
     }
 
     _attachHandlerTrialConsents() {
