@@ -164,19 +164,28 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.getStatistics();
     }
 
-    checkIfCanAddParticipants(){
+    checkIfCanAddParticipants() {
         const recruitmentPeriod = this.model.trial.recruitmentPeriod;
         let isInRecruitmentPeriod = false;
+        let recruitingStage = "";
         if (typeof recruitmentPeriod === "object") {
             const today = (new Date()).getTime();
-            const startDate = (new Date(recruitmentPeriod.startDate)).setHours(0,0,0);
-            const endDate = (new Date(recruitmentPeriod.endDate)).setHours(23,59,59);
+            const startDate = (new Date(recruitmentPeriod.startDate)).setHours(0, 0, 0);
+            const endDate = (new Date(recruitmentPeriod.endDate)).setHours(23, 59, 59);
 
             if (startDate <= today && today <= endDate) {
                 isInRecruitmentPeriod = true;
+                recruitingStage = Constants.RECRUITING_STAGES.RECRUITING;
+            }
+            if (today < startDate) {
+                recruitingStage = Constants.RECRUITING_STAGES.NOT_YET_RECRUITING;
+            }
+            if (today > endDate) {
+                recruitingStage = Constants.RECRUITING_STAGES.ACTIVE_NOT_RECRUITING;
             }
         }
 
+        this.model.trial.recruitmentPeriod.recruitingStage = recruitingStage;
         this.model.addParticipantsIsDisabled = !(this.model.siteHasConsents && isInRecruitmentPeriod);
     }
 
