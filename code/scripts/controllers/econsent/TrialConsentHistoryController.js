@@ -22,6 +22,7 @@ export default class TrialConsentHistoryController extends BreadCrumbManager {
 
         this.initServices(this.model.trialUid);
         this._attachHandlerPreview();
+        this._attachHandlerViewVisits();
     }
 
     initServices(trialUid) {
@@ -56,14 +57,27 @@ export default class TrialConsentHistoryController extends BreadCrumbManager {
         })
     }
 
-
     _attachHandlerPreview() {
-        this.onTagEvent('preview', 'click', (model, target, event) => {
+        this.onTagEvent('preview', 'click', (model) => {
             this.navigateToPageTag('consent-preview', {
                 breadcrumb: this.model.toObject('breadcrumb'),
                 trialUid: this.model.trialUid,
                 versionId: model.version,
                 consentUid: model.consentUid
+            });
+        });
+    }
+
+    _attachHandlerViewVisits() {
+        this.onTagClick('view-visits', async (model) => {
+            const consent = this.model.site.consents.find(c => c.uid === model.consentUid);
+
+            this.navigateToPageTag('trial-visits', {
+                trialId: this.model.trial.id,
+                trialUid: this.model.trialUid,
+                consentId: consent.trialConsentId,
+                consentVersion: consent.trialConsentVersion,
+                breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }
