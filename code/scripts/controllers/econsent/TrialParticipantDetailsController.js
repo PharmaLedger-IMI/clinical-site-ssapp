@@ -131,7 +131,6 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                     type: econsent.type,
                                 },
                                 version: {
-                                    attachmentKeySSI: version.attachmentKeySSI,
                                     version: version.version,
                                     versionDate: version.versionDate,
                                 },
