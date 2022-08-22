@@ -23,7 +23,9 @@ let getInitModel = () => {
 export default class SetProcedureDateController extends WebcController {
     constructor(...props) {
         super(...props);
-        this.setModel(getInitModel());
+        this.model = {
+            ...getInitModel()
+        };
         this._initHandlers();
 
         let now = (new Date()).getTime();

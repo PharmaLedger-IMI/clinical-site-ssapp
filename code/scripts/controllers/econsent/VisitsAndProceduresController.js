@@ -25,12 +25,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
         this.initServices().then(() => {
             this.model.dataSourceInitialized = this.model.visits.length ? true : false;
-            this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'))
-            this.model.visitsDataSource.__proto__.updateVisits = function (visits) {
-                this.model.tableData = visits;
-                this.getElement().dataSize = visits.length;
-                this.forceUpdate(true);
-            }
+            this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'));
         });
     }
 
@@ -231,7 +226,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             const currentConsentVisits = this.model.tp.visits.filter(tpVisit=>{
                 return this.model.visits.some(visit => tpVisit.uuid === visit.uuid)
             })
-            this.model.visitsDataSource.updateVisits(currentConsentVisits);
+            this.model.visitsDataSource.updateTable(currentConsentVisits);
             this.prepareDateForVisits(currentConsentVisits);
             await this.matchTpVisits(currentConsentVisits);
             this.sendMessageToPatient(visit, operation);

@@ -1,12 +1,13 @@
 import TrialService from "../services/TrialService.js";
-const {WebcController} = WebCardinal.controllers;
-const commonServices = require("common-services");
-const Constants = commonServices.Constants;
-const {ResponsesService} = commonServices;
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import HCOService from "../services/HCOService.js";
 import DeviceAssignationService from "../services/DeviceAssignationService.js";
 import {getNotificationsService} from "../services/NotificationsService.js";
+
+const {WebcController} = WebCardinal.controllers;
+const commonServices = require("common-services");
+const Constants = commonServices.Constants;
+const {ResponsesService} = commonServices;
 
 const HealthDataService = commonServices.HealthDataService;
 const healthDataService = new HealthDataService();
@@ -120,7 +121,6 @@ export default class LandingPageController extends WebcController {
 
         console.log('MESSAGE' , data)
         let senderIdentity = data.senderIdentity;
-
         if (typeof senderIdentity === "undefined") {
             throw new Error("Sender identity is undefined. Did you forgot to add it?")
         }
@@ -296,6 +296,13 @@ export default class LandingPageController extends WebcController {
 
     async _updateEconsentWithDetails(message) {
         let tp;
+        if (this.model.hcoDSU.volatile.tps) {
+            tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
+            if (tp === undefined) {
+                return console.error('Cannot find tp.');
+            }
+        }
+
         const consentSSI = message.ssi;
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === consentSSI)
@@ -329,18 +336,6 @@ export default class LandingPageController extends WebcController {
                 }
                 break;
             }
-            case 'withdraw-intention': {
-                actionNeeded = 'Reconsent required';
-                await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
-                status = Constants.TRIAL_PARTICIPANT_STATUS.TP_WITHDRAWN;
-                tpObjectToAssign = {
-                    actionNeeded,
-                    status,
-                    tpSigned,
-                    withdrewDate: currentDate.toLocaleDateString()
-                }
-                break;
-            }
             case 'Declined': {
                 actionNeeded = 'TP Declined';
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' declined', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
@@ -357,7 +352,10 @@ export default class LandingPageController extends WebcController {
                 tpSigned = true;
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 actionNeeded = 'Acknowledgement required';
-                status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
+                if(tp.status === Constants.TRIAL_PARTICIPANT_STATUS.PLANNED) {
+                    status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
+                }
+
                 tpObjectToAssign = {
                     tpSigned,
                     actionNeeded,
@@ -376,18 +374,12 @@ export default class LandingPageController extends WebcController {
             actionNeeded: actionNeeded
         });
 
-        if (this.model.hcoDSU.volatile.tps) {
-            tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
-            if (tp === undefined) {
-                return console.error('Cannot find tp.');
+        Object.assign(tp, tpObjectToAssign);
+        this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
+            if (err) {
+                return console.log(err);
             }
-            Object.assign(tp, tpObjectToAssign);
-            this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
-                if (err) {
-                    return console.log(err);
-                }
-            });
-        }
+        });
 
         econsent.versions[currentVersionIndex] = currentVersion;
         this.HCOService.updateHCOSubEntity(econsent, "ifcs", async (err, response) => {

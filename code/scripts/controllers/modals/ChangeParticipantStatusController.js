@@ -43,13 +43,13 @@ export default class ChangeParticipantStatusController extends WebcController {
   constructor(...props) {
     super(...props);
 
-    this.setModel({
+    this.model = {
       statuses: {
         ...this.statusesTemplate,
         selectOptions: this.statusOptions,
         value: this.statusOptions[0].value,
-      },
-    });
+      }
+    };
 
     this.attachAll();
   }

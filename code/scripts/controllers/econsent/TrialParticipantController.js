@@ -18,9 +18,9 @@ let getInitModel = () => {
 export default class TrialParticipantController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
-        this.setModel({
+        this.model = {
             ...getInitModel(),
-        });
+        };
 
 
         this.model = this.getState();
@@ -33,11 +33,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
         this._initServices().then( () => {
             this.model.econsentsDataSource = DataSourceFactory.createDataSource(7, 10, this.econsents);
-            this.model.econsentsDataSource.__proto__.updateEconsents = function (econsents) {
-                this.model.tableData = econsents;
-                this.getElement().dataSize = econsents.length;
-                this.forceUpdate(true);
-            }
         });
 
         this._initHandlers();
@@ -180,7 +175,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
                     this._updateTrialParticipant(this.model.tp, async () => {
                         let cons = await this._initConsents(this.model.trialUid);
-                        this.model.econsentsDataSource.updateEconsents(cons);
+                        this.model.econsentsDataSource.updateTable(cons);
                         window.WebCardinal.loader.hidden = true;
                     });
 
@@ -320,7 +315,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                                     econsent.tsWithdrawedIntentionDate = 'Intention';
                                 }
                             }
-                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.DECLINED) {
+                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.DECLINED || tpVersion.actionNeeded === Constants.ECO_STATUSES.DECLINED_OPTIONAL) {
                                 econsent.tsDeclined = true;
                             }
                         }

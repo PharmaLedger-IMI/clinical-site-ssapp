@@ -66,7 +66,7 @@ export default class ManageDevicesController extends BreadCrumbManager {
                 return false;
             });
 
-            this.model.devicesDataSource.updateDevices(JSON.parse(JSON.stringify(filteredDevices)));
+            this.model.devicesDataSource.updateTable(JSON.parse(JSON.stringify(filteredDevices)));
             if (filteredDevices.length === 0) {
                 this.model.noResults = true;
             }
@@ -75,7 +75,7 @@ export default class ManageDevicesController extends BreadCrumbManager {
             }
         }
         else {
-            this.model.devicesDataSource.updateDevices(devices);
+            this.model.devicesDataSource.updateTable(devices);
             this.model.noResults = false;
         }
     }
@@ -109,12 +109,6 @@ export default class ManageDevicesController extends BreadCrumbManager {
             });
 
             this.model.devicesDataSource = DataSourceFactory.createDataSource(7, 5, this.model.toObject('mappedDevices'));
-            this.model.devicesDataSource.__proto__.updateDevices = function (devices) {
-                this.model.mappedDevices = devices;
-                this.model.tableData = devices;
-                this.getElement().dataSize = devices.length;
-                this.forceUpdate(true);
-            }
         });
     }
 
@@ -196,7 +190,7 @@ export default class ManageDevicesController extends BreadCrumbManager {
                                 let removedDeviceIdx = this.model.mappedDevices.findIndex(device => device.uid === deviceUid);
 
                                 this.model.mappedDevices.splice(removedDeviceIdx, 1);
-                                this.model.devicesDataSource.updateDevices(this.model.mappedDevices);
+                                this.model.devicesDataSource.updateTable(this.model.mappedDevices);
                                 window.WebCardinal.loader.hidden = true;
                             })
 

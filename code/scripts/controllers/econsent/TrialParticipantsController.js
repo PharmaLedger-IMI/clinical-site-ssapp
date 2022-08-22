@@ -21,12 +21,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         
         const prevState = this.getState() || {};
         const { breadcrumb, ...state } = prevState;
-        this.setModel({
+        this.model = {
             ...getInitModel(),
             trialUid: state.trialUid,
             previousScreened: 0,
             hasNoSearchResults:false,
-        });
+        };
 
 
         this.model = this.getState();
@@ -46,11 +46,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this._initServices().then(() => {
             this.model.dataSourceInitialized = true;
             this.model.trialParticipantsDataSource = DataSourceFactory.createDataSource(6, 5, this.model.toObject('trialParticipants'));
-            this.model.trialParticipantsDataSource.__proto__.updateParticipants = function (trialParticipants) {
-                this.model.tableData = trialParticipants;
-                this.getElement().dataSize = trialParticipants.length;
-                this.forceUpdate(true);
-            }
         });
 
         this._initHandlers();
@@ -89,11 +84,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 return false;
             });
 
-            this.model.trialParticipantsDataSource.updateParticipants(JSON.parse(JSON.stringify(filteredTps)));
+            this.model.trialParticipantsDataSource.updateTable(JSON.parse(JSON.stringify(filteredTps)));
             this.model.hasNoSearchResults = filteredTps.length === 0;
         }
         else {
-            this.model.trialParticipantsDataSource.updateParticipants(trialParticipants);
+            this.model.trialParticipantsDataSource.updateTable(trialParticipants);
             this.model.hasNoSearchResults = false;
         }
     }
@@ -154,7 +149,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.model.site = site;
         this.model.siteHasConsents = site.consents.length > 0;
 
-        let actions = await this._getEconsentActionsMappedByUser(trialUid);
+        let actions = await this._getEconsentActionsMappedByUser();
         this.model.trialParticipants = await this._getTrialParticipantsMappedWithActionRequired(actions);
         this.checkIfCanAddParticipants();
         this.getStatistics();
@@ -216,28 +211,39 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         notificationColor: notificationColor
                     }
                 }
-                let lastAction = tpActions[tpActions.length - 1];
+                let lastIndexAction = tpActions.length-1;
+                let foundEconsentAction = false;
 
-                switch (lastAction.action.name) {
-                    case 'withdraw': {
-                        actionNeeded = 'Contact TP';
-                        notificationColor = 'warning';
-                        break;
-                    }
-                    case 'sign': {
-                        switch (lastAction.action.type) {
-                            case 'hco': {
-                                actionNeeded = 'Set TP Number';
-                                notificationColor = 'success';
-                                break;
-                            }
-                            case 'tp': {
-                                actionNeeded = 'Consent Review';
-                                notificationColor = 'success';
-                                break;
+                while(foundEconsentAction === false && lastIndexAction > 1) {
+                    let lastAction = tpActions[lastIndexAction];
+
+                    switch (lastAction.action.name) {
+                        case 'withdraw': {
+                            actionNeeded = 'Contact TP';
+                            notificationColor = 'warning';
+                            foundEconsentAction = true;
+                            break;
+                        }
+                        case 'sign': {
+                            switch (lastAction.action.type) {
+                                case 'hco': {
+                                    actionNeeded = 'Set TP Number';
+                                    notificationColor = 'success';
+                                    foundEconsentAction = true;
+
+                                    break;
+                                }
+                                case 'tp': {
+                                    actionNeeded = 'Consent Review';
+                                    notificationColor = 'success';
+                                    foundEconsentAction = true;
+
+                                    break;
+                                }
                             }
                         }
                     }
+                    lastIndexAction--;
                 }
 
                 switch(tp.actionNeeded) {
@@ -261,9 +267,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         notificationColor = 'primary';
                         break;
                     }
-                    case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN: {
-                        actionNeeded = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN;
-                        notificationColor = 'danger'
+                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_WITHDRAWN: {
+                        actionNeeded = 'Contact TP';
+                        notificationColor = 'danger';
+                        break;
                     }
                 }
 
@@ -275,7 +282,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             })
     }
 
-    async _getEconsentActionsMappedByUser(trialUid) {
+    async _getEconsentActionsMappedByUser() {
         let actions = {};
         let econsents = [];
         const siteConsentsUids = this.model.site.consents.map(consent => consent.uid);
@@ -332,7 +339,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 async (event) => {
                     const response = event.detail;
                     await this.createTpDsu(response);
-                    this.model.trialParticipantsDataSource.updateParticipants(this.model.toObject('trialParticipants'))
+                    this.model.trialParticipantsDataSource.updateTable(this.model.toObject('trialParticipants'))
                 },
                 (event) => {},
                 {

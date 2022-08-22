@@ -82,11 +82,6 @@ export default class EconsentVersionsController extends BreadCrumbManager {
                                 econsentVersion.tpWithdraw = "TP Withdraw";
                                 break;
                             }
-                            case "withdraw-intention": {
-                                econsentVersion.hcpApproval = "Contact TP";
-                                econsentVersion.tpWithdraw = "Intention";
-                                break;
-                            }
                             case "Declined": {
                                 econsentVersion.tsDeclined = "Declined";
                                 break;

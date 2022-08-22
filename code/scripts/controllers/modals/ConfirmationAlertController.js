@@ -5,7 +5,10 @@ export default class ConfirmationAlertController extends WebcController {
     constructor(...props) {
         super(...props);
         this._initHandlers();
-        this.setModel({title:'Confirmation',question:'Are you sure?'});
+        this.model = {
+            title:'Confirmation',
+            question:'Are you sure?'
+        };
 
         this.model.question = props[0].question;
         this.model.title = props[0].title;

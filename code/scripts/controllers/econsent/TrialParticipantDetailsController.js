@@ -20,11 +20,11 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
     constructor(...props) {
         super(...props);
-        this.setModel({
+        this.model = {
             ...getInitModel(),
             consentsSigned: [],
             userActionsToShow: []
-        });
+        };
 
 
         this.model = this.getState();
@@ -93,7 +93,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
             .map(ac => ac.version.version + ' - ' + ac.econsent.name);
 
         let lastBadActions = userActions
-            .filter(ac => ac.action.name === 'withdraw-intention' || ac.action.name === 'withdraw');
+            .filter(ac => ac.action.name === 'withdraw');
 
         let lastBadAction = lastBadActions.length === 0 ? undefined : lastBadActions[lastBadActions.length - 1];
 

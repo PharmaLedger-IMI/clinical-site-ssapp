@@ -15,7 +15,9 @@ let getInitModel = () => {
 export default class AnswerQuestionController extends WebcController {
     constructor(...props) {
         super(...props);
-        this.setModel(getInitModel());
+        this.model = {
+            ...getInitModel()
+        };
         this.model.title = props[0].title;
 
         this._initHandlers();
