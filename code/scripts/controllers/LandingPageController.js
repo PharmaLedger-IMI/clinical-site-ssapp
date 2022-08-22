@@ -102,7 +102,7 @@ export default class LandingPageController extends WebcController {
     async handleIotMessages(data) {
         switch (data.operation) {
             case 'questionnaire-responses': {
-                await this._saveNotification(data, 'New questionnaire update', 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS);
+                await this._saveNotification(data, 'New questionnaire update', 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONNAIRE_RESPONSES);
 
                 this.ResponsesService.mount(data.ssi, (err, data) => {
                     if (err) {
@@ -185,10 +185,6 @@ export default class LandingPageController extends WebcController {
             }
             case Constants.MESSAGES.HCO.NEW_HEALTHDATA: {
                 this._healthData(data);
-                break;
-            }
-            case 'ask-question': {
-                this._saveQuestion(data);
                 break;
             }
             case Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_RESPONSE: {
@@ -494,17 +490,6 @@ export default class LandingPageController extends WebcController {
                 });
             }
         });
-    }
-
-    _saveQuestion(message) {
-        this.QuestionsRepository.create(message.useCaseSpecifics.question.pk, message.useCaseSpecifics.question,async (err, data) => {
-            if (err) {
-                console.log(err);
-            }
-            let notification = message;
-
-            await this._saveNotification(notification, message.shortDescription, 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS);
-        })
     }
 
     async _updateVisit(message) {

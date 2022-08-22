@@ -50,8 +50,8 @@ export default class NotificationsController extends BreadCrumbManager {
             let milestones = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS.notificationTitle);
             this.model.unreadMilestones = milestones.filter((x) => !x.read).length > 0 ? milestones.filter((x) => !x.read).length : null;
 
-            let questions = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS.notificationTitle);
-            this.model.unreadQuestions = questions.filter((x) => !x.read).length > 0 ? questions.filter((x) => !x.read).length : null;
+            let questions = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONNAIRE_RESPONSES.notificationTitle);
+            this.model.unreadQuestionnaireResponses = questions.filter((x) => !x.read).length > 0 ? questions.filter((x) => !x.read).length : null;
         });
     }
 
