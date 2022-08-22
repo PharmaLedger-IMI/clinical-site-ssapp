@@ -17,7 +17,7 @@ let getInitModel = () => {
             value: '',
         },
         did: {
-            label: 'Public Identifier',
+            label: 'Public DID',
             name: 'did',
             required: true,
             placeholder: 'Public identifier',
