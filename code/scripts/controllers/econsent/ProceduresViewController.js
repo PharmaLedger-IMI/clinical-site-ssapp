@@ -25,6 +25,18 @@ export default class ProceduresViewController extends BreadCrumbManager {
     initHandlers() {
         this.attachHandlerSelect();
         this.attachHandlerConfirm();
+        this.observeCheckbox();
+    }
+
+    observeCheckbox() {
+        this.model.onChange("makeAllCompleted", () => {
+            if(this.model.makeAllCompleted) {
+                this.initProcedures("Completed")
+                this.updateProcedure();
+            } else {
+                this.initProcedures();
+            }
+        })
     }
 
     updateTrialParticipant(visit) {
@@ -40,10 +52,22 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     updateProcedure(procedure) {
-        let objIndex = this.model.procedures.findIndex((obj => obj.id == procedure.id));
-        this.model.procedures[objIndex] = procedure;
         let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
-        visitTp.procedures = this.model.procedures;
+        if(procedure === undefined) {
+            let modifiedProcedures = this.model.procedures.map(procedure => (
+                {
+                    name: procedure.name,
+                    id: procedure.id,
+                    uuid:  procedure.uuid,
+                    status: 'Completed',
+                }));
+            visitTp.procedures = modifiedProcedures;
+        } else {
+            let objIndex = this.model.procedures.findIndex((obj => obj.id == procedure.id));
+            this.model.procedures[objIndex] = procedure;
+            visitTp.procedures = this.model.procedures;
+        }
+
         let obj = this.model.tp.visits.findIndex((obj => obj.uuid == visitTp.uuid));
         this.model.tp.visits[obj] = visitTp;
     }
@@ -58,7 +82,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
         this.initProcedures();
     }
 
-    initProcedures() {
+    initProcedures(makeCompleted) {
         this.model.tp = this.model.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
         this.model.procedures = this.model.visit.procedures;
         if (!this.model.tp.visits || this.model.tp.visits.length < 1) {
@@ -99,6 +123,9 @@ export default class ProceduresViewController extends BreadCrumbManager {
                     },
                 ],
                 value: '',
+            }
+            if (makeCompleted !== undefined) {
+                procedure.statusList.value = 'Completed';
             }
         });
     }
@@ -151,6 +178,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
     getInitModel() {
         return {
             procedures: [],
+            makeAllCompleted: false,
             ...this.getState(),
         };
     }

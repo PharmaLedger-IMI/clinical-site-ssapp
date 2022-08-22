@@ -4,18 +4,22 @@
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
             <h5 class="generic-title">Visit: {{@visit.name}}</h5>
+            <div class="complete-procedures">
+                <input type="checkbox" checked="@makeAllCompleted" value="@makeAllCompleted">
+                <h6>Mark all completed</h6>
+            </div>
         </div>
 
         <div class="container">
-            <header class="small-container">
-                <div class="row-wrapper grid-equal">
+            <header>
+                <div class="row-wrapper grid-procedures-view">
                     <label>Procedures</label>
                     <label>Actions</label>
                     <label>Status</label>
                 </div>
             </header>
-            <main class="small-container" data-for="@procedures">
-                <div class="row-wrapper grid-equal">
+            <main data-for="@procedures">
+                <div class="row-wrapper grid-procedures-view">
                     <div class="procedure-details-item">
                         <label>{{@name}}</label>
                     </div>
