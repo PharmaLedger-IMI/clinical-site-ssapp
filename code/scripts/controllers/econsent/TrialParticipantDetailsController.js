@@ -81,6 +81,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                 date: actualAction.toShowDate
             })
         });
+        this.addSiteStatusChangeActions(nonObfuscatedTps[0], userActionsToShow);
         this.model.userActionsToShow = userActionsToShow;
         this.model.lastAction = userActions.length === 0 ? undefined : userActions[userActions.length - 1].action.name
             .split('-')
@@ -254,6 +255,44 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
             ...data,
             shortDescription: shortMessage,
         });
+    }
+
+    addSiteStatusChangeActions(tp, userActions) {
+        // This is not tied to consents, so manually inserted in userActions?
+            switch (tp.status) {
+                case Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
+                        date: tp.endOfTreatmentDate
+                    })
+                    break;
+                case Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
+                        date: tp.completedDate
+                    })
+                    break;
+                case Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
+                        date: tp.discontinuedDate
+                    })
+                    break;
+                case Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
+                        date: tp.screenFailedDate
+                    })
+                    break;
+                case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
+                        date: tp.withdrewDate
+                    })
+                    break;
+                default:
+                    return;
+            }
     }
 
     // _saveNotification(notification, name, reccomendedAction, type) {
