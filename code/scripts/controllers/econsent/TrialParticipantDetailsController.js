@@ -199,10 +199,9 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                 return console.log(err);
                             }
                             this.TrialParticipantRepository.filter(`did == ${tp.did}`, 'ascending', 30, (err, tps) => {
-
                                 if (tps && tps.length > 0) {
                                     Object.assign(tps[0], tpObjectToAssign);
-                                    this.TrialParticipantRepository.update(tps[0].uid, tps[0], (err, trialParticipant) => {
+                                    this.TrialParticipantRepository.update(tps[0].pk, tps[0], (err, trialParticipant) => {
                                         if (err) {
                                             return console.log(err);
                                         }

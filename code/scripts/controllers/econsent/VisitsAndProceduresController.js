@@ -273,8 +273,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         });
     }
 
-    async updateTrialParticipantRepository(uid, tp) {
-        await this.TrialParticipantRepository.updateAsync(uid, tp);
+    async updateTrialParticipantRepository(pk, tp) {
+        await this.TrialParticipantRepository.updateAsync(pk, tp);
     }
 
     attachHandlerEditDate() {

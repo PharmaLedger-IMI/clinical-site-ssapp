@@ -276,7 +276,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             this.model.trialParticipant.enrolledDate = currentDate.toLocaleDateString();
         } else  this.model.trialParticipant.discontinuedDate = currentDate.toLocaleDateString();
 
-        this.TrialParticipantRepository.update(this.model.trialParticipant.uid, this.model.trialParticipant, (err, trialParticipant) => {
+        this.TrialParticipantRepository.update(this.model.trialParticipant.pk, this.model.trialParticipant, (err, trialParticipant) => {
             if (err) {
                 return console.log(err);
             }
