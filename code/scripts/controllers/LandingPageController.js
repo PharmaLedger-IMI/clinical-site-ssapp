@@ -8,6 +8,7 @@ const {WebcController} = WebCardinal.controllers;
 const commonServices = require("common-services");
 const Constants = commonServices.Constants;
 const {ResponsesService} = commonServices;
+const momentService  = commonServices.momentService;
 
 const HealthDataService = commonServices.HealthDataService;
 const healthDataService = new HealthDataService();
@@ -492,6 +493,26 @@ export default class LandingPageController extends WebcController {
         });
     }
 
+    sendVisitToPatient(trialParticipantDid, visit, operation) {
+        this.CommunicationService.sendMessage(trialParticipantDid, {
+            operation: Constants.MESSAGES.HCO.VISIT_CONFIRMED,
+            useCaseSpecifics: {
+                tpDid: trialParticipantDid,
+                visit: {
+                    confirmed: visit.confirmed,
+                    confirmedDate: visit.confirmedDate,
+                    procedures: visit.procedures,
+                    name: visit.name,
+                    uid: visit.uuid,
+                    id: visit.id,
+                    proposedDate: visit.proposedDate,
+                    suggestedInterval: visit.suggestedInterval
+                },
+            },
+            shortDescription: operation
+        });
+    }
+
     async _updateVisit(message) {
 
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
@@ -506,11 +527,15 @@ export default class LandingPageController extends WebcController {
         tpDSU.visits[objIndex].confirmedDate = message.useCaseSpecifics.visit.confirmedDate;
 
         console.log('message', message);
-        console.log('tpdsu', tpDSU);
+
         let visit = message.useCaseSpecifics.visit;
 
         if(visit.accepted) {
-            tpDSU.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED;
+            tpDSU.visits[objIndex].confirmed = true;
+            tpDSU.visits[objIndex].hcoRescheduled = false;
+            tpDSU.visits[objIndex].confirmedDate = momentService(visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+
+            this.sendVisitToPatient(message.useCaseSpecifics.tpDid, tpDSU.visits[objIndex],Constants.MESSAGES.HCO.VISIT_CONFIRMED);
         }
 
         if(visit.rescheduled || visit.declined) {
