@@ -1,0 +1,77 @@
+<link rel="stylesheet" href="./assets/css/pages/general_modal.css">
+<h2 slot="header" class="alert-title">{{@action}} a new {{@questionType}} question</h2>
+<div class="top">
+    <div class="line">
+        <main>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="col-form-label">{{@question.label}}</label>
+                    <input class="form-control" data-view-model="@question"/>
+                </div>
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+                    <label class="col-form-label">{{@answerType.label}}</label>
+                    <select class="form-control" data-for="@answerType.options"
+                            value="@answerType.value">
+                        <option value="@value">{{@label}}</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <webc-switch condition="@currentAnswerType">
+
+                <div slot="checkbox-answer" class="checkbox-answers">
+                    <label class="col-form-label">{{@answer.label}}</label>
+
+                    <div data-for="@answers">
+                        <div class="form-row">
+
+                            <label class="col-sm-1 col-form-label">Option {{@optionNumber}}</label>
+                            <div class="col-sm-11">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" placeholder="Insert option" value="@optionValue">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" data-tag="insert-option">+
+                                    </button>
+                                    <button class="btn btn-outline-secondary" type="button" disabled ="@removalIsDisabled" data-tag="remove-option">-
+                                    </button>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div slot="slider-answer">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="col-form-label">{{@slider.minimum.label}}</label>
+                            <input class="form-control" data-view-model="@slider.minimum" />
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">{{@slider.maximum.label}}</label>
+                            <input class="form-control" data-view-model="@slider.maximum" />
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label">{{@slider.steps.label}}</label>
+                            <input class="form-control" type="number" min="1" max="10" data-view-model="@slider.steps" />
+                        </div>
+                    </div>
+                </div>
+                <div slot="free-text-answer"></div>
+            </webc-switch>
+        </main>
+    </div>
+
+
+    <hr/>
+</div>
+<div class="bottom">
+    <button class="tp-button wide-button inverted-colors" slot="footer" data-tag="save:question" disabled="@formIsInvalid">Save Question</button>
+    <button class="tp-button wide-button inverted-colors" slot="footer" data-close>Cancel</button>
+</div>

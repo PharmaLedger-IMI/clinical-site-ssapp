@@ -52,18 +52,6 @@
 			"tag": "questions-list"
 		},
 		{
-			"name": "add-questions",
-			"path": "/iot/add-questions",
-			"src": "iot/add-questions.html",
-			"tag": "add-questions"
-		},
-		{
-			"name": "edit-questions",
-			"path": "/iot/edit-questions",
-			"src": "iot/edit-questions.html",
-			"tag": "edit-questions"
-		},
-		{
 			"name": "Trial Participant Answers",
 			"path": "/econsent/trial-participant-answers",
 			"src": "econsent/trial-participant-answers.html",
@@ -106,12 +94,6 @@
 			"tag": "econsent-trial-participants"
 		},
 		{
-			"name": "Patients",
-			"path": "/econsent/patients-list",
-			"src": "econsent/patients-list.html",
-			"tag": "econsent-patients-list"
-		},
-		{
 			"name": "Trial Visits",
 			"path": "/econsent/visits/trial-visits",
 			"src": "econsent/visits/trial-visits.html",
@@ -122,18 +104,6 @@
 			"path": "/econsent/visits-procedures",
 			"src": "econsent/visits-procedures.html",
 			"tag": "econsent-visits-procedures"
-		},
-		{
-			"name": "Visit Edit",
-			"path": "/econsent/visit-edit",
-			"src": "econsent/visit-edit.html",
-			"tag": "econsent-visit-edit"
-		},
-		{
-			"name": "Visits",
-			"path": "/econsent/visits",
-			"src": "econsent/visits.html",
-			"tag": "econsent-visits"
 		},
 		{
 			"name": "Trial Participant",
@@ -176,12 +146,6 @@
 			"path": "/econsent/consent-preview",
 			"src": "econsent/consent-preview.html",
 			"tag": "consent-preview"
-		},
-		{
-			"name": "Questions",
-			"path": "/econsent/questions",
-			"src": "econsent/questions.html",
-			"tag": "econsent-questions"
 		},
 		{
 			"name": "ProceduresView",

@@ -25,13 +25,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
         this.initServices().then(() => {
             this.model.dataSourceInitialized = this.model.visits.length ? true : false;
-            this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'))
-            this.model.visitsDataSource.__proto__.updateVisits = function (visits) {
-                this.model.tableData = visits;
-
-                this.getElement().dataSize = visits.length;
-                this.forceUpdate(true);
-            }
+            this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'));
         });
     }
 
@@ -41,7 +35,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.attachHandlerConfirm();
         this.attachHandlerEditDate();
         this.attachHandlerViewVisit();
-        this.attachHandlerEditVisit();
     }
 
     async initServices() {
@@ -107,8 +100,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     async initVisits() {
-        if(this.model.toObject("site.visits.visits").length) {
-            this.model.visits = this.model.toObject("site.visits.visits").find((visit) => visit.consentId === this.model.consentId).data;
+        if (this.model.toObject("site.visits.visits").length) {
+            const {trialId, consentId, consentVersion} = this.model;
+            const selectedVisit = this.model.toObject("site.visits.visits")
+                .find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === consentVersion);
+            this.model.visits = selectedVisit ? (selectedVisit.visits || []) : [];
         }
         this.model.siteHasVisits = this.model.visits.length > 0;
         this.extractDataVisit();
@@ -151,8 +147,19 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         visit.declined = visitTp.declined;
                         visit.rescheduled = visitTp.rescheduled;
                         visit.shouldBeRescheduled = false;
+                        visit.proposedDate = visitTp.proposedDate;
+                        visit.confirmedDate = visitTp.confirmedDate;
+
+                        visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
+                        if (visit.hasProposedDate) {
+                            visit.toShowDate = momentService(visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                        }
+
                         if (!visit.accepted && !visit.declined && !visit.rescheduled) {
                             visit.tsAcceptance = "required";
+                            if(visit.hasProposedDate) {
+                                visit.tsAcceptance = "scheduled";
+                            }
                         } else {
                             visit.shouldBeRescheduled = true;
                             if (visit.accepted) {
@@ -165,12 +172,12 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                                 visit.tsAcceptance = "rescheduled";
                             }
                         }
-                        visit.proposedDate = visitTp.proposedDate;
-                        visit.confirmedDate = visitTp.confirmedDate;
+                        if(visit.confirmed) {
+                            visit.tsAcceptance = "confirmed-by-both";
+                        }
 
-                        visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
-                        if (visit.hasProposedDate) {
-                            visit.toShowDate = momentService(visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                        if(visit.hcoRescheduled) {
+                            visit.tsAcceptance = "rescheduled-by-hco"
                         }
 
                     }
@@ -200,15 +207,26 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.model.tp.visits[tpVisitIndex].confirmedDate = visit.confirmedDate;
         this.model.tp.visits[tpVisitIndex].confirmed = visit.confirmed;
         this.model.tp.visits[tpVisitIndex].suggestedInterval = visit.suggestedInterval;
+        this.model.tp.visits[tpVisitIndex].hcoRescheduled = visit.hcoRescheduled;
         this.model.visits[consentVisitIndex].proposedDate = this.model.proposedDate;
         this.model.visits[consentVisitIndex].hasProposedDate = true;
 
+        if(this.actionNeeded) {
+            this.model.tp.actionNeeded = this.actionNeeded;
+        }
+
         this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
+            if (err) {
+                return this.model.message = {
+                    content: `An error has been occurred!`,
+                    type:'error'
+                }
+            }
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             const currentConsentVisits = this.model.tp.visits.filter(tpVisit=>{
                 return this.model.visits.some(visit => tpVisit.uuid === visit.uuid)
             })
-            this.model.visitsDataSource.updateVisits(currentConsentVisits);
+            this.model.visitsDataSource.updateTable(currentConsentVisits);
             this.prepareDateForVisits(currentConsentVisits);
             await this.matchTpVisits(currentConsentVisits);
             this.sendMessageToPatient(visit, operation);
@@ -238,6 +256,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     model.toShowDate = this.model.toShowDate;
                     model.hasProposedDate = true;
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
+                    this.model.message = {
+                        content: `${model.name} have been scheduled! Wait for TP response!`,
+                        type: 'success'
+                    }
                 },
                 (event) => {
                     const response = event.detail;
@@ -251,8 +273,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         });
     }
 
-    async updateTrialParticipantRepository(uid, tp) {
-        await this.TrialParticipantRepository.updateAsync(uid, tp);
+    async updateTrialParticipantRepository(pk, tp) {
+        await this.TrialParticipantRepository.updateAsync(pk, tp);
     }
 
     attachHandlerEditDate() {
@@ -265,8 +287,13 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     model.confirmed = false;
                     model.accepted = false;
                     this.model.proposedDate = date.getTime();
-                    this.model.toShowDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern)
+                    this.model.toShowDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                    model.hcoRescheduled = true;
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
+                    this.model.message = {
+                        content: `${model.name} have been rescheduled! Wait for TP response!`,
+                        type: 'success'
+                    }
                 },
                 (event) => {
                     const response = event.detail;
@@ -319,12 +346,19 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     if (response) {
                         model.confirmed = true;
                         model.confirmedDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                        model.hcoRescheduled = false;
                         this.model.proposedDate = model.proposedDate;
                         this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(model.proposedDate);
+
+                        if(this.model.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED || this.model.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED) {
+                            this.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED;
+                        }
+
                         await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
 
-                        if(this.model.site.status.stage === Constants.HCO_STAGE_STATUS.ENROLLING) {
-                            this.updateSiteStage();
+                        this.model.message = {
+                            content: `${model.name} have been confirmed!`,
+                            type: 'success'
                         }
                     }
                 },
@@ -341,37 +375,17 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         });
     }
 
-    updateSiteStage() {
-        const site = this.model.site;
-        this.HCOService.getHCOSubEntity(site.status.uid, "/site/" + site.uid + "/status", (err, statusDSU) => {
-            statusDSU.stage = Constants.HCO_STAGE_STATUS.CONDUCTING;
-            this.HCOService.updateHCOSubEntity(statusDSU, "/site/" + site.uid + "/status", (err, dsu) => {
-                this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
-                        stageInfo: {
-                            siteSSI: this.model.site.uid
-                        }
-                },'The stage of the site changed');
-            });
-        });
-    }
-
-    attachHandlerEditVisit() {
-        this.onTagClick("visit:edit", (model) => {
-            this.navigateToPageTag("econsent-visit-edit", {
-                tpUid: this.model.tpUid,
-                existingVisit: model,
-                breadcrumb: this.model.toObject('breadcrumb')
-            });
-        });
-    }
 
     attachHandlerViewVisit() {
         this.onTagClick("visit:view", (model) => {
             this.navigateToPageTag('econsent-procedures-view', {
                 trialUid: this.model.trialUid,
                 tpUid: this.model.tpUid,
+                trialId: this.model.trialId,
                 consentId:this.model.consentId,
-                visitUuid: model.uuid,
+                consentVersion: this.model.consentVersion,
+                visits: this.model.toObject("visits"),
+                visit: model,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -380,14 +394,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     async initSite() {
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
-    }
-
-    sendMessageToSponsor(operation, data, shortDescription) {
-        this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
-            operation: operation,
-            ...data,
-            shortDescription: shortDescription,
-        });
     }
 
     getInitModel() {

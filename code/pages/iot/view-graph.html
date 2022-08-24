@@ -1,12 +1,31 @@
 <webc-container controller="iot/ViewGraphsController">
+    <link href="./assets/css/pages/charts.css" rel="stylesheet">
     <div class="container main-container">
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
         </div>
 
-        <div class="form-row">
-            <h4 id="alert"></h4>
-            <div class="form-group">
+        <div data-if="@noChartAvailable" class="no-chart-container">
+            <h5 class="generic-title">{{@dataFreeText.question}}</h5>
+            <div class="alert alert-warning" role="alert">
+                <i class="fa fa-exclamation-circle"></i> Free text question analysis is not available yet. Below are all the answers on this question.
+            </div>
+                <div data-if="@dataFreeText.hasAnswers">
+                    <div slot="false">
+                        <div class="alert alert-light" role="alert">
+                            <i>No answers</i>
+                        </div>
+                    </div>
+                    <div slot="true" data-for="@dataFreeText.answers" >
+                        <div class="alert alert-dark" role="alert">
+                            {{@}}
+                        </div>
+                    </div>
+                </div>
+        </div>
+
+        <div class="form-row" has-no-chart="@noChartAvailable">
+            <div class="form-group overflow-hidden">
                 <canvas id="Chart"></canvas>
             </div>
         </div>

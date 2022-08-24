@@ -20,12 +20,11 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
     constructor(...props) {
         super(...props);
-        this.setModel({
+        this.model = {
             ...getInitModel(),
-            ...this.history.win.history.state.state,
             consentsSigned: [],
             userActionsToShow: []
-        });
+        };
 
 
         this.model = this.getState();
@@ -62,9 +61,6 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
     _initHandlers() {
         this._attachHandlerChangeStatus();
-        this.on('openFeedback', (e) => {
-            this.feedbackEmitter = e.detail;
-        });
     }
 
     async _initTrialParticipant(keySSI) {
@@ -77,12 +73,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
         let userActions = await this._getUserActionsFromEconsents(keySSI, this.model.trialParticipant.did);
         userActions = userActions.filter(ua => ua.action.type === 'tp');
-        let userActionsToShow = [
-            {
-                name: 'Enrolled',
-                date: this.model.trialParticipant.enrolledDate
-            }
-        ];
+        let userActionsToShow = [];
         userActions.forEach(ua => {
             let actualAction = ua.action;
             userActionsToShow.push({
@@ -90,6 +81,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                 date: actualAction.toShowDate
             })
         });
+        this.addSiteStatusChangeActions(nonObfuscatedTps[0], userActionsToShow);
         this.model.userActionsToShow = userActionsToShow;
         this.model.lastAction = userActions.length === 0 ? undefined : userActions[userActions.length - 1].action.name
             .split('-')
@@ -102,7 +94,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
             .map(ac => ac.version.version + ' - ' + ac.econsent.name);
 
         let lastBadActions = userActions
-            .filter(ac => ac.action.name === 'withdraw-intention' || ac.action.name === 'withdraw');
+            .filter(ac => ac.action.name === 'withdraw');
 
         let lastBadAction = lastBadActions.length === 0 ? undefined : lastBadActions[lastBadActions.length - 1];
 
@@ -137,7 +129,6 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                     type: econsent.type,
                                 },
                                 version: {
-                                    attachmentKeySSI: version.attachmentKeySSI,
                                     version: version.version,
                                     versionDate: version.versionDate,
                                 },
@@ -148,20 +139,6 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                 })
             });
         return userActions;
-    }
-
-    _showFeedbackToast(title, message, alertType = 'toast') {
-        if (typeof this.feedbackEmitter === 'function') {
-            this.feedbackEmitter(message, title, alertType);
-        }
-    }
-
-    _attachHandlerGoBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            window.history.back();
-        });
     }
 
     _attachHandlerChangeStatus() {
@@ -209,6 +186,13 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                     screenFailedDate: currentDate.toLocaleDateString()
                                 }
                             break;
+                            case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN:
+                                tpObjectToAssign = {
+                                    actionNeeded: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
+                                    status: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
+                                    screenFailedDate: currentDate.toLocaleDateString()
+                                }
+                            break;
                         }
                         Object.assign(tp, tpObjectToAssign);
                         this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
@@ -216,10 +200,9 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                 return console.log(err);
                             }
                             this.TrialParticipantRepository.filter(`did == ${tp.did}`, 'ascending', 30, (err, tps) => {
-
                                 if (tps && tps.length > 0) {
                                     Object.assign(tps[0], tpObjectToAssign);
-                                    this.TrialParticipantRepository.update(tps[0].uid, tps[0], (err, trialParticipant) => {
+                                    this.TrialParticipantRepository.update(tps[0].pk, tps[0], (err, trialParticipant) => {
                                         if (err) {
                                             return console.log(err);
                                         }
@@ -272,6 +255,44 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
             ...data,
             shortDescription: shortMessage,
         });
+    }
+
+    addSiteStatusChangeActions(tp, userActions) {
+        // This is not tied to consents, so manually inserted in userActions?
+            switch (tp.status) {
+                case Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
+                        date: tp.endOfTreatmentDate
+                    })
+                    break;
+                case Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
+                        date: tp.completedDate
+                    })
+                    break;
+                case Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
+                        date: tp.discontinuedDate
+                    })
+                    break;
+                case Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
+                        date: tp.screenFailedDate
+                    })
+                    break;
+                case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
+                        date: tp.withdrewDate
+                    })
+                    break;
+                default:
+                    return;
+            }
     }
 
     // _saveNotification(notification, name, reccomendedAction, type) {

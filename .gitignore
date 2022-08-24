@@ -1,6 +1,5 @@
 /.idea
 /node_modules
-/code/scripts/bundles
 package-lock.json
 .eslintrc.json
 .prettierignore

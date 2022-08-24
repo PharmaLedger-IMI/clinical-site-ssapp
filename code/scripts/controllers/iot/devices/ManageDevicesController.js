@@ -1,9 +1,11 @@
 import DeviceServices from "../../../services/DeviceServices.js"
+import {COMMUNICATION_MESSAGES} from "../../../utils/CommunicationMessages.js";
+import DeviceAssignationService from "../../../services/DeviceAssignationService.js";
+
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const { getCommunicationServiceInstance } = commonServices.CommunicationService;
-import { COMMUNICATION_MESSAGES } from "../../../utils/CommunicationMessages.js";
 
 
 export default class ManageDevicesController extends BreadCrumbManager {
@@ -47,10 +49,10 @@ export default class ManageDevicesController extends BreadCrumbManager {
     filterData() {
         let searchKeys = ['deviceId', 'modelNumber', 'manufacturer', 'deviceName', 'brand', 'status', 'trial']
 
-        let allDevices = this.model.toObject('allDevices');
+        let devices = this.model.toObject('mappedDevices');
 
         if (this.model.search.value.trim() !== '') {
-            let filteredDevices = allDevices.filter(device => {
+            let filteredDevices = devices.filter(device => {
 
                 let keys = Object.keys(device);
                 for (let key of keys) {
@@ -64,7 +66,7 @@ export default class ManageDevicesController extends BreadCrumbManager {
                 return false;
             });
 
-            this.model.devicesDataSource.updateDevices(JSON.parse(JSON.stringify(filteredDevices)));
+            this.model.devicesDataSource.updateTable(JSON.parse(JSON.stringify(filteredDevices)));
             if (filteredDevices.length === 0) {
                 this.model.noResults = true;
             }
@@ -73,7 +75,7 @@ export default class ManageDevicesController extends BreadCrumbManager {
             }
         }
         else {
-            this.model.devicesDataSource.updateDevices(allDevices);
+            this.model.devicesDataSource.updateTable(devices);
             this.model.noResults = false;
         }
     }
@@ -85,18 +87,31 @@ export default class ManageDevicesController extends BreadCrumbManager {
             if (err) {
                 return console.error(err);
             }
-            this.model.allDevices = devices.filter(device => device.archived !== true);
+            let allDevices = devices.filter(device => device.archived !== true);
             this.model.allAssignedDevices = devices.filter(dv => dv.isAssigned === true);
-            this.model.devicesDataSource = DataSourceFactory.createDataSource(7, 5, this.model.allDevices);
-            this.model.devicesDataSource.__proto__.updateDevices = function (devices) {
-                this.model.allDevices = devices;
-                this.model.tableData = devices;
-                this.getElement().dataSize = devices.length;
-                this.forceUpdate(true);
-            }
+            this.getAssignedDevices(allDevices);
         });
 
     }
+
+    getAssignedDevices(allDevices){
+        this.DeviceAssignationService = new DeviceAssignationService();
+        this.DeviceAssignationService.getAssignedDevices( (err, usedDevices) => {
+            if (err) {
+                return console.error(err);
+            }
+            this.model.mappedDevices =  allDevices.map(device => {
+                if(device.isAssigned === true) {
+                    let assignedDevice = usedDevices.find(item => item.deviceId === device.deviceId);
+                    device.tpNumber = assignedDevice.trialParticipantNumber;
+                }
+                return device;
+            });
+
+            this.model.devicesDataSource = DataSourceFactory.createDataSource(7, 5, this.model.toObject('mappedDevices'));
+        });
+    }
+
 
     attachHandlerAddDevice() {
         this.onTagClick('devices:add', () => {
@@ -108,10 +123,10 @@ export default class ManageDevicesController extends BreadCrumbManager {
         this.model.addExpression(
             'deviceListNotEmpty',
             () => {
-                return this.model.allDevices && this.model.allDevices.length > 0
+                return this.model.mappedDevices && this.model.mappedDevices.length > 0
             }
             ,
-            'allDevices');
+            'mappedDevices');
     }
 
     attachHandlerEditDevice() {
@@ -172,10 +187,10 @@ export default class ManageDevicesController extends BreadCrumbManager {
                             });
 
                             this.deviceServices.updateDevice(device, () => {
-                                let removedDeviceIdx = this.model.allDevices.findIndex(device => device.uid === deviceUid);
+                                let removedDeviceIdx = this.model.mappedDevices.findIndex(device => device.uid === deviceUid);
 
-                                this.model.allDevices.splice(removedDeviceIdx, 1);
-                                this.model.devicesDataSource.updateDevices(this.model.allDevices);
+                                this.model.mappedDevices.splice(removedDeviceIdx, 1);
+                                this.model.devicesDataSource.updateTable(this.model.mappedDevices);
                                 window.WebCardinal.loader.hidden = true;
                             })
 

@@ -5,4 +5,9 @@ function uuidv4() {
     });
 }
 
-export {uuidv4};
+const QUESTION_ACTIONS = {
+    CREATE:"Create",
+    EDIT:"Edit"
+}
+
+export {uuidv4, QUESTION_ACTIONS};

@@ -2,11 +2,8 @@ import HCOService from '../../services/HCOService.js';
 import TrialService from '../../services/TrialService.js';
 
 const commonServices = require("common-services");
-const CommunicationService = commonServices.CommunicationService;
-const Constants = commonServices.Constants;
+const {CommunicationService, QuestionnaireService, Constants, JWTService, DidService} = commonServices;
 const BaseRepository = commonServices.BaseRepository;
-const JWTService = commonServices.JWTService;
-const DidService = commonServices.DidService;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
@@ -24,11 +21,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         
         const prevState = this.getState() || {};
         const { breadcrumb, ...state } = prevState;
-        this.setModel({
+        this.model = {
             ...getInitModel(),
             trialUid: state.trialUid,
-            previousScreened: 0
-        });
+            previousScreened: 0,
+            hasNoSearchResults:false,
+        };
 
 
         this.model = this.getState();
@@ -48,20 +46,19 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this._initServices().then(() => {
             this.model.dataSourceInitialized = true;
             this.model.trialParticipantsDataSource = DataSourceFactory.createDataSource(6, 5, this.model.toObject('trialParticipants'));
-            this.model.trialParticipantsDataSource.__proto__.updateParticipants = function (trialParticipants) {
-                this.model.trialParticipants = trialParticipants;
-                this.model.tableData = trialParticipants;
-
-                this.getElement().dataSize = trialParticipants.length;
-                this.forceUpdate(true);
-            }
         });
 
         this._initHandlers();
-        this.observeSearchInput();
+        this.addSearchHandlers();
     }
 
-    observeSearchInput() {
+    addSearchHandlers() {
+
+        this.model.addExpression(
+            'hasTps',
+            () => this.model.trialParticipants && this.model.trialParticipants.length > 0,
+            'trialParticipants');
+
         this.model.onChange('search.value', () => {
             this.filterData();
         });
@@ -87,19 +84,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 return false;
             });
 
-            console.log('filteredTps', filteredTps);
-
-            this.model.trialParticipantsDataSource.updateParticipants(JSON.parse(JSON.stringify(filteredTps)));
-            if (filteredTps.length === 0) {
-                this.model.noResults = true;
-            }
-            else {
-                this.model.noResults = false;
-            }
+            this.model.trialParticipantsDataSource.updateTable(JSON.parse(JSON.stringify(filteredTps)));
+            this.model.hasNoSearchResults = filteredTps.length === 0;
         }
         else {
-            this.model.trialParticipantsDataSource.updateParticipants(trialParticipants);
-            this.model.noResults = false;
+            this.model.trialParticipantsDataSource.updateTable(trialParticipants);
+            this.model.hasNoSearchResults = false;
         }
     }
 
@@ -117,7 +107,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.model.statistics.enrolled = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED).length;
         this.model.statistics.screened = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.SCREENED).length
             + this.model.previousScreened;
-        this.model.statistics.withdrew = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW).length;
+        this.model.statistics.withdrew = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN).length;
         this.model.statistics.declined = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DECLINED).length;
         if(!this.model.statistics.planned) {
             this.model.statistics.percentage = 'N/A';
@@ -133,27 +123,23 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.JWTService = new JWTService();
         this.DIDService = DidService.getDidServiceInstance();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
+        this.QuestionnaireService = new QuestionnaireService();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         return await this.initializeData();
     }
 
     async initializeData() {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.tps = await this.TrialParticipantRepository.findAllAsync();
         return await this._initTrial(this.model.trialUid);
     }
 
     _initHandlers() {
         this._attachHandlerAddTrialParticipant();
-        this._attachHandlerNavigateToParticipant();
         this._attachHandlerViewTrialParticipantDetails();
         this._attachHandlerViewAnswersDetails();
         this._attachHandlerViewTrialParticipantStatus();
         this._attachHandlerViewTrialParticipantDevices();
-        this._attachHandlerGoBack();
-        this._attachHandlerEditRecruitmentPeriod();
-        this.on('openFeedback', (e) => {
-            this.feedbackEmitter = e.detail;
-        });
     }
 
     async _initTrial(trialUid) {
@@ -163,38 +149,44 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.model.site = site;
         this.model.siteHasConsents = site.consents.length > 0;
 
-        let actions = await this._getEconsentActionsMappedByUser(trialUid);
+        let actions = await this._getEconsentActionsMappedByUser();
         this.model.trialParticipants = await this._getTrialParticipantsMappedWithActionRequired(actions);
         this.checkIfCanAddParticipants();
-        this.model.onChange("site.recruitmentPeriod",this.checkIfCanAddParticipants.bind(this));
         this.getStatistics();
     }
 
-
-    checkIfCanAddParticipants(){
-        const recruitmentPeriod = this.model.site.recruitmentPeriod;
+    checkIfCanAddParticipants() {
+        const recruitmentPeriod = this.model.trial.recruitmentPeriod;
         let isInRecruitmentPeriod = false;
+        let recruitingStage = "";
         if (typeof recruitmentPeriod === "object") {
             const today = (new Date()).getTime();
-            const startDate = (new Date(recruitmentPeriod.startDate)).setHours(0,0,0);
-            const endDate = (new Date(recruitmentPeriod.endDate)).setHours(23,59,59);
+            const startDate = (new Date(recruitmentPeriod.startDate)).setHours(0, 0, 0);
+            const endDate = (new Date(recruitmentPeriod.endDate)).setHours(23, 59, 59);
 
             if (startDate <= today && today <= endDate) {
                 isInRecruitmentPeriod = true;
+                recruitingStage = Constants.RECRUITING_STAGES.RECRUITING;
+            }
+            if (today < startDate) {
+                recruitingStage = Constants.RECRUITING_STAGES.NOT_YET_RECRUITING;
+            }
+            if (today > endDate) {
+                recruitingStage = Constants.RECRUITING_STAGES.ACTIVE_NOT_RECRUITING;
             }
         }
 
+        this.model.trial.recruitmentPeriod.recruitingStage = recruitingStage;
         this.model.addParticipantsIsDisabled = !(this.model.siteHasConsents && isInRecruitmentPeriod);
     }
 
     async _getTrialParticipantsMappedWithActionRequired(actions) {
         let tpsMappedByDID = {};
 
-        let tps = await this.TrialParticipantRepository.findAllAsync();
-        if (tps.length === 0) {
+        if (this.tps.length === 0) {
             return [];
         }
-        tps.forEach(tp => tpsMappedByDID[tp.did] = tp);
+        this.tps.forEach(tp => tpsMappedByDID[tp.did] = tp);
 
         let trialParticipants = this.model.hcoDSU.volatile.tps;
 
@@ -210,48 +202,92 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
                 let tpActions = actions[tp.did];
                 let actionNeeded = 'No action required';
+                let notificationColor;
                 if (tpActions === undefined || tpActions.length === 0) {
+                    notificationColor = 'primary';
                     return {
                         ...tp,
-                        actionNeeded: actionNeeded
+                        actionNeeded: actionNeeded,
+                        notificationColor: notificationColor
                     }
                 }
-                let lastAction = tpActions[tpActions.length - 1];
+                let lastIndexAction = tpActions.length-1;
+                let foundEconsentAction = false;
 
-                switch (lastAction.action.name) {
-                    case 'withdraw': {
-                        actionNeeded = 'TP Withdrawed';
-                        break;
-                    }
-                    case 'withdraw-intention': {
-                        actionNeeded = 'Reconsent required';
-                        break;
-                    }
-                    case 'sign': {
-                        switch (lastAction.action.type) {
-                            case 'hco': {
-                                actionNeeded = 'Consented by HCO';
-                                break;
-                            }
-                            case 'tp': {
-                                actionNeeded = 'Acknowledgement required';
-                                break;
+                while(foundEconsentAction === false && lastIndexAction > 1) {
+                    let lastAction = tpActions[lastIndexAction];
+
+                    switch (lastAction.action.name) {
+                        case 'withdraw': {
+                            actionNeeded = 'Contact TP';
+                            notificationColor = 'warning';
+                            foundEconsentAction = true;
+                            break;
+                        }
+                        case 'sign': {
+                            switch (lastAction.action.type) {
+                                case 'hco': {
+                                    actionNeeded = 'Set TP Number';
+                                    notificationColor = 'success';
+                                    foundEconsentAction = true;
+
+                                    break;
+                                }
+                                case 'tp': {
+                                    actionNeeded = 'Consent Review';
+                                    notificationColor = 'success';
+                                    foundEconsentAction = true;
+
+                                    break;
+                                }
                             }
                         }
+                    }
+                    lastIndexAction--;
+                }
+
+                switch(tp.actionNeeded) {
+                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER: {
+                        actionNeeded = 'Schedule Visit';
+                        notificationColor = 'success';
+                        break;
+                    }
+                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED: {
+                        actionNeeded = 'Review Visit';
+                        notificationColor = 'warning';
+                        break;
+                    }
+                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED: {
+                        actionNeeded = 'No action required';
+                        notificationColor = 'primary';
+                        break;
+                    }
+                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_WITHDRAWN: {
+                        actionNeeded = 'Contact TP';
+                        notificationColor = 'danger';
+                        break;
                     }
                 }
 
                 return {
                     ...tp,
-                    actionNeeded: actionNeeded
+                    actionNeeded: actionNeeded,
+                    notificationColor: notificationColor
                 }
             })
     }
 
-    async _getEconsentActionsMappedByUser(trialUid) {
+    async _getEconsentActionsMappedByUser() {
         let actions = {};
-        (await this.TrialService.getEconsentsAsync(trialUid))
-            .forEach(econsent => {
+        let econsents = [];
+        const siteConsentsUids = this.model.site.consents.map(consent => consent.uid);
+        if(this.model.hcoDSU.volatile.ifcs){
+             econsents = this.model.hcoDSU.volatile.ifcs.filter(ifc => siteConsentsUids.includes(ifc.genesisUid));
+        }
+
+
+        console.log('econsents', econsents)
+        econsents.forEach(econsent => {
                 if (econsent.versions === undefined) {
                     return actions;
                 }
@@ -270,7 +306,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                                 type: econsent.type,
                             },
                             version: {
-                                attachmentKeySSI: version.attachmentKeySSI,
                                 version: version.version,
                                 versionDate: version.versionDate,
                             },
@@ -282,73 +317,34 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         return actions;
     }
 
-    _attachHandlerNavigateToParticipant() {
-        this.onTagEvent('navigate:tp', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-trial-participant', {
-                trialSSI: this.model.trialSSI,
-                tpUid: model.uid,
-                trialParticipantNumber: model.number,
-            });
-        });
-    }
-
     _attachHandlerAddTrialParticipant() {
         this.onTagEvent('add:ts', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
+            let tpsDIDs = [];
+            //include both anonymous and public DIDs
+            if(this.tps){
+                tpsDIDs = this.tps.map(tp => tp.publicDid);
+            }
+            if(this.model.hcoDSU.volatile.tps){
+                tpsDIDs = tpsDIDs.concat(this.model.hcoDSU.volatile.tps.map(tp => tp.did));
+            }
             this.showModalFromTemplate(
                 'add-new-tp',
                 async (event) => {
                     const response = event.detail;
                     await this.createTpDsu(response);
-                    this._showFeedbackToast('Result', Constants.MESSAGES.HCO.FEEDBACK.SUCCESS.ADD_TRIAL_PARTICIPANT);
-                    this.model.trialParticipantsDataSource.updateParticipants(this.model.toObject('trialParticipants'))
+                    this.model.trialParticipantsDataSource.updateTable(this.model.toObject('trialParticipants'))
                 },
-                (event) => {
-                    const response = event.detail;
-                }
-                ,
+                (event) => {},
                 {
                     controller: 'modals/AddTrialParticipantController',
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     title: 'Add Trial Participant',
+                    tpsDIDs: tpsDIDs
                 });
         });
-    }
-
-    _attachHandlerEditRecruitmentPeriod() {
-
-        this.onTagEvent('edit-period', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.showModalFromTemplate(
-                'edit-recruitment-period',
-                (event) => {
-                    const response = event.detail;
-                    this.model.site.recruitmentPeriod = response;
-                    this.model.site.recruitmentPeriod.toShowDate = new Date(response.startDate).toLocaleDateString() + ' - ' + new Date(response.endDate).toLocaleDateString();
-                    this.HCOService.updateHCOSubEntity(this.model.site, "site", async (err, data) => {
-
-                    });
-
-                },
-                (event) => {
-                    const response = event.detail;
-                },
-                {
-                    controller: 'modals/EditRecruitmentPeriodController',
-                    disableExpanding: false,
-                    disableBackdropClosing: true,
-                    title: 'Edit Recruitment Period',
-                    recruitmentPeriod: this.model.site.recruitmentPeriod
-                }
-            );
-
-        });
-
     }
 
     _attachHandlerViewTrialParticipantStatus() {
@@ -386,7 +382,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             this.navigateToPageTag('econsent-trial-participant', {
                 trialUid: this.model.trialUid,
                 tpUid: model.uid,
-                trialParticipantNumber: model.name,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -399,6 +394,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             this.navigateToPageTag('trial-participant-answers', {
                 trialSSI: this.model.trialUid,
                 tpUid: model.uid,
+                patientName:model.name,
                 participantDID: model.did,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
@@ -477,14 +473,48 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 return siteConsentsKeySSis.includes(icf.genesisUid)
             });
 
-            const promises = trialConsents.map((econsent, index)=> {
+            const consentsPromises = trialConsents.map((econsent, index)=> {
                 return this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
                     econsent.keySSI, index,null);
 
             });
-            await Promise.all(promises);
+
+            const questionnairePromise = this.sendQuestionnaireToPatient(tp.publicDid);
+            await Promise.all([...consentsPromises,questionnairePromise]);
             window.WebCardinal.loader.hidden = true;
         });
+    }
+
+    sendQuestionnaireToPatient(patientDid){
+
+        return new Promise((resolve, reject)=>{
+            this.QuestionnaireService.getAllQuestionnaires((err, questionnaires) => {
+                if (err) {
+                    reject (err);
+                }
+
+                const trialQuestionnaire = questionnaires.find(questionnaire => questionnaire.trialSSI === this.model.trialUid);
+                if(!trialQuestionnaire){
+                    return resolve();
+                }
+
+                this.QuestionnaireService.getQuestionnaireSReadSSI(trialQuestionnaire,async (err, sReadSSI)=>{
+                    if(err){
+                        reject(err);
+                    }
+
+                    await this.CommunicationService.sendMessage(patientDid, {
+                        operation: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
+                        ssi: sReadSSI,
+                        shortDescription: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
+                    });
+
+                    resolve();
+                })
+
+            })
+        })
+
     }
 
 
@@ -530,18 +560,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 },
             },
             shortDescription: shortMessage,
-        });
-    }
-
-    _showFeedbackToast(title, message, alertType = 'toast') {
-        if (typeof this.feedbackEmitter === 'function') {
-            this.feedbackEmitter(message, title, alertType);
-        }
-    }
-
-    _attachHandlerGoBack() {
-        this.onTagEvent('back', 'click', (model, target, event) => {
-            this.navigateToPageTag('econsent-trial-management', { breadcrumb: this.model.toObject('breadcrumb') });
         });
     }
 

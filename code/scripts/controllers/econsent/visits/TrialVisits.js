@@ -8,45 +8,32 @@ export default class TrialVisits extends BreadCrumbManager {
         super(...props);
 
         this.model = this.getState();
-        this.state = this.model.toObject();
-        this.model.breadcrumb = this.setBreadCrumb(
-            {
-                label: "Trial Visits",
-                tag: "trial-visits"
-            }
-        );
 
+        this.state = this.model.toObject();
+        this.model.breadcrumb = this.setBreadCrumb({
+            label: "Trial Visits",
+            tag: "trial-visits"
+        });
 
         this.initData();
-        this._attachConsentChangeHandler();
     }
 
     async initData() {
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
 
+        const {trialId, trialUid, consentId, consentVersion} = this.model;
         const sites = this.model.toObject("hcoDSU.volatile.site");
-        const site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid)
+        const site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid);
+        const selectedVisit = site.visits.visits.find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === consentVersion);
 
-
-        this.model.consents = site.consents;
-        if (this.model.consents.length > 0) {
-            this.model.consents[0].selected = true;
-            this.visits = site.visits.visits;
-            this.changeVisitsForConsent();
-        }
+        this.createVisitsViewModel(selectedVisit.visits || []);
     }
 
-    changeVisitsForConsent() {
-        const consentId = this.model.consents.find(consent => consent.selected === true).trialConsentId
-        let selectedVisits = this.visits.find(
-            (x) => x.consentId === this.model.consents.find(consent => consent.trialConsentId === consentId).trialConsentId
-        ) || {data: []};
-
-
+    createVisitsViewModel(visits) {
         let visitsHeaders = [];
         let visitsData = {};
-        selectedVisits.data.forEach(visit => {
+        visits.forEach(visit => {
             let {id, day, name, visitWindow, week, procedures} = visit;
             visitsHeaders.push({id, day, name, visitWindow, week});
 
@@ -57,10 +44,10 @@ export default class TrialVisits extends BreadCrumbManager {
                         scheduleList: []
                     };
                 }
-                visitsData[procedure.name].scheduleList.push({checked: procedure.checked});
 
-            })
-        })
+                visitsData[procedure.name].scheduleList.push({checked: procedure.checked});
+            });
+        });
 
         this.model.visitsHeaders = visitsHeaders;
         this.model.visitsData = Object.keys(visitsData).map(key => {
@@ -69,18 +56,7 @@ export default class TrialVisits extends BreadCrumbManager {
                 scheduleList: visitsData[key].scheduleList
             }
         });
+
         this.model.hasVisitsAndProcedures = this.model.visitsData.length > 0;
-
-
     }
-
-    _attachConsentChangeHandler() {
-        this.onTagClick('select-consent', async (model) => {
-            this.model.consents.forEach((consent) => {
-                consent.selected = model.trialConsentId === consent.trialConsentId
-            });
-            this.changeVisitsForConsent();
-        });
-    }
-
 }

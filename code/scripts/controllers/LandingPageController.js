@@ -1,12 +1,14 @@
 import TrialService from "../services/TrialService.js";
-const {WebcController} = WebCardinal.controllers;
-const commonServices = require("common-services");
-const Constants = commonServices.Constants;
-const {ResponsesService} = commonServices;
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import HCOService from "../services/HCOService.js";
 import DeviceAssignationService from "../services/DeviceAssignationService.js";
 import {getNotificationsService} from "../services/NotificationsService.js";
+
+const {WebcController} = WebCardinal.controllers;
+const commonServices = require("common-services");
+const Constants = commonServices.Constants;
+const {ResponsesService} = commonServices;
+const momentService  = commonServices.momentService;
 
 const HealthDataService = commonServices.HealthDataService;
 const healthDataService = new HealthDataService();
@@ -14,7 +16,7 @@ const healthDataService = new HealthDataService();
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
 const {getDidServiceInstance} = commonServices.DidService;
 const MessageHandlerService = commonServices.MessageHandlerService;
-
+const JWTService = commonServices.JWTService;
 const BaseRepository = commonServices.BaseRepository;
 const SharedStorage = commonServices.SharedStorage;
 
@@ -25,10 +27,20 @@ export default class LandingPageController extends WebcController {
         this.model = this.getInitialModel();
 
         this.didService = getDidServiceInstance();
+
+        this.model.publicDidReady = false;
+        this.CommunicationService = getCommunicationServiceInstance();
+        this.CommunicationService.onPrimaryDidReady((err, didDocument)=>{
+
+            if(err){
+                throw err;
+            }
+            this.model.publicDidReady = true;
+        })
+
         this._attachMessageHandlers();
-        this.initServices().then(() => {
-            this.initHandlers();
-        });
+        this.initHandlers();
+        this.initServices();
 
         this.notificationService = getNotificationsService();
         this.notificationService.onNotification(this.getNumberOfNotifications.bind(this));
@@ -64,15 +76,21 @@ export default class LandingPageController extends WebcController {
     }
 
     initHandlers() {
-        this.attachHandlerManageDevices();
-        this.attachHandlerListOfPatients();
-        this.attachHandlerVisits();
-        this.attachHandlerEconsentTrialManagement();
+        const pageHandlers = [
+            {eventTag: "navigation:iot-manage-devices", pageTag: "iot-manage-devices"},
+            {eventTag: "navigation:econsent-notifications", pageTag: "econsent-notifications"},
+            {eventTag: "navigation:econsent-trial-management", pageTag: "econsent-trial-management"}
+        ];
+
+        pageHandlers.forEach(pageHandler => {
+            this.onTagClick(pageHandler.eventTag, () => {
+                this.navigateToPageTag(pageHandler.pageTag, {breadcrumb: this.model.toObject('breadcrumb')});
+            })
+        })
 
     }
 
     _attachMessageHandlers() {
-        this.CommunicationService = getCommunicationServiceInstance();
         MessageHandlerService.init(async (data) => {
             data = JSON.parse(data);
 
@@ -82,34 +100,10 @@ export default class LandingPageController extends WebcController {
         })
     }
 
-    attachHandlerManageDevices() {
-        this.onTagClick('navigation:iot-manage-devices', () => {
-            this.navigateToPageTag('iot-manage-devices', {breadcrumb: this.model.toObject('breadcrumb')});
-        });
-    }
-
-    attachHandlerListOfPatients() {
-        this.onTagClick('navigation:econsent-notifications', () => {
-            this.navigateToPageTag('econsent-notifications', {breadcrumb: this.model.toObject('breadcrumb')});
-        });
-    }
-
-    attachHandlerVisits() {
-        this.onTagClick('navigation:econsent-visits', () => {
-            this.navigateToPageTag('econsent-visits', {breadcrumb: this.model.toObject('breadcrumb')});
-        });
-    }
-
-    attachHandlerEconsentTrialManagement() {
-        this.onTagClick('navigation:econsent-trial-management', () => {
-            this.navigateToPageTag('econsent-trial-management', {breadcrumb: this.model.toObject('breadcrumb')});
-        });
-    }
-
     async handleIotMessages(data) {
         switch (data.operation) {
             case 'questionnaire-responses': {
-                await this._saveNotification(data, 'New questionnaire update', 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS);
+                await this._saveNotification(data, 'New questionnaire update', 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONNAIRE_RESPONSES);
 
                 this.ResponsesService.mount(data.ssi, (err, data) => {
                     if (err) {
@@ -128,11 +122,16 @@ export default class LandingPageController extends WebcController {
 
         console.log('MESSAGE' , data)
         let senderIdentity = data.senderIdentity;
-
         if (typeof senderIdentity === "undefined") {
             throw new Error("Sender identity is undefined. Did you forgot to add it?")
         }
         switch (data.operation) {
+
+            case Constants.MESSAGES.PATIENT.TP_IS_UNAVAILABLE:{
+                await this._saveNotification(data, 'TP is unavailable', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this.markTpAsUnavailable(data);
+                break;
+            }
 
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
                 await this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
@@ -159,13 +158,9 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_SITE: {
-
                 await this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 const mountSiteAndUpdateEntity = new Promise((resolve => {
                     this.HCOService.mountSite(data.ssi, (err, site) => {
-                        if (err) {
-                            return console.log(err);
-                        }
                         if (err) {
                             return console.log(err);
                         }
@@ -179,6 +174,7 @@ export default class LandingPageController extends WebcController {
                                 if (err) {
                                     return console.log(err);
                                 }
+
                                 this.sendMessageToSponsor(senderIdentity, Constants.MESSAGES.HCO.SEND_HCO_DSU_TO_SPONSOR, {ssi: this.HCOService.ssi}, null);
                                 resolve();
                             })
@@ -190,10 +186,6 @@ export default class LandingPageController extends WebcController {
             }
             case Constants.MESSAGES.HCO.NEW_HEALTHDATA: {
                 this._healthData(data);
-                break;
-            }
-            case 'ask-question': {
-                this._saveQuestion(data);
                 break;
             }
             case Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_RESPONSE: {
@@ -213,9 +205,26 @@ export default class LandingPageController extends WebcController {
                 })
                 break;
             }
-            
+
         }
         await this._updateHcoDSU();
+    }
+
+    async markTpAsUnavailable(data) {
+        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        if (this.model.hcoDSU.volatile.tps) {
+
+            const JWTServiceInstance = new JWTService();
+            const {verifyCredentialStatus} = await JWTServiceInstance.verifyCredential(data.anonymousDIDVc);
+            const anonymizedDID = verifyCredentialStatus.vc.credentialSubject.anonymizedDID;
+            let tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === anonymizedDID);
+            tp.status = Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE;
+            this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
+                if (err) {
+                    return console.log(err);
+                }
+            });
+        }
     }
 
     async sendRefreshConsentsToTrialParticipants(data) {
@@ -255,7 +264,7 @@ export default class LandingPageController extends WebcController {
             if (err) {
                 console.log(err);
             }
-            
+
             this.DeviceAssignationService.getAssignedDevices((err, devices) => {
                 if (err) {
                     return console.log(err);
@@ -278,12 +287,19 @@ export default class LandingPageController extends WebcController {
             }
             else {
                 console.log("Your data is not available");
-            }  
+            }
         });
     }
 
     async _updateEconsentWithDetails(message) {
         let tp;
+        if (this.model.hcoDSU.volatile.tps) {
+            tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
+            if (tp === undefined) {
+                return console.error('Cannot find tp.');
+            }
+        }
+
         const consentSSI = message.ssi;
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === consentSSI)
@@ -307,20 +323,8 @@ export default class LandingPageController extends WebcController {
         switch (message.useCaseSpecifics.action.name) {
             case 'withdraw': {
                 actionNeeded = 'TP Withdrawed';
-                status = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW;
+                status = Constants.TRIAL_PARTICIPANT_STATUS.TP_WITHDRAWN;
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
-                tpObjectToAssign = {
-                    actionNeeded,
-                    status,
-                    tpSigned,
-                    withdrewDate: currentDate.toLocaleDateString()
-                }
-                break;
-            }
-            case 'withdraw-intention': {
-                actionNeeded = 'Reconsent required';
-                await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
-                status = Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAW;
                 tpObjectToAssign = {
                     actionNeeded,
                     status,
@@ -345,7 +349,10 @@ export default class LandingPageController extends WebcController {
                 tpSigned = true;
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 actionNeeded = 'Acknowledgement required';
-                status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
+                if(tp.status === Constants.TRIAL_PARTICIPANT_STATUS.PLANNED) {
+                    status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
+                }
+
                 tpObjectToAssign = {
                     tpSigned,
                     actionNeeded,
@@ -364,18 +371,12 @@ export default class LandingPageController extends WebcController {
             actionNeeded: actionNeeded
         });
 
-        if (this.model.hcoDSU.volatile.tps) {
-            tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
-            if (tp === undefined) {
-                return console.error('Cannot find tp.');
+        Object.assign(tp, tpObjectToAssign);
+        this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
+            if (err) {
+                return console.log(err);
             }
-            Object.assign(tp, tpObjectToAssign);
-            this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
-                if (err) {
-                    return console.log(err);
-                }
-            });
-        }
+        });
 
         econsent.versions[currentVersionIndex] = currentVersion;
         this.HCOService.updateHCOSubEntity(econsent, "ifcs", async (err, response) => {
@@ -448,9 +449,8 @@ export default class LandingPageController extends WebcController {
                         uuid: item.uuid,
                         visitWindow: item.visitWindow,
                         trialSSI: message,
-                    }
+                    };
 
-                    //visitToBeAdded.consentsSSI.push(consent.keySSI);
                     let weaksFrom = item.weeks?.filter(weak => weak.type === 'weekFrom' || weak.type === 'week');
                     if (weaksFrom)
                         visitToBeAdded.weakFrom = weaksFrom[0]?.value;
@@ -466,8 +466,9 @@ export default class LandingPageController extends WebcController {
                         visitToBeAdded.minus = minus[0]?.value;
 
                     item.procedures.forEach((procedure) => {
-                        procedure.consent.consentSSI = this.model.hcoDSU.volatile.site[0].consents.find((consent => consent.name === procedure.consent.name)).keySSI;
-                    })
+                        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.HCOService.getAnchorId(trialSSI));
+                        procedure.consent.consentSSI = site.consents.find((consent => consent.name === procedure.consent.name)).keySSI;
+                    });
 
                     this.VisitsAndProceduresRepository.findBy(visitToBeAdded.uuid, (err, existingVisit) => {
                         if (err || !existingVisit) {
@@ -478,31 +479,38 @@ export default class LandingPageController extends WebcController {
                                 }
                             })
                         } else if (existingVisit) {
-                            //visitToBeAdded.consentsSSI.push(existingVisit.consentsSSI);
                             visitToBeAdded.procedures.push(existingVisit.procedures);
 
                             this.VisitsAndProceduresRepository.update(visitToBeAdded.uuid, visitToBeAdded, (err, visitCreated) => {
                                 if (err) {
                                     return console.error(err);
                                 }
-                            })
+                            });
                         }
-                    })
-
-                })
+                    });
+                });
             }
-        })
+        });
     }
 
-    _saveQuestion(message) {
-        this.QuestionsRepository.create(message.useCaseSpecifics.question.pk, message.useCaseSpecifics.question,async (err, data) => {
-            if (err) {
-                console.log(err);
-            }
-            let notification = message;
-
-            await this._saveNotification(notification, message.shortDescription, 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONS);
-        })
+    sendVisitToPatient(trialParticipantDid, visit, operation) {
+        this.CommunicationService.sendMessage(trialParticipantDid, {
+            operation: Constants.MESSAGES.HCO.VISIT_CONFIRMED,
+            useCaseSpecifics: {
+                tpDid: trialParticipantDid,
+                visit: {
+                    confirmed: visit.confirmed,
+                    confirmedDate: visit.confirmedDate,
+                    procedures: visit.procedures,
+                    name: visit.name,
+                    uid: visit.uuid,
+                    id: visit.id,
+                    proposedDate: visit.proposedDate,
+                    suggestedInterval: visit.suggestedInterval
+                },
+            },
+            shortDescription: operation
+        });
     }
 
     async _updateVisit(message) {
@@ -517,6 +525,22 @@ export default class LandingPageController extends WebcController {
         tpDSU.visits[objIndex].proposedDate = message.useCaseSpecifics.visit.proposedDate;
 
         tpDSU.visits[objIndex].confirmedDate = message.useCaseSpecifics.visit.confirmedDate;
+
+        console.log('message', message);
+
+        let visit = message.useCaseSpecifics.visit;
+
+        if(visit.accepted) {
+            tpDSU.visits[objIndex].confirmed = true;
+            tpDSU.visits[objIndex].hcoRescheduled = false;
+            tpDSU.visits[objIndex].confirmedDate = momentService(visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+
+            this.sendVisitToPatient(message.useCaseSpecifics.tpDid, tpDSU.visits[objIndex],Constants.MESSAGES.HCO.VISIT_CONFIRMED);
+        }
+
+        if(visit.rescheduled || visit.declined) {
+            tpDSU.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED;
+        }
 
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();

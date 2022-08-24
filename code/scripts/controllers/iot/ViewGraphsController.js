@@ -1,8 +1,53 @@
-const { WebcController } = WebCardinal.controllers;
 const commonServices = require("common-services");
-const {QuestionnaireService} = commonServices;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-const DataSourceFactory = commonServices.getDataSourceFactory();
+
+function getChartOptions(data) {
+    return {
+        animation:false,
+        responsive: true,
+        transitions: {
+            active: {
+                animation: {
+                    duration: 0
+                }
+            }
+        },
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                display: false
+            },
+            title: {
+                display: true,
+                text: data.question
+            },
+        },
+        scales: {
+            yAxisID: {
+                display: true,
+                text: 'Number of People',
+                fontSize: 15,
+                fontWeight: 'bold',
+                title: {
+                    display: true,
+                    text: 'Number of People'
+                }
+            },
+            xAxisID: {
+                display: true,
+                text: 'Options Selected',
+                fontSize: 15,
+                fontWeight: 'bold',
+                title: {
+                    display: true,
+                    text: 'Options Selected'
+                }
+            },
+        }
+    }
+}
+
 
 export default class ViewPromPremGraphsController extends BreadCrumbManager  {
     constructor(...props) {
@@ -31,9 +76,8 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                     answers: prevState.answers,
                     options: prevState.options,
                 };
+                this.model.noChartAvailable = false;
                 this.buildChartCheckbox(dataCheckbox);
-                console.log(dataCheckbox);
-                console.log(dataCheckbox.options);
                 break;
 
             case "slider":
@@ -44,15 +88,18 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
                     maxLabel: prevState.maxLabel,
                     steps: prevState.steps,
                 };
+                this.model.noChartAvailable = false;
                 this.buildChartSlider(dataSlider);
                 break;
 
-            case "free text":
-                const dataFreeText = {
+            case "string":
+                this.model.dataFreeText = {
                     question: prevState.question,
-                    answers: prevState.answers,
+                    answers: prevState.answers.filter(answer => answer.trim() !== ""),
                 };
-                this.buildChartFreeText(dataFreeText);
+                this.model.dataFreeText.hasAnswers = this.model.dataFreeText.answers.length > 0;
+
+                this.model.noChartAvailable = true;
                 break;
         }
 
@@ -115,49 +162,12 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
             }]
         };
 
-        //options
-        const optionsProm = {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    display: false
-                },
-                title: {
-                    display: true,
-                    text: data.question
-                },
-            },
-            scales: {
-                yAxisID: {
-                    display:true,
-                    text: 'Number of People',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                    title: {
-                        display:true,
-                        text: 'Number of People'
-                    }
-                },
-                xAxisID: {
-                    display:true,
-                    text: 'Options Selected',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                    title: {
-                        display:true,
-                        text: 'Options Selected'
-                    }
-                },
-            },
-
-        };
 
         let barChartElement = document.getElementById('Chart').getContext('2d');
         let barChart = new Chart(barChartElement,{
             type: "bar",
             data: dataProm,
-            options: optionsProm
+            options: getChartOptions(data)
         });
     }
 
@@ -239,55 +249,17 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
             }]
         };
 
-        //options
-        const optionsProm = {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                    display: false
-                },
-                title: {
-                    display: true,
-                    text: data.question
-                },
-            },
-            scales: {
-                yAxisID: {
-                    display:true,
-                    text: 'Number of People',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                    title: {
-                        display:true,
-                        text: 'Number of People'
-                    }
-                },
-                xAxisID: {
-                    display:true,
-                    text: 'Options Selected',
-                    fontSize: 15,
-                    fontWeight: 'bold',
-                    title: {
-                        display:true,
-                        text: 'Options Selected'
-                    }
-                },
-            }
-
-        };
 
         let barChartElement = document.getElementById('Chart').getContext('2d');
         let barChart = new Chart(barChartElement,{
             type: "bar",
             data: dataProm,
-            options: optionsProm
+            options: getChartOptions(data)
         });
     }
 
     buildChartFreeText(data){
-        let alert = document.getElementById('alert');
-        alert.innerHTML = "Free text question analysis is not available yet."
+
     }
 
 

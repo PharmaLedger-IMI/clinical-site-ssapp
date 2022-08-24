@@ -6,7 +6,7 @@ const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const {getCommunicationServiceInstance} = commonServices.CommunicationService;
 import {COMMUNICATION_MESSAGES} from "../../../utils/CommunicationMessages.js";
-import {modelSetter} from "./deviceModel/deviceViewModel.js";
+import {modelSetter, prepareDeviceData} from "./deviceModel/deviceViewModel.js";
 
 
 export default class EditDeviceController extends BreadCrumbManager {
@@ -59,15 +59,17 @@ export default class EditDeviceController extends BreadCrumbManager {
             this.model.trials = allTrials;
         });
 
-        this.attachHandlerSaveButton();
+        this.attachHandlerUpdateButton();
 
     }
 
 
-    attachHandlerSaveButton() {
-        this.onTagClick('devices:save', () => {
+    attachHandlerUpdateButton() {
+        this.onTagClick('devices:update', () => {
             window.WebCardinal.loader.hidden = false;
-            const deviceData = this.prepareDeviceData(this.model.trials);
+            const deviceData = prepareDeviceData(this.model.trials, this.model.form);
+            deviceData.uid = this.model.data.uid;
+            deviceData.isAssigned = this.model.isAssigned;
             this.deviceServices.updateDevice(deviceData, (err, data) => {
                 let message = {};
 
@@ -94,39 +96,4 @@ export default class EditDeviceController extends BreadCrumbManager {
         });
     }
 
-    prepareDeviceData(trial_list) {
-
-        let selected_trial = trial_list.find(t => t.value === this.model.trial.value);
-        return {
-            resourceType: "Device",
-            identifier: [{
-                use: "official",
-                type: {
-                    coding: [{
-                        system: "http://terminology.hl7.org/CodeSystem/v2-0203",
-                        code: "SNO"
-                    }]
-                },
-                value: this.model.deviceId.value
-            }],
-            status: this.model.status.value,
-            manufacturer: this.model.manufacturer.value,
-            deviceId: this.model.deviceId.value,
-            device: [
-                {
-                    name: this.model.deviceName.value,
-                    type: "manufacturer-name"
-                }
-            ],
-            modelNumber: this.model.modelNumber.value,
-            brand: this.model.brand.value,
-            deviceName: this.model.deviceName.value,
-            trialUid: selected_trial.ssi,
-            trialName: selected_trial.name,
-            trialID: this.model.trial.value,
-            sk: this.model.deviceId.value,
-            uid: this.model.data.uid,
-            isAssigned: this.model.isAssigned
-        };
-    }
 }

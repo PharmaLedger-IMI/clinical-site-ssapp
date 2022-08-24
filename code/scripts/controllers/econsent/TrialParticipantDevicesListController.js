@@ -1,9 +1,12 @@
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
 import DeviceServices from "../../services/DeviceServices.js";
 const commonServices = require("common-services");
+const CommunicationService = commonServices.CommunicationService;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
-
+const COMMUNICATION_MESSAGES = {
+    DEVICE_DEASSIGNATION: "device_deassignation"
+}
 export default class TrialParticipantDevicesListController extends BreadCrumbManager {
 
     constructor(...props) {
@@ -27,49 +30,42 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             }
         );
 
-        this.model.devices = [];
-        this.model.devices_this_trial = [];
-        this.model.assignedDevices = [];
-        this.model.AssignedDevicesForChosenPatient = [];
-        this.model.available_devices_for_assignation = [];
-        this.deviceList = [];
+        this.devices = [];
+        this.assignedDevicesForChosenPatient = [];
+        this.available_devices_for_assignation = [];
 
-        this.onTagClick("view-iot-data", (model) => {
-
-            this.navigateToPageTag('econsent-trial-participant-health-data', {
-                breadcrumb: this.model.toObject('breadcrumb'),
-                deviceId: model.deviceId,
-                trialParticipantNumber: this.model.trialParticipantNumber
-            });
+        this.getDevices((err, devicesList) => {
+            if (err) {
+                return console.error(err);
+            }
+            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(6, 5, devicesList);
+            this.model.hasAssignedDevices = devicesList.length > 0;
         });
-
-        this.getDevices();
-        this._attachHandlerAssignDevice();
+        this._attachHandlers();
     }
     
 
-    getDevices() {
+    getDevices(callback) {
         this.DeviceServices = new DeviceServices();
         this.DeviceServices.getDevices((err, devices) => {
             if (err) {
-                return console.error(err);
+                return callback(err);
             }
-            this.model.devices = devices;
-            this.model.devices_this_trial =  this.model.devices.filter(device => device.trialUid === this.model.trialUid);
-            this.getAssignedDevices();
+            this.devices = devices;
+            this.getAssignedDevices(this.devices, callback);
         });
     }
 
-    getAssignedDevices(){
+    getAssignedDevices(devices, callback){
         this.DeviceAssignationService = new DeviceAssignationService();
         this.DeviceAssignationService.getAssignedDevices( (err, assignedDevices) => {
             if (err) {
-                return console.error(err);
+                return callback(err);
             }
-            let devices = this.model.devices;
-            this.model.assignedDevices = assignedDevices;
-            this.model.AssignedDevicesForChosenPatient = assignedDevices.filter(ad => ad.patientDID === this.model.participantDID);
-            let tempAssignedDeviceList = this.model.AssignedDevicesForChosenPatient;
+
+            this.assignedDevicesForChosenPatient = assignedDevices.filter(ad => ad.patientDID === this.model.participantDID);
+            let tempAssignedDeviceList = this.assignedDevicesForChosenPatient;
+            this.deviceList = [];
             for (let i = 0; i < tempAssignedDeviceList.length; i++) {
                 let deviceAssignation = tempAssignedDeviceList[i];
                 this.deviceList = this.deviceList.concat(devices.filter(device => device.deviceId === deviceAssignation.deviceId).map(device => {
@@ -85,34 +81,17 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     }
                 }));
             }
-            this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(6, 5, this.deviceList);
-            this.onTagClick("remove-assignation", (model) => {
-                let assignation = {
-                    deviceId: model.deviceId,
-                    patientDID: model.patientDID,
-                    trialParticipantNumber: model.trialParticipantNumber,
-                    trial: model.trial,
-                    uid: model.uid,
-                    assignationDate:model.assignationDate,
-                    assignationCompleteDate : Date.now(),
-                    isStillAssigned:false,
-                }
-                this.removeAssignation(assignation);
-            });
 
-            this.model.hasAssignedDevices = this.model.AssignedDevicesForChosenPatient.length > 0;
+            callback(undefined,this.deviceList);
+
         } );
-    }
-
-    getAvailableDevicesToAssign(){
-        this.model.available_devices_for_assignation =  this.model.devices_this_trial.filter(device => device.isAssigned === false && device.status==="Active");
     }
 
     removeAssignation(deasignedDevice){
         window.WebCardinal.loader.hidden = false;
-        let chosenDeviceIndex = this.model.devices.findIndex(device => device.sk === deasignedDevice.deviceId);
-        this.model.devices[chosenDeviceIndex].isAssigned = false;
-        this.DeviceServices.updateDevice(this.model.devices[chosenDeviceIndex], (err, data) => {
+        let chosenDeviceIndex = this.devices.findIndex(device => device.sk === deasignedDevice.deviceId);
+        this.devices[chosenDeviceIndex].isAssigned = false;
+        this.DeviceServices.updateDevice(this.devices[chosenDeviceIndex], (err, data) => {
             if (err) {
                 return console.error(err);
             }
@@ -128,21 +107,28 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     message.content = `The device assignation has been removed. You can assign it to another patient!`;
                     message.type = 'success'
                 }
-                let state = {
-                    message: message,
-                    trialUid: this.model.trialUid,
-                    breadcrumb: this.model.toObject('breadcrumb')
-                }
-                window.WebCardinal.loader.hidden = true;
-                this.navigateToPageTag('econsent-trial-participants', state);
+
+                let communicationService =CommunicationService.getCommunicationServiceInstance()
+                const {uid, patientDID,...assignationData} = data;
+                communicationService.sendMessage(patientDID,{
+                    operation:COMMUNICATION_MESSAGES.DEVICE_DEASSIGNATION,
+                    data:assignationData
+                })
+
+                this.getDevices((err, devices)=>{
+                    this.model.AssignedDevicesForChosenPatientDataSource.updateTable(devices)
+                    this.model.hasAssignedDevices = devices.length > 0;
+                    this.model.message = message;
+                    window.WebCardinal.loader.hidden = true;
+                });
             });
         });
     }
 
-    _attachHandlerAssignDevice() {
+    _attachHandlers() {
         this.onTagClick('assign-device', () => {
-            this.getAvailableDevicesToAssign();
-            if (this.model.available_devices_for_assignation.length === 0 ){
+            this.available_devices_for_assignation =  this.devices.filter(device => device.isAssigned === false && device.status==="Active" && device.trialUid === this.model.trialUid);
+            if (this.available_devices_for_assignation.length === 0 ){
                 this.navigateToPageTag('confirmation-page', {
                     confirmationMessage: "There are no available devices to assign for this trial. Please register a new device for this trial or de-assign a current device from the devices menu.",
                     redirectPage: 'home',
@@ -151,7 +137,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             }
             else{
                 let ids = []
-                this.model.available_devices_for_assignation.forEach(element =>
+                this.available_devices_for_assignation.forEach(element =>
                     ids.push({
                         value: element.sk,
                         label: element.deviceName
@@ -170,6 +156,30 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 this.navigateToPageTag('econsent-trial-participant-devices', state);
             }
         });
+
+        this.onTagClick("remove-assignation", (model) => {
+            let assignation = {
+                deviceId: model.deviceId,
+                patientDID: model.patientDID,
+                trialParticipantNumber: model.trialParticipantNumber,
+                trial: model.trial,
+                uid: model.uid,
+                assignationDate:model.assignationDate,
+                assignationCompleteDate : Date.now(),
+                isStillAssigned:false,
+            }
+            this.removeAssignation(assignation);
+        });
+
+        this.onTagClick("view-iot-data", (model) => {
+
+            this.navigateToPageTag('econsent-trial-participant-health-data', {
+                breadcrumb: this.model.toObject('breadcrumb'),
+                deviceId: model.deviceId,
+                trialParticipantNumber: this.model.trialParticipantNumber
+            });
+        });
+
     }
 
 

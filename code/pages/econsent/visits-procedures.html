@@ -3,6 +3,7 @@
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
             <h5 class="generic-title">Visits & Procedures</h5>
+            <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>
         </div>
 
         <main>
@@ -24,7 +25,7 @@
                         <div slot="header">+Days</div>
                         <div slot="header">-Days</div>
                         <div slot="header">Proposed date</div>
-                        <div slot="header">Ts Acceptance</div>
+                        <div slot="header">Appointment Status</div>
                         <div slot="header">Planned Date</div>
                         <div slot="header">Actions</div>
 
@@ -43,9 +44,12 @@
                         <div class="cell">
                             <webc-switch condition="@tsAcceptance">
                                 <span slot="required" class="badge badge-primary">Required</span>
-                                <span slot="agreed" class="badge badge-success">Agreed</span>
+                                <span slot="agreed" class="badge badge-primary">Confirmed</span>
+                                <span slot="confirmed-by-both" class="badge badge-success">Confirmed</span>
                                 <span slot="declined" class="badge badge-danger">Declined</span>
                                 <span slot="rescheduled" class="badge badge-secondary">Rescheduled</span>
+                                <span slot="rescheduled-by-hco" class="badge badge-secondary"> Rescheduled</span>
+                                <span slot="scheduled" class="badge badge-primary">Scheduled</span>
                             </webc-switch>
                         </div>
 
@@ -55,16 +59,6 @@
                         </div>
 
                         <div class="cell">
-                            <div data-if="@accepted">
-                                <div data-if="@confirmedDate">
-                                    <button class="link-button view-adjust-margin" data-tag="visit:confirm"
-                                            slot="false">
-                                        Confirm
-                                        Date
-                                    </button>
-                                </div>
-                            </div>
-
                             <div data-if="@rescheduled">
                                 <div data-if="@confirmedDate">
                                     <button class="link-button view-adjust-margin" data-tag="visit:confirm"
@@ -89,7 +83,6 @@
                                 <button class="link-button view-adjust-margin" data-tag="visit:view">Confirm
                                     Attendance
                                 </button>
-                                <!--                            <button class="link-button view-adjust-margin" data-tag="visit:edit">Edit</button>-->
                             </div>
                         </div>
 

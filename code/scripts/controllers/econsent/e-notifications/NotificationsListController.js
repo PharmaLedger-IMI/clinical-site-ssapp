@@ -1,5 +1,6 @@
 import {getNotificationsService} from "../../../services/NotificationsService.js";
 const commonServices = require('common-services');
+const DataSourceFactory = commonServices.getDataSourceFactory();
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
@@ -27,9 +28,7 @@ export default class NotificationsListController extends BreadCrumbManager {
     }
 
     initHandlers() {
-        this.attachModelHandlers();
-        this.attachHandlerBack();
-        this.attachHandlerTrialParticipants();
+        this.attachActionsHandlers();
     }
 
     initServices() {
@@ -42,7 +41,9 @@ export default class NotificationsListController extends BreadCrumbManager {
                 return console.log(err);
             }
 
-            this.model.notifications = data.filter(not => this.model.notificationType.indexOf(not.type.trim()) > 1);
+            const notifications = data.filter(notification => this.model.notificationType.indexOf(notification.type.trim()) > 1);
+            this.model.notificationsListEmpty = notifications.length === 0;
+            this.model.notificationsDatasource = DataSourceFactory.createDataSource(2, 10, notifications);
         });
     }
 
@@ -52,20 +53,7 @@ export default class NotificationsListController extends BreadCrumbManager {
         window.WebCardinal.loader.hidden = true;
     }
 
-    attachModelHandlers() {
-        this.model.addExpression(
-            'notificationsListEmpty',
-            () => this.model.notifications && this.model.notifications.length > 0,
-            'notifications');
-    }
-
-    attachHandlerBack() {
-        this.onTagClick('navigation:go-back', () => {
-            this.history.goBack();
-        });
-    }
-
-    attachHandlerTrialParticipants() {
+    attachActionsHandlers() {
         this.onTagClick('navigation:goToAction', async (model) => {
             await this.markNotificationHandler(model);
 
@@ -89,7 +77,7 @@ export default class NotificationsListController extends BreadCrumbManager {
             }
 
             if (model.recommendedAction === 'view questions') {
-                this.navigateToPageTag('econsent-questions', {
+                this.navigateToPageTag('trial-participant-answers', {
                     breadcrumb: this.model.toObject('breadcrumb')
                 });
             }
@@ -99,7 +87,6 @@ export default class NotificationsListController extends BreadCrumbManager {
     getInitModel() {
         return {
             notifications: [],
-            notificationsListEmpty: true,
             notType: '',
             ...this.getState()
         };

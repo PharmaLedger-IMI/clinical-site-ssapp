@@ -1,40 +1,40 @@
     <div class="form-row">
         <div class="form-group">
-            <label class="col-form-label required" for="@deviceName.name">{{@deviceName.label}} </label>
-            <input class="form-control" data-view-model="@deviceName" id="@deviceName.name" value="@deviceName.value" required="required" />
+            <label class="col-form-label required" for="@form.deviceName.name">{{@form.deviceName.label}} </label>
+            <input class="form-control" data-view-model="@form.deviceName" id="@form.deviceName.name" value="@form.deviceName.value" required="required" />
         </div>
     </div>
     <div class="form-row">
         <div class="form-group">
-            <label class="col-form-label required" for="@deviceId.name">{{@deviceId.label}}</label>
-            <input class="form-control" data-view-model="@deviceId" id="@deviceId.name" value="@deviceId.value" />
+            <label class="col-form-label required" for="@form.deviceId.name">{{@form.deviceId.label}}</label>
+            <input class="form-control" data-view-model="@form.deviceId" id="@form.deviceId.name" value="@form.deviceId.value" />
         </div>
         <div class="form-group">
-            <label class="col-form-label required" for="@manufacturer.name">{{@manufacturer.label}}</label>
-            <input class="form-control" data-view-model="@manufacturer" id="@manufacturer.name"
-                value="@manufacturer.value" />
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label class="col-form-label required" for="@modelNumber.name">{{@modelNumber.label}}</label>
-            <input class="form-control" data-view-model="@modelNumber" id="@modelNumber.name" value="@modelNumber.value" />
-        </div>
-        <div class="form-group">
-            <label class="col-form-label required" for="@brand.name">{{@brand.label}}</label>
-            <input class="form-control" data-view-model="@brand" id="@brand.name" value="@brand.value" />
+            <label class="col-form-label required" for="@form.manufacturer.name">{{@form.manufacturer.label}}</label>
+            <input class="form-control" data-view-model="@form.manufacturer" id="@form.manufacturer.name"
+                value="@form.manufacturer.value" />
         </div>
     </div>
     <div class="form-row">
         <div class="form-group">
-            <label class="col-form-label required">{{@trial.label}}</label>
-            <select class="form-control" data-for="@trial.options" value="@trial.value">
+            <label class="col-form-label required" for="@form.modelNumber.name">{{@form.modelNumber.label}}</label>
+            <input class="form-control" data-view-model="@form.modelNumber" id="@form.modelNumber.name" value="@form.modelNumber.value" />
+        </div>
+        <div class="form-group">
+            <label class="col-form-label required" for="@form.brand.name">{{@form.brand.label}}</label>
+            <input class="form-control" data-view-model="@form.brand" id="@form.brand.name" value="@form.brand.value" />
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label class="col-form-label required">{{@form.trial.label}}</label>
+            <select class="form-control" data-for="@form.trial.options" disabled="@isAssigned" value="@form.trial.value">
                 <option value="@value">{{@label}}</option>
             </select>
         </div>
         <div class="form-group">
-            <label class="col-form-labe requiredl">{{@status.label}}</label>
-            <select class="form-control" data-for="@status.options" value="@status.value">
+            <label class="col-form-label required">{{@form.status.label}}</label>
+            <select class="form-control" data-for="@form.status.options" value="@form.status.value">
                 <option value="@value">{{@label}}</option>
             </select>
         </div>

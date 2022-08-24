@@ -3,5 +3,12 @@ addfolder code
 addfile ../privatesky/psknode/bundles/pskruntime.js scripts/bundles/pskruntime.js
 addfile ../privatesky/psknode/bundles/webshims.js scripts/bundles/webshims.js
 addfile ../privatesky/psknode/bundles/iframeBoot.js scripts/bundles/iframeBoot.js
+
+addfile ../common-services/build/bundles/commonServices.js scripts/bundles/commonServices.js
+
+addfile ../common-services/utils/third-parties/chart.js scripts/third-parties/chart.js
+addfile ../common-services/utils/third-parties/pdf.js scripts/third-parties/pdf.js
+addfile ../common-services/utils/third-parties/pdf.worker.js scripts/third-parties/pdf.worker.js
+
 mount ../webcardinal/seed /webcardinal
 mount ../themes/clinical-site-theme/seed /themes/clinical-site-theme

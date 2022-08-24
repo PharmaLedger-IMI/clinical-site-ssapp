@@ -6,7 +6,7 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
-const FileDownloaderService = commonServices.FileDownloaderService;
+const PDFService = commonServices.PDFService;
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
@@ -41,9 +41,6 @@ export default class EconsentSignController extends BreadCrumbManager {
     initHandlers() {
         this.attachHandlerEconsentSign();
         this.attachHandlerEconsentDecline();
-        this.on('openFeedback', (e) => {
-            this.feedbackEmitter = e.detail;
-        });
     }
 
     initConsent() {
@@ -62,7 +59,6 @@ export default class EconsentSignController extends BreadCrumbManager {
             currentVersion = econsent.versions[econsent.versions.length - 1];
             this.model.ecoVersion = currentVersion.version;
         }
-        this.fileDownloaderService = new FileDownloaderService(this.DSUStorage);
 
         if (this.model.isManuallySigned) {
             this.PatientEcosentService = new PatientEcosentService(this.model.econsent.id);
@@ -70,17 +66,23 @@ export default class EconsentSignController extends BreadCrumbManager {
                 if (err) {
                     return console.log(err);
                 }
-                let econsentFilePath = this.getEconsentManualFilePath(this.model.econsent.id, data.keySSI, this.model.manualAttachment);
-                this.downloadFile(econsentFilePath, this.model.manualAttachment);
-            })
 
+                let econsentFilePath = this.getEconsentManualFilePath(this.model.econsent.id, data.keySSI, this.model.manualAttachment);
+                this.displayConsentFile(econsentFilePath, this.model.manualAttachment);
+            });
         } else {
             let econsentFilePath = this.getEconsentFilePath(econsent, currentVersion);
-            console.log(econsentFilePath);
-            this.downloadFile(econsentFilePath, currentVersion.attachment);
+            this.displayConsentFile(econsentFilePath, currentVersion.attachment);
         }
     }
 
+    displayConsentFile(consentFilePath, version) {
+        this.PDFService = new PDFService(this.DSUStorage);
+        this.PDFService.displayPDF(consentFilePath, version);
+        this.PDFService.onFileReadComplete(() => {
+            this.model.documentWasNotRead = false;
+        });
+    }
 
     getEconsentFilePath(econsent, currentVersion) {
         return this.HCOService.PATH + '/' + this.HCOService.ssi + '/ifcs/'
@@ -146,98 +148,6 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
 
-    downloadFile = async (filePath, fileName) => {
-        await this.fileDownloaderService.prepareDownloadFromDsu(filePath, fileName);
-        let fileBlob = this.fileDownloaderService.getFileBlob(fileName);
-        this.rawBlob = fileBlob.rawBlob;
-        this.mimeType = fileBlob.mimeType;
-        this.blob = new Blob([this.rawBlob], {
-            type: this.mimeType,
-        });
-        this.displayFile();
-    };
-
-    loadPdfOrTextFile = () => {
-        const reader = new FileReader();
-        reader.readAsDataURL(this.blob);
-        reader.onloadend = () => {
-            let base64data = reader.result;
-            this.initPDF(base64data.substr(base64data.indexOf(',') + 1));
-        };
-    };
-
-    initPDF(pdfData) {
-        pdfData = atob(pdfData);
-        let pdfjsLib = window['pdfjs-dist/build/pdf'];
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'scripts/third-parties/pdf.worker.js';
-
-        this.loadingTask = pdfjsLib.getDocument({data: pdfData});
-        this.renderPage(this.model.pdf.currentPage);
-
-    }
-
-    renderPage = (pageNo) => {
-        this.loadingTask.promise.then((pdf) => {
-            this.model.pdf.pagesNo = pdf.numPages;
-            pdf.getPage(pageNo).then(result => this.handlePages(pdf, result));
-        }, (reason) => console.error(reason));
-    };
-
-    handlePages = (thePDF, page) => {
-        const viewport = page.getViewport({scale: 1.5});
-        let canvas = document.createElement("canvas");
-        canvas.style.display = "block";
-        let context = canvas.getContext('2d');
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        page.render({canvasContext: context, viewport: viewport});
-        document.getElementById('canvas-parent').appendChild(canvas);
-
-        this.model.pdf.currentPage = this.model.pdf.currentPage + 1;
-        let currPage = this.model.pdf.currentPage;
-        if (thePDF !== null && currPage <= this.model.pdf.pagesNo) {
-            thePDF.getPage(currPage).then(result => this.handlePages(thePDF, result));
-        }
-
-        const pdfWrapper = this.querySelector("#pdf-wrapper");
-        let checkOffset = (container) => {
-            if (Math.ceil(container.offsetHeight + container.scrollTop) >= container.scrollHeight) {
-                this.model.documentWasNotRead = false;
-            }
-        }
-
-        window.addEventListener("scroll", (event) => {
-            if (event.target === pdfWrapper){
-                checkOffset(pdfWrapper);
-            }
-        }, {capture: true});
-
-        checkOffset(pdfWrapper);
-    };
-
-    displayFile = () => {
-        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-            const file = new File([this.rawBlob], this.fileName);
-            window.navigator.msSaveOrOpenBlob(file);
-            this.feedbackController.setLoadingState(true);
-            return;
-        }
-
-        window.URL = window.URL || window.webkitURL;
-        const fileType = this.mimeType.split('/')[0];
-        switch (fileType) {
-            case 'image': {
-                this.loadImageFile();
-                break;
-            }
-            default: {
-                this.loadPdfOrTextFile();
-                break;
-            }
-        }
-    };
-
-
     updateEconsentWithDetails(message) {
         let currentVersionIndex = this.model.econsent.versions.findIndex(eco => eco.version === this.model.ecoVersion);
         if (currentVersionIndex === -1) {
@@ -286,7 +196,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             this.model.trialParticipant.enrolledDate = currentDate.toLocaleDateString();
         } else  this.model.trialParticipant.discontinuedDate = currentDate.toLocaleDateString();
 
-        this.TrialParticipantRepository.update(this.model.trialParticipant.uid, this.model.trialParticipant, (err, trialParticipant) => {
+        this.TrialParticipantRepository.update(this.model.trialParticipant.pk, this.model.trialParticipant, (err, trialParticipant) => {
             if (err) {
                 return console.log(err);
             }
@@ -309,12 +219,6 @@ export default class EconsentSignController extends BreadCrumbManager {
             controlsShouldBeVisible:true,
             ...this.getState(),
             documentWasNotRead: true,
-            pdf: {
-                currentPage: 1,
-                pagesNo: 0
-            },
-            showPageUp: false,
-            showPageDown: true
         }
     }
 

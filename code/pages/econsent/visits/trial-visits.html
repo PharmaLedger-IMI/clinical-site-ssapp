@@ -3,39 +3,17 @@
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
             <h2 class="main-title">Trial Visits</h2>
-            <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>
+            <webc-template class="w-100" data-view-model="@" template="alert"></webc-template>
         </div>
         <main>
-            <div class="d-flex flex-column">
-                <div class="d-flex flex-row consents-lists">
-                    <div data-if="@consents" style="display: contents">
-                        <div slot="true" style="display: contents">
-                            <ul class="nav flex-row nav-pills" data-for="@consents">
-                                <li class="nav-item m-2" data-if="@selected">
-                                    <a slot="true" class="nav-link active"
-                                       style="background-color: rgba(0, 136, 152, 0.8)">
-                                        {{@name }}
-                                    </a>
-                                    <a data-tag="select-consent" slot="false" class="nav-link" style="cursor: pointer">
-                                        {{@name }}
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <webc-spinner slot="loading"></webc-spinner>
-                        <div slot="false" class="alert alert-light text-center" role="alert">
-                            There are no consents.
-                        </div>
-                    </div>
-                </div>
-
-                <div data-if="@hasVisitsAndProcedures">
+            <div class="d-flex flex-column w-100 h-100">
+                <div class="w-100 h-100" data-if="@hasVisitsAndProcedures" id="visits-container">
                     <webc-spinner slot="loading"></webc-spinner>
-                    <div slot="false" class="alert alert-light text-center" role="alert">
-                        No visits & procedures were added
+                    <div class="alert alert-warning" role="alert" slot="false">
+                        <h4 class="alert-heading">No visits & procedures were added!</h4>
                     </div>
 
-                    <div slot="true" class="visits-header d-flex">
+                    <div class="visits-header d-flex" slot="true">
                         <div style="flex:1">
                             <div class="p-1">Visit</div>
                             <div class="p-1">Week Number</div>
@@ -43,7 +21,7 @@
                             <div class="p-1">Visit Window</div>
                         </div>
 
-                        <div data-for="@visitsHeaders" class="d-flex justify-content-around" style="flex:3">
+                        <div class="d-flex justify-content-around" data-for="@visitsHeaders" style="flex:3">
                             <div style="flex:1 1 0">
                                 <div class="p-1"><strong>{{@name}}</strong></div>
                                 <div class="p-1">{{@week}}</div>
@@ -58,11 +36,11 @@
                         </div>
                     </div>
 
-                    <div slot="true" data-for="@visitsData">
-                        <div class="d-flex p-1 visit_procedure">
+                    <div data-for="@visitsData" slot="true">
+                        <div class="d-flex p-1 visits-procedures">
                             <div class="p-1" style="flex:1">{{@procedureName}}</div>
-                            <div data-for="@scheduleList" class="d-flex justify-content-around" style="flex:3">
-                                <div data-if="@checked" class="p-1" style="flex:1 1 0">
+                            <div class="d-flex justify-content-around" data-for="@scheduleList" style="flex:3">
+                                <div class="p-1" data-if="@checked" style="flex:1 1 0">
                                     <div slot="true">X</div>
                                     <div slot="false">&nbsp;</div>
                                 </div>

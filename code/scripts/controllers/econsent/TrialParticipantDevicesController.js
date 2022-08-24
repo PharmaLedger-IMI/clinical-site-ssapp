@@ -131,7 +131,15 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
                 this.CommunicationService.sendMessageToIotAdapter({
                     operation:  COMMUNICATION_MESSAGES.DEVICE_ASSIGNATION,
                     ssi:        data.sReadSSI
-                })
+                });
+
+
+                const {sReadSSI, uid, keySSI, patientDID,...assignationData} = data;
+                this.CommunicationService.sendMessage(patientDID, {
+                    operation: COMMUNICATION_MESSAGES.DEVICE_ASSIGNATION,
+                    data: assignationData
+                });
+
 
                 let state = {
                     message: message,

@@ -1,10 +1,7 @@
 import HCOService from "../../services/HCOService.js";
-import TrialService from '../../services/TrialService.js';
+
 const commonServices = require("common-services");
-const {QuestionnaireService} = commonServices;
 const {ResponsesService} = commonServices;
-const CommunicationService = commonServices.CommunicationService;
-const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
 
@@ -13,6 +10,14 @@ let getInitModel = () => {
     return {
         trial: {},
         trialParticipants: [],
+        currentTable: "proms",
+        pageIsInitialized: false,
+        promSelected: true,
+        premSelected: false,
+        hasProms: false,
+        hasPrems: false,
+        promAnswers: [],
+        premAnswers: [],
     };
 };
 
@@ -26,7 +31,8 @@ export default class TrialParticipantAnswersController extends BreadCrumbManager
             ...getInitModel(),
             trialSSI: prevState.trialSSI,
             tpUid: prevState.tpUid,
-            patientDID: prevState.participantDID
+            patientDID: prevState.participantDID,
+            patientName:prevState.patientName
         };
 
         this.model.breadcrumb = this.setBreadCrumb(
@@ -35,12 +41,6 @@ export default class TrialParticipantAnswersController extends BreadCrumbManager
                 tag: "trial-participant-answers"
             }
         );
-
-        this.model.hasProms = false;
-        this.model.hasPrems = false;
-        this.model.currentTable = "none"
-        this.model.promAnswers = [];
-        this.model.premAnswers = [];
 
         this.initHandlers();
         this.initServices();
@@ -74,76 +74,8 @@ export default class TrialParticipantAnswersController extends BreadCrumbManager
                             year: 'numeric', month: 'numeric', day: 'numeric',
                         };
                         const formattedDate = date.toLocaleDateString('en', options);
-                        if(answer.question.type ==="range"){
-                            const minLabel = answer.question.range.minLabel;
-                            const maxLabel = answer.question.range.maxLabel;
-                            const steps = answer.question.range.steps;
-                            const possibleAnswers = "Min:" + minLabel +" "+ "Max:" + maxLabel +" "+ "Steps:"+ steps;
-                            if(answer.question.task === "prom"){
-                                let prom = {
-                                    question: answer.question.title,
-                                    answer:answer.answer,
-                                    possibleAnswers: possibleAnswers,
-                                    date: formattedDate
-                                }
-                                this.model.promAnswers.push(prom);
-                            }else if(answer.question.task === "prem"){
-                                let prem = {
-                                    question: answer.question.title,
-                                    answer:answer.answer,
-                                    possibleAnswers: possibleAnswers,
-                                    date: formattedDate
-                                }
-                                this.model.premAnswers.push(prem);
-                            }
-                        } else if (answer.question.type ==="radio"){
 
-                            let options = []
-                            for(let i = 0; i< answer.question.options.length; i++){
-                                options.push(answer.question.options[i].value);
-                            }
-
-                            if(answer.question.task === "prom"){
-                                let prom = {
-                                    question: answer.question.title,
-                                    answer:answer.answer,
-                                    possibleAnswers: options,
-                                    date: formattedDate
-                                }
-                                this.model.promAnswers.push(prom);
-
-                            }else if(answer.question.task === "prem"){
-                                let prem = {
-                                    question: answer.question.title,
-                                    answer:answer.answer,
-                                    possibleAnswers: options,
-                                    date: formattedDate
-                                }
-                                this.model.premAnswers.push(prem);
-                            }
-                        } else if (answer.question.type ==="string"){
-                            if(answer.question.task === "prom"){
-                                let prom = {
-                                    question: answer.question.title,
-                                    answer:answer.answer,
-                                    possibleAnswers: [
-                                        "Not Available"
-                                    ],
-                                    date: formattedDate
-                                }
-                                this.model.promAnswers.push(prom);
-                            }else if(answer.question.task === "prem"){
-                                let prem = {
-                                    question: answer.question.title,
-                                    answer:answer.answer,
-                                    possibleAnswers: [
-                                        "Not Available"
-                                    ],
-                                    date: formattedDate
-                                }
-                                this.model.premAnswers.push(prem);
-                            }
-                        }
+                        this.filterAnswers(answer, formattedDate);
                     }
                 })
             })
@@ -152,21 +84,65 @@ export default class TrialParticipantAnswersController extends BreadCrumbManager
     }
 
     buildDataSources(){
-        this.model.hasProms = true;
+        this.model.hasProms = this.model.toObject('promAnswers').length !== 0;
         this.model.PromsDataSource = DataSourceFactory.createDataSource(4, 6, this.model.promAnswers);
-        this.model.hasPrems = true;
+        this.model.hasPrems =  this.model.toObject('premAnswers').length !== 0;
         this.model.PremsDataSource = DataSourceFactory.createDataSource(4, 6, this.model.premAnswers);
+        this.model.pageIsInitialized = true;
     }
+
+    filterAnswers(answer, formattedDate) {
+        let question = {
+            question: answer.question.title,
+            answer: answer.answer,
+            date: formattedDate
+        }
+
+        if (answer.question.type === "slider") {
+            const minLabel = answer.question.slider.minLabel;
+            const maxLabel = answer.question.slider.maxLabel;
+            const steps = answer.question.slider.steps;
+            const possibleAnswers = "Min:" + minLabel + " " + "Max:" + maxLabel + " " + "Steps:" + steps;
+
+            question.possibleAnswers = possibleAnswers;
+        }
+
+        if (answer.question.type === "checkbox") {
+            let options = []
+            for (let i = 0; i < answer.question.options.length; i++) {
+                options.push(answer.question.options[i].value);
+            }
+
+            question.possibleAnswers = options;
+        }
+
+        if (answer.question.type === "string") {
+            question.possibleAnswers = [
+                "Not Available"
+            ]
+        }
+        if (answer.question.task === "prom") {
+            this.model.promAnswers.push(question);
+        }
+        if (answer.question.task === "prem") {
+            this.model.premAnswers.push(question);
+        }
+    }
+
 
     _attachHandlerPromQuestions() {
         this.onTagEvent('new:prom', 'click', (model, target, event) => {
-            this.model.currentTable = "proms"
+            this.model.currentTable = "proms";
+            this.model.promSelected = true;
+            this.model.premSelected = false;
         });
     }
 
     _attachHandlerPremQuestions() {
         this.onTagEvent('new:prem', 'click', (model, target, event) => {
-            this.model.currentTable = "prems"
+            this.model.currentTable = "prems";
+            this.model.promSelected = false;
+            this.model.premSelected = true;
         });
     }
 }

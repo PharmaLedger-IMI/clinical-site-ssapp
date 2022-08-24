@@ -1,5 +1,7 @@
 const commonServices = require("common-services");
 const {WebcController} = WebCardinal.controllers;
+const momentService = commonServices.momentService;
+const Constants = commonServices.Constants;
 
 let getInitModel = () => {
     return {
@@ -9,6 +11,7 @@ let getInitModel = () => {
             required: true,
             placeholder: 'Please set the start date ',
             value: '',
+            min: momentService((new Date()).getTime()).format(Constants.DATE_UTILS.FORMATS.YearMonthDayPattern),
         },
         endDate: {
             label: 'End date',
@@ -16,6 +19,7 @@ let getInitModel = () => {
             required: true,
             placeholder: 'Please set the end recruitment date ',
             value: '',
+            min: momentService((new Date()).getTime()).format(Constants.DATE_UTILS.FORMATS.YearMonthDayPattern),
         },
         frequencyType: {
             label: "Frequency:",
@@ -50,12 +54,17 @@ export default class SetFrequencyQuestionnaire extends WebcController {
             ...getInitModel(),
             schedule: props[0].schedule
         };
+
         this._initHandlers();
-        if (this.model.schedule) {
-            this.model.startDate.value = this.model.schedule.startDate;
-            this.model.endDate.value = this.model.schedule.endDate;
-            this.model.frequencyType.value = this.model.schedule.repeatAppointment;
-        }
+        Object.keys(this.model.schedule).forEach(key => {
+            if(this.model.schedule[key]) {
+                this.model[key].value = this.model.schedule[key];
+            }
+        })
+
+        this.model.onChange('startDate.value', () => {
+            this.model.endDate.min = momentService((new Date(this.model.startDate.value)).getTime()).format(Constants.DATE_UTILS.FORMATS.YearMonthDayPattern);
+        })
     }
 
     _initHandlers() {

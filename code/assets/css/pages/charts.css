@@ -1,0 +1,10 @@
+div[has-no-chart]{
+    display: none;
+}
+.container .flex-container{
+    min-height: 4rem;
+}
+
+.no-chart-container{
+    overflow-y: auto;
+}

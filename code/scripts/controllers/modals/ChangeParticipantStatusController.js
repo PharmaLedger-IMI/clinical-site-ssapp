@@ -21,6 +21,14 @@ export default class ChangeParticipantStatusController extends WebcController {
       value: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
       label: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
     },
+    {
+      value: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
+    },
+    {
+      value: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
+    },
   ];
 
   statusesTemplate = {
@@ -35,13 +43,13 @@ export default class ChangeParticipantStatusController extends WebcController {
   constructor(...props) {
     super(...props);
 
-    this.setModel({
+    this.model = {
       statuses: {
         ...this.statusesTemplate,
         selectOptions: this.statusOptions,
         value: this.statusOptions[0].value,
-      },
-    });
+      }
+    };
 
     this.attachAll();
   }

@@ -27,7 +27,16 @@
                         <div class="cell">{{@deviceId}}</div>
                         <div class="cell">{{@brand}}</div>
                         <div class="cell">{{@modelNumber}}</div>
-                        <div class="cell">{{@status}}</div>
+
+                        <div class="cell">
+                            <webc-switch condition="@status">
+                                <span slot="Active" class="badge badge-success">Active</span>
+                                <span slot="Inactive" class="badge badge-warning">Inactive</span>
+                                <span slot="Entered in error" class="badge badge-danger">Entered in error</span>
+                                <span slot="Unknown" class="badge badge-secondary">Unknown</span>
+                            </webc-switch>
+                        </div>
+
                         <div class="cell" data-if="@isStillAssigned">
                             <span slot="true" class="badge badge-primary">{{@assignationDateString}}</span>
                             <div slot="false">
