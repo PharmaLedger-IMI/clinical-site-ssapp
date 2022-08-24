@@ -64,6 +64,12 @@ export default class SetFrequencyQuestionnaire extends WebcController {
 
         this.model.onChange('startDate.value', () => {
             this.model.endDate.min = momentService((new Date(this.model.startDate.value)).getTime()).format(Constants.DATE_UTILS.FORMATS.YearMonthDayPattern);
+            let startDateValue = (new Date(this.model.startDate.value)).getTime();
+            let endDateValue = (new Date(this.model.endDate.value)).getTime();
+            if(startDateValue>endDateValue) {
+                this.model.endDate.min = momentService(startDateValue).format(Constants.DATE_UTILS.FORMATS.YearMonthDayPattern);
+                this.model.endDate.value = momentService(startDateValue).format(Constants.DATE_UTILS.FORMATS.YearMonthDayPattern);
+            }
         })
     }
 
