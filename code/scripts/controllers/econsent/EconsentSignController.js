@@ -1,5 +1,5 @@
 import TrialService from '../../services/TrialService.js';
-import PatientEcosentService from "../../services/PatientEcosentService.js";
+import PatientEconsentService from "../../services/PatientEconsentService.js";
 import HCOService from "../../services/HCOService.js";
 
 const commonServices = require("common-services");
@@ -61,8 +61,8 @@ export default class EconsentSignController extends BreadCrumbManager {
         }
 
         if (this.model.isManuallySigned) {
-            this.PatientEcosentService = new PatientEcosentService(this.model.econsent.id);
-            this.PatientEcosentService.mountEcosent(this.model.manualKeySSI, (err, data) => {
+            this.PatientEconsentService = new PatientEconsentService(this.model.econsent.id);
+            this.PatientEconsentService.mountEconsent(this.model.manualKeySSI, (err, data) => {
                 if (err) {
                     return console.log(err);
                 }
@@ -110,7 +110,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             }
 
             this.updateEconsentWithDetails(message);
-            this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.SIGN_ECOSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.SIGN_ECONSENT);
+            this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.SIGN_ECONSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.SIGN_ECONSENT);
 
             let state = {
                 trialUid: this.model.trialUid,
@@ -136,7 +136,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 actionNeeded: 'HCO DECLINED -no action required',
             }
             this.updateEconsentWithDetails(message);
-            this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.DECLINE_ECOSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.DECLINE_ECONSENT);
+            this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.DECLINE_ECONSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.DECLINE_ECONSENT);
 
             let state = {
                 trialUid: this.model.trialUid,

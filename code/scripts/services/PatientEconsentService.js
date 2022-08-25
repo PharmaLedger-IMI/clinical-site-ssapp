@@ -1,7 +1,7 @@
 const commonServices = require("common-services");
 const DSUService = commonServices.DSUService;
 
-export default class PatientEcosentService extends DSUService {
+export default class PatientEconsentService extends DSUService {
 
     constructor(ecoID) {
         super('/econsents/'+ecoID);
@@ -11,7 +11,7 @@ export default class PatientEcosentService extends DSUService {
 
     //getEconsent = (trialSSI,  callback) => this.getEntity(econsentSSI, this._getEconsentsPath(trialSSI), callback)
 
-    mountEcosent = ( keySSI, callback) => this.mountEntity(keySSI, callback);
+    mountEconsent = ( keySSI, callback) => this.mountEntity(keySSI, callback);
 
     //getEconsentAsync = (trialSSI, econsentSSI) => this.getEntityAsync(econsentSSI, this._getEconsentsPath(trialSSI));
 

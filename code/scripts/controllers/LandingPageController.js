@@ -134,14 +134,14 @@ export default class LandingPageController extends WebcController {
             }
 
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
-                await this._saveNotification(data, 'New ecosent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                await this._saveNotification(data, 'New econsent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 this.HCOService.refreshSite(async ()=> {
                     await this.sendRefreshConsentsToTrialParticipants(data);
                 });
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_CONSENT: {
-                await this._saveNotification(data, 'New ecosent  was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                await this._saveNotification(data, 'New econsent  was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 this.HCOService.refreshSite(async ()=>{
                     await this.sendRefreshConsentsToTrialParticipants(data);
                 })
@@ -196,7 +196,7 @@ export default class LandingPageController extends WebcController {
                 await this._saveNotification(data, 'New consent was added to trial  ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 break;
             }
-            case Constants.MESSAGES.HCO.UPDATE_ECOSENT: {
+            case Constants.MESSAGES.HCO.UPDATE_ECONSENT: {
                 await this._updateEconsentWithDetails(data);
                 break;
             }
