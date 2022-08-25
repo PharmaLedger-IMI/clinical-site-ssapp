@@ -77,6 +77,10 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     displayConsentFile(consentFilePath, version) {
+        this.model.consentPathAndVersion = {
+            path: consentFilePath,
+            version: version
+        };
         this.PDFService = new PDFService(this.DSUStorage);
         this.PDFService.displayPDF(consentFilePath, version);
         this.PDFService.onFileReadComplete(() => {
@@ -94,9 +98,10 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     attachHandlerEconsentSign() {
-        this.onTagEvent('econsent:sign', 'click', (model, target, event) => {
+        this.onTagEvent('econsent:sign', 'click', async (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
+
             const currentDate = new Date();
             this.model.econsent.hcoSign = {
                 date: currentDate.toISOString(),
@@ -108,6 +113,17 @@ export default class EconsentSignController extends BreadCrumbManager {
                 status: Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED,
                 actionNeeded: 'HCO SIGNED -no action required',
             }
+
+            const {path, version} = this.model.consentPathAndVersion;
+            const digitalSignatureOptions = {
+                path: path,
+                version: version,
+                signatureDate: currentDate.toLocaleDateString(),
+                signatureAuthor: "HCO Signature",
+                existingSignatures: 1
+            };
+            const arrayBufferSignedPdf = await this.PDFService.applyDigitalSignature(digitalSignatureOptions);
+            console.log("signed pdf", arrayBufferSignedPdf);
 
             this.updateEconsentWithDetails(message);
             this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.SIGN_ECONSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.SIGN_ECONSENT);
@@ -189,12 +205,12 @@ export default class EconsentSignController extends BreadCrumbManager {
 
     updateTrialParticipantStatus(message) {
         this.model.trialParticipant.actionNeeded = message.actionNeeded;
-        this.model.trialParticipant.tpSigned = message.name === 'Signed' ? true : false;
+        this.model.trialParticipant.tpSigned = message.name === 'Signed';
         this.model.trialParticipant.status = message.status;
         let currentDate = new Date();
-        if(message.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
+        if (message.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
             this.model.trialParticipant.enrolledDate = currentDate.toLocaleDateString();
-        } else  this.model.trialParticipant.discontinuedDate = currentDate.toLocaleDateString();
+        } else this.model.trialParticipant.discontinuedDate = currentDate.toLocaleDateString();
 
         this.TrialParticipantRepository.update(this.model.trialParticipant.pk, this.model.trialParticipant, (err, trialParticipant) => {
             if (err) {
@@ -210,13 +226,13 @@ export default class EconsentSignController extends BreadCrumbManager {
 
     async initSite(trialUid) {
         const sites = this.model.toObject("hcoDSU.volatile.site");
-        this.model.site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid);
+        this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid);
     }
 
     getInitModel() {
         return {
             econsent: {},
-            controlsShouldBeVisible:true,
+            controlsShouldBeVisible: true,
             ...this.getState(),
             documentWasNotRead: true,
         }
@@ -246,7 +262,7 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     sendMessageToPatient(patientDid, operation, message) {
-        if(!message){
+        if (!message) {
             message = {};
         }
         const patientMessage = {
