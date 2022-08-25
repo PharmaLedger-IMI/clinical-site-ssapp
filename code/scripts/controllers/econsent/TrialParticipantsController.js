@@ -214,17 +214,17 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 let lastIndexAction = tpActions.length-1;
                 let foundEconsentAction = false;
 
-                while(foundEconsentAction === false && lastIndexAction > 1) {
+                while(foundEconsentAction === false && lastIndexAction >= 0) {
                     let lastAction = tpActions[lastIndexAction];
 
                     switch (lastAction.action.name) {
-                        case 'withdraw': {
+                        case 'Withdraw': {
                             actionNeeded = 'Contact TP';
                             notificationColor = 'warning';
                             foundEconsentAction = true;
                             break;
                         }
-                        case 'sign': {
+                        case 'Signed': {
                             switch (lastAction.action.type) {
                                 case 'hco': {
                                     actionNeeded = 'Set TP Number';

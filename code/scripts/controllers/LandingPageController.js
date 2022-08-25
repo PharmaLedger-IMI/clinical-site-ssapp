@@ -321,8 +321,8 @@ export default class LandingPageController extends WebcController {
         let tpObjectToAssign = {};
         let currentDate = new Date();
         switch (message.useCaseSpecifics.action.name) {
-            case 'withdraw': {
-                actionNeeded = 'TP Withdrawed';
+            case 'Withdraw': {
+                actionNeeded = 'TP Withdrawn';
                 status = Constants.TRIAL_PARTICIPANT_STATUS.TP_WITHDRAWN;
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 tpObjectToAssign = {
@@ -345,7 +345,7 @@ export default class LandingPageController extends WebcController {
                 }
                 break;
             }
-            case 'sign': {
+            case 'Signed': {
                 tpSigned = true;
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 actionNeeded = 'Acknowledgement required';

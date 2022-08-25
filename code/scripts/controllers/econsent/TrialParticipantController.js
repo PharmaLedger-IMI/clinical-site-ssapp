@@ -303,7 +303,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
                             }
 
-                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.WITHDRAW) {
+                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.WITHDRAWN) {
                                 econsent = this._showButton(econsent, 'Contact');
                                 econsent.tsWithdrawDate = tpVersion.toShowDate;
                             }
@@ -324,14 +324,14 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         let hcoVersion = hcoVersions[hcoVersions.length - 1];
                         let hcoVersionIndex = validVersions.findIndex(v => v === hcoVersion);
                         let tpVersionIndex = validVersions.findIndex(v => v === tpVersion);
-                        if (hcoVersion.name === 'sign' && hcoVersionIndex > tpVersionIndex) {
+                        if (hcoVersion.name === 'Signed' && hcoVersionIndex > tpVersionIndex) {
                             econsent.test = true;
                             econsent = this._showButton(econsent, 'View');
                         }
-                        if (hcoVersion.name === 'sign' && hcoVersionIndex > tpVersionIndex && this.model.tp.number!==undefined) {
+                        if (hcoVersion.name === 'Signed' && hcoVersionIndex > tpVersionIndex && this.model.tp.number!==undefined) {
                             econsent = this._showButton(econsent, 'Schedule');
                         }
-                        if (hcoVersion.name === 'decline' && hcoVersionIndex > tpVersionIndex) {
+                        if (hcoVersion.name === 'Declined' && hcoVersionIndex > tpVersionIndex) {
                             econsent.hcoDeclined = true;
                             econsent = this._showButton(econsent, 'View');
                         }

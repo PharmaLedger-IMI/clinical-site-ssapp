@@ -104,7 +104,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             };
 
             let message = {
-                name: 'sign',
+                name: 'Signed',//use statusmapper
                 status: Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED,
                 actionNeeded: 'HCO SIGNED -no action required',
             }
@@ -131,7 +131,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 toShowDate: currentDate.toLocaleDateString(),
             };
             let message = {
-                name: 'decline',
+                name: 'Declined',//use statusmapper
                 status: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
                 actionNeeded: 'HCO DECLINED -no action required',
             }
@@ -189,7 +189,7 @@ export default class EconsentSignController extends BreadCrumbManager {
 
     updateTrialParticipantStatus(message) {
         this.model.trialParticipant.actionNeeded = message.actionNeeded;
-        this.model.trialParticipant.tpSigned = message.name === 'sign' ? true : false;
+        this.model.trialParticipant.tpSigned = message.name === 'Signed' ? true : false;
         this.model.trialParticipant.status = message.status;
         let currentDate = new Date();
         if(message.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
