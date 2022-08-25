@@ -3,7 +3,8 @@ const commonServices = require('common-services');
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-
+const momentService = commonServices.momentService;
+const Constants = commonServices.Constants;
 
 export default class NotificationsListController extends BreadCrumbManager {
     constructor(...props) {
@@ -42,8 +43,12 @@ export default class NotificationsListController extends BreadCrumbManager {
             }
 
             const notifications = data.filter(notification => this.model.notificationType.indexOf(notification.type.trim()) > 1);
-            this.model.notificationsListEmpty = notifications.length === 0;
-            this.model.notificationsDatasource = DataSourceFactory.createDataSource(2, 10, notifications);
+            notifications.forEach(notification => {
+                notification.date = momentService(notification.date).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+            });
+            let orderedNotifications = notifications.reverse();
+            this.model.notificationsListEmpty = orderedNotifications.length === 0;
+            this.model.notificationsDatasource = DataSourceFactory.createDataSource(2, 10, orderedNotifications);
         });
     }
 

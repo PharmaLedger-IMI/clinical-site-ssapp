@@ -12,9 +12,10 @@
                 <div class="alert alert-light d-flex justify-content-center" role="alert">No available notifications</div>
             </div>
 
-            <div class="common-datatable notifications-datatable dt-2-col" slot="false">
+            <div class="common-datatable notifications-datatable dt-3-col" slot="false">
                 <webc-datatable datasource="@notificationsDatasource">
                     <div slot="header">Notification</div>
+                    <div slot="header">Date</div>
                     <div slot="header">Recommended Action</div>
 
 
@@ -25,6 +26,7 @@
                         </div>
                         <span>{{@name}}</span>
                     </div>
+                    <div class="cell">{{@date}}</div>
                     <div class="cell ">
                         <button class="link-button" data-tag="navigation:goToAction">{{@recommendedAction}}</button>
                     </div>
