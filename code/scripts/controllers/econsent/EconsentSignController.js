@@ -35,7 +35,7 @@ export default class EconsentSignController extends BreadCrumbManager {
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.initSite(this.model.trialUid);
-        this.initTrialParticipant();
+        await this.initTrialParticipant();
         this.initConsent();
     }
 
@@ -45,7 +45,7 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     initConsent() {
-        let econsent = this.model.hcoDSU.volatile.ifcs.find(consent => consent.uid === this.model.econsentUid);
+        let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid && ifc.tpUid === this.model.trialParticipant.pk);
         if (econsent === undefined) {
             return console.log('Error while loading econsent.');
         }
@@ -90,7 +90,7 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     getEconsentFilePath(econsent, currentVersion) {
-        return this.HCOService.PATH + '/' + this.HCOService.ssi + '/ifcs/'
+        return this.HCOService.PATH + '/' + this.HCOService.ssi + '/ifcs/' + this.model.trialParticipant.pk + "/"
             + econsent.uid + '/versions/' + currentVersion.version
     }
 
@@ -186,7 +186,7 @@ export default class EconsentSignController extends BreadCrumbManager {
         });
 
         this.model.econsent.versions[currentVersionIndex] = currentVersion;
-        this.HCOService.updateHCOSubEntity(this.model.econsent, "ifcs", async (err, response) => {
+        this.HCOService.updateHCOSubEntity(this.model.econsent, "ifcs/"+this.model.trialParticipant.pk, async (err, response) => {
             if (err) {
                 return console.log(err);
             }
@@ -195,13 +195,11 @@ export default class EconsentSignController extends BreadCrumbManager {
         });
     }
 
-    initTrialParticipant() {
-        this.TrialParticipantRepository.filter(`did == ${this.model.tpDid}`, 'ascending', 30, (err, tps) => {
-
-            if (tps && tps.length > 0) {
+    async initTrialParticipant() {
+         const tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.model.tpDid}`, 'ascending', 30)
+          if (tps.length > 0) {
                 this.model.trialParticipant = tps[0];
-            }
-        });
+          }
     }
 
     updateTrialParticipantStatus(message) {
@@ -225,7 +223,7 @@ export default class EconsentSignController extends BreadCrumbManager {
         });
     }
 
-    async initSite(trialUid) {
+     initSite(trialUid) {
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid);
     }

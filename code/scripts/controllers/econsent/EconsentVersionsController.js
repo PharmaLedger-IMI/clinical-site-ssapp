@@ -56,9 +56,8 @@ export default class EconsentVersionsController extends BreadCrumbManager {
     }
 
     getEconsentVersions() {
-
-        const consent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid);
-        this.model.versions = consent.versions.filter(version => version.actions && version.actions.some(action => action.tpDid === this.model.tpDid));
+        const consent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid && ifc.tpUid === this.model.tpPk);
+        this.model.versions = consent.versions;
         if (this.model.versions.length > 0) {
 
             this.model.versions = this.model.versions.map(econsentVersion => {
@@ -92,9 +91,6 @@ export default class EconsentVersionsController extends BreadCrumbManager {
                 if (econsentVersion.hcoSign) {
                     econsentVersion.hcpApproval = consent.hcoSign.toShowDate;
                 }
-
-                let validActions = econsentVersion.actions.filter(action => action.tpDid === this.model.tpDid);
-                econsentVersion.actions = validActions;
 
                 return econsentVersion;
             });

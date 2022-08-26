@@ -47,7 +47,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
         this.model.hasTpNumber = this.model.tp.number !== undefined;
-        this.initTrialParticipant();
     }
 
     _initHandlers() {
@@ -59,13 +58,13 @@ export default class TrialParticipantController extends BreadCrumbManager {
     }
 
     async _initConsents(trialUid) {
-
+        await this._initTrialParticipant();
         let ifcs = this.model.hcoDSU.volatile.ifcs;
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
 
         let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
         let trialConsents = ifcs.filter(icf => {
-            return siteConsentsKeySSis.indexOf(icf.genesisUid) > -1
+            return siteConsentsKeySSis.indexOf(icf.genesisUid) > -1 && icf.tpUid === this.model.tp.pk
         })
 
         this.econsents = trialConsents.map(consent => {
@@ -74,7 +73,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 versionDateAsString: DateTimeService.convertStringToLocaleDate(consent.versions[0].versionDate)
             };
         })
-        return await this._initTrialParticipant();
+        return this._computeEconsentsWithActions();
     }
 
     async _initTrialParticipant() {
@@ -83,10 +82,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
         if (nonObfuscatedTps.length > 0) {
             trialParticipant.name = nonObfuscatedTps[0].name;
             trialParticipant.number = nonObfuscatedTps[0].number;
+            trialParticipant.pk = nonObfuscatedTps[0].pk;
         }
         this.model.tp = trialParticipant;
-        return this._computeEconsentsWithActions();
-
     }
 
     _attachHandlerNavigateToEconsentVersions() {
@@ -97,6 +95,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 econsentUid: model.uid,
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
+                tpPk:this.model.tp.pk,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -218,14 +217,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         }
     }
 
-    initTrialParticipant() {
-        this.TrialParticipantRepository.filter(`did == ${this.model.tp.did}`, 'ascending', 30, (err, tps) => {
-
-            if (tps && tps.length > 0) {
-                this.model.trialParticipant = tps[0];
-            }
-        });
-    }
 
     _updateTrialParticipant(trialParticipant, callback) {
 
@@ -236,14 +227,14 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     return console.log(err);
                 }
                 this._sendMessageToPatient(this.model.trialUid, tp, 'Tp Number was attached');
-                this.TrialParticipantRepository.update(this.model.trialParticipant.pk, tp, callback);
+                this.TrialParticipantRepository.update(this.model.tp.pk, tp, callback);
             })
         }
 
-        this.model.trialParticipant.number = trialParticipant.number;
+        this.model.tp.number = trialParticipant.number;
         if(this.model.tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
             this.model.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
-            this.TrialParticipantRepository.update(this.model.trialParticipant.pk, this.model.trialParticipant, (err, trialParticipant) => {
+            this.TrialParticipantRepository.update(this.model.tp.pk, this.model.tp, (err, trialParticipant) => {
                 if (err) {
                     return console.log(err);
                 }

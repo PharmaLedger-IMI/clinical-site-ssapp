@@ -286,8 +286,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
              econsents = this.model.hcoDSU.volatile.ifcs.filter(ifc => siteConsentsUids.includes(ifc.genesisUid));
         }
 
-
-        console.log('econsents', econsents)
         econsents.forEach(econsent => {
                 if (econsent.versions === undefined) {
                     return actions;
@@ -466,12 +464,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             });
         }
 
-        this.HCOService.cloneIFCs(site.uid, async () => {
+        this.HCOService.cloneIFCs(site.uid, trialParticipant.pk, async () => {
             this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
             let ifcs = this.model.hcoDSU.volatile.ifcs||[];
             let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
-            let trialConsents = ifcs.filter(icf => {
-                return siteConsentsKeySSis.includes(icf.genesisUid)
+            let trialConsents = ifcs.filter(ifc => {
+                return siteConsentsKeySSis.includes(ifc.genesisUid) && ifc.tpUid === trialParticipant.pk
             });
 
             const consentsPromises = trialConsents.map((econsent, index)=> {

@@ -134,45 +134,49 @@ export default class HCOService extends DSUService {
         this.mountSubEntity(tcSSI, 'tc', callback);
     }
 
-    cloneIFCs = (siteSSI, callback) => {
+    cloneIFCs = async (siteSSI, tpUid, callback) => {
+        await this.storageService.beginBatchAsync();
         const siteUID = this.getAnchorId(siteSSI);
         if (this.ssi == null) {
-            return callback(this.PATH + ' was not initialized yet.');
+            let err = this.PATH + ' was not initialized yet.';
+            return this.cancelBatchOnError(err,callback);
         }
         const consentsPath = this.PATH + '/' + this.ssi + '/site/'+ siteUID+"/consent";
-        this.getEntities(consentsPath, (err, consents) => {
+        this.getEntities(consentsPath, async(err, consents) => {
             if (err) {
-                return callback(err);
+                return this.cancelBatchOnError(err, callback)
             }
             if (consents.length === 0) {
+                await this.storageService.commitBatchAsync();
                 return callback(undefined, []);
             }
             let clonedIFCS = [];
             let siteConsents = consents;
             let hcoPath = this.PATH + '/' + this.ssi;
-            this.getFilteredEntities(hcoPath,IFCS_PATH,(err, existingIFCS) => {
+            this.getFilteredEntities(hcoPath,IFCS_PATH,async (err, existingIFCS) => {
 
                 if (err) {
-                    return callback(err);
+                    return this.cancelBatchOnError(err, callback)
                 }
-                let getServiceDsu = (consent) => {
+                let getServiceDsu = async (consent) => {
                     if (consent === undefined && siteConsents.length === 0) {
+                        await this.storageService.commitBatchAsync();
                         return callback(undefined, []);
                     }
-                    let existingIfc = existingIFCS.find(ifc => ifc.genesisUid === consent.uid);
+                    let existingIfc = existingIFCS.find(ifc => ifc.genesisUid === consent.uid && ifc.tpUid === tpUid);
                     if (existingIfc !== undefined) {
                         const ifcVersions = existingIfc.versions.map(version => version.version);
                         const notExistingVersions = consent.versions.filter(version => ifcVersions.includes(version.version) === false);
                         existingIfc.versions.push(...notExistingVersions);
-                        return this.updateHCOSubEntity(existingIfc, "ifcs", async (err, response) => {
+                        return this.updateHCOSubEntity(existingIfc, IFCS_PATH+ "/"+tpUid, async (err, response) => {
                             if (err) {
-                                return console.log(err);
+                                return this.cancelBatchOnError(err, callback)
                             }
 
                             let copyVersionsPromises = notExistingVersions.map(version => {
                                 return new Promise((resolve,reject) => {
                                     const source = consentsPath + "/" + consent.uid  + "/versions/" + version.version + "/" + version.attachment;
-                                    const destination = hcoPath + "/" + IFCS_PATH + "/" + existingIfc.uid + "/versions/" + version.version + "/" + version.attachment;
+                                    const destination = hcoPath + "/" + IFCS_PATH + "/" + tpUid + "/" + existingIfc.uid +  "/versions/" + version.version + "/" + version.attachment;
                                     
                                     this.copyFile(source, destination, (err) => {
                                         if(err) {
@@ -185,6 +189,8 @@ export default class HCOService extends DSUService {
 
                             Promise.all(copyVersionsPromises).then(() => {
                                 getServiceDsu(siteConsents.pop());
+                            }).catch(err=>{
+                                this.cancelBatchOnError(err, callback)
                             })
                         });
 
@@ -196,17 +202,18 @@ export default class HCOService extends DSUService {
 
                     this.DSUStorage.listMountedDSUs(consentsPath, (err, dsuList) => {
                         if (err) {
-                            return callback(err);
+                            return this.cancelBatchOnError(err, callback)
                         }
 
                         const mountedConsent = dsuList.find(item => item.path === consent.uid);
 
-                        this.cloneDSU(mountedConsent.identifier, hcoPath + '/'+IFCS_PATH, (err, cloneDetails) => {
+                        this.cloneDSU(tpUid, mountedConsent.identifier,  hcoPath + '/'+IFCS_PATH + "/" + tpUid , async (err, cloneDetails) => {
                             if (err) {
-                                return getServiceDsu(siteConsents.pop());
+                                return this.cancelBatchOnError(err, callback)
                             }
                             clonedIFCS.push(cloneDetails);
                             if (siteConsents.length === 0) {
+                                await this.storageService.commitBatchAsync();
                                 return callback(undefined, clonedIFCS);
                             }
                             getServiceDsu(siteConsents.pop());
@@ -215,6 +222,7 @@ export default class HCOService extends DSUService {
 
                 };
                 if (siteConsents.length === 0) {
+                    await this.storageService.commitBatchAsync();
                     return callback(undefined, []);
                 }
                 getServiceDsu(siteConsents.pop());

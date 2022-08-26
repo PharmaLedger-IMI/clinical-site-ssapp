@@ -233,26 +233,44 @@ export default class LandingPageController extends WebcController {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.uid) === data.ssi);
         return await new Promise((resolve) => {
-            this.HCOService.cloneIFCs(data.ssi, async () => {
-                this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
 
-                let ifcs = this.model.hcoDSU.volatile.ifcs || [];
-                ifcs = ifcs.filter(ifc => ifc.genesisUid === data.econsentUid);
+            this.TrialParticipantRepository.findAll(async (err, tps) => {
+                if (err) {
+                    return console.log(err);
+                }
 
-                this.TrialParticipantRepository.findAll((err, tps) => {
-                    if (err) {
-                        return console.log(err);
-                    }
+                tps = tps.filter(tp => tp.trialId === site.trialId);
 
-                    tps.filter(tp => tp.trialId === site.trialId).forEach((tp) => {
-                        ifcs.forEach(econsent => {
+                const cloneIFCs = (tps, callback) => {
+                    let tp = tps.shift();
+                    this.HCOService.cloneIFCs(data.ssi, tp.pk, (err) => {
+                        if (err) {
+                            return console.error(err);
+                        }
+
+                        if (tps.length > 0) {
+                            return cloneIFCs(tps, callback);
+                        }
+
+                        callback();
+                    });
+                }
+
+                cloneIFCs([...tps], async () => {
+                    this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+                    let ifcs = this.model.hcoDSU.volatile.ifcs || [];
+                    tps.forEach(tp => {
+                        let tpIfcs = ifcs.filter(ifc => ifc.genesisUid === data.econsentUid && ifc.tpUid === tp.pk);
+                        tpIfcs.forEach(econsent => {
                             this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT,
                                 econsent.keySSI, null);
                         });
-                        resolve();
                     })
+                    resolve();
+
                 })
-            });
+
+            })
         })
     }
 
@@ -296,6 +314,12 @@ export default class LandingPageController extends WebcController {
         let tp;
         if (this.model.hcoDSU.volatile.tps) {
             tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
+
+            const tps = await this.TrialParticipantRepository.filterAsync(`did == ${tp.did}`, 'ascending', 30)
+            if (tps.length > 0) {
+                this.tpPk = tps[0].pk;
+            }
+
             if (tp === undefined) {
                 return console.error('Cannot find tp.');
             }
@@ -303,7 +327,7 @@ export default class LandingPageController extends WebcController {
 
         const consentSSI = message.ssi;
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === consentSSI)
+        let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === consentSSI && ifc.tpUid === this.tpPk )
         if (econsent === undefined) {
             return console.error('Cannot find econsent.');
         }
@@ -380,7 +404,7 @@ export default class LandingPageController extends WebcController {
         });
 
         econsent.versions[currentVersionIndex] = currentVersion;
-        this.HCOService.updateHCOSubEntity(econsent, "ifcs", async (err, response) => {
+        this.HCOService.updateHCOSubEntity(econsent, "ifcs/"+this.tpPk, async (err, response) => {
             if (err) {
                 return console.log(err);
             }
