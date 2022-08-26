@@ -4,6 +4,7 @@ import HCOService from "../../services/HCOService.js";
 
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
+const ConsentStatusMapper = commonServices.ConsentStatusMapper;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
 const PDFService = commonServices.PDFService;
@@ -109,7 +110,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             };
 
             let message = {
-                name: 'Signed',//use statusmapper
+                name: ConsentStatusMapper.consentStatuses.signed.name,
                 status: Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED,
                 actionNeeded: 'HCO SIGNED -no action required',
             }
@@ -147,7 +148,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 toShowDate: currentDate.toLocaleDateString(),
             };
             let message = {
-                name: 'Declined',//use statusmapper
+                name: ConsentStatusMapper.consentStatuses.decline.name,
                 status: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
                 actionNeeded: 'HCO DECLINED -no action required',
             }
@@ -205,7 +206,7 @@ export default class EconsentSignController extends BreadCrumbManager {
 
     updateTrialParticipantStatus(message) {
         this.model.trialParticipant.actionNeeded = message.actionNeeded;
-        this.model.trialParticipant.tpSigned = message.name === 'Signed';
+        this.model.trialParticipant.tpSigned = message.name === ConsentStatusMapper.consentStatuses.signed.name;
         this.model.trialParticipant.status = message.status;
         let currentDate = new Date();
         if (message.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {

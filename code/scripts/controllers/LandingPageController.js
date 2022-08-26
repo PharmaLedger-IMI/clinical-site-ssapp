@@ -6,6 +6,7 @@ import {getNotificationsService} from "../services/NotificationsService.js";
 
 const {WebcController} = WebCardinal.controllers;
 const commonServices = require("common-services");
+const ConsentStatusMapper = commonServices.ConsentStatusMapper;
 const Constants = commonServices.Constants;
 const {ResponsesService} = commonServices;
 const momentService  = commonServices.momentService;
@@ -321,7 +322,7 @@ export default class LandingPageController extends WebcController {
         let tpObjectToAssign = {};
         let currentDate = new Date();
         switch (message.useCaseSpecifics.action.name) {
-            case 'Withdraw': {
+            case ConsentStatusMapper.consentStatuses.withdraw.name: {
                 actionNeeded = 'TP Withdrawn';
                 status = Constants.TRIAL_PARTICIPANT_STATUS.TP_WITHDRAWN;
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
@@ -333,7 +334,7 @@ export default class LandingPageController extends WebcController {
                 }
                 break;
             }
-            case 'Declined': {
+            case ConsentStatusMapper.consentStatuses.decline.name: {
                 actionNeeded = 'TP Declined';
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' declined', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 status = Constants.TRIAL_PARTICIPANT_STATUS.DECLINED;
@@ -345,7 +346,7 @@ export default class LandingPageController extends WebcController {
                 }
                 break;
             }
-            case 'Signed': {
+            case ConsentStatusMapper.consentStatuses.signed.name: {
                 tpSigned = true;
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 actionNeeded = 'Acknowledgement required';

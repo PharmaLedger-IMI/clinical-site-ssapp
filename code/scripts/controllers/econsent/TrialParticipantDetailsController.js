@@ -8,6 +8,7 @@ const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const ConsentStatusMapper = commonServices.ConsentStatusMapper;
 
 let getInitModel = () => {
     return {
@@ -90,11 +91,11 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
             .join(" ");
 
         this.model.consentsSigned = userActions
-            .filter(ac => ac.action.name === 'sign')
+            .filter(ac => ac.action.name === ConsentStatusMapper.consentStatuses.signed.name)
             .map(ac => ac.version.version + ' - ' + ac.econsent.name);
 
         let lastBadActions = userActions
-            .filter(ac => ac.action.name === 'withdraw');
+            .filter(ac => ac.action.name === ConsentStatusMapper.consentStatuses.withdraw.name);
 
         let lastBadAction = lastBadActions.length === 0 ? undefined : lastBadActions[lastBadActions.length - 1];
 

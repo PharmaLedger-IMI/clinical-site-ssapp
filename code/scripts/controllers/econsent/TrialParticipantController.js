@@ -7,7 +7,7 @@ const Constants = commonServices.Constants;
 const BaseRepository = commonServices.BaseRepository;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-
+const ConsentStatusMapper = commonServices.ConsentStatusMapper;
 
 let getInitModel = () => {
     return {
@@ -324,14 +324,14 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         let hcoVersion = hcoVersions[hcoVersions.length - 1];
                         let hcoVersionIndex = validVersions.findIndex(v => v === hcoVersion);
                         let tpVersionIndex = validVersions.findIndex(v => v === tpVersion);
-                        if (hcoVersion.name === 'Signed' && hcoVersionIndex > tpVersionIndex) {
+                        if (hcoVersion.name === ConsentStatusMapper.consentStatuses.signed.name && hcoVersionIndex > tpVersionIndex) {
                             econsent.test = true;
                             econsent = this._showButton(econsent, 'View');
                         }
-                        if (hcoVersion.name === 'Signed' && hcoVersionIndex > tpVersionIndex && this.model.tp.number!==undefined) {
+                        if (hcoVersion.name === ConsentStatusMapper.consentStatuses.signed.name && hcoVersionIndex > tpVersionIndex && this.model.tp.number!==undefined) {
                             econsent = this._showButton(econsent, 'Schedule');
                         }
-                        if (hcoVersion.name === 'Declined' && hcoVersionIndex > tpVersionIndex) {
+                        if (hcoVersion.name === ConsentStatusMapper.consentStatuses.decline.name && hcoVersionIndex > tpVersionIndex) {
                             econsent.hcoDeclined = true;
                             econsent = this._showButton(econsent, 'View');
                         }

@@ -6,6 +6,7 @@ const {CommunicationService, QuestionnaireService, Constants, JWTService, DidSer
 const BaseRepository = commonServices.BaseRepository;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
+const ConsentStatusMapper = commonServices.ConsentStatusMapper;
 
 let getInitModel = () => {
     return {
@@ -218,13 +219,13 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     let lastAction = tpActions[lastIndexAction];
 
                     switch (lastAction.action.name) {
-                        case 'Withdraw': {
+                        case ConsentStatusMapper.consentStatuses.withdraw.name: {
                             actionNeeded = 'Contact TP';
                             notificationColor = 'warning';
                             foundEconsentAction = true;
                             break;
                         }
-                        case 'Signed': {
+                        case ConsentStatusMapper.consentStatuses.signed.name: {
                             switch (lastAction.action.type) {
                                 case 'hco': {
                                     actionNeeded = 'Set TP Number';
