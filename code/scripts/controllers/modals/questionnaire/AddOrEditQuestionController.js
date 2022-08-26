@@ -88,6 +88,10 @@ export default class AddOrEditQuestionController extends WebcController {
         })
     }
 
+    getStepsElement() {
+        return this.querySelector('#steps');
+    }
+
     validateForm(){
         switch (this.model.answerType.value) {
             case "checkbox":
@@ -99,7 +103,24 @@ export default class AddOrEditQuestionController extends WebcController {
                 return;
             case "slider":
                 const sliderValues = [this.model.slider.minimum.value, this.model.slider.maximum.value, this.model.slider.steps.value]
-                this.model.formIsInvalid = sliderValues.some(value => value.trim() === "");
+
+                const isAnyInputEmpty = sliderValues.some(value => value.trim() === "");
+
+                const validateSteps = () => {
+                    if(isAnyInputEmpty) {
+                        return;
+                    }
+
+                    if((Number(sliderValues[0]) <= Number(sliderValues[2])) && (Number(sliderValues[2]) <= Number(sliderValues[1]))) {
+                        this.getStepsElement().classList.remove("is-invalid");
+                        return false;
+                    } else {
+                        this.getStepsElement().classList.add("is-invalid");
+                        return true;
+                    }
+                }
+
+                this.model.formIsInvalid = validateSteps();
                 if (this.model.formIsInvalid) {
                     break;
                 }
@@ -268,7 +289,7 @@ export default class AddOrEditQuestionController extends WebcController {
                 steps:{
                     name: 'steps',
                     id: 'steps',
-                    label: "Steps:",
+                    label: "Step Size:",
                     placeholder: 'Insert the steps',
                     required: true,
                     value: ""
