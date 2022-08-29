@@ -23,7 +23,9 @@ export default class NotificationsListController extends BreadCrumbManager {
             }
         );
 
-        this.initServices();
+        this.initServices().then(async () => {
+            await this.initNotifications();
+        });
         this.initNotifications();
         this.initHandlers();
     }
@@ -32,24 +34,19 @@ export default class NotificationsListController extends BreadCrumbManager {
         this.attachActionsHandlers();
     }
 
-    initServices() {
+    async initServices() {
         this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS);
     }
 
-    initNotifications() {
-        this.NotificationsRepository.findAll((err, data) => {
-            if (err) {
-                return console.log(err);
-            }
-
-            const notifications = data.filter(notification => this.model.notificationType.indexOf(notification.type.trim()) > 1);
-            notifications.forEach(notification => {
-                notification.date = momentService(notification.date).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
-            });
-            let orderedNotifications = notifications.sort((a, b) => new Date(b.date) - new Date(a.date));
-            this.model.notificationsListEmpty = orderedNotifications.length === 0;
-            this.model.notificationsDatasource = DataSourceFactory.createDataSource(2, 10, orderedNotifications);
+    async initNotifications() {
+        let fetchedNotifications = await this.notificationService.getNotifications();
+        let notifications = fetchedNotifications.filter(notification => this.model.notificationType.indexOf(notification.type.trim()) > 1);
+        notifications.forEach(notification => {
+            notification.toShowDate = momentService(notification.date).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
         });
+        notifications.sort((a, b) => b.date - a.date);
+        this.model.notificationsListEmpty = notifications.length === 0;
+        this.model.notificationsDatasource = DataSourceFactory.createDataSource(2, 10, notifications);
     }
 
     async markNotificationHandler(model) {

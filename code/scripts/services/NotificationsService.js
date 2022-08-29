@@ -23,7 +23,6 @@ class NotificationsService  extends DSUService {
     async getNotifications() {
         if(this.notifications === null) {
             let notifications = await this.storageService.filter(this.NOTIFICATIONS_TABLE);
-            notifications = notifications.sort((a, b) => b.date - a.date);
             this.notifications = notifications;
         }
         return this.notifications;
