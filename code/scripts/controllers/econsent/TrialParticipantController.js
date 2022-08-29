@@ -92,6 +92,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.navigateToPageTag('econsent-versions', {
+                trialUid: this.model.trialUid,
                 econsentUid: model.uid,
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,

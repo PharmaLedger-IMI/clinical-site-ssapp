@@ -53,11 +53,12 @@ export default class EconsentVersionsController extends BreadCrumbManager {
 
     initHandlers() {
         this.attachHandlerBack();
+        this._attachHandlerPreview();
     }
 
     getEconsentVersions() {
-        const consent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid && ifc.tpUid === this.model.tpPk);
-        this.model.versions = consent.versions;
+        this.consent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid && ifc.tpUid === this.model.tpPk);
+        this.model.versions = this.consent.versions;
         if (this.model.versions.length > 0) {
 
             this.model.versions = this.model.versions.map(econsentVersion => {
@@ -102,4 +103,16 @@ export default class EconsentVersionsController extends BreadCrumbManager {
             this.history.goBack();
         });
     }
+
+    _attachHandlerPreview() {
+        this.onTagEvent('preview-consent', 'click', (model) => {
+            this.navigateToPageTag('consent-preview', {
+                breadcrumb: this.model.toObject('breadcrumb'),
+                trialUid: this.model.trialUid,
+                versionId: model.version,
+                consentUid: this.consent.genesisUid
+            });
+        });
+    }
+
 }

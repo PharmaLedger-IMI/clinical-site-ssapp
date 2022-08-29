@@ -11,7 +11,7 @@
 
                 <webc-spinner slot="loading"></webc-spinner>
 
-                <div class="common-datatable trial-participant dt-6-col" slot="true">
+                <div class="common-datatable econsents dt-7-col" slot="true">
 
                     <webc-datatable datasource="@dataSourceVersions">
                         <div slot="no-data" class="alert alert-warning" role="alert">
@@ -24,6 +24,7 @@
                         <div slot="header">Name</div>
                         <div slot="header">Status</div>
                         <div slot="header">Date</div>
+                        <div slot="header">Actions</div>
 
                         <div class="cell">{{@version}}</div>
                         <div class="cell">{{@versionDate}}</div>
@@ -31,6 +32,9 @@
                         <div class="cell">{{@name}}</div>
                         <div class="cell">{{@status}}</div>
                         <div class="cell">{{@toShowDate}}</div>
+                        <div class="cell">
+                            <button class="link-button" data-tag="preview-consent">Preview</button>
+                        </div>
 
                     </webc-datatable>
                 </div>
