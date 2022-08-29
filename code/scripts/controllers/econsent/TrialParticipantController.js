@@ -127,9 +127,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
             this.navigateToPageTag('econsent-sign', {
                 trialUid: this.model.trialUid,
                 econsentUid: model.uid,
-                isManuallySigned: model.isManuallySigned,
-                manualKeySSI: model.manualKeySSI,
-                manualAttachment: model.manualAttachment,
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
                 ecoVersion: ecoVersion,
@@ -260,19 +257,8 @@ export default class TrialParticipantController extends BreadCrumbManager {
         });
     }
 
-    _showButton(econsent, buttonName) {
-        let existingButtons = ['Sign', 'View', 'Schedule','Contact'];
-        existingButtons.forEach(bn => {
-            econsent['show' + bn + 'Button'] = false;
-        })
-        econsent['show' + buttonName + 'Button'] = true;
-
-        return econsent;
-    }
-
     _computeEconsentsWithActions() {
         this.econsents.forEach(econsent => {
-            econsent = this._showButton(econsent, 'View');
             econsent.versions.forEach(version => {
                 if (version.actions !== undefined) {
                     let validVersions = version.actions.filter(action => action.tpDid === this.model.tp.did);
@@ -284,27 +270,15 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         tpVersion = tpVersions[tpVersions.length - 1];
                         if (tpVersion && tpVersion.actionNeeded) {
                             if (tpVersion.actionNeeded === Constants.ECO_STATUSES.TO_BE_SIGNED) {
-
-                                econsent = this._showButton(econsent, 'Sign');
-
+                                econsent.toBeSignedByHCO = true;
                                 econsent.tsSignedDate = tpVersion.toShowDate;
-                                econsent.isManuallySigned = tpVersion.isManual;
-                                econsent.manualAttachment = tpVersion.attachment;
-                                econsent.manualKeySSI = tpVersion.fileSSI;
-
                             }
 
                             if (tpVersion.actionNeeded === Constants.ECO_STATUSES.WITHDRAWN) {
-                                econsent = this._showButton(econsent, 'Contact');
+
                                 econsent.tsWithdrawDate = tpVersion.toShowDate;
-                            }
-                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.CONTACT) {
-                                if (tpVersion.status === 'Withdrawed') {
-                                    econsent.tsWithdrawDate = tpVersion.toShowDate;
-                                } else {
-                                    econsent = this._showButton(econsent, 'Contact');
-                                    econsent.tsWithdrawedIntentionDate = 'Intention';
-                                }
+                                econsent.withdrawn = true;
+                                econsent.toBeContactedByHCO = true;
                             }
                             if (tpVersion.actionNeeded === Constants.ECO_STATUSES.DECLINED || tpVersion.actionNeeded === Constants.ECO_STATUSES.DECLINED_OPTIONAL) {
                                 econsent.tsDeclined = true;
@@ -316,15 +290,16 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         let hcoVersionIndex = validVersions.findIndex(v => v === hcoVersion);
                         let tpVersionIndex = validVersions.findIndex(v => v === tpVersion);
                         if (hcoVersion.name === ConsentStatusMapper.consentStatuses.signed.name && hcoVersionIndex > tpVersionIndex) {
-                            econsent.test = true;
-                            econsent = this._showButton(econsent, 'View');
+                            econsent.signed = true;
+                            econsent.toBeSignedByHCO = false;
                         }
                         if (hcoVersion.name === ConsentStatusMapper.consentStatuses.signed.name && hcoVersionIndex > tpVersionIndex && this.model.tp.number!==undefined) {
-                            econsent = this._showButton(econsent, 'Schedule');
+
+                            econsent.visitsToBeScheduled = true;
                         }
                         if (hcoVersion.name === ConsentStatusMapper.consentStatuses.decline.name && hcoVersionIndex > tpVersionIndex) {
                             econsent.hcoDeclined = true;
-                            econsent = this._showButton(econsent, 'View');
+                            econsent.toBeSignedByHCO = false;
                         }
                         econsent.hcoDate = hcoVersion.toShowDate;
 
@@ -337,7 +312,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
 
         this.model.tsBtnIsDisabled = true;
         this.econsents.forEach(econsent => {
-            if((econsent['type'] === 'Mandatory' && econsent.test === true) || (econsent['type'] === 'Mandatory' && econsent['showScheduleButton'] === true)) {
+            if((econsent['type'] === 'Mandatory' && econsent.signed === true) || (econsent['type'] === 'Mandatory' && econsent['showScheduleButton'] === true)) {
                 this.model.tsBtnIsDisabled = false;
             }
         });

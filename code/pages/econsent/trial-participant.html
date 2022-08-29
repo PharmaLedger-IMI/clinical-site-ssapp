@@ -40,56 +40,48 @@
                     <div class="cell">{{@type}}</div>
                     <div class="cell">{{@lastVersion}}</div>
                     <div data-if="@tsDeclined" class="cell">
-                        <div slot="true">
-                            <span class="badge badge-danger">Consent Declined</span>
-                        </div>
-                        <div slot="false">
-                           <span class="badge badge-success">{{@tsSignedDate}}</span>
-                        </div>
+                        <span slot="true" class="badge badge-danger">Consent Declined</span>
+                        <span slot="false" class="badge badge-success">{{@tsSignedDate}}</span>
                     </div>
-                    <div data-if="@tsWithdrawedIntentionDate" class="cell">
-                        <div slot="true">
-                            <span class="badge badge-warning">{{@tsWithdrawedIntentionDate}}</span>
-                        </div>
-                        <div slot="false">
+                    <div data-if="@withdrawn" class="cell">
                             <span class="badge badge-warning">{{@tsWithdrawDate}}</span>
-                        </div>
                     </div>
 
                     <div class="cell">
                         <div data-if="@hcoDeclined" class="cell">
-                            <div slot="false">
-                                <span class="badge badge-success">{{@hcoDate}}</span>
-                            </div>
-                            <div slot="true">
-                                <span class="badge badge-danger">Consent Declined</span>
-                            </div>
+                                <span slot="false" class="badge badge-success">{{@hcoDate}}</span>
+                                <span slot="true" class="badge badge-danger">Consent Declined</span>
                         </div>
                     </div>
 
                     <div class="cell">
-                        <div data-if="@showSignButton">
-                            <button class="link-button" data="@id" data-if="@showSignButton"
+                        <div data-if="@toBeSignedByHCO">
+                            <button slot="true" class="link-button" data="@id"
                                 data-tag="consent:sign">Sign
                             </button>
+
+                            <div slot="false" class="d-flex">
+                                <div data-if="@visitsToBeScheduled">
+                                    <button class="link-button" data="@id"
+                                            data-tag="tp:visits">Schedule Visit
+                                    </button>
+                                    <label> | </label>
+                                </div>
+
+                                <div data-if="@toBeContactedByHCO">
+                                    <button class="link-button" data="@id"
+                                            data-tag="consent:contactTS">Contact TS
+                                    </button>
+                                    <label> | </label>
+                                </div>
+
+                                <button class="link-button" data="@" data-tag="consent:view">View
+                                </button>
+
+                            </div>
+
                         </div>
 
-                        <div data-if="@showScheduleButton">
-                            <button class="link-button" data="@id"
-                                    data-tag="tp:visits">Schedule Visit
-                            </button>
-                        </div>
-
-                        <div data-if="@showViewButton">
-                            <button class="link-button" data="@" data-if="@showViewButton"
-                                data-tag="consent:view">View
-                            </button>
-                        </div>
-                        <div data-if="@showContactButton">
-                            <button class="link-button" data="@id" data-if="@showContactButton"
-                                data-tag="consent:contactTS">Contact TS
-                            </button>
-                        </div>
 
                         <label> | </label>
                         <button class="link-button" data="@id" data-tag="consent:history">History</button>
