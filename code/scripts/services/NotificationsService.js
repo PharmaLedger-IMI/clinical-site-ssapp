@@ -31,7 +31,7 @@ class NotificationsService  extends DSUService {
 
     async insertNotification(notification) {
         const id = uuidv4();
-        const newRecord = await this.storageService.insertRecord(this.NOTIFICATIONS_TABLE, id, notification);
+        const newRecord = await this.storageService.insertRecordAsync(this.NOTIFICATIONS_TABLE, id, notification);
 
         this.notifications.push(newRecord);
 
