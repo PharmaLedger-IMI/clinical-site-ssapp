@@ -2,7 +2,6 @@ import TrialService from '../../services/TrialService.js';
 import HCOService from "../../services/HCOService.js";
 
 const commonServices = require("common-services");
-const CommunicationService = commonServices.CommunicationService;
 const PDFService = commonServices.PDFService;
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
@@ -27,7 +26,6 @@ export default class IfcPreviewController extends BreadCrumbManager {
 
      initServices() {
         this.TrialService = new TrialService();
-        this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
         this.HCOService.getOrCreateAsync().then(async (hcoDsu) => {
