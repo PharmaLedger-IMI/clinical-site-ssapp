@@ -51,15 +51,15 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label class="col-form-label">{{@slider.minimum.label}}</label>
-                            <input class="form-control" data-view-model="@slider.minimum" />
+                            <input class="form-control" data-view-model="@slider.minimum" type="number"/>
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">{{@slider.maximum.label}}</label>
-                            <input class="form-control" data-view-model="@slider.maximum" />
+                            <input class="form-control" data-view-model="@slider.maximum" type="number" />
                         </div>
                         <div class="form-group">
                             <label class="col-form-label">{{@slider.steps.label}}</label>
-                            <input id="steps" class="form-control" type="number" min="1" max="10" data-view-model="@slider.steps" />
+                            <input id="steps" class="form-control" type="number" min="1" max="@slider.maximum.value" data-view-model="@slider.steps" />
                         </div>
                     </div>
                 </div>
