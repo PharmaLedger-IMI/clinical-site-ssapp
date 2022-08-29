@@ -61,20 +61,8 @@ export default class EconsentSignController extends BreadCrumbManager {
             this.model.ecoVersion = currentVersion.version;
         }
 
-        if (this.model.isManuallySigned) {
-            this.PatientEconsentService = new PatientEconsentService(this.model.econsent.id);
-            this.PatientEconsentService.mountEconsent(this.model.manualKeySSI, (err, data) => {
-                if (err) {
-                    return console.log(err);
-                }
-
-                let econsentFilePath = this.getEconsentManualFilePath(this.model.econsent.id, data.keySSI, this.model.manualAttachment);
-                this.displayConsentFile(econsentFilePath, this.model.manualAttachment);
-            });
-        } else {
-            let econsentFilePath = this.getEconsentFilePath(econsent, currentVersion);
-            this.displayConsentFile(econsentFilePath, currentVersion.attachment);
-        }
+        let econsentFilePath = this.getEconsentFilePath(econsent, currentVersion);
+        this.displayConsentFile(econsentFilePath, currentVersion.attachment);
     }
 
     displayConsentFile(consentFilePath, version) {
@@ -92,10 +80,6 @@ export default class EconsentSignController extends BreadCrumbManager {
     getEconsentFilePath(econsent, currentVersion) {
         return this.HCOService.PATH + '/' + this.HCOService.ssi + '/ifcs/' + this.model.trialParticipant.pk + "/"
             + econsent.uid + '/versions/' + currentVersion.version
-    }
-
-    getEconsentManualFilePath(ecoID, consentSSI, fileName) {
-        return '/econsents/' + ecoID + '/' + consentSSI;
     }
 
     attachHandlerEconsentSign() {
@@ -119,12 +103,11 @@ export default class EconsentSignController extends BreadCrumbManager {
             const digitalSignatureOptions = {
                 path: path,
                 version: version,
-                signatureDate: currentDate.toLocaleDateString(),
+                signatureDate: `Digital Signature ${currentDate.toLocaleDateString()}`,
                 signatureAuthor: "HCO Signature",
-                existingSignatures: 1
+                isRightSide: true
             };
-            const arrayBufferSignedPdf = await this.PDFService.applyDigitalSignature(digitalSignatureOptions);
-            console.log("signed pdf", arrayBufferSignedPdf);
+            await this.PDFService.applyDigitalSignature(digitalSignatureOptions);
 
             this.updateEconsentWithDetails(message);
             this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.SIGN_ECONSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.SIGN_ECONSENT);
