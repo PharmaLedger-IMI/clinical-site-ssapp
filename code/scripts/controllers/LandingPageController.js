@@ -242,6 +242,10 @@ export default class LandingPageController extends WebcController {
                 tps = tps.filter(tp => tp.trialId === site.trialId);
 
                 const cloneIFCs = (tps, callback) => {
+                    if(tps.length === 0) {
+                        return callback();
+                    }
+
                     let tp = tps.shift();
                     this.HCOService.cloneIFCs(data.ssi, tp.pk, (err) => {
                         if (err) {
