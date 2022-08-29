@@ -46,7 +46,7 @@ export default class NotificationsListController extends BreadCrumbManager {
             notifications.forEach(notification => {
                 notification.date = momentService(notification.date).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
             });
-            let orderedNotifications = notifications.reverse();
+            let orderedNotifications = notifications.sort((a, b) => new Date(b.date) - new Date(a.date));
             this.model.notificationsListEmpty = orderedNotifications.length === 0;
             this.model.notificationsDatasource = DataSourceFactory.createDataSource(2, 10, orderedNotifications);
         });
@@ -86,6 +86,8 @@ export default class NotificationsListController extends BreadCrumbManager {
                     breadcrumb: this.model.toObject('breadcrumb')
                 });
             }
+
+            this.initNotifications();
         });
     }
 
