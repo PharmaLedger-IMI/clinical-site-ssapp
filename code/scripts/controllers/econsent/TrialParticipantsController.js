@@ -443,7 +443,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
         await this._sendMessageToSponsor(
             Constants.MESSAGES.SPONSOR.TP_ADDED,
-            {ssi: anonymizedTp.sReadSSI},
+            {
+                ssi: anonymizedTp.sReadSSI,
+                tpUid:trialParticipant.pk
+            },
             "A new trial participant was added"
         );
 
