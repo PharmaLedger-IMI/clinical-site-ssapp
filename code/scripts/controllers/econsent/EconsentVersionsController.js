@@ -106,11 +106,11 @@ export default class EconsentVersionsController extends BreadCrumbManager {
 
     _attachHandlerPreview() {
         this.onTagEvent('preview-consent', 'click', (model) => {
-            this.navigateToPageTag('consent-preview', {
+            this.navigateToPageTag('ifc-preview', {
                 breadcrumb: this.model.toObject('breadcrumb'),
-                trialUid: this.model.trialUid,
-                versionId: model.version,
-                consentUid: this.consent.genesisUid
+                version: model.version,
+                tpDid: this.model.tpDid,
+                consentUid: this.consent.uid
             });
         });
     }

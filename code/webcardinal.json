@@ -148,6 +148,12 @@
 			"tag": "consent-preview"
 		},
 		{
+			"name": "IFC Preview",
+			"path": "/econsent/ifc-preview",
+			"src": "econsent/ifc-preview.html",
+			"tag": "ifc-preview"
+		},
+		{
 			"name": "ProceduresView",
 			"path": "/econsent/procedures-view",
 			"src": "econsent/procedures-view.html",
