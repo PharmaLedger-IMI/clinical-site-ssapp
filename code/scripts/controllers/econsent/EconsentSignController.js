@@ -1,7 +1,4 @@
-import TrialService from '../../services/TrialService.js';
-import PatientEconsentService from "../../services/PatientEconsentService.js";
 import HCOService from "../../services/HCOService.js";
-
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const ConsentStatusMapper = commonServices.ConsentStatusMapper;
@@ -29,7 +26,6 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     async initServices() {
-        this.TrialService = new TrialService();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();

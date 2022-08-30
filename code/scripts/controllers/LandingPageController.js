@@ -1,4 +1,3 @@
-import TrialService from "../services/TrialService.js";
 import TrialParticipantRepository from '../repositories/TrialParticipantRepository.js';
 import HCOService from "../services/HCOService.js";
 import DeviceAssignationService from "../services/DeviceAssignationService.js";
@@ -64,7 +63,6 @@ export default class LandingPageController extends WebcController {
         this.ResponsesService = new ResponsesService();
         this.TrialParticipantRepository = TrialParticipantRepository.getInstance(this.DSUStorage);
 
-        this.TrialService = new TrialService();
         this.StorageService = SharedStorage.getSharedStorage(this.DSUStorage);
         this.DeviceAssignationService = new DeviceAssignationService();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);

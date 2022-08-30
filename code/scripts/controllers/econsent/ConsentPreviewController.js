@@ -1,4 +1,3 @@
-import TrialService from '../../services/TrialService.js';
 import HCOService from "../../services/HCOService.js";
 
 const commonServices = require("common-services");
@@ -23,7 +22,6 @@ export default class ConsentPreviewController extends BreadCrumbManager {
     }
 
     initServices() {
-        this.TrialService = new TrialService();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();

@@ -1,4 +1,3 @@
-import TrialService from "../../services/TrialService.js";
 import HCOService from "../../services/HCOService.js";
 
 const commonServices = require("common-services");
@@ -73,7 +72,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     async initServices() {
-        this.TrialService = new TrialService();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.HCOService = new HCOService();

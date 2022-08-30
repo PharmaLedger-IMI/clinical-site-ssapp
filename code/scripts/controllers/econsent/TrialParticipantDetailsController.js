@@ -1,6 +1,4 @@
 import HCOService from "../../services/HCOService.js";
-import TrialService from '../../services/TrialService.js';
-
 const commonServices = require("common-services");
 const Constants = commonServices.Constants;
 
@@ -52,7 +50,6 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
     }
 
     async _initServices() {
-        this.TrialService = new TrialService();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();

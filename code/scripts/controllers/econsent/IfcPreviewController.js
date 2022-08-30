@@ -1,4 +1,3 @@
-import TrialService from '../../services/TrialService.js';
 import HCOService from "../../services/HCOService.js";
 
 const commonServices = require("common-services");
@@ -23,9 +22,7 @@ export default class IfcPreviewController extends BreadCrumbManager {
         this.initServices();
     }
 
-
      initServices() {
-        this.TrialService = new TrialService();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
         this.HCOService.getOrCreateAsync().then(async (hcoDsu) => {
@@ -51,7 +48,7 @@ export default class IfcPreviewController extends BreadCrumbManager {
             ...econsent,
             versionDateAsString: DateTimeService.convertStringToLocaleDate(econsent.versions[0].versionDate)
         };
-        let currentVersion = '';
+        let currentVersion;
         if (this.state.version) {
             currentVersion = econsent.versions.find(eco => eco.version === this.state.version);
         } else {
