@@ -192,7 +192,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     disableBackdropClosing: true,
                     title: 'Attach Trial Participant Number',
                     existingTSNumbers: this.model.hcoDSU.volatile.tps.filter(tp => typeof tp.number !== "undefined").map(tp => tp.number),
-                    currentTSNumber:this.model.tp.number
+                    currentTSNumber:this.model.tp.number,
+                    trialId:this.model.site.trialId,
+                    siteId:this.model.site.id,
                 });
         });
     }

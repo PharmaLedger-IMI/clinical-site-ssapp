@@ -6,7 +6,22 @@
     <div class="top">
         <div class="line">
             <label>{{@number.label}}</label>
-            <input type="text" class="form-control" data-view-model="@number" />
+
+
+            <div class="d-flex column-gap-0 no-gutters" >
+                <div class="form-group col-3 d-flex flex-row align-items-center p-0" >
+                    <input type="text" class="form-control" readonly value="@trialId">
+                    <span class="p-1">-</span>
+                </div>
+                <div class="form-group col-3 d-flex flex-row align-items-center p-0">
+                    <input type="text" class="form-control"  readonly value="@siteId">
+                    <span class="p-1">-</span>
+                </div>
+                <div class="form-group col-6 d-flex flex-row align-items-center p-0">
+                    <input type="text" class="form-control" data-view-model="@number" />
+                </div>
+            </div>
+
         </div>
     </div>
 
