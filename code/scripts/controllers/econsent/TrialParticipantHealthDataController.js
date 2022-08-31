@@ -34,7 +34,9 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
                 console.log(observationsDSUs);
                 observationsDSUs.forEach(observationDSU => {
                     if (device.healthDataIdentifiers.includes(observationDSU.uid)) {
-                        const patientObservations = observationDSU.observations.filter(observation => observation.sk.includes(this.model.trialParticipantNumber));
+                        //TODO 436
+                        const patientNumber = this.model.trialParticipantNumber.substring(this.model.trialParticipantNumber.lastIndexOf("-")+1);
+                        const patientObservations = observationDSU.observations.filter(observation => observation.sk.includes(patientNumber));
                         observations = observations.concat(...patientObservations);
                     }
                 });
