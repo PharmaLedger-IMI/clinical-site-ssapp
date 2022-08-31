@@ -55,6 +55,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this._attachHandlerAddTrialParticipantNumber();
         this._attachHandlerView();
         this._attachHandlerVisits();
+        this._attachHandlerContactTs();
     }
 
     async _initConsents(trialUid) {
@@ -131,6 +132,18 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 tpUid: this.model.tpUid,
                 tpDid: this.model.tp.did,
                 ecoVersion: ecoVersion,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
+        });
+    }
+
+    _attachHandlerContactTs() {
+        this.onTagEvent('consent:contactTS', 'click', (model, target, event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.navigateToPageTag('econsent-contact-ts', {
+                trialUid: this.model.trialUid,
+                tpDid: this.model.tp.did,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });

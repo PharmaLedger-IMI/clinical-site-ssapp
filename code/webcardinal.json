@@ -142,6 +142,12 @@
 			"tag": "econsent-sign"
 		},
 		{
+			"name": "Econsent Contact Ts",
+			"path": "/econsent/econsent-contact-ts",
+			"src": "econsent/econsent-contact-ts.html",
+			"tag": "econsent-contact-ts"
+		},
+		{
 			"name": "Consent Preview",
 			"path": "/econsent/consent-preview",
 			"src": "econsent/consent-preview.html",
