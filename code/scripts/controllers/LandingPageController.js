@@ -108,9 +108,7 @@ export default class LandingPageController extends WebcController {
                     if (err) {
                         return console.log(err);
                     }
-                    data.forEach(response => {
-                        console.log(response);
-                    })
+                    console.log(data);
                 });
                 break;
             }
