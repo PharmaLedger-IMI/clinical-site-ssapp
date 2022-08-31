@@ -101,7 +101,7 @@ export default class LandingPageController extends WebcController {
 
     async handleIotMessages(data) {
         switch (data.operation) {
-            case 'questionnaire-responses': {
+            case Constants.MESSAGES.PATIENT.QUESTIONNAIRE_RESPONSE: {
                 await this._saveNotification(data, 'New questionnaire update', 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONNAIRE_RESPONSES);
 
                 this.ResponsesService.mount(data.ssi, (err, data) => {
@@ -123,6 +123,12 @@ export default class LandingPageController extends WebcController {
             throw new Error("Sender identity is undefined. Did you forgot to add it?")
         }
         switch (data.operation) {
+
+            case Constants.MESSAGES.PATIENT.TP_CONTACT_DATA: {
+                await this._saveNotification(data, data.shortDescription, 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this.updateTpContactData(data);
+                break;
+            }
 
             case Constants.MESSAGES.PATIENT.TP_IS_UNAVAILABLE:{
                 await this._saveNotification(data, 'TP is unavailable', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
@@ -205,6 +211,19 @@ export default class LandingPageController extends WebcController {
 
         }
         await this._updateHcoDSU();
+    }
+
+    async updateTpContactData(message) {
+        await this._updateHcoDSU();
+        let tpDSU = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.tpDid);
+        tpDSU.contactData = {
+            emailAddress: message.data.emailAddress,
+            phoneNumber: message.data.phoneNumber
+        };
+
+        this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
+            await this._updateHcoDSU();
+        });
     }
 
     async markTpAsUnavailable(data) {
