@@ -21,8 +21,11 @@ export default class AddTrialParticipantNumber extends WebcController {
         this.existingTSNumbers = props[0].existingTSNumbers.map(number => number.toString());
         this.currentTSNumber = props[0].currentTSNumber;
         this.model = getInitModel();
+        this.model.trialId = props[0].trialId;
+        this.model.siteId = props[0].siteId;
+
         if(this.currentTSNumber){
-            this.model.number.value = this.currentTSNumber;
+            this.model.number.value = this.currentTSNumber.substring(this.currentTSNumber.lastIndexOf("-")+1);
         }
         this._initHandlers();
     }
@@ -37,14 +40,15 @@ export default class AddTrialParticipantNumber extends WebcController {
         if (this.model.number.value.trim() === "" || this.model.number.value === "0") {
             return this.model.isAddTSNumberDisabled = true;
         }
-        this.model.isAddTSNumberDisabled = this.existingTSNumbers.includes(this.model.number.value.toString())
+        this.tsNumber = `${this.model.trialId}-${this.model.siteId}-${this.model.number.value}`;
+        this.model.isAddTSNumberDisabled = this.existingTSNumbers.includes(this.tsNumber)
     }
 
     _attachHandlerSubmit() {
         this.onTagEvent('tp:submit', 'click', (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.send('confirmed', this.model.number.value);
+            this.send('confirmed',this.tsNumber);
         });
     }
 }

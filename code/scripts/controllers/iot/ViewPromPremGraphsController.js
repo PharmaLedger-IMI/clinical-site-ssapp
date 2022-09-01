@@ -78,7 +78,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
             }
             console.log(data);
             data.forEach(response => {
-                response.forEach(answer => {
+                response.questionResponses.forEach(answer => {
                     this.filterAnswers(answer);
                 })
             })

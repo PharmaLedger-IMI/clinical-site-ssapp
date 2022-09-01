@@ -55,6 +55,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this._attachHandlerAddTrialParticipantNumber();
         this._attachHandlerView();
         this._attachHandlerVisits();
+        this._attachHandlerContactTs();
     }
 
     async _initConsents(trialUid) {
@@ -136,6 +137,18 @@ export default class TrialParticipantController extends BreadCrumbManager {
         });
     }
 
+    _attachHandlerContactTs() {
+        this.onTagEvent('consent:contactTS', 'click', (model, target, event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.navigateToPageTag('econsent-contact-ts', {
+                trialUid: this.model.trialUid,
+                tpDid: this.model.tp.did,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
+        });
+    }
+
     _attachHandlerVisits() {
         this.onTagEvent('tp:visits', 'click', (model, target, event) => {
             event.preventDefault();
@@ -192,7 +205,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     disableBackdropClosing: true,
                     title: 'Attach Trial Participant Number',
                     existingTSNumbers: this.model.hcoDSU.volatile.tps.filter(tp => typeof tp.number !== "undefined").map(tp => tp.number),
-                    currentTSNumber:this.model.tp.number
+                    currentTSNumber:this.model.tp.number,
+                    trialId:this.model.site.trialId,
+                    siteId:this.model.site.id,
                 });
         });
     }

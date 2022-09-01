@@ -65,10 +65,9 @@ export default class TrialParticipantAnswersController extends BreadCrumbManager
             }
             console.log(data);
             data.forEach(response => {
-                response.forEach(answer => {
-                    console.log(answer);
+                response.questionResponses.forEach(answer => {
                     if(answer.patientDID === this.model.patientDID){
-                        const datetime = answer.responseDate; // anything
+                        const datetime = answer.responseDate;
                         const date = new Date(datetime);
                         const options = {
                             year: 'numeric', month: 'numeric', day: 'numeric',

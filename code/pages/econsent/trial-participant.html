@@ -6,16 +6,24 @@
             <breadcrumb-navigator></breadcrumb-navigator>
             <h5 class="generic-title">Trial Subject/Number: {{@tp.name}}/{{@tp.number}} </h5>
             <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>
-            <div>
+            <div class="d-flex justify-content-between align-items-center align-content-center w-100">
 
-                <div data-if="@tp.tpNumber">
-                    <div slot="false">
-                        <div class="button-group-wrapper" data-if="@hasTpNumber">
-                            <button slot="true" data-tag="tp:setTpNumber">Edit TS number</button>
-                            <button slot="false" data-tag="tp:setTpNumber" disabled="@tsBtnIsDisabled">Set TS number</button>
+                <div data-if="@tsBtnIsDisabled">
+                    <div slot="false" data-if="@hasTpNumber">
+                        <div slot="loading"><webc-spinner></webc-spinner></div>
+                        <div slot="false" class="alert alert-warning p-3 m-0" role="alert">
+                            <i class="fa fa-info-circle"></i><span class="p-1">TP number was not set yet. Set it in order to be able to <b>schedule visits</b>.</span>
                         </div>
-
+                        <div slot="true" class="alert alert-info p-3 m-0" role="alert">
+                            <i class="fa fa-calendar-check-o"></i><span class="p-1">TP Number <b>{{@tp.number}}</b> was set. Now you should be able to <b>schedule visits</b>.</span>
+                        </div>
                     </div>
+                </div>
+
+
+                <div class="button-group-wrapper w-auto p-0" data-if="@hasTpNumber">
+                    <button slot="true" data-tag="tp:setTpNumber">Edit TS number</button>
+                    <button slot="false" data-tag="tp:setTpNumber" disabled="@tsBtnIsDisabled">Set TS number</button>
                 </div>
 
             </div>

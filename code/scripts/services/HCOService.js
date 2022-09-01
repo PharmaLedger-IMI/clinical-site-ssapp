@@ -240,18 +240,6 @@ export default class HCOService extends DSUService {
         this.updateEntity(entity, subEntityPath, callback);
     }
 
-
-    getConsentSSI(siteUID, consentUid, callback){
-        const consentsPath = this.PATH + '/' + this.ssi + '/site/'+ siteUID+"/consent";
-        this.DSUStorage.listMountedDSUs(consentsPath, (err, dsuList) => {
-            if (err) {
-                return callback(err);
-            }
-            const mountedConsent = dsuList.find(item => item.path === consentUid);
-            callback(undefined, mountedConsent.identifier)
-        })
-    }
-
     addTrialParticipant = (tp, callback) => {
         let anonymousTP = this.anonymizeParticipant(tp);
         let tpSubPath = this._getSubPath('tps');
