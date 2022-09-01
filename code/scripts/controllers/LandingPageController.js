@@ -267,6 +267,12 @@ export default class LandingPageController extends WebcController {
                             this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT,
                                 econsent.keySSI, null);
                         });
+                        
+                        const consentsKeySSIs = tpIfcs.map(econsent => econsent.keySSI);
+                        this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
+                            ssi: tp.uid,
+                            consentsKeySSIs
+                        }, "Consent Changed");
                     })
                     resolve();
 
@@ -416,8 +422,8 @@ export default class LandingPageController extends WebcController {
         const sites = this.model.toObject("hcoDSU.volatile.site");
         const site = sites.find(site => site.trialSReadSSI === tp.trialSReadSSI);
         this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
-            ssi: tp.uid,
-            consentSSI: consentSSI
+            ssi: this.tpPk,
+            consentsKeySSIs: [econsent.uid]
         }, "Consent Changed");
     }
 

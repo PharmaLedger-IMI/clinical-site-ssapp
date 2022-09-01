@@ -220,8 +220,8 @@ export default class EconsentSignController extends BreadCrumbManager {
         const currentDate = new Date();
         let sendObject = {
             operation: operation,
-            ssi: this.model.tpUid,
-            consentUid: this.model.econsentUid,
+            ssi: this.model.trialParticipant.pk,
+            consentsKeySSIs: [this.model.econsentUid],
             useCaseSpecifics: {
                 trialSSI: this.model.trialUid,
                 tpNumber: this.model.trialParticipant.number,

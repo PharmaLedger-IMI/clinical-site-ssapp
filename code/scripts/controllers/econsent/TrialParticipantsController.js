@@ -103,6 +103,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             declined: '0',
         }
 
+        this.model.statistics.endOfTreatment = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT).length;
+        this.model.statistics.completed = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED).length;
+        this.model.statistics.screenFailed = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED).length;
+        this.model.statistics.discontinued = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED).length;
         this.model.statistics.planned = this.model.trialParticipants.length;
         this.model.statistics.enrolled = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED).length;
         this.model.statistics.screened = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.SCREENED).length
@@ -114,7 +118,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         } else {
             this.model.statistics.percentage = ((this.model.statistics.enrolled * 100) / this.model.statistics.planned).toFixed(2) + "%";
         }
-
     }
 
     async _initServices() {
@@ -439,15 +442,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.ADD_TO_TRIAL
         );
 
-        await this._sendMessageToSponsor(
-            Constants.MESSAGES.SPONSOR.TP_ADDED,
-            {
-                ssi: anonymizedTp.sReadSSI,
-                tpUid:trialParticipant.pk
-            },
-            "A new trial participant was added"
-        );
-
         await this.initializeData();
         const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
 
@@ -475,12 +469,23 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
             const consentsPromises = trialConsents.map((econsent, index)=> {
                 return this.sendConsentToPatient(Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT, tp,
-                    econsent.keySSI, index,null);
-
+                    econsent.keySSI, index, null);
             });
 
+            const consentsKeySSIs = trialConsents.map((econsent, index)=> econsent.keySSI);
+        
+            const sponsorPromise =  this._sendMessageToSponsor(
+                Constants.MESSAGES.SPONSOR.TP_ADDED,
+                {
+                    ssi: anonymizedTp.sReadSSI,
+                    tpUid:trialParticipant.pk,
+                    consentsKeySSIs
+                },
+                "A new trial participant was added"
+            );
+
             const questionnairePromise = this.sendQuestionnaireToPatient(tp.publicDid);
-            await Promise.all([...consentsPromises,questionnairePromise]);
+            await Promise.all([...consentsPromises, sponsorPromise, questionnairePromise]);
             window.WebCardinal.loader.hidden = true;
         });
     }

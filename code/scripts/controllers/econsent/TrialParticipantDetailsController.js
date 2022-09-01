@@ -209,7 +209,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                         const site = sites.find(site => site.trialSReadSSI === tp.trialSReadSSI);
                                         this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.UPDATE_STATUS, null, null, tp.status);
                                         this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
-                                            ssi: tp.uid,
+                                            ssi: tp.pk,
                                             consentSSI: null
                                         }, 'Participant status changed');
                                     });
