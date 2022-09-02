@@ -214,16 +214,21 @@ export default class LandingPageController extends WebcController {
     }
 
     async updateTpContactData(message) {
-        await this._updateHcoDSU();
-        let tpDSU = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.tpDid);
-        tpDSU.contactData = {
-            emailAddress: message.data.emailAddress,
-            phoneNumber: message.data.phoneNumber
-        };
-
-        this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
-            await this._updateHcoDSU();
-        });
+        try {
+            const profileData = await this.HCOService.readDsuDataAsync(message.ssi);
+            let tp;
+            const tps = await this.TrialParticipantRepository.filterAsync(`did == ${message.tpDid}`, 'ascending', 30)
+            if (tps.length > 0) {
+                tp = tps[0];
+            }
+            tp.contactData = {
+                emailAddress: profileData.emailAddress,
+                phoneNumber: profileData.phoneNumber
+            };
+            this.TrialParticipantRepository.updateAsync(tp.pk, tp);
+        } catch (e) {
+            console.error(e);
+        }
     }
 
     async markTpAsUnavailable(data) {

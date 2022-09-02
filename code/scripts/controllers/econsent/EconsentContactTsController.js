@@ -1,6 +1,6 @@
-import HCOService from "../../services/HCOService.js";
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
+const BaseRepository = commonServices.BaseRepository;
 
 export default class EconsentContactTsController extends BreadCrumbManager {
     constructor(...props) {
@@ -23,17 +23,20 @@ export default class EconsentContactTsController extends BreadCrumbManager {
     }
 
     async initServices() {
-        this.HCOService = new HCOService();
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         await this.getTpContactInfo();
     }
 
     async getTpContactInfo() {
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        let tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === this.state.tpDid);
-        this.model.contactData = {
-            emailAddress: tp.contactData.emailAddress,
-            phoneNumber: tp.contactData.phoneNumber
-        };
+        let tp;
+        const tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.state.tpDid}`, 'ascending', 30)
+        if (tps.length > 0) {
+            tp = tps[0];
+            this.model.contactData = {
+                emailAddress: tp.contactData.emailAddress,
+                phoneNumber: tp.contactData.phoneNumber
+            };
+        }
     }
 
 }
