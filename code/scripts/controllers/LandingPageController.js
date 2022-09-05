@@ -348,6 +348,7 @@ export default class LandingPageController extends WebcController {
             const tps = await this.TrialParticipantRepository.filterAsync(`did == ${tp.did}`, 'ascending', 30)
             if (tps.length > 0) {
                 this.tpPk = tps[0].pk;
+                tp.number = tps[0].number;
             }
 
             if (tp === undefined) {
