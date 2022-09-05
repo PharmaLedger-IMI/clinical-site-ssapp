@@ -240,6 +240,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     return console.log(err);
                 }
                 this._sendMessageToPatient(this.model.trialUid, tp, 'Tp Number was attached');
+                this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.ADDED_TS_NUMBER, {
+                    ssi: this.model.tpUid
+              },'Tp Number was attached');
                 this.TrialParticipantRepository.update(this.model.tp.pk, tp, callback);
             })
         }
@@ -247,6 +250,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this.model.tp.number = trialParticipant.number;
         if(this.model.tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
             this.model.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
+            this.model.tp.enrolledDate = new Date().toLocaleDateString();
             this.TrialParticipantRepository.update(this.model.tp.pk, this.model.tp, (err, trialParticipant) => {
                 if (err) {
                     return console.log(err);
