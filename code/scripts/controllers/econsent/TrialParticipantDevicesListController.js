@@ -1,12 +1,11 @@
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
 import DeviceServices from "../../services/DeviceServices.js";
 const commonServices = require("common-services");
+const Constants = commonServices.Constants;
 const CommunicationService = commonServices.CommunicationService;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
-const COMMUNICATION_MESSAGES = {
-    DEVICE_DEASSIGNATION: "device_deassignation"
-}
+
 export default class TrialParticipantDevicesListController extends BreadCrumbManager {
 
     constructor(...props) {
@@ -111,7 +110,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 let communicationService =CommunicationService.getCommunicationServiceInstance()
                 const {uid, patientDID,...assignationData} = data;
                 communicationService.sendMessage(patientDID,{
-                    operation:COMMUNICATION_MESSAGES.DEVICE_DEASSIGNATION,
+                    operation:  Constants.MESSAGES.HCO.DEVICE_DEASSIGNATION,
                     data:assignationData
                 })
 
