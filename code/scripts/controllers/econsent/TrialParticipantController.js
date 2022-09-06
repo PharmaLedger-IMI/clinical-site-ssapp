@@ -158,7 +158,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 trialId: this.model.site.trialId,
                 tpUid: this.model.tpUid,
                 consentId: model.trialConsentId,
-                consentVersion: model.trialConsentVersion,
+                consentVersion: model.lastVersion,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
