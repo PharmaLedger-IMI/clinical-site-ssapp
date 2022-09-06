@@ -32,8 +32,8 @@ export default class EconsentContactTsController extends BreadCrumbManager {
         const tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.state.tpDid}`, 'ascending', 30)
         if (tps.length > 0) {
             tp = tps[0];
-            if (tp.hasOwnProperty('contactData')) {
-                this.model.hasContactData = true;
+            this.model.hasContactData =  tp.hasOwnProperty('contactData');
+            if(this.model.hasContactData){
                 this.model.contactData = {
                     emailAddress: tp.contactData.emailAddress,
                     phoneNumber: tp.contactData.phoneNumber
