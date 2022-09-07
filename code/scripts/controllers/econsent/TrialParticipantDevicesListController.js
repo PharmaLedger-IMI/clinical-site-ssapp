@@ -139,7 +139,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 this.available_devices_for_assignation.forEach(element =>
                     ids.push({
                         value: element.sk,
-                        label: element.deviceName
+                        name: element.deviceName
                     })
                 )
                 let state = {
