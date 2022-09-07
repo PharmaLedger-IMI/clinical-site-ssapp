@@ -42,7 +42,8 @@ let getInitModel = () => {
                 },
             ],
             value: 'daily'
-        }
+        },
+        formIsInvalid:true,
 
     };
 };
@@ -62,14 +63,19 @@ export default class SetFrequencyQuestionnaire extends WebcController {
             }
         })
 
-        this.model.onChange('startDate.value', () => {
+        const validateForm = () => {
             let startDateValue = new Date(this.model.startDate.value).getTime();
             let endDateValue = new Date(this.model.endDate.value).getTime();
             this.model.endDate.min = momentService(startDateValue).format(Constants.DATE_UTILS.FORMATS.YearMonthDayPattern);
             if (startDateValue > endDateValue) {
                 this.model.endDate.value = momentService(startDateValue).format(Constants.DATE_UTILS.FORMATS.YearMonthDayPattern);
             }
-        })
+            this.model.formIsInvalid = isNaN(endDateValue) || isNaN(startDateValue);
+        }
+
+        this.model.onChange('startDate.value', validateForm);
+        this.model.onChange('endDate.value', validateForm);
+        this.model.onChange('frequencyType.value', validateForm);
     }
 
     _initHandlers() {

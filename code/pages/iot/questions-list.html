@@ -17,7 +17,20 @@
                             <button class="prom-prem-tab-buttons p-2" data-tag="view:prom" active="@promSelected">PROM Questions</button>
                             <button class="prom-prem-tab-buttons p-2" data-tag="view:prem" active="@premSelected">PREM Questions</button>
                         </div>
-                        <button class="prom-prem-tab-buttons p-2 " data-tag="set:frequency">Set Questionnaire Frequency</button>
+                            <div data-if="@frequencyIsSet">
+                                <div slot="true" class="d-inline-flex align-items-center">
+                                    <div class="mr-2">
+                                        <span class="badge badge-success">
+                                        {{@schedule.startDate}} - {{@schedule.endDate}} <span
+                                            class="badge badge-light frequency-type">{{@schedule.frequencyType}}</span>
+                                        </span>
+                                    </div>
+                                    <button class="prom-prem-tab-buttons p-2 mr-0" data-tag="set:frequency">Edit
+                                        Questionnaire Frequency
+                                    </button>
+                                </div>
+                                <button slot="false" class="prom-prem-tab-buttons p-2 mr-0" data-tag="set:frequency">Set Questionnaire Frequency</button>
+                            </div>
                     </div>
                 </div>
             </div>
