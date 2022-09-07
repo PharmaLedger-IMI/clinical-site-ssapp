@@ -1,5 +1,5 @@
 
-const readonlyFields = ['deviceId', 'modelNumber', 'manufacturer', 'deviceName', 'brand'];
+const readonlyFields = ['deviceId'];
 
 function getModel(data = {}) {
     const prevState = data.prevState || {};

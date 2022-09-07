@@ -1,6 +1,6 @@
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
-import DeviceServices from "../../services/DeviceServices.js";
 const commonServices = require("common-services");
+const DeviceServices = commonServices.DeviceServices;
 const Constants = commonServices.Constants;
 const CommunicationService = commonServices.CommunicationService;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();

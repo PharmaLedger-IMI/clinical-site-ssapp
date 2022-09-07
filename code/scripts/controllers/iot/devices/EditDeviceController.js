@@ -1,11 +1,8 @@
 import HCOService from "../../../services/HCOService.js"
-import DeviceServices from "../../../services/DeviceServices.js";
 import DeviceAssignationService from "../../../services/DeviceAssignationService.js";
-
 const commonServices = require("common-services");
+const DeviceServices = commonServices.DeviceServices;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-const {getCommunicationServiceInstance} = commonServices.CommunicationService;
-import {COMMUNICATION_MESSAGES} from "../../../utils/CommunicationMessages.js";
 import {modelSetter, prepareDeviceData} from "./deviceModel/deviceViewModel.js";
 
 
@@ -81,11 +78,6 @@ export default class EditDeviceController extends BreadCrumbManager {
                     message.type = 'success'
                 }
 
-                const communicationService = getCommunicationServiceInstance();
-                communicationService.sendMessageToIotAdapter({
-                    operation: COMMUNICATION_MESSAGES.EDIT_DEVICE,
-                    uid: deviceData.uid
-                });
                 window.WebCardinal.loader.hidden = true;
                 this.navigateToPageTag('iot-manage-devices', {
                     message: message,

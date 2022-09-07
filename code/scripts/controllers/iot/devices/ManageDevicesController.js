@@ -1,11 +1,8 @@
-import DeviceServices from "../../../services/DeviceServices.js"
-import {COMMUNICATION_MESSAGES} from "../../../utils/CommunicationMessages.js";
 import DeviceAssignationService from "../../../services/DeviceAssignationService.js";
-
 const commonServices = require("common-services");
+const DeviceServices = commonServices.DeviceServices;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
-const { getCommunicationServiceInstance } = commonServices.CommunicationService;
 
 
 export default class ManageDevicesController extends BreadCrumbManager {
@@ -159,7 +156,6 @@ export default class ManageDevicesController extends BreadCrumbManager {
             this.showModalFromTemplate(
                 "confirmation-alert",
                 (event) => {
-
                     if (event.type === 'confirmed') {
                         window.WebCardinal.loader.hidden = false;
 
@@ -180,12 +176,6 @@ export default class ManageDevicesController extends BreadCrumbManager {
 
                             this.model.message = message;
 
-                            const communicationService = getCommunicationServiceInstance();
-                            communicationService.sendMessageToIotAdapter({
-                                operation: COMMUNICATION_MESSAGES.REMOVE_DEVICE,
-                                uid: deviceUid
-                            });
-
                             this.deviceServices.updateDevice(device, () => {
                                 let removedDeviceIdx = this.model.mappedDevices.findIndex(device => device.uid === deviceUid);
 
@@ -197,7 +187,7 @@ export default class ManageDevicesController extends BreadCrumbManager {
                         });
 
                     }
-                }, this.emptyCallback, modalConfig);
+                }, ()=>{}, modalConfig);
 
         });
     }

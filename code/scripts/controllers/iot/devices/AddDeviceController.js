@@ -1,9 +1,9 @@
 import HCOService from "../../../services/HCOService.js"
-import DeviceServices from "../../../services/DeviceServices.js";
 const commonServices = require("common-services");
+const DeviceServices = commonServices.DeviceServices;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const  {getCommunicationServiceInstance} = commonServices.CommunicationService;
-import { COMMUNICATION_MESSAGES } from "../../../utils/CommunicationMessages.js";
+const COMMUNICATION_MESSAGES = commonServices.Constants.MESSAGES;
 import { modelSetter, prepareDeviceData } from "./deviceModel/deviceViewModel.js";
 
 
@@ -95,7 +95,7 @@ export default class AddDeviceController extends BreadCrumbManager {
 
                     const communicationService = getCommunicationServiceInstance();
                     communicationService.sendMessageToIotAdapter({
-                        operation:COMMUNICATION_MESSAGES.ADD_DEVICE,
+                        operation:COMMUNICATION_MESSAGES.HCO.ADD_DEVICE,
                         sReadSSI:data.sReadSSI
                     });
 
