@@ -395,7 +395,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             event.stopImmediatePropagation();
             this.navigateToPageTag('trial-participant-answers', {
                 trialSSI: this.model.trialUid,
-                tpUid: model.uid,
                 patientName:model.name,
                 participantDID: model.did,
                 breadcrumb: this.model.toObject('breadcrumb')

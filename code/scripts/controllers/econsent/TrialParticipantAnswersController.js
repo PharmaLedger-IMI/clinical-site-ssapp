@@ -30,7 +30,6 @@ export default class TrialParticipantAnswersController extends BreadCrumbManager
         this.model = {
             ...getInitModel(),
             trialSSI: prevState.trialSSI,
-            tpUid: prevState.tpUid,
             patientDID: prevState.participantDID,
             patientName:prevState.patientName
         };

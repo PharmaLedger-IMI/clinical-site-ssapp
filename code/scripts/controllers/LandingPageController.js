@@ -102,13 +102,29 @@ export default class LandingPageController extends WebcController {
     async handleIotMessages(data) {
         switch (data.operation) {
             case Constants.MESSAGES.PATIENT.QUESTIONNAIRE_RESPONSE: {
-                await this._saveNotification(data, 'New questionnaire update', 'view questions', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONNAIRE_RESPONSES);
-
-                this.ResponsesService.mount(data.ssi, (err, data) => {
+                this.ResponsesService.mount(data.ssi, async (err, qs) => {
                     if (err) {
                         return console.log(err);
                     }
-                    console.log(data);
+                    const patientDID = qs.questionResponses[0].patientDID;
+                    const tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === patientDID);
+                    const trialUid = this.HCOService.getAnchorId(tp.trialSReadSSI);
+                    let patientName;
+                    const tps = await this.TrialParticipantRepository.filterAsync(`did == ${patientDID}`, 'ascending', 30)
+                    if (tps.length > 0) {
+                        patientName = tps[0].name;
+                    }
+
+                    let notificationInfo = {
+                        ...Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONNAIRE_RESPONSES,
+                        state: {
+                            participantDID: patientDID,
+                            trialSSI: trialUid,
+                            patientName: patientName
+                        }
+                    }
+
+                    await this._saveNotification(data, 'New questionnaire update', 'view questions', notificationInfo);
                 });
                 break;
             }
