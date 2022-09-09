@@ -231,7 +231,12 @@ export default class TrialParticipantController extends BreadCrumbManager {
     }
 
 
-    _updateTrialParticipant(trialParticipant, callback) {
+   async _updateTrialParticipant(trialParticipant, callback) {
+        const tps = await this.TrialParticipantRepository.filterAsync(`did == ${trialParticipant.did}`, 'ascending', 30)
+        let trialSubject;
+        if (tps.length > 0) {
+            trialSubject = tps[0];
+        }
 
         const tpDsuUpdate = (callback) => {
             trialParticipant.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER;
@@ -243,15 +248,16 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.ADDED_TS_NUMBER, {
                     ssi: this.model.tpUid
               },'Tp Number was attached');
-                this.TrialParticipantRepository.update(this.model.tp.pk, tp, callback);
+                this.TrialParticipantRepository.update(this.model.tp.pk, trialSubject, callback);
             })
         }
 
         this.model.tp.number = trialParticipant.number;
+        trialSubject.number = trialParticipant.number;
         if(this.model.tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
             this.model.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
             this.model.tp.enrolledDate = new Date().toLocaleDateString();
-            this.TrialParticipantRepository.update(this.model.tp.pk, this.model.tp, (err, trialParticipant) => {
+            this.TrialParticipantRepository.update(this.model.tp.pk, trialSubject, (err, trialParticipant) => {
                 if (err) {
                     return console.log(err);
                 }
