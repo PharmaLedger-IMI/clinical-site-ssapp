@@ -1,7 +1,7 @@
 import HCOService from '../../services/HCOService.js';
 
 const commonServices = require("common-services");
-const {CommunicationService, QuestionnaireService, Constants, JWTService, DidService} = commonServices;
+const {CommunicationService, Constants, JWTService, DidService} = commonServices;
 const BaseRepository = commonServices.BaseRepository;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
@@ -125,7 +125,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.JWTService = new JWTService();
         this.DIDService = DidService.getDidServiceInstance();
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
-        this.QuestionnaireService = new QuestionnaireService();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         return await this.initializeData();
     }
@@ -485,43 +484,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 "A new trial participant was added"
             );
 
-            const questionnairePromise = this.sendQuestionnaireToPatient(tp.publicDid);
-            await Promise.all([...consentsPromises, sponsorPromise, questionnairePromise]);
+            await Promise.all([...consentsPromises, sponsorPromise]);
             window.WebCardinal.loader.hidden = true;
         });
     }
 
-    sendQuestionnaireToPatient(patientDid){
 
-        return new Promise((resolve, reject)=>{
-            this.QuestionnaireService.getAllQuestionnaires((err, questionnaires) => {
-                if (err) {
-                    reject (err);
-                }
-
-                const trialQuestionnaire = questionnaires.find(questionnaire => questionnaire.trialSSI === this.model.trialUid);
-                if(!trialQuestionnaire){
-                    return resolve();
-                }
-
-                this.QuestionnaireService.getQuestionnaireSReadSSI(trialQuestionnaire,async (err, sReadSSI)=>{
-                    if(err){
-                        reject(err);
-                    }
-
-                    await this.CommunicationService.sendMessage(patientDid, {
-                        operation: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
-                        ssi: sReadSSI,
-                        shortDescription: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
-                    });
-
-                    resolve();
-                })
-
-            })
-        })
-
-    }
 
 
     sendConsentToPatient(operation, tp, econsentKeySSI, index, shortMessage) {

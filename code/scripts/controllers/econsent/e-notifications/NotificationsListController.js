@@ -78,7 +78,7 @@ export default class NotificationsListController extends BreadCrumbManager {
             // });
             }
 
-            if (model.recommendedAction === 'view questions') {
+            if (model.recommendedAction === 'View responses') {
                 this.navigateToPageTag('trial-participant-answers', {
                     ...model.state,
                     breadcrumb: this.model.toObject('breadcrumb')

@@ -4,6 +4,7 @@ const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
 const Constants = commonServices.Constants;
+const QuestionnaireService = commonServices.QuestionnaireService;
 const BaseRepository = commonServices.BaseRepository;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
@@ -186,15 +187,22 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     this._updateTrialParticipant(this.model.tp, async () => {
                         let cons = await this._initConsents(this.model.trialUid);
                         this.model.econsentsDataSource.updateTable(cons);
+
+                        if(!this.model.hasTpNumber){
+                            //send the questionnaire if available once
+                            await this.sendQuestionnaireToPatient(this.model.tp.did);
+                            this.model.hasTpNumber = true;
+                        }
+
+                        this.model.message = {
+                            content: 'Tp Number was updated',
+                            type: 'success'
+                        }
+
                         window.WebCardinal.loader.hidden = true;
                     });
 
-                    this.model.hasTpNumber = true;
 
-                    this.model.message = {
-                        content: 'Tp Number was updated',
-                        type: 'success'
-                    }
                 },
                 (event) => {
                     const response = event.detail;
@@ -267,6 +275,38 @@ export default class TrialParticipantController extends BreadCrumbManager {
         else {
             tpDsuUpdate(callback);
         }
+
+    }
+
+    sendQuestionnaireToPatient(patientDid){
+        const questionnaireService = new QuestionnaireService();
+        return new Promise((resolve, reject)=>{
+            questionnaireService.getAllQuestionnaires((err, questionnaires) => {
+                if (err) {
+                    reject (err);
+                }
+
+                const trialQuestionnaire = questionnaires.find(questionnaire => questionnaire.trialSSI === this.model.trialUid);
+                if(!trialQuestionnaire){
+                    return resolve();
+                }
+
+                questionnaireService.getQuestionnaireSReadSSI(trialQuestionnaire,async (err, sReadSSI)=>{
+                    if(err){
+                        reject(err);
+                    }
+
+                    await this.CommunicationService.sendMessage(patientDid, {
+                        operation: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
+                        ssi: sReadSSI,
+                        shortDescription: Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE,
+                    });
+
+                    resolve();
+                })
+
+            })
+        })
 
     }
 

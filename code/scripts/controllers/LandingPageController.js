@@ -106,6 +106,7 @@ export default class LandingPageController extends WebcController {
                     if (err) {
                         return console.log(err);
                     }
+                    this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
                     const patientDID = qs.questionResponses[0].patientDID;
                     const tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === patientDID);
                     const trialUid = this.HCOService.getAnchorId(tp.trialSReadSSI);
@@ -123,8 +124,7 @@ export default class LandingPageController extends WebcController {
                             patientName: patientName
                         }
                     }
-
-                    await this._saveNotification(data, 'New questionnaire update', 'view questions', notificationInfo);
+                    await this._saveNotification(data, `New questionnaire response from patient ${patientName} <${tp.number}>`, 'View responses', notificationInfo);
                 });
                 break;
             }

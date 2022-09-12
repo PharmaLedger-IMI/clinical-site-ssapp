@@ -253,7 +253,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                 if (err) {
                     return console.log(err);
                 }
-                let trialTps = tps.filter(tp => tp.trialId === this.model.selected_trial.id);
+                let trialTps = tps.filter(tp => tp.trialId === this.model.selected_trial.id && tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED);
                 trialTps.forEach(participant => {
                     this.sendMessageToPatient(participant.did, Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE, data.sReadSSI, "");
                     console.log("Questionnaire sent to: " + participant.name)
