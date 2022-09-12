@@ -29,7 +29,7 @@ export default class EconsentSignController extends BreadCrumbManager {
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.initSite(this.model.trialUid);
         await this.initTrialParticipant();
         this.initConsent();
@@ -41,7 +41,7 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     initConsent() {
-        let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid && ifc.tpUid === this.model.trialParticipant.pk);
+        let econsent = this.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid && ifc.tpUid === this.model.trialParticipant.pk);
         if (econsent === undefined) {
             return console.log('Error while loading econsent.');
         }
@@ -128,7 +128,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             };
             let message = {
                 name: ConsentStatusMapper.consentStatuses.decline.name,
-                status: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
+                status: this.model.ecoVersion > 1 ? Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED:Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
                 actionNeeded: 'HCO DECLINED -no action required',
             }
             this.updateEconsentWithDetails(message);
@@ -170,7 +170,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 return console.log(err);
             }
             this.updateTrialParticipantStatus(message)
-            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+            this.hcoDSU = await this.HCOService.getOrCreateAsync();
         });
     }
 
@@ -182,28 +182,47 @@ export default class EconsentSignController extends BreadCrumbManager {
     }
 
     updateTrialParticipantStatus(message) {
-        this.model.trialParticipant.actionNeeded = message.actionNeeded;
-        this.model.trialParticipant.tpSigned = message.name === ConsentStatusMapper.consentStatuses.signed.name;
-        this.model.trialParticipant.status = message.status;
-        let currentDate = new Date();
-        if (message.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
-            this.model.trialParticipant.enrolledDate = currentDate.toLocaleDateString();
-        } else this.model.trialParticipant.discontinuedDate = currentDate.toLocaleDateString();
 
-        this.TrialParticipantRepository.update(this.model.trialParticipant.pk, this.model.trialParticipant, (err, trialParticipant) => {
+        let currentDate = new Date();
+
+        const statusUpdateDetails = {
+            actionNeeded: message.actionNeeded,
+            status: message.status,
+            tpSigned: message.name === ConsentStatusMapper.consentStatuses.signed.name,
+        }
+
+        const tpDSU = this.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
+
+        if (message.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
+            statusUpdateDetails.enrolledDate = currentDate.toLocaleDateString();
+        } else {
+            statusUpdateDetails.discontinuedDate = currentDate.toLocaleDateString();
+        }
+
+        Object.assign(tpDSU, statusUpdateDetails);
+        Object.assign(this.model.trialParticipant, statusUpdateDetails);
+
+
+        this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, response) => {
             if (err) {
                 return console.log(err);
             }
 
-            this.sendMessageToPatient(trialParticipant.did,
-                Constants.MESSAGES.HCO.UPDATE_STATUS, {
-                    status: message.status
-                });
-        });
+            this.TrialParticipantRepository.update(this.model.trialParticipant.pk, this.model.trialParticipant, (err, trialParticipant) => {
+                if (err) {
+                    return console.log(err);
+                }
+
+                this.sendMessageToPatient(trialParticipant.did,
+                    Constants.MESSAGES.HCO.UPDATE_STATUS, {
+                        status: message.status
+                    });
+            });
+        })
     }
 
      initSite(trialUid) {
-        const sites = this.model.toObject("hcoDSU.volatile.site");
+        const sites = this.hcoDSU.volatile.site;
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid);
     }
 

@@ -69,8 +69,8 @@ export default class LandingPageController extends WebcController {
         this.NotificationsRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.NOTIFICATIONS);
         this.VisitsAndProceduresRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.VISITS);
         this.HCOService = new HCOService();
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        return this.model.hcoDSU;
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
+        return this.hcoDSU;
 
     }
 
@@ -106,9 +106,9 @@ export default class LandingPageController extends WebcController {
                     if (err) {
                         return console.log(err);
                     }
-                    this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+                    this.hcoDSU = await this.HCOService.getOrCreateAsync();
                     const patientDID = qs.questionResponses[0].patientDID;
-                    const tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === patientDID);
+                    const tp = this.hcoDSU.volatile.tps.find(tp => tp.did === patientDID);
                     const trialUid = this.HCOService.getAnchorId(tp.trialSReadSSI);
                     let patientName;
                     const tps = await this.TrialParticipantRepository.filterAsync(`did == ${patientDID}`, 'ascending', 30)
@@ -248,13 +248,13 @@ export default class LandingPageController extends WebcController {
     }
 
     async markTpAsUnavailable(data) {
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        if (this.model.hcoDSU.volatile.tps) {
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
+        if (this.hcoDSU.volatile.tps) {
 
             const JWTServiceInstance = new JWTService();
             const {verifyCredentialStatus} = await JWTServiceInstance.verifyCredential(data.anonymousDIDVc);
             const anonymizedDID = verifyCredentialStatus.vc.credentialSubject.anonymizedDID;
-            let tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === anonymizedDID);
+            let tp = this.hcoDSU.volatile.tps.find(tp => tp.did === anonymizedDID);
             tp.status = Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE;
             this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
                 if (err) {
@@ -266,8 +266,8 @@ export default class LandingPageController extends WebcController {
 
     async sendRefreshConsentsToTrialParticipants(data) {
         //refresh hcoDSU
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.uid) === data.ssi);
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
+        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.uid) === data.ssi);
         return await new Promise((resolve) => {
 
             this.TrialParticipantRepository.findAll(async (err, tps) => {
@@ -297,8 +297,8 @@ export default class LandingPageController extends WebcController {
                 }
 
                 cloneIFCs([...tps], async () => {
-                    this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-                    let ifcs = this.model.hcoDSU.volatile.ifcs || [];
+                    this.hcoDSU = await this.HCOService.getOrCreateAsync();
+                    let ifcs = this.hcoDSU.volatile.ifcs || [];
                     tps.forEach(tp => {
                         let tpIfcs = ifcs.filter(ifc => ifc.genesisUid === data.econsentUid && ifc.tpUid === tp.pk);
                         tpIfcs.forEach(econsent => {
@@ -321,7 +321,7 @@ export default class LandingPageController extends WebcController {
     }
 
     async _updateHcoDSU() {
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
     }
 
     async _healthData(data) {
@@ -357,24 +357,20 @@ export default class LandingPageController extends WebcController {
     }
 
     async _updateEconsentWithDetails(message) {
-        let tp;
-        if (this.model.hcoDSU.volatile.tps) {
-            tp = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
+        let tpDSU, tpRecord;
 
-            const tps = await this.TrialParticipantRepository.filterAsync(`did == ${tp.did}`, 'ascending', 30)
-            if (tps.length > 0) {
-                this.tpPk = tps[0].pk;
-                tp.number = tps[0].number;
-            }
-
-            if (tp === undefined) {
-                return console.error('Cannot find tp.');
-            }
+        tpDSU = this.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
+        if (!tpDSU) {
+            return console.error('Cannot find tp.');
         }
 
+        const tps = await this.TrialParticipantRepository.filterAsync(`did == ${tpDSU.did}`, 'ascending', 30)
+        tpRecord = tps[0];
+
+
         const consentSSI = message.ssi;
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        let econsent = this.model.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === consentSSI && ifc.tpUid === this.tpPk )
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
+        let econsent = this.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === consentSSI && ifc.tpUid === tpRecord.pk )
         if (econsent === undefined) {
             return console.error('Cannot find econsent.');
         }
@@ -390,14 +386,14 @@ export default class LandingPageController extends WebcController {
         let actionNeeded = 'No action required';
         let status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
         let tpSigned = false;
-        let tpObjectToAssign = {};
+        let statusUpdateDetails = {};
         let currentDate = new Date();
         switch (message.useCaseSpecifics.action.name) {
             case ConsentStatusMapper.consentStatuses.withdraw.name: {
                 actionNeeded = 'TP Withdrawn';
                 status = Constants.TRIAL_PARTICIPANT_STATUS.TP_WITHDRAWN;
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
-                tpObjectToAssign = {
+                statusUpdateDetails = {
                     actionNeeded,
                     status,
                     tpSigned,
@@ -408,8 +404,8 @@ export default class LandingPageController extends WebcController {
             case ConsentStatusMapper.consentStatuses.decline.name: {
                 actionNeeded = 'TP Declined';
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' declined', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
-                status = Constants.TRIAL_PARTICIPANT_STATUS.DECLINED;
-                tpObjectToAssign = {
+                status = currentVersionIndex > 0? Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED : Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED;
+                statusUpdateDetails = {
                     actionNeeded,
                     status,
                     tpSigned,
@@ -421,11 +417,11 @@ export default class LandingPageController extends WebcController {
                 tpSigned = true;
                 await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                 actionNeeded = 'Acknowledgement required';
-                if(tp.status === Constants.TRIAL_PARTICIPANT_STATUS.PLANNED) {
-                    status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
+                if(tpDSU.status === Constants.TRIAL_PARTICIPANT_STATUS.PLANNED) {
+                    status =  Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
                 }
 
-                tpObjectToAssign = {
+                statusUpdateDetails = {
                     tpSigned,
                     actionNeeded,
                     status,
@@ -443,27 +439,43 @@ export default class LandingPageController extends WebcController {
             actionNeeded: actionNeeded
         });
 
-        Object.assign(tp, tpObjectToAssign);
-        this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
+        Object.assign(tpDSU, statusUpdateDetails);
+        Object.assign(tpRecord, statusUpdateDetails);
+        this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err) => {
             if (err) {
                 return console.log(err);
             }
-        });
 
-        econsent.versions[currentVersionIndex] = currentVersion;
-        this.HCOService.updateHCOSubEntity(econsent, "ifcs/"+this.tpPk, async (err, response) => {
-            if (err) {
-                return console.log(err);
-            }
-            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        });
+            econsent.versions[currentVersionIndex] = currentVersion;
+            this.HCOService.updateHCOSubEntity(econsent, "ifcs/" + tpRecord.pk, (err) => {
+                if (err) {
+                    return console.log(err);
+                }
 
-        const sites = this.model.toObject("hcoDSU.volatile.site");
-        const site = sites.find(site => site.trialSReadSSI === tp.trialSReadSSI);
-        this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
-            ssi: this.tpPk,
-            consentsKeySSIs: [econsent.uid]
-        }, "Consent Changed");
+                this.TrialParticipantRepository.update(tpRecord.pk, tpRecord, async (err) => {
+                    if (err) {
+                        return console.log(err);
+                    }
+
+                    this.hcoDSU = await this.HCOService.getOrCreateAsync();
+
+                    const sites = this.hcoDSU.volatile.site;
+                    const site = sites.find(site => site.trialSReadSSI === tpDSU.trialSReadSSI);
+
+                    this.CommunicationService.sendMessage(tpRecord.did, {
+                        status: status,
+                        operation: Constants.MESSAGES.HCO.UPDATE_STATUS
+                    });
+
+                    this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
+                        ssi: tpRecord.pk,
+                        consentsKeySSIs: [econsent.uid]
+                    }, "Consent Changed");
+
+                });
+            });
+
+        });
     }
 
     sendMessageToPatient(trialParticipant, operation, ssi, shortMessage) {
@@ -509,8 +521,8 @@ export default class LandingPageController extends WebcController {
     }
 
     async _saveVisit(message) {
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this.model.hcoDSU.volatile.visit.forEach(visit => {
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.hcoDSU.volatile.visit.forEach(visit => {
             // TODO: Refactor this structure in sponsor ssapp
             if (visit.visits && visit.visits.visits) {
                 visit.visits.visits.forEach(item => {
@@ -538,7 +550,7 @@ export default class LandingPageController extends WebcController {
                         visitToBeAdded.minus = minus[0]?.value;
 
                     item.procedures.forEach((procedure) => {
-                        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.HCOService.getAnchorId(trialSSI));
+                        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.HCOService.getAnchorId(trialSSI));
                         procedure.consent.consentSSI = site.consents.find((consent => consent.name === procedure.consent.name)).keySSI;
                     });
 
@@ -587,8 +599,8 @@ export default class LandingPageController extends WebcController {
 
     async _updateVisit(message) {
 
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-        const tpDSU = this.model.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid);
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
+        const tpDSU = this.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid);
         let objIndex = tpDSU?.visits?.findIndex((visit => visit.uuid === message.useCaseSpecifics.visit.id));
 
         tpDSU.visits[objIndex].accepted = message.useCaseSpecifics.visit.accepted;
@@ -615,7 +627,7 @@ export default class LandingPageController extends WebcController {
         }
 
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
-            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+            this.hcoDSU = await this.HCOService.getOrCreateAsync();
             let notification = message;
             notification.tpUid = data.uid;
             await this._saveNotification(notification, message.shortDescription, 'view visits', Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS);
