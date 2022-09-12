@@ -88,16 +88,16 @@ export default class ProceduresViewController extends BreadCrumbManager {
             this.updateTrialParticipant();
 
         } else {
-            let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
-
-            if (visitTp) {
-                this.model.procedures = visitTp.procedures;
-
-            } else {
-                this.model.tp.visits.push(this.model.visit);
-                this.updateTrialParticipant();
-
-            }
+            //WIP - TO BE REFACTORED
+            // let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
+            //
+            // if (visitTp) {
+            //     this.model.procedures = visitTp.procedures;
+            //
+            // } else {
+            //     this.model.tp.visits.push(this.model.visit);
+            //     this.updateTrialParticipant();
+            // }
         }
 
         this.model.procedures.forEach(procedure => {

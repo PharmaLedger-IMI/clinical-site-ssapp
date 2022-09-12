@@ -141,6 +141,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this._attachHandlerViewAnswersDetails();
         this._attachHandlerViewTrialParticipantStatus();
         this._attachHandlerViewTrialParticipantDevices();
+        this._attachHandlerVisits();
     }
 
     async _initTrial(trialUid) {
@@ -201,7 +202,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 tp.name = nonObfuscatedTp.name;
                 tp.birthdate = nonObfuscatedTp.birthdate;
                 tp.enrolledDate = nonObfuscatedTp.enrolledDate;
-                tp.cannotManageDevices = typeof tp.number === "undefined";
+                tp.cannotManageDevicesAndVisits = typeof tp.number === "undefined";
 
                 let tpActions = actions[tp.did];
                 let actionNeeded = 'No action required';
@@ -371,6 +372,42 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 trialParticipantNumber: model.number,
                 participantName: model.name,
                 participantDID: model.did,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
+        });
+    }
+
+    extractConsentInfos(tpPk) {
+        let ifcs = this.model.hcoDSU.volatile.ifcs;
+        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
+        let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
+        this.trialConsents = ifcs.filter(icf => {
+            return siteConsentsKeySSis.indexOf(icf.genesisUid) > -1 && icf.tpUid === tpPk
+        })
+        console.log(this.trialConsents);
+
+        this.trialConsents.forEach(cons => {
+            if(cons['type'] === 'Mandatory' && cons.hasOwnProperty('hcoSign') === true) {
+                this.mandatoryConsent = cons;
+                this.mandatoryConsent.lastVersion = cons.versions[cons.versions.length - 1].version;
+            }
+        })
+
+        return this.mandatoryConsent;
+    }
+
+    _attachHandlerVisits() {
+        this.onTagEvent('tp:visits', 'click', (model, target, event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            this.extractConsentInfos(model.pk);
+            this.navigateToPageTag('econsent-visits-procedures', {
+                trialUid: this.model.trialUid,
+                tpUid: model.uid,
+                trialId: this.model.site.trialId,
+                consentId: this.mandatoryConsent.trialConsentId,
+                consentVersion: this.mandatoryConsent.lastVersion,
+                trialConsents: JSON.parse(JSON.stringify(this.trialConsents)),
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });

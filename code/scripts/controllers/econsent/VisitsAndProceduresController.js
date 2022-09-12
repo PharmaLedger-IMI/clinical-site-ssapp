@@ -45,6 +45,40 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.initHandlers();
         await this.initSite();
         await this.initVisits();
+        this.checkSignedConsents();
+    }
+
+    checkSignedConsents() {
+        this.trialConsents = this.model.toObject('trialConsents');
+        let mergedCons = [];
+
+        this.trialConsents.forEach(consent => {
+            if(consent['type'] === 'Mandatory') {
+                return mergedCons.push(consent);
+            }
+
+            if(consent['type'] === 'Optional' && consent.hasOwnProperty('hcoSign') === true) {
+                mergedCons.push(consent);
+            }
+        });
+
+        if (mergedCons.length > 1) {
+            mergedCons.forEach(cons => {
+                if (cons.type === 'Optional') {
+                    this.model.toObject("site.visits.visits").forEach(visit => {
+                        if (cons.trialConsentId === visit.consentId) {
+                            this.model.visits.forEach(shownVisit => {
+                                let wantedVisit = visit.visits.find(el => el.id === shownVisit.id);
+                                if(wantedVisit !== undefined ) {
+                                    shownVisit.procedures.push(...wantedVisit.procedures);
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        }
+        console.log('this.model.visits', this.model.visits)
     }
 
     prepareDateForVisits(receivedVisits) {
@@ -104,6 +138,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 .find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === consentVersion);
             this.model.visits = selectedVisit ? (selectedVisit.visits || []) : [];
         }
+        console.log(this.model.visits);
         this.model.siteHasVisits = this.model.visits.length > 0;
         this.extractDataVisit();
         await this.matchTpVisits();
