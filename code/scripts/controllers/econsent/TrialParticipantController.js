@@ -55,7 +55,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this._attachHandlerNavigateToEconsentSign();
         this._attachHandlerAddTrialParticipantNumber();
         this._attachHandlerView();
-        this._attachHandlerVisits();
         this._attachHandlerContactTs();
     }
 
@@ -145,21 +144,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
             this.navigateToPageTag('econsent-contact-ts', {
                 trialUid: this.model.trialUid,
                 tpDid: this.model.tp.did,
-                breadcrumb: this.model.toObject('breadcrumb')
-            });
-        });
-    }
-
-    _attachHandlerVisits() {
-        this.onTagEvent('tp:visits', 'click', (model, target, event) => {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            this.navigateToPageTag('econsent-visits-procedures', {
-                trialUid: this.model.trialUid,
-                trialId: this.model.site.trialId,
-                tpUid: this.model.tpUid,
-                consentId: model.trialConsentId,
-                consentVersion: model.lastVersion,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -358,10 +342,6 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         if (hcoVersion.name === ConsentStatusMapper.consentStatuses.signed.name && hcoVersionIndex > tpVersionIndex) {
                             econsent.signed = true;
                             econsent.toBeSignedByHCO = false;
-                        }
-                        if (hcoVersion.name === ConsentStatusMapper.consentStatuses.signed.name && hcoVersionIndex > tpVersionIndex && this.model.tp.number!==undefined) {
-
-                            econsent.visitsToBeScheduled = true;
                         }
                         if (hcoVersion.name === ConsentStatusMapper.consentStatuses.decline.name && hcoVersionIndex > tpVersionIndex) {
                             econsent.hcoDeclined = true;

@@ -138,7 +138,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 .find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === consentVersion);
             this.model.visits = selectedVisit ? (selectedVisit.visits || []) : [];
         }
-        console.log(this.model.visits);
         this.model.siteHasVisits = this.model.visits.length > 0;
         this.extractDataVisit();
         await this.matchTpVisits();
