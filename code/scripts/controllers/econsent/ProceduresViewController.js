@@ -43,15 +43,15 @@ export default class ProceduresViewController extends BreadCrumbManager {
         if(visit) {
             this.sendMessageToPatient(visit, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
         }
-        this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
-            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.HCOService.updateHCOSubEntity(this.tp, "tps", async (err, data) => {
+            this.hcoDSU = await this.HCOService.getOrCreateAsync();
             this.initProcedures();
             window.WebCardinal.loader.hidden = true;
         });
     }
 
     updateProcedure(procedure) {
-        let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
+        let visitTp = this.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
         if(procedure === undefined) {
             let modifiedProcedures = this.model.procedures.map(procedure => (
                 {
@@ -67,34 +67,34 @@ export default class ProceduresViewController extends BreadCrumbManager {
             visitTp.procedures = this.model.procedures;
         }
 
-        let obj = this.model.tp.visits.findIndex((obj => obj.uuid == visitTp.uuid));
-        this.model.tp.visits[obj] = visitTp;
+        let obj = this.tp.visits.findIndex((obj => obj.uuid == visitTp.uuid));
+        this.tp.visits[obj] = visitTp;
     }
 
     async initServices() {
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.HCOService = new HCOService();
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.initHandlers();
         this.initProcedures();
     }
 
     initProcedures(makeCompleted) {
-        this.model.tp = this.model.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
+        this.tp = this.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
         this.model.procedures = this.model.visit.procedures;
-        if (!this.model.tp.visits || this.model.tp.visits.length < 1) {
-            this.model.tp.visits = this.model.visits;
+        if (!this.tp.visits || this.tp.visits.length < 1) {
+            this.tp.visits = this.model.visits;
             this.updateTrialParticipant();
 
         } else {
-            let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
+            let visitTp = this.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
 
             if (visitTp) {
                 this.model.procedures = visitTp.procedures;
 
             } else {
-                this.model.tp.visits.push(this.model.visit);
+                this.tp.visits.push(this.model.visit);
                 this.updateTrialParticipant();
             }
         }
@@ -143,15 +143,13 @@ export default class ProceduresViewController extends BreadCrumbManager {
 
     attachHandlerConfirm() {
         this.onTagClick('confirm-procedures', () => {
-            let index = this.model.tp.visits.findIndex(visit => visit.uuid === this.model.visit.uuid);
-            this.updateTrialParticipant(this.model.tp.visits[index]);
+            let index = this.tp.visits.findIndex(visit => visit.uuid === this.model.visit.uuid);
+            this.updateTrialParticipant(this.tp.visits[index]);
             this.navigateToPageTag('econsent-visits-procedures', {
                 trialUid: this.model.trialUid,
                 tpUid: this.model.tpUid,
                 trialId: this.model.trialId,
-                consentId:this.model.consentId,
-                trialConsentVersion:this.model.trialConsentVersion,
-                trialConsents: this.model.toObject('trialConsents'),
+                pk: this.model.pk,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         })
@@ -159,11 +157,11 @@ export default class ProceduresViewController extends BreadCrumbManager {
 
     sendMessageToPatient(visit, operation) {
 
-        this.CommunicationService.sendMessage(this.model.tp.did, {
+        this.CommunicationService.sendMessage(this.tp.did, {
             operation: operation,
             ssi: visit.trialSSI,
             useCaseSpecifics: {
-                tpDid: this.model.tp.did,
+                tpDid: this.tp.did,
                 trialSSI: visit.trialSSI,
                 visit: {
                     ...visit,

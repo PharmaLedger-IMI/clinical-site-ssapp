@@ -15,6 +15,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         super(...props);
 
         this.model = this.getInitModel();
+        this.state = this.getState();
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -43,12 +44,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.HCOService = new HCOService();
         this.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.initHandlers();
-        await this.initSite();
+        await this.initSiteAndConsents();
         await this.initVisits();
     }
 
     addConsentsProcedures() {
-        this.trialConsents = this.model.toObject('trialConsents');
         let mergedCons = [];
 
         this.trialConsents.forEach(consent => {
@@ -66,13 +66,12 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     }
                 }
             }
-
         });
 
         if (mergedCons.length > 1) {
             mergedCons.forEach(cons => {
                 if (cons.type === 'Optional') {
-                    this.model.toObject("site.visits.visits").forEach(visit => {
+                    this.site.visits.visits.forEach(visit => {
                         if (cons.trialConsentId === visit.consentId && cons.trialConsentVersion === visit.consentVersion) {
                             this.model.visits.forEach(shownVisit => {
                                 let wantedVisit = visit.visits.find(el => el.id === shownVisit.id);
@@ -149,10 +148,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     async initVisits() {
-        if (this.model.toObject("site.visits.visits").length) {
-            const {trialId, consentId, trialConsentVersion} = this.model;
-            const selectedVisit = this.model.toObject("site.visits.visits")
-                .find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === trialConsentVersion);
+        if (this.site.visits.visits.length) {
+            const {trialId} = this.model;
+            const selectedVisit = this.site.visits.visits
+                .find(v => v.trialId === trialId && v.consentId === this.mandatoryConsent.trialConsentId && v.consentVersion === this.mandatoryConsent.trialConsentVersion);
             this.model.visits = selectedVisit ? (selectedVisit.visits || []) : [];
         }
         this.addConsentsProcedures();
@@ -176,20 +175,20 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.visits = visitsForUpdate;
         }
         if (this.model.visits && this.model.visits.length > 0) {
-            let tpIndex = this.hcoDSU.volatile.tps.findIndex(tp => tp.uid === this.model.tpUid);
+            let tpIndex = this.hcoDSU.volatile.tps.findIndex(tp => tp.uid === this.state.tpUid);
             if (tpIndex === undefined) {
                 return;
             }
-            this.model.tp = this.hcoDSU.volatile.tps[tpIndex];
-            if (!this.model.tp.visits || this.model.tp.visits.length < 1) {
-                this.model.tp.visits = this.model.visits;
-                this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
+            this.tp = this.hcoDSU.volatile.tps[tpIndex];
+            if (!this.tp.visits || this.tp.visits.length < 1) {
+                this.tp.visits = this.visits;
+                this.HCOService.updateHCOSubEntity(this.tp, "tps", async (err, data) => {
                     this.hcoDSU = await this.HCOService.getOrCreateAsync();
                 });
 
             } else {
                 this.model.visits.forEach(visit => {
-                    let visitTp = this.model.tp.visits.filter(v => v.uuid === visit.uuid)[0];
+                    let visitTp = this.tp.visits.filter(v => v.uuid === visit.uuid)[0];
                     if (visitTp !== undefined) {
 
                         visitTp.procedures = visit.procedures;
@@ -240,33 +239,33 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     async updateTrialParticipantVisit(visit, operation) {
         window.WebCardinal.loader.hidden = false;
 
-        if(!this.model.tp.visits){
-            this.model.tp.visits = [];
+        if(!this.tp.visits){
+            this.tp.visits = [];
         }
 
         this.model.visits.forEach(visit=>{
-            if (!this.model.tp.visits.some(tpVisit => tpVisit.uuid === visit.uuid)) {
-                this.model.tp.visits.push(JSON.parse(JSON.stringify(visit)));
+            if (!this.tp.visits.some(tpVisit => tpVisit.uuid === visit.uuid)) {
+                this.tp.visits.push(JSON.parse(JSON.stringify(visit)));
             }
         })
 
-        let tpVisitIndex = this.model.tp.visits.findIndex((obj => obj.uuid === visit.uuid));
+        let tpVisitIndex = this.tp.visits.findIndex((obj => obj.uuid === visit.uuid));
         let consentVisitIndex = this.model.visits.findIndex((obj => obj.uuid === visit.uuid));
-        this.model.tp.visits[tpVisitIndex].toShowDate = visit.toShowDate;
-        this.model.tp.visits[tpVisitIndex].proposedDate = this.model.proposedDate;
-        this.model.tp.visits[tpVisitIndex].hasProposedDate = visit.hasProposedDate;
-        this.model.tp.visits[tpVisitIndex].confirmedDate = visit.confirmedDate;
-        this.model.tp.visits[tpVisitIndex].confirmed = visit.confirmed;
-        this.model.tp.visits[tpVisitIndex].suggestedInterval = visit.suggestedInterval;
-        this.model.tp.visits[tpVisitIndex].hcoRescheduled = visit.hcoRescheduled;
+        this.tp.visits[tpVisitIndex].toShowDate = visit.toShowDate;
+        this.tp.visits[tpVisitIndex].proposedDate = this.model.proposedDate;
+        this.tp.visits[tpVisitIndex].hasProposedDate = visit.hasProposedDate;
+        this.tp.visits[tpVisitIndex].confirmedDate = visit.confirmedDate;
+        this.tp.visits[tpVisitIndex].confirmed = visit.confirmed;
+        this.tp.visits[tpVisitIndex].suggestedInterval = visit.suggestedInterval;
+        this.tp.visits[tpVisitIndex].hcoRescheduled = visit.hcoRescheduled;
         this.model.visits[consentVisitIndex].proposedDate = this.model.proposedDate;
         this.model.visits[consentVisitIndex].hasProposedDate = true;
 
         if(this.actionNeeded) {
-            this.model.tp.actionNeeded = this.actionNeeded;
+            this.tp.actionNeeded = this.actionNeeded;
         }
 
-        this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
+        this.HCOService.updateHCOSubEntity(this.tp, "tps", async (err, data) => {
             if (err) {
                 return this.model.message = {
                     content: `An error has been occurred!`,
@@ -274,7 +273,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 }
             }
             this.hcoDSU = await this.HCOService.getOrCreateAsync();
-            const currentConsentVisits = this.model.tp.visits.filter(tpVisit=>{
+            const currentConsentVisits = this.tp.visits.filter(tpVisit=>{
                 return this.model.visits.some(visit => tpVisit.uuid === visit.uuid)
             })
             this.model.visitsDataSource.updateTable(currentConsentVisits);
@@ -360,11 +359,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     sendMessageToPatient(visit, operation) {
-        this.CommunicationService.sendMessage(this.model.tp.did, {
+        this.CommunicationService.sendMessage(this.tp.did, {
             operation: operation,
             ssi: visit.trialSSI,
             useCaseSpecifics: {
-                tpDid: this.model.tp.did,
+                tpDid: this.tp.did,
                 trialSSI: visit.trialSSI,
 
                 visit: {
@@ -401,7 +400,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         this.model.proposedDate = model.proposedDate;
                         this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(model.proposedDate);
 
-                        if(this.model.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED || this.model.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED) {
+                        if(this.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED || this.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED) {
                             this.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED;
                         }
 
@@ -430,22 +429,28 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     attachHandlerViewVisit() {
         this.onTagClick("visit:view", (model) => {
             this.navigateToPageTag('econsent-procedures-view', {
-                trialUid: this.model.trialUid,
-                tpUid: this.model.tpUid,
-                trialId: this.model.trialId,
-                consentId:this.model.consentId,
-                trialConsentVersion:this.model.trialConsentVersion,
+                trialUid: this.state.trialUid,
+                tpUid: this.state.tpUid,
+                trialId: this.state.trialId,
                 visits: this.model.toObject("visits"),
-                trialConsents: this.model.toObject('trialConsents'),
                 visit: model,
+                pk: this.state.pk,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
     }
 
-    async initSite() {
-        const sites = this.hcoDSU.volatile.site;
-        this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
+    async initSiteAndConsents() {
+        this.site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.state.trialUid);
+        let ifcs = this.hcoDSU.volatile.ifcs;
+        let siteConsentsKeySSis = this.site.consents.map(consent => consent.uid);
+        this.trialConsents = ifcs.filter(icf => {
+            return siteConsentsKeySSis.indexOf(icf.genesisUid) > -1 && icf.tpUid === this.state.pk
+        })
+
+        this.mandatoryConsent = this.trialConsents.find(cons => {
+            return cons['type'] === 'Mandatory' && cons.hasOwnProperty('hcoSign') === true
+        });
     }
 
     getInitModel() {

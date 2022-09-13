@@ -148,7 +148,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.model.trial = this.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
         const sites = this.hcoDSU.volatile.site;
         const site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
-        this.model.site = site;
+        this.site = site;
         this.model.siteHasConsents = site.consents.length > 0;
 
         let actions = await this._getEconsentActionsMappedByUser();
@@ -202,7 +202,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 tp.name = nonObfuscatedTp.name;
                 tp.birthdate = nonObfuscatedTp.birthdate;
                 tp.enrolledDate = nonObfuscatedTp.enrolledDate;
-                tp.cannotManageDevicesAndVisits = typeof tp.number === "undefined";
+                tp.cannotManageDevicesAndVisits = actions[tp.did].cannotManageDevicesAndVisits;
 
                 let tpActions = actions[tp.did];
                 let actionNeeded = 'No action required';
@@ -284,7 +284,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     async _getEconsentActionsMappedByUser() {
         let actions = {};
         let econsents = [];
-        const siteConsentsUids = this.model.site.consents.map(consent => consent.uid);
+        const siteConsentsUids = this.site.consents.map(consent => consent.uid);
         if(this.hcoDSU.volatile.ifcs){
              econsents = this.hcoDSU.volatile.ifcs.filter(ifc => siteConsentsUids.includes(ifc.genesisUid));
         }
@@ -315,7 +315,15 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         })
                     })
                 })
-            });
+                if(econsent.type === 'Mandatory' && econsent.versions[econsent.versions.length-1].actions) {
+                    let actionsLastVersion = econsent.versions[econsent.versions.length-1].actions;
+                    actionsLastVersion.forEach(action => {
+                        if(action.name === ConsentStatusMapper.consentStatuses.signed.name && action.type === 'hco') {
+                            actions[action.tpDid].cannotManageDevicesAndVisits = false;
+                        }
+                    })
+                }
+        });
         return actions;
     }
 
@@ -388,7 +396,6 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         this.mandatoryConsent = this.trialConsents.find(cons => {
             return cons['type'] === 'Mandatory' && cons.hasOwnProperty('hcoSign') === true
         });
-
     }
 
     _attachHandlerVisits() {
@@ -399,10 +406,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             this.navigateToPageTag('econsent-visits-procedures', {
                 trialUid: this.model.trialUid,
                 tpUid: model.uid,
-                trialId: this.model.site.trialId,
-                consentId: this.mandatoryConsent.trialConsentId,
-                trialConsentVersion:this.mandatoryConsent.trialConsentVersion,
-                trialConsents: this.trialConsents,
+                trialId: this.site.trialId,
+                pk: model.pk,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -484,7 +489,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 this.HCOService.updateHCOSubEntity(statusDSU,"/site/"+site.uid+"/status",(err, dsu)=>{
                     this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.UPDATE_SITE_STATUS, {
                         stageInfo: {
-                            siteSSI: this.model.site.uid
+                            siteSSI: this.site.uid
                         }
                     },'The stage of the site changed');
                 });
@@ -570,7 +575,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
     _sendMessageToSponsor(operation, data, shortDescription) {
-        this.CommunicationService.sendMessage(this.model.site.sponsorDid, {
+        this.CommunicationService.sendMessage(this.site.sponsorDid, {
             operation: operation,
             ...data,
             shortDescription: shortDescription,
