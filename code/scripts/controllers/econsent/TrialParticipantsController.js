@@ -202,9 +202,15 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 tp.name = nonObfuscatedTp.name;
                 tp.birthdate = nonObfuscatedTp.birthdate;
                 tp.enrolledDate = nonObfuscatedTp.enrolledDate;
-                tp.cannotManageDevicesAndVisits = actions[tp.did].cannotManageDevicesAndVisits;
-
                 let tpActions = actions[tp.did];
+
+                if(typeof tp.number === "undefined" || !tpActions){
+                    tp.cannotManageDevicesAndVisits = true;
+                }
+                else{
+                    tp.cannotManageDevicesAndVisits = !tpActions.canReceiveTreatment;
+                }
+
                 let actionNeeded = 'No action required';
                 let notificationColor;
                 if (tpActions === undefined || tpActions.length === 0) {
@@ -319,7 +325,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     let actionsLastVersion = econsent.versions[econsent.versions.length-1].actions;
                     actionsLastVersion.forEach(action => {
                         if(action.name === ConsentStatusMapper.consentStatuses.signed.name && action.type === 'hco') {
-                            actions[action.tpDid].cannotManageDevicesAndVisits = false;
+                            actions[action.tpDid].canReceiveTreatment = true;
                         }
                     })
                 }
