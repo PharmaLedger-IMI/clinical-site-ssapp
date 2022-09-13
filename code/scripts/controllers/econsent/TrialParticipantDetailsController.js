@@ -191,6 +191,13 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                     screenFailedDate: currentDate.toLocaleDateString()
                                 }
                             break;
+                            case Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE:
+                                tpObjectToAssign = {
+                                    actionNeeded: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
+                                    status: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
+                                    screenFailedDate: currentDate.toLocaleDateString()
+                                }
+                                break;
                         }
                         Object.assign(tp, tpObjectToAssign);
                         this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
