@@ -88,16 +88,15 @@ export default class ProceduresViewController extends BreadCrumbManager {
             this.updateTrialParticipant();
 
         } else {
-            //WIP - TO BE REFACTORED
-            // let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
-            //
-            // if (visitTp) {
-            //     this.model.procedures = visitTp.procedures;
-            //
-            // } else {
-            //     this.model.tp.visits.push(this.model.visit);
-            //     this.updateTrialParticipant();
-            // }
+            let visitTp = this.model.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
+
+            if (visitTp) {
+                this.model.procedures = visitTp.procedures;
+
+            } else {
+                this.model.tp.visits.push(this.model.visit);
+                this.updateTrialParticipant();
+            }
         }
 
         this.model.procedures.forEach(procedure => {
@@ -143,7 +142,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     attachHandlerConfirm() {
-        this.onTagClick('confirm-procedures', (model) => {
+        this.onTagClick('confirm-procedures', () => {
             let index = this.model.tp.visits.findIndex(visit => visit.uuid === this.model.visit.uuid);
             this.updateTrialParticipant(this.model.tp.visits[index]);
             this.navigateToPageTag('econsent-visits-procedures', {
@@ -152,6 +151,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
                 trialId: this.model.trialId,
                 consentId:this.model.consentId,
                 consentVersion: this.model.consentVersion,
+                trialConsents: this.model.toObject('trialConsents'),
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         })

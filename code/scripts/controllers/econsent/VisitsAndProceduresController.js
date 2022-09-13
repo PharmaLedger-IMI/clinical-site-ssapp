@@ -45,7 +45,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.initHandlers();
         await this.initSite();
         await this.initVisits();
-        this.checkSignedConsents();
     }
 
     checkSignedConsents() {
@@ -78,6 +77,16 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 }
             })
         }
+
+        this.model.visits.forEach(visit => {
+            visit.procedures = visit.procedures.map((procedure, index) => {
+                return {
+                    ...procedure,
+                    id: index
+                }
+            })
+        })
+
         console.log('this.model.visits', this.model.visits)
     }
 
@@ -138,6 +147,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 .find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === consentVersion);
             this.model.visits = selectedVisit ? (selectedVisit.visits || []) : [];
         }
+        this.checkSignedConsents();
         this.model.siteHasVisits = this.model.visits.length > 0;
         this.extractDataVisit();
         await this.matchTpVisits();
@@ -174,6 +184,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     let visitTp = this.model.tp.visits.filter(v => v.uuid === visit.uuid)[0];
                     if (visitTp !== undefined) {
 
+                        visitTp.procedures = visit.procedures;
                         visit.confirmed = visitTp.confirmed;
                         visit.accepted = visitTp.accepted;
                         visit.declined = visitTp.declined;
@@ -417,6 +428,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 consentId:this.model.consentId,
                 consentVersion: this.model.consentVersion,
                 visits: this.model.toObject("visits"),
+                trialConsents: this.model.toObject('trialConsents'),
                 visit: model,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
