@@ -150,7 +150,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
                 tpUid: this.model.tpUid,
                 trialId: this.model.trialId,
                 consentId:this.model.consentId,
-                consentVersion: this.model.consentVersion,
+                trialConsentVersion:this.model.trialConsentVersion,
                 trialConsents: this.model.toObject('trialConsents'),
                 breadcrumb: this.model.toObject('breadcrumb')
             });

@@ -168,6 +168,7 @@ export default class HCOService extends DSUService {
                         const ifcVersions = existingIfc.versions.map(version => version.version);
                         const notExistingVersions = consent.versions.filter(version => ifcVersions.includes(version.version) === false);
                         existingIfc.versions.push(...notExistingVersions);
+                        existingIfc.trialConsentVersion = consent.trialConsentVersion;
                         return this.updateHCOSubEntity(existingIfc, IFCS_PATH+ "/"+tpUid, async (err, response) => {
                             if (err) {
                                 return this.cancelBatchOnError(err, callback)

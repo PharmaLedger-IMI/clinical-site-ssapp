@@ -3,6 +3,7 @@ import HCOService from "../../services/HCOService.js";
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const DateTimeService = commonServices.DateTimeService;
+const ConsentStatusMapper = commonServices.ConsentStatusMapper;
 const Constants = commonServices.Constants;
 const momentService  = commonServices.momentService;
 const BaseRepository = commonServices.BaseRepository;
@@ -21,7 +22,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 tag: "econsent-visits-procedures"
             }
         );
-
         this.initServices().then(() => {
             this.model.dataSourceInitialized = this.model.visits.length ? true : false;
             this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'));
@@ -41,13 +41,13 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.HCOService = new HCOService();
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.initHandlers();
         await this.initSite();
         await this.initVisits();
     }
 
-    checkSignedConsents() {
+    addConsentsProcedures() {
         this.trialConsents = this.model.toObject('trialConsents');
         let mergedCons = [];
 
@@ -56,16 +56,24 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 return mergedCons.push(consent);
             }
 
-            if(consent['type'] === 'Optional' && consent.hasOwnProperty('hcoSign') === true) {
-                mergedCons.push(consent);
+            if (consent['type'] === 'Optional') {
+                const consentVersions = consent.versions;
+                const lastConsentVersionActions = consentVersions[consentVersions.length - 1].actions;
+                if (lastConsentVersionActions) {
+                    const hcoSigned = lastConsentVersionActions.some(action => action.type === "hco" && action.name === ConsentStatusMapper.consentStatuses.signed.name)
+                    if (hcoSigned) {
+                        mergedCons.push(consent);
+                    }
+                }
             }
+
         });
 
         if (mergedCons.length > 1) {
             mergedCons.forEach(cons => {
                 if (cons.type === 'Optional') {
                     this.model.toObject("site.visits.visits").forEach(visit => {
-                        if (cons.trialConsentId === visit.consentId) {
+                        if (cons.trialConsentId === visit.consentId && cons.trialConsentVersion === visit.consentVersion) {
                             this.model.visits.forEach(shownVisit => {
                                 let wantedVisit = visit.visits.find(el => el.id === shownVisit.id);
                                 if(wantedVisit !== undefined ) {
@@ -142,12 +150,12 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
     async initVisits() {
         if (this.model.toObject("site.visits.visits").length) {
-            const {trialId, consentId, consentVersion} = this.model;
+            const {trialId, consentId, trialConsentVersion} = this.model;
             const selectedVisit = this.model.toObject("site.visits.visits")
-                .find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === consentVersion);
+                .find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === trialConsentVersion);
             this.model.visits = selectedVisit ? (selectedVisit.visits || []) : [];
         }
-        this.checkSignedConsents();
+        this.addConsentsProcedures();
         this.model.siteHasVisits = this.model.visits.length > 0;
         this.extractDataVisit();
         await this.matchTpVisits();
@@ -168,15 +176,15 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.visits = visitsForUpdate;
         }
         if (this.model.visits && this.model.visits.length > 0) {
-            let tpIndex = this.model.hcoDSU.volatile.tps.findIndex(tp => tp.uid === this.model.tpUid);
+            let tpIndex = this.hcoDSU.volatile.tps.findIndex(tp => tp.uid === this.model.tpUid);
             if (tpIndex === undefined) {
                 return;
             }
-            this.model.tp = this.model.hcoDSU.volatile.tps[tpIndex];
+            this.model.tp = this.hcoDSU.volatile.tps[tpIndex];
             if (!this.model.tp.visits || this.model.tp.visits.length < 1) {
                 this.model.tp.visits = this.model.visits;
                 this.HCOService.updateHCOSubEntity(this.model.tp, "tps", async (err, data) => {
-                    this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+                    this.hcoDSU = await this.HCOService.getOrCreateAsync();
                 });
 
             } else {
@@ -265,7 +273,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     type:'error'
                 }
             }
-            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+            this.hcoDSU = await this.HCOService.getOrCreateAsync();
             const currentConsentVisits = this.model.tp.visits.filter(tpVisit=>{
                 return this.model.visits.some(visit => tpVisit.uuid === visit.uuid)
             })
@@ -426,7 +434,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 tpUid: this.model.tpUid,
                 trialId: this.model.trialId,
                 consentId:this.model.consentId,
-                consentVersion: this.model.consentVersion,
+                trialConsentVersion:this.model.trialConsentVersion,
                 visits: this.model.toObject("visits"),
                 trialConsents: this.model.toObject('trialConsents'),
                 visit: model,
@@ -436,7 +444,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     async initSite() {
-        const sites = this.model.toObject("hcoDSU.volatile.site");
+        const sites = this.hcoDSU.volatile.site;
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
     }
 

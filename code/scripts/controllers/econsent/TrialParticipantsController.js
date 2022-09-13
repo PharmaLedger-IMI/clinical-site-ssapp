@@ -130,7 +130,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
     async initializeData() {
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
         this.tps = await this.TrialParticipantRepository.findAllAsync();
         return await this._initTrial(this.model.trialUid);
     }
@@ -145,8 +145,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
     async _initTrial(trialUid) {
-        this.model.trial = this.model.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
-        const sites = this.model.toObject("hcoDSU.volatile.site");
+        this.model.trial = this.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
+        const sites = this.hcoDSU.volatile.site;
         const site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
         this.model.site = site;
         this.model.siteHasConsents = site.consents.length > 0;
@@ -192,7 +192,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         }
         this.tps.forEach(tp => tpsMappedByDID[tp.did] = tp);
 
-        let trialParticipants = this.model.hcoDSU.volatile.tps;
+        let trialParticipants = this.hcoDSU.volatile.tps;
 
         return trialParticipants
             .filter(tp => tp.trialNumber === this.model.trial.id)
@@ -285,8 +285,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         let actions = {};
         let econsents = [];
         const siteConsentsUids = this.model.site.consents.map(consent => consent.uid);
-        if(this.model.hcoDSU.volatile.ifcs){
-             econsents = this.model.hcoDSU.volatile.ifcs.filter(ifc => siteConsentsUids.includes(ifc.genesisUid));
+        if(this.hcoDSU.volatile.ifcs){
+             econsents = this.hcoDSU.volatile.ifcs.filter(ifc => siteConsentsUids.includes(ifc.genesisUid));
         }
 
         econsents.forEach(econsent => {
@@ -328,8 +328,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             if(this.tps){
                 tpsDIDs = this.tps.map(tp => tp.publicDid);
             }
-            if(this.model.hcoDSU.volatile.tps){
-                tpsDIDs = tpsDIDs.concat(this.model.hcoDSU.volatile.tps.map(tp => tp.did));
+            if(this.hcoDSU.volatile.tps){
+                tpsDIDs = tpsDIDs.concat(this.hcoDSU.volatile.tps.map(tp => tp.did));
             }
             this.showModalFromTemplate(
                 'add-new-tp',
@@ -378,22 +378,17 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
     extractConsentInfos(tpPk) {
-        let ifcs = this.model.hcoDSU.volatile.ifcs;
-        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
+        let ifcs = this.hcoDSU.volatile.ifcs;
+        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
         let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
         this.trialConsents = ifcs.filter(icf => {
             return siteConsentsKeySSis.indexOf(icf.genesisUid) > -1 && icf.tpUid === tpPk
         })
-        console.log(this.trialConsents);
 
-        this.trialConsents.forEach(cons => {
-            if(cons['type'] === 'Mandatory' && cons.hasOwnProperty('hcoSign') === true) {
-                this.mandatoryConsent = cons;
-                this.mandatoryConsent.lastVersion = cons.versions[cons.versions.length - 1].version;
-            }
-        })
+        this.mandatoryConsent = this.trialConsents.find(cons => {
+            return cons['type'] === 'Mandatory' && cons.hasOwnProperty('hcoSign') === true
+        });
 
-        return this.mandatoryConsent;
     }
 
     _attachHandlerVisits() {
@@ -406,8 +401,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 tpUid: model.uid,
                 trialId: this.model.site.trialId,
                 consentId: this.mandatoryConsent.trialConsentId,
-                consentVersion: this.mandatoryConsent.lastVersion,
-                trialConsents: JSON.parse(JSON.stringify(this.trialConsents)),
+                trialConsentVersion:this.mandatoryConsent.trialConsentVersion,
+                trialConsents: this.trialConsents,
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         });
@@ -480,7 +475,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         );
 
         await this.initializeData();
-        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
+        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
 
         //TODO use enums
         if (site.status.stage === "Created") {
@@ -497,8 +492,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         }
 
         this.HCOService.cloneIFCs(site.uid, trialParticipant.pk, async () => {
-            this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
-            let ifcs = this.model.hcoDSU.volatile.ifcs||[];
+            this.hcoDSU = await this.HCOService.getOrCreateAsync();
+            let ifcs = this.hcoDSU.volatile.ifcs||[];
             let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
             let trialConsents = ifcs.filter(ifc => {
                 return siteConsentsKeySSis.includes(ifc.genesisUid) && ifc.tpUid === trialParticipant.pk
@@ -553,7 +548,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
 
     async sendMessageToPatient(operation, tp, trialSSI, shortMessage) {
-        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
+        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
         const siteSReadSSI = await this.HCOService.getSiteSReadSSIAsync();
         this.CommunicationService.sendMessage(tp.publicDid, {
             operation: operation,
