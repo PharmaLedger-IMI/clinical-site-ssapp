@@ -358,6 +358,7 @@ export default class LandingPageController extends WebcController {
 
     async _updateEconsentWithDetails(message) {
         let tpDSU, tpRecord;
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
 
         tpDSU = this.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid)
         if (!tpDSU) {
@@ -367,9 +368,7 @@ export default class LandingPageController extends WebcController {
         const tps = await this.TrialParticipantRepository.filterAsync(`did == ${tpDSU.did}`, 'ascending', 30)
         tpRecord = tps[0];
 
-
         const consentSSI = message.ssi;
-        this.hcoDSU = await this.HCOService.getOrCreateAsync();
         let econsent = this.hcoDSU.volatile.ifcs.find(ifc => ifc.keySSI === consentSSI && ifc.tpUid === tpRecord.pk )
         if (econsent === undefined) {
             return console.error('Cannot find econsent.');

@@ -101,7 +101,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 version: version,
                 signatureDate: `Digital Signature ${currentDate.toLocaleDateString()}`,
                 signatureAuthor: "HCO Signature",
-                isRightSide: true
+                isBottomSide: true
             };
             await this.PDFService.applyDigitalSignature(digitalSignatureOptions);
 

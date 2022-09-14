@@ -157,10 +157,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 'add-tp-number',
                 async (event) => {
                     window.WebCardinal.loader.hidden = false;
-                    this.model.tp = {
-                        ...JSON.parse(JSON.stringify(this.model.tp)),
-                        number:event.detail
-                    }
+                    this.model.tp.number = event.detail;
 
                     this.updateSiteStage(()=>{
                         this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.ADDED_TS_NUMBER, {
@@ -168,7 +165,10 @@ export default class TrialParticipantController extends BreadCrumbManager {
                         },'The stage of the site changed');
                     });
 
-                    this._updateTrialParticipant(this.model.tp, async () => {
+                    const tpDSU = this.model.toObject("tp");
+                    tpDSU.name = "-";
+
+                    this._updateTrialParticipant(tpDSU, async () => {
                         let cons = await this._initConsents(this.model.trialUid);
                         this.model.econsentsDataSource.updateTable(cons);
 
@@ -240,7 +240,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.ADDED_TS_NUMBER, {
                     ssi: this.model.tpUid
               },'Tp Number was attached');
-                this.TrialParticipantRepository.update(this.model.tp.pk, trialSubject, callback);
+                this.TrialParticipantRepository.update(trialParticipant.pk, trialSubject, callback);
             })
         }
 
