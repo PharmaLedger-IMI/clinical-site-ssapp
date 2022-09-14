@@ -52,12 +52,38 @@ export default class NotificationsController extends BreadCrumbManager {
 
             let questions = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONNAIRE_RESPONSES.notificationTitle);
             this.model.unreadQuestionnaireResponses = questions.filter((x) => !x.read).length > 0 ? questions.filter((x) => !x.read).length : null;
+
+            this.model.notificationsArr = [
+                {
+                    notificationType: 'Trial Updates',
+                    unreadNotifications: this.model.toObject('unreadTrialUpdates')
+                },
+                {
+                    notificationType: 'Withdraws',
+                    unreadNotifications: this.model.toObject('unreadWithdraws')
+                },
+                {
+                    notificationType: 'Consent Updates',
+                    unreadNotifications: this.model.toObject('unreadConsentUpdates')
+                },
+                {
+                    notificationType: 'Milestones Reminders',
+                    unreadNotifications: this.model.toObject('unreadMilestones')
+                },
+                {
+                    notificationType: 'Patient questionnaire response',
+                    unreadNotifications: this.model.toObject('unreadQuestionnaireResponses')
+                }
+            ]
         });
     }
 
     attachHandlerNotificationsList() {
-        this.onTagClick('navigation:econsent-notifications-list', (model, target) => {
-            this.navigateToPageTag('econsent-notifications-list', { notType: target.textContent, breadcrumb: this.model.toObject('breadcrumb') });
+        this.onTagClick('view-notifications-list', (model) => {
+            this.navigateToPageTag('econsent-notifications-list', {
+                notificationType: model.notificationType,
+                breadcrumb: this.model.toObject('breadcrumb')
+            });
         });
     }
 

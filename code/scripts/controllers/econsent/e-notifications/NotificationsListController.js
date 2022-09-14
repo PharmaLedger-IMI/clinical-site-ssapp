@@ -11,9 +11,7 @@ export default class NotificationsListController extends BreadCrumbManager {
         super(...props);
 
         this.model = this.getInitModel();
-
-        const prevState = this.getState() || {};
-        this.model.notificationType = prevState.notType;
+        this.notificationType = this.model.notificationType;
         this.notificationService = getNotificationsService();
 
         this.model.breadcrumb = this.setBreadCrumb(
@@ -40,7 +38,7 @@ export default class NotificationsListController extends BreadCrumbManager {
 
     async initNotifications() {
         let fetchedNotifications = await this.notificationService.getNotifications();
-        let notifications = fetchedNotifications.filter(notification => this.model.notificationType.indexOf(notification.type.trim()) > 1);
+        let notifications = fetchedNotifications.filter(notification => notification.type === this.notificationType);
         notifications.forEach(notification => {
             notification.toShowDate = momentService(notification.date).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
         });
@@ -85,15 +83,14 @@ export default class NotificationsListController extends BreadCrumbManager {
                 });
             }
 
-            this.initNotifications();
+            await this.initNotifications();
         });
     }
 
     getInitModel() {
         return {
+            ...this.getState(),
             notifications: [],
-            notType: '',
-            ...this.getState()
         };
     }
 

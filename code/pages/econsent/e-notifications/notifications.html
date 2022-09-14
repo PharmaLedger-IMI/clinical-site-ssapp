@@ -7,56 +7,17 @@
         </div>
 
         <main class="notification-container">
-            <div class="notification-button-wrapper">
-                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
-                    Trial Updates
-                    <div data-if="@unreadTrialUpdates" class="notifications-container">
-                        <label class="notificationList-badge">
-                            <span class="notifications-number">{{@unreadTrialUpdates}}</span>
-                        </label>
-                    </div>
-                </button>
-            </div>
-            <div class="notification-button-wrapper">
-                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
-                    Withdraws
-                    <div data-if="@unreadWithdraws" class="notifications-container">
-                        <label class="notificationList-badge">
-                            <span class="notifications-number">{{@unreadWithdraws}}</span>
-                        </label>
-                    </div>
-                </button>
-            </div>
-            <div class="notification-button-wrapper">
-                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
-                    Consent Updates
-                    <div data-if="@unreadConsentUpdates" class="notifications-container">
-                        <label class="notificationList-badge">
-                            <span class="notifications-number">{{@unreadConsentUpdates}}</span>
-                        </label>
-                    </div>
-                </button>
-            </div>
-
-            <div class="notification-button-wrapper">
-                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
-                    Milestones Reminders
-                    <div data-if="@unreadMilestones" class="notifications-container">
-                        <label class="notificationList-badge">
-                            <span class="notifications-number">{{@unreadMilestones}}</span>
-                        </label>
-                    </div>
-                </button>
-            </div>
-            <div class="notification-button-wrapper">
-                <button class="notification-button" data-tag="navigation:econsent-notifications-list">
-                    Patient questionnaire response
-                    <div data-if="@unreadQuestionnaireResponses" class="notifications-container">
-                        <label class="notificationList-badge">
-                            <span class="notifications-number">{{@unreadQuestionnaireResponses}}</span>
-                        </label>
-                    </div>
-                </button>
+            <div data-for="@notificationsArr" class="d-flex flex-column">
+                <div class="notification-button-wrapper">
+                    <button class="notification-button" data-tag="view-notifications-list">
+                        {{@notificationType}}
+                        <div data-if="@unreadNotifications" class="notifications-container">
+                            <label class="notificationList-badge">
+                                <span class="notifications-number">{{@unreadNotifications}}</span>
+                            </label>
+                        </div>
+                    </button>
+                </div>
             </div>
         </main>
 
