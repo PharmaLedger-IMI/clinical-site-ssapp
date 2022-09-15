@@ -612,25 +612,12 @@ export default class LandingPageController extends WebcController {
         console.log('message', message);
 
         let visit = message.useCaseSpecifics.visit;
-        const tps = await this.TrialParticipantRepository.filterAsync(`did == ${tpDSU.did}`, 'ascending', 30)
-        let trialSubject;
-        if (tps.length > 0) {
-            trialSubject = tps[0];
-            trialSubject.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
-        }
 
         if(visit.accepted) {
             tpDSU.visits[objIndex].confirmed = true;
             tpDSU.visits[objIndex].hcoRescheduled = false;
             tpDSU.visits[objIndex].confirmedDate = momentService(visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
 
-            if(tpDSU.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
-                tpDSU.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
-                this.CommunicationService.sendMessage(tpDSU.did, {
-                    status: tpDSU.status,
-                    operation: Constants.MESSAGES.HCO.UPDATE_STATUS
-                });
-            }
             this.sendVisitToPatient(message.useCaseSpecifics.tpDid, tpDSU.visits[objIndex],Constants.MESSAGES.HCO.VISIT_CONFIRMED);
         }
 
@@ -642,7 +629,6 @@ export default class LandingPageController extends WebcController {
             this.hcoDSU = await this.HCOService.getOrCreateAsync();
             let notification = message;
             notification.tpUid = data.uid;
-            await this.TrialParticipantRepository.updateAsync(tpDSU.pk, trialSubject);
             await this._saveNotification(notification, message.shortDescription, 'view visits', Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS);
         });
 

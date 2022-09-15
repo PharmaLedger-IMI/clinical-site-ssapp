@@ -101,6 +101,8 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             percentage: '0',
             withdrew: '0',
             declined: '0',
+            endOfTreatment: '0',
+            inTreatment: '0'
         }
 
         this.model.statistics.endOfTreatment = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT).length;
@@ -113,6 +115,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
             + this.model.previousScreened;
         this.model.statistics.withdrew = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN).length;
         this.model.statistics.declined = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DECLINED).length;
+        this.model.statistics.inTreatment = this.model.trialParticipants.filter(tp => tp.status === Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT).length;
         if(!this.model.statistics.planned) {
             this.model.statistics.percentage = 'N/A';
         } else {

@@ -142,8 +142,26 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     attachHandlerConfirm() {
-        this.onTagClick('confirm-procedures', () => {
+        this.onTagClick('confirm-procedures', async () => {
             let index = this.tp.visits.findIndex(visit => visit.uuid === this.model.visit.uuid);
+
+            if(this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
+                this.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
+                await this.CommunicationService.sendMessage(this.tp.did, {
+                    status: this.tp.status,
+                    operation: Constants.MESSAGES.HCO.UPDATE_STATUS
+                });
+            }
+
+            const tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.tp.did}`, 'ascending', 30)
+            let trialSubject;
+            if (tps.length > 0) {
+                trialSubject = tps[0];
+                trialSubject.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
+            }
+
+            await this.TrialParticipantRepository.updateAsync(this.tp.pk, trialSubject);
+
             this.updateTrialParticipant(this.tp.visits[index]);
             this.navigateToPageTag('econsent-visits-procedures', {
                 trialUid: this.model.trialUid,

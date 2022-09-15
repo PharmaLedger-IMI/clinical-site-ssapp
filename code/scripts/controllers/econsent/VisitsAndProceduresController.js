@@ -411,14 +411,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                             this.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED;
                         }
 
-                        if(this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
-                            this.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
-                            this.CommunicationService.sendMessage(this.tp.did, {
-                                status: this.tp.status,
-                                operation: Constants.MESSAGES.HCO.UPDATE_STATUS
-                            });
-                        }
-
                         await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);
 
                         this.model.message = {
