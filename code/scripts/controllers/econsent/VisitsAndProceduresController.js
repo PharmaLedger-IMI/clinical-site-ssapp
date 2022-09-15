@@ -199,6 +199,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         visit.shouldBeRescheduled = false;
                         visit.proposedDate = visitTp.proposedDate;
                         visit.confirmedDate = visitTp.confirmedDate;
+                        visit.isExtended = visitTp.isExtended;
 
                         visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
                         if (visit.hasProposedDate) {
@@ -258,13 +259,14 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.tp.visits[tpVisitIndex].confirmed = visit.confirmed;
         this.tp.visits[tpVisitIndex].suggestedInterval = visit.suggestedInterval;
         this.tp.visits[tpVisitIndex].hcoRescheduled = visit.hcoRescheduled;
+        this.tp.visits[tpVisitIndex].isExtended = visit.isExtended;
         this.model.visits[consentVisitIndex].proposedDate = this.model.proposedDate;
         this.model.visits[consentVisitIndex].hasProposedDate = true;
+        this.model.visits[consentVisitIndex].isExtended = visit.isExtended;
 
         if(this.actionNeeded) {
             this.tp.actionNeeded = this.actionNeeded;
         }
-
         this.HCOService.updateHCOSubEntity(this.tp, "tps", async (err, data) => {
             if (err) {
                 return this.model.message = {
@@ -299,7 +301,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.showModalFromTemplate(
                 "set-procedure-date",
                 async (event) => {
-                    let date = new Date(event.detail);
+                    let date = new Date(event.detail.procedureDate);
+                    model.isExtended = event.detail.isExtended;
                     model.proposedDate = date.getTime();
                     this.model.proposedDate = date.getTime();
                     this.model.toShowDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
@@ -318,7 +321,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     controller: "modals/SetProcedureDateController",
                     disableExpanding: false,
                     disableBackdropClosing: true,
-                    suggestedInterval: model.suggestedInterval
+                    suggestedInterval: model.suggestedInterval,
+                    isExtended: model.isExtended
                 });
         });
     }
@@ -332,7 +336,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.showModalFromTemplate(
                 "set-procedure-date",
                 async (event) => {
-                    let date = new Date(event.detail);
+                    let date = new Date(event.detail.procedureDate);
+                    model.isExtended = event.detail.isExtended;
                     model.proposedDate = date.getTime();
                     model.confirmed = false;
                     model.accepted = false;
@@ -354,6 +359,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     disableBackdropClosing: true,
                     confirmedDate: model.confirmedDate,
                     suggestedInterval: model.suggestedInterval,
+                    isExtended: model.isExtended
                 });
         });
     }
@@ -380,7 +386,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     uid: visit.uuid,
                     id: visit.id,
                     proposedDate: visit.proposedDate,
-                    suggestedInterval: visit.suggestedInterval
+                    suggestedInterval: visit.suggestedInterval,
+                    isExtended: visit.isExtended
                 },
             },
             shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.PATIENT.SCHEDULE_VISIT,
@@ -402,6 +409,14 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
                         if(this.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED || this.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED) {
                             this.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED;
+                        }
+
+                        if(this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
+                            this.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
+                            this.CommunicationService.sendMessage(this.tp.did, {
+                                status: this.tp.status,
+                                operation: Constants.MESSAGES.HCO.UPDATE_STATUS
+                            });
                         }
 
                         await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.VISIT_CONFIRMED);

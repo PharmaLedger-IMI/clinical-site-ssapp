@@ -163,6 +163,13 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                     endOfTreatmentDate: currentDate.toLocaleDateString()
                                 }
                             break;
+                            case Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT:
+                                tpObjectToAssign = {
+                                    actionNeeded: "No action required",
+                                    status: Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT,
+                                    inTreatmentDate: currentDate.toLocaleDateString()
+                                }
+                                break;
                             case Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED:
                                 tpObjectToAssign = {
                                     actionNeeded: "No action required",
@@ -271,6 +278,12 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                         date: tp.endOfTreatmentDate
                     })
                     break;
+                case Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT:
+                    userActions.push({
+                        name: Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT,
+                        date: tp.inTreatmentDate
+                    })
+                    break;
                 case Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED:
                     userActions.push({
                         name: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
@@ -299,15 +312,4 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                     return;
             }
     }
-
-    // _saveNotification(notification, name, reccomendedAction, type) {
-    //     notification.type = type;
-    //     notification.name = name;
-    //     notification.recommendedAction = reccomendedAction;
-    //     this.NotificationsRepository.create(notification, (err, data) => {
-    //         if (err) {
-    //             return console.error(err);
-    //         }
-    //     });
-    // }
 }

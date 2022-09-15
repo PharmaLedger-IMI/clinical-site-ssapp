@@ -10,6 +10,10 @@ export default class ChangeParticipantStatusController extends WebcController {
       label: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
     },
     {
+      value: Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT,
+    },
+    {
       value: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
       label: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
     },
