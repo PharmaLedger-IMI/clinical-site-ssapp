@@ -138,6 +138,8 @@ export default class LandingPageController extends WebcController {
         if (typeof senderIdentity === "undefined") {
             throw new Error("Sender identity is undefined. Did you forgot to add it?")
         }
+        window.WebCardinal.loader.hidden = false;
+
         switch (data.operation) {
 
             case Constants.MESSAGES.PATIENT.TP_CONTACT_DATA: {
@@ -226,6 +228,7 @@ export default class LandingPageController extends WebcController {
             }
 
         }
+        window.WebCardinal.loader.hidden = true;
         await this._updateHcoDSU();
     }
 
@@ -268,55 +271,77 @@ export default class LandingPageController extends WebcController {
         //refresh hcoDSU
         this.hcoDSU = await this.HCOService.getOrCreateAsync();
         const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.uid) === data.ssi);
-        return await new Promise((resolve) => {
+        let loader = window.WebCardinal.loader
+        loader.hidden = false;
+        let promisesArr = [];
 
-            this.TrialParticipantRepository.findAll(async (err, tps) => {
-                if (err) {
-                    return console.log(err);
+        this.TrialParticipantRepository.findAll(async (err, tps) => {
+            if (err) {
+                return console.log(err);
+            }
+
+            let counter = 0;
+
+            tps = tps.filter(tp => tp.trialId === site.trialId);
+
+            let nrOfTps = tps.length;
+
+            const cloneIFCs = (tps, callback) => {
+                if (tps.length === 0) {
+                    return callback();
                 }
 
-                tps = tps.filter(tp => tp.trialId === site.trialId);
+                let tp = tps.shift();
+                let percentage = Math.floor((counter * 100) / nrOfTps) + '%';
+                let message = `Updating inform consents. Please wait... ${percentage}`;
+                loader.setAttribute("data-value", message);
 
-                const cloneIFCs = (tps, callback) => {
-                    if(tps.length === 0) {
-                        return callback();
+                this.HCOService.cloneIFCs(data.ssi, tp.pk, (err) => {
+                    if (err) {
+                        return console.error(err);
                     }
 
-                    let tp = tps.shift();
-                    this.HCOService.cloneIFCs(data.ssi, tp.pk, (err) => {
-                        if (err) {
-                            return console.error(err);
-                        }
+                    counter = counter + 1;
 
-                        if (tps.length > 0) {
-                            return cloneIFCs(tps, callback);
-                        }
+                    if (tps.length > 0) {
+                        return cloneIFCs(tps, callback);
+                    }
 
-                        callback();
-                    });
-                }
+                    loader.setAttribute("data-value", "Update successfully completed");
+                    loader.setAttribute("completed","");
+                    setTimeout(() => {
+                        loader.removeAttribute("data-value");
+                        loader.removeAttribute("completed");
+                        loader.hidden = true;
+                    } ,2000)
+                    callback();
+                });
+            }
 
-                cloneIFCs([...tps], async () => {
-                    this.hcoDSU = await this.HCOService.getOrCreateAsync();
-                    let ifcs = this.hcoDSU.volatile.ifcs || [];
-                    tps.forEach(tp => {
-                        let tpIfcs = ifcs.filter(ifc => ifc.genesisUid === data.econsentUid && ifc.tpUid === tp.pk);
-                        tpIfcs.forEach(econsent => {
-                            this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT,
-                                econsent.keySSI, null);
-                        });
-                        
-                        const consentsKeySSIs = tpIfcs.map(econsent => econsent.keySSI);
-                        this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
-                            ssi: tp.uid,
-                            consentsKeySSIs
-                        }, "Consent Changed");
+            cloneIFCs([...tps], async () => {
+                this.hcoDSU = await this.HCOService.getOrCreateAsync();
+                let ifcs = this.hcoDSU.volatile.ifcs || [];
+
+                tps.forEach(tp => {
+                    let tpIfcs = ifcs.filter(ifc => ifc.genesisUid === data.econsentUid && ifc.tpUid === tp.pk);
+
+                    let promise = new Promise((resolve) => {
+                            tpIfcs.forEach(econsent => {
+                                this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT,
+                                    econsent.keySSI, null);
+                            });
+
+                            const consentsKeySSIs = tpIfcs.map(econsent => econsent.keySSI);
+                            this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
+                                ssi: tp.uid,
+                                consentsKeySSIs
+                            }, "Consent Changed");
+                            resolve();
                     })
-                    resolve();
-
+                    promisesArr.push(promise);
                 })
-
             })
+            await Promise.allSettled(promisesArr);
         })
     }
 
