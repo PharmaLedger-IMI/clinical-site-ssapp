@@ -1,7 +1,7 @@
 const commonServices = require('common-services');
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 
-export default class HomeController extends BreadCrumbManager {
+export default class ConfirmationPageController extends BreadCrumbManager {
     constructor(element, history) {
         super(element, history);
 
