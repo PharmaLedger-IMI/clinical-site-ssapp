@@ -572,7 +572,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 trialSSI: trialSSI,
                 sponsorDid: site.sponsorDid,
                 site: {
-                    name: site?.name,
+                    siteName: site?.siteName,
                     number: site?.id,
                     country: site?.country,
                     status: site?.status,
