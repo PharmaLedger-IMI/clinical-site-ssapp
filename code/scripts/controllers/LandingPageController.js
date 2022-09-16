@@ -319,29 +319,29 @@ export default class LandingPageController extends WebcController {
             }
 
             cloneIFCs([...tps], async () => {
-                if(tps.length !== 0) {
-                    this.hcoDSU = await this.HCOService.getOrCreateAsync();
-                    let ifcs = this.hcoDSU.volatile.ifcs || [];
+                if (tps.length === 0) {
+                    return loader.hidden = true;
+                }
+                this.hcoDSU = await this.HCOService.getOrCreateAsync();
+                let ifcs = this.hcoDSU.volatile.ifcs || [];
+                tps.forEach(tp => {
+                    let tpIfcs = ifcs.filter(ifc => ifc.genesisUid === data.econsentUid && ifc.tpUid === tp.pk);
 
-                    tps.forEach(tp => {
-                        let tpIfcs = ifcs.filter(ifc => ifc.genesisUid === data.econsentUid && ifc.tpUid === tp.pk);
+                    let promise = new Promise((resolve) => {
+                        tpIfcs.forEach(econsent => {
+                            this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT,
+                                econsent.keySSI, null);
+                        });
 
-                        let promise = new Promise((resolve) => {
-                                tpIfcs.forEach(econsent => {
-                                    this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT,
-                                        econsent.keySSI, null);
-                                });
-
-                                const consentsKeySSIs = tpIfcs.map(econsent => econsent.keySSI);
-                                this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
-                                    ssi: tp.uid,
-                                    consentsKeySSIs
-                                }, "Consent Changed");
-                                resolve();
-                        })
-                        promisesArr.push(promise);
+                        const consentsKeySSIs = tpIfcs.map(econsent => econsent.keySSI);
+                        this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
+                            ssi: tp.uid,
+                            consentsKeySSIs
+                        }, "Consent Changed");
+                        resolve();
                     })
-                } else loader.hidden = true;
+                    promisesArr.push(promise);
+                })
             })
             await Promise.allSettled(promisesArr);
         })
