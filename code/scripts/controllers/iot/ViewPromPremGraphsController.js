@@ -76,60 +76,63 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
             if (err) {
                 return console.log(err);
             }
-            let searchedTrialResponses = responses.find(response => response.trialSSI === this.state.trialSSI)
-            searchedTrialResponses.questionResponses.forEach(answer => {
-                this.filterAnswers(answer);
-            })
-            console.log(this.model.questionnaire);
+            let searchedTrialResponses = responses.find(response => response.trialUid === this.state.trialUid);
+            this.model.pageIsInitialized = true;
+            if(searchedTrialResponses) {
+                searchedTrialResponses.questionResponses.forEach(answer => {
+                    this.filterAnswers(answer);
+                })
+                console.log(this.model.questionnaire);
 
-            //PROM
-            this.currentQuestionType = 'prom';
-            const promQuestions = this.getPossibleQuestion(this.currentQuestionType);
-            const promAnswers = this.getAnswersForQuestion(this.currentQuestionType, promQuestions);
-            const promCheckboxOptions = this.getCheckboxOptionsForQuestion(this.currentQuestionType, promQuestions);
-            const promSliderOptions = this.getSliderOptionsForEachQuestion(this.currentQuestionType, promQuestions);
+                //PROM
+                this.currentQuestionType = 'prom';
+                const promQuestions = this.getPossibleQuestion(this.currentQuestionType);
+                const promAnswers = this.getAnswersForQuestion(this.currentQuestionType, promQuestions);
+                const promCheckboxOptions = this.getCheckboxOptionsForQuestion(this.currentQuestionType, promQuestions);
+                const promSliderOptions = this.getSliderOptionsForEachQuestion(this.currentQuestionType, promQuestions);
 
-            let promInfo = [];
+                let promInfo = [];
 
-            promQuestions.forEach (function(value, key) {
-                let info = {
-                    question: key,
-                    answers: promAnswers.get(key),
-                    type: value,
-                    options: promCheckboxOptions.get(key),
-                    minLabel:promSliderOptions.get(key).minLabel,
-                    maxLabel:promSliderOptions.get(key).maxLabel,
-                    steps:promSliderOptions.get(key).steps,
-                }
-                promInfo.push(info);
-            })
-            console.log(promInfo);
-            this.model.promInfo = promInfo;
+                promQuestions.forEach (function(value, key) {
+                    let info = {
+                        question: key,
+                        answers: promAnswers.get(key),
+                        type: value,
+                        options: promCheckboxOptions.get(key),
+                        minLabel:promSliderOptions.get(key).minLabel,
+                        maxLabel:promSliderOptions.get(key).maxLabel,
+                        steps:promSliderOptions.get(key).steps,
+                    }
+                    promInfo.push(info);
+                })
+                console.log(promInfo);
+                this.model.promInfo = promInfo;
 
-            //PREM
-            this.currentQuestionType = 'prem';
-            const premQuestions = this.getPossibleQuestion(this.currentQuestionType);
-            const premAnswers = this.getAnswersForQuestion(this.currentQuestionType, premQuestions);
-            const premCheckboxOptions = this.getCheckboxOptionsForQuestion(this.currentQuestionType, premQuestions);
-            const premSliderOptions = this.getSliderOptionsForEachQuestion(this.currentQuestionType, premQuestions);
+                //PREM
+                this.currentQuestionType = 'prem';
+                const premQuestions = this.getPossibleQuestion(this.currentQuestionType);
+                const premAnswers = this.getAnswersForQuestion(this.currentQuestionType, premQuestions);
+                const premCheckboxOptions = this.getCheckboxOptionsForQuestion(this.currentQuestionType, premQuestions);
+                const premSliderOptions = this.getSliderOptionsForEachQuestion(this.currentQuestionType, premQuestions);
 
-            let premInfo = [];
+                let premInfo = [];
 
-            premQuestions.forEach (function(value, key) {
-                let info = {
-                    question: key,
-                    answers: premAnswers.get(key),
-                    type: value,
-                    options: premCheckboxOptions.get(key),
-                    minLabel:premSliderOptions.get(key).minLabel,
-                    maxLabel:premSliderOptions.get(key).maxLabel,
-                    steps:premSliderOptions.get(key).steps,
-                }
-                premInfo.push(info);
-            })
-            console.log(premInfo);
-            this.model.premInfo = premInfo;
-            this.buildDataSources();
+                premQuestions.forEach (function(value, key) {
+                    let info = {
+                        question: key,
+                        answers: premAnswers.get(key),
+                        type: value,
+                        options: premCheckboxOptions.get(key),
+                        minLabel:premSliderOptions.get(key).minLabel,
+                        maxLabel:premSliderOptions.get(key).maxLabel,
+                        steps:premSliderOptions.get(key).steps,
+                    }
+                    premInfo.push(info);
+                })
+                console.log(premInfo);
+                this.model.premInfo = premInfo;
+                this.buildDataSources();
+            }
         });
     }
 
