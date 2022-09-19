@@ -301,12 +301,12 @@ export default class HCOService extends DSUService {
         return this.asyncMyFunction(this.getSiteSReadSSI, [...arguments]);
     }
 
-    getTrialSReadSSI = (callback) => {
+    getTrialSReadSSI = (trialUid,callback) => {
         const trialPath = this._getSubPath('trial');
-        this.getEntityMountSSI(trialPath, callback);
+        this.getEntityMountSSI(trialPath, trialUid, callback);
     }
 
-     async getTrialSReadSSIAsync () {
+     async getTrialSReadSSIAsync (trialUid) {
         return this.asyncMyFunction(this.getTrialSReadSSI, [...arguments]);
     }
 

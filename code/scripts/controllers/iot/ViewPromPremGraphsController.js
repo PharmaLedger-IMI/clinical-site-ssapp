@@ -8,7 +8,7 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
     constructor(...props) {
         super(...props);
 
-        const prevState = this.getState() || {};
+        this.state = this.getState() || {};
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -72,15 +72,13 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
 
     initServices() {
         this.ResponsesService = new ResponsesService();
-        this.ResponsesService.getResponses((err, data) => {
+        this.ResponsesService.getResponses((err, responses) => {
             if (err) {
                 return console.log(err);
             }
-            console.log(data);
-            data.forEach(response => {
-                response.questionResponses.forEach(answer => {
-                    this.filterAnswers(answer);
-                })
+            let searchedTrialResponses = responses.find(response => response.trialSSI === this.state.trialSSI)
+            searchedTrialResponses.questionResponses.forEach(answer => {
+                this.filterAnswers(answer);
             })
             console.log(this.model.questionnaire);
 

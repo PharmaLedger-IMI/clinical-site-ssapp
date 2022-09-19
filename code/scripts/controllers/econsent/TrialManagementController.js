@@ -83,6 +83,7 @@ export default class TrialManagementController extends BreadCrumbManager {
     _attachHandlerViewDataAnalysis() {
         this.onTagEvent('view-data-analysis', 'click', (model, target, event) => {
             let state = {
+                trialSSI: model.uid,
                 breadcrumb: this.model.toObject('breadcrumb')
             }
             this.navigateToPageTag('prom-prem-graphs', state);

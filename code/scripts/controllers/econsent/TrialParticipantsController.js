@@ -462,7 +462,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         tp.screenFailedDate ="N/A"
         tp.withdrewDate = "N/A";
         tp.trialId = this.model.trial.id;
-        tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync();
+        tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync(this.model.trialUid);
         let trialParticipant = await this.TrialParticipantRepository.createAsync(tp);
         const anonymizedTp  = await this.HCOService.addTrialParticipantAsync(tp);
         trialParticipant.actionNeeded = 'No action required';
