@@ -363,6 +363,21 @@ export default class TrialParticipantController extends BreadCrumbManager {
             }
         });
 
+        let mandatoryConsent = this.econsents.find(cons => cons.type === "Mandatory");
+        let lastVersion = mandatoryConsent.versions[mandatoryConsent.versions.length - 1];
+        if(lastVersion.hasOwnProperty('actions')) {
+            let actions = lastVersion.actions;
+            actions.forEach(action => {
+                if(action.name === "Signed" && action.type === "hco") {
+                    this.model.tsBtnIsDisabled = false;
+                } else {
+                    this.model.tsBtnIsDisabled = true;
+                }
+            })
+        } else {
+            this.model.tsBtnIsDisabled = true;
+        }
+
         return this.econsents;
     }
 

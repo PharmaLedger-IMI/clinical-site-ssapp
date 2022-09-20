@@ -310,7 +310,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     model.hasProposedDate = true;
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
                     this.model.message = {
-                        content: `${model.name} have been scheduled! Wait for TP response!`,
+                        content: `${model.name} have been scheduled. Wait for confirmation.`,
                         type: 'success'
                     }
                 },
