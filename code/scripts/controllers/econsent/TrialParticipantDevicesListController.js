@@ -5,6 +5,7 @@ const Constants = commonServices.Constants;
 const CommunicationService = commonServices.CommunicationService;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
+const BaseRepository = commonServices.BaseRepository;
 
 export default class TrialParticipantDevicesListController extends BreadCrumbManager {
 
@@ -20,7 +21,8 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             tpUid: prevState.tpUid,
             participantName: prevState.participantName,
             participantDID: prevState.participantDID,
-            trialParticipantNumber: prevState.trialParticipantNumber
+            trialParticipantNumber: prevState.trialParticipantNumber,
+            assigningDisabled:false
         };
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -40,9 +42,20 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
             this.model.AssignedDevicesForChosenPatientDataSource = DataSourceFactory.createDataSource(6, 5, devicesList);
             this.model.hasAssignedDevices = devicesList.length > 0;
         });
+        this.verifyTpStatus();
         this._attachHandlers();
     }
-    
+
+    async verifyTpStatus() {
+        this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
+        const tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.model.participantDID}`, 'ascending', 30)
+        if (tps.length > 0) {
+            this.tp = tps[0];
+            if(this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED || this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN) {
+                this.model.assigningDisabled = true;
+            }
+        }
+    }
 
     getDevices(callback) {
         this.DeviceServices = new DeviceServices();

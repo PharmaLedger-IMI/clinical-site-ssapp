@@ -48,6 +48,9 @@ export default class TrialParticipantController extends BreadCrumbManager {
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
         this.model.hasTpNumber = this.model.tp.number !== undefined;
+        if((this.model.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED || this.model.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN)) {
+            this.model.tsBtnIsDisabled = true;
+        }
     }
 
     _initHandlers() {
@@ -368,7 +371,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         if(lastVersion.hasOwnProperty('actions')) {
             let actions = lastVersion.actions;
             actions.forEach(action => {
-                if(action.name === "Signed" && action.type === "hco") {
+                if(action.name === ConsentStatusMapper.consentStatuses.signed.name && action.type === "hco") {
                     this.model.tsBtnIsDisabled = false;
                 } else {
                     this.model.tsBtnIsDisabled = true;
