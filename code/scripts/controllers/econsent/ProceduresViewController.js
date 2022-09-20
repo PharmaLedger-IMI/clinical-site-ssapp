@@ -151,6 +151,9 @@ export default class ProceduresViewController extends BreadCrumbManager {
                     status: this.tp.status,
                     operation: Constants.MESSAGES.HCO.UPDATE_STATUS
                 });
+                await this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
+                    ssi: this.tp.pk,
+                }, 'Participant status changed')
             }
 
             const tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.tp.did}`, 'ascending', 30)
@@ -186,6 +189,15 @@ export default class ProceduresViewController extends BreadCrumbManager {
                 },
             },
             shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT,
+        });
+    }
+
+    async _sendMessageToSponsor(operation, data, shortDescription) {
+        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid)
+        await this.CommunicationService.sendMessage(site.sponsorDid, {
+            operation: operation,
+            ...data,
+            shortDescription: shortDescription,
         });
     }
 
