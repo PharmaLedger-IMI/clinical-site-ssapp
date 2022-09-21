@@ -92,7 +92,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             let message = {
                 name: ConsentStatusMapper.consentStatuses.signed.name,
                 status: Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED,
-                actionNeeded: 'HCO SIGNED -no action required',
+                actionNeeded: 'HCP SIGNED -no action required',
             }
 
             const {path, version} = this.model.consentPathAndVersion;
@@ -100,7 +100,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 path: path,
                 version: version,
                 signatureDate: `Digital Signature ${currentDate.toLocaleDateString()}`,
-                signatureAuthor: "HCO Signature",
+                signatureAuthor: "HCP Signature",
                 isBottomSide: true
             };
             await this.PDFService.applyDigitalSignature(digitalSignatureOptions);
@@ -129,7 +129,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             let message = {
                 name: ConsentStatusMapper.consentStatuses.decline.name,
                 status: this.model.ecoVersion > 1 ? Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED:Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
-                actionNeeded: 'HCO DECLINED -no action required',
+                actionNeeded: 'HCP DECLINED -no action required',
             }
             this.updateEconsentWithDetails(message);
             this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.DECLINE_ECONSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.DECLINE_ECONSENT);
