@@ -22,7 +22,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     initHandlers() {
-        this.attachHandlerSelect();
         this.attachHandlerConfirm();
         this.observeCheckbox();
     }
@@ -31,7 +30,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
         this.model.onChange("makeAllCompleted", () => {
             if(this.model.makeAllCompleted) {
                 this.initProcedures("Completed")
-                this.updateProcedure();
             } else {
                 this.initProcedures();
             }
@@ -50,27 +48,6 @@ export default class ProceduresViewController extends BreadCrumbManager {
         });
     }
 
-    updateProcedure(procedure) {
-        let visitTp = this.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
-        if(procedure === undefined) {
-            let modifiedProcedures = this.model.procedures.map(procedure => (
-                {
-                    name: procedure.name,
-                    id: procedure.id,
-                    uuid:  procedure.uuid,
-                    status: 'Completed',
-                }));
-            visitTp.procedures = modifiedProcedures;
-        } else {
-            let objIndex = this.model.procedures.findIndex((obj => obj.id == procedure.id));
-            this.model.procedures[objIndex] = procedure;
-            visitTp.procedures = this.model.procedures;
-        }
-
-        let obj = this.tp.visits.findIndex((obj => obj.uuid == visitTp.uuid));
-        this.tp.visits[obj] = visitTp;
-    }
-
     async initServices() {
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
@@ -81,18 +58,17 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     initProcedures(makeCompleted) {
+        this.initialProcedures = this.model.visit.procedures;
         this.tp = this.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
         this.model.procedures = this.model.visit.procedures;
         if (!this.tp.visits || this.tp.visits.length < 1) {
             this.tp.visits = this.model.visits;
             this.updateTrialParticipant();
-
         } else {
             let visitTp = this.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
 
             if (visitTp) {
                 this.model.procedures = visitTp.procedures;
-
             } else {
                 this.tp.visits.push(this.model.visit);
                 this.updateTrialParticipant();
@@ -123,27 +99,25 @@ export default class ProceduresViewController extends BreadCrumbManager {
             }
             if (makeCompleted !== undefined) {
                 procedure.statusList.value = 'Completed';
+            } else {
+                let index = this.initialProcedures.findIndex(prc => prc.id === procedure.id);
+                this.initialProcedures[index].status = procedure.status;
             }
         });
-    }
-
-    attachHandlerSelect() {
-        this.onTagClick('select-option', (model) => {
-            if(model.statusList.value !== '') {
-                let procedure = {
-                    name: model.name,
-                    id: model.id,
-                    uuid: model.uuid,
-                    status: model.statusList.value,
-                }
-                this.updateProcedure(procedure);
-            }
-        })
     }
 
     attachHandlerConfirm() {
         this.onTagClick('confirm-procedures', async () => {
             let index = this.tp.visits.findIndex(visit => visit.uuid === this.model.visit.uuid);
+
+            this.model.procedures.forEach(procedure => {
+                this.initialProcedures.forEach(item => {
+                    if(item.id===procedure.id && procedure.statusList.value !== '') {
+                        item.status = procedure.statusList.value;
+                    }
+                })
+            })
+            this.tp.visits[index].procedures = this.initialProcedures;
 
             if(this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
                 this.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;

@@ -24,8 +24,8 @@
                         <label>{{@name}}</label>
                     </div>
                     <div class="form-group procedure-details-item">
-                        <select class="form-control" data-tag="select-option"  data-for="@statusList.options" value="@statusList.value" id="statusList">
-                            <option data-view-model="@"></option>
+                        <select class="form-control" data-for="@statusList.options" value="@statusList.value" id="statusList">
+                            <option value="@value">{{@label}}</option>
                         </select>
                     </div>
                     <div data-if="@status" class="procedure-details-item">
