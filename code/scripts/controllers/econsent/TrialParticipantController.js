@@ -48,9 +48,12 @@ export default class TrialParticipantController extends BreadCrumbManager {
         const sites = this.model.toObject("hcoDSU.volatile.site");
         this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
         this.model.hasTpNumber = this.model.tp.number !== undefined;
-        if((this.model.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED || this.model.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN ||
-            this.model.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE || this.model.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED)) {
-            this.model.tsBtnIsDisabled = true;
+        let statuses = [Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED, Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN, Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
+            Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED];
+        for(status of statuses) {
+            if(this.model.tp.status === status) {
+                this.model.tsBtnIsDisabled = true;
+            }
         }
     }
 

@@ -51,8 +51,12 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
         const tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.model.participantDID}`, 'ascending', 30)
         if (tps.length > 0) {
             this.tp = tps[0];
-            if(this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED || this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN) {
-                this.model.assigningDisabled = true;
+            let statuses = [Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED, Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN, Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
+                Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED];
+            for(status of statuses) {
+                if(this.tp.status === status) {
+                    this.model.assigningDisabled = true;
+                }
             }
         }
     }
