@@ -50,10 +50,8 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this.model.hasTpNumber = this.model.tp.number !== undefined;
         let statuses = [Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED, Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN, Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
             Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED];
-        for(status of statuses) {
-            if(this.model.tp.status === status) {
-                this.model.tsBtnIsDisabled = true;
-            }
+        if(statuses.includes(this.model.tp.status)) {
+            this.model.tsBtnIsDisabled = true;
         }
     }
 
@@ -369,6 +367,11 @@ export default class TrialParticipantController extends BreadCrumbManager {
                 this.model.tsBtnIsDisabled = false;
             }
         });
+
+        let index = this.econsents.findIndex(econsent => econsent.type === "Mandatory");
+        if(index>-1) {
+            [this.econsents[0], this.econsents[index]] = [this.econsents[index], this.econsents[0]]
+        }
 
         let mandatoryConsent = this.econsents.find(cons => cons.type === "Mandatory");
         let lastVersion = mandatoryConsent.versions[mandatoryConsent.versions.length - 1];
