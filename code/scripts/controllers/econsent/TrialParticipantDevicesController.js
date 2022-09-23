@@ -25,12 +25,15 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
     }
 
     initServices(){
+        window.WebCardinal.loader.hidden = false;
         this.didService = getDidServiceInstance();
         this.didService.getDID().then(did => {
             this.model.clinicalSiteDID = did;
+            this.getAllDevices();
+            this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
+            window.WebCardinal.loader.hidden = true;
         });
-        this.getAllDevices();
-        this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
+
     }
 
     getAllDevices(){
