@@ -37,7 +37,7 @@ export default class SetProcedureDateController extends WebcController {
             if(selectedDate.getTime() < now) {
                 this.model.isBtnDisabled = true;
                 this.getProcedureDateElement().classList.add("is-invalid");
-                let from = momentService(now).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                let from = (new Date(now)).toLocaleString();
                 this.model.haveSuggestedInterval = true;
                 this.model.datesInformation = `Choose a date from: ${from}`;
             } else {
@@ -65,8 +65,8 @@ export default class SetProcedureDateController extends WebcController {
                 this.model.procedureDate.min = firstDateFormatted.date + 'T' + firstDateFormatted.time;
                 this.model.procedureDate.max = secondDateFormatted.date + 'T' + secondDateFormatted.time;
 
-                let from = momentService(props[0].suggestedInterval[0]).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
-                let to = momentService(props[0].suggestedInterval[1]).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                let from = (new Date(props[0].suggestedInterval[0])).toLocaleString();
+                let to = (new Date(props[0].suggestedInterval[1])).toLocaleString();
                 this.model.datesInformation = `Choose a date from: ${from} to ${to}`;
                 if(!this.model.procedureDate.value) {
                     this.model.isBtnDisabled = true;
