@@ -88,8 +88,8 @@ export default class QuestionsListController extends BreadCrumbManager {
                     this.model.frequencyIsSet = true;
                     const { startDate, endDate } = this.questionnaire.schedule;
                     this.model.schedule = {
-                        startDate: (new Date(startDate)).toLocaleDateString(),
-                        endDate: (new Date(endDate)).toLocaleDateString(),
+                        startDate: (new Date(startDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
+                        endDate: (new Date(endDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
                         frequencyType: this.questionnaire.schedule.frequencyType
                     }
 
@@ -347,8 +347,8 @@ export default class QuestionsListController extends BreadCrumbManager {
                 if(this.model.frequencyIsSet){
                     const { startDate, endDate } = this.questionnaire.schedule;
                     this.model.schedule = {
-                        startDate: (new Date(startDate)).toLocaleDateString(),
-                        endDate: (new Date(endDate)).toLocaleDateString(),
+                        startDate: (new Date(startDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
+                        endDate: (new Date(endDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
                         frequencyType: this.questionnaire.schedule.frequencyType
                     }
                 }

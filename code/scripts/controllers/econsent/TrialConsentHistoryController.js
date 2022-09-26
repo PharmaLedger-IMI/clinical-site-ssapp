@@ -3,7 +3,7 @@ import HCOService from "../../services/HCOService.js";
 const commonServices = require("common-services");
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
-
+const Constants = commonServices.Constants;
 
 export default class TrialConsentHistoryController extends BreadCrumbManager {
 
@@ -43,7 +43,7 @@ export default class TrialConsentHistoryController extends BreadCrumbManager {
                 let consentVersion = consent.versions.map(version => {
                     version.consentName = consent.name;
                     version.consentType = consent.type;
-                    version.versionDate = new Date(version.versionDate).toLocaleDateString();
+                    version.versionDate = (new Date(version.versionDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK);
                     version.consentUid = consent.uid;
                     version.isEmpty = false;
                     return version;

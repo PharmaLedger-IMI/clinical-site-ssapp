@@ -86,8 +86,8 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                     return {
                         ...deviceAssignation,
                         isStillAssigned:typeof deviceAssignation.assignationCompleteDate === "undefined",
-                        assignationDateString: new Date(deviceAssignation.assignationDate).toLocaleString(),
-                        assignationCompleteDateString: deviceAssignation.assignationCompleteDate ? new Date(deviceAssignation.assignationCompleteDate).toLocaleString():"",
+                        assignationDateString: (new Date(deviceAssignation.assignationDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
+                        assignationCompleteDateString: deviceAssignation.assignationCompleteDate ? new Date(deviceAssignation.assignationCompleteDate).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK):"",
                         deviceId: device.deviceId,
                         modelNumber: device.modelNumber,
                         brand: device.brand,

@@ -4,6 +4,7 @@ const commonServices = require("common-services");
 const DateTimeService = commonServices.DateTimeService;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
+const Constants = commonServices.Constants;
 
 export default class EconsentVersionsController extends BreadCrumbManager {
     constructor(...props) {
@@ -40,7 +41,7 @@ export default class EconsentVersionsController extends BreadCrumbManager {
                     version.actions[index] = {
                         ...version.actions[index],
                         version: version.version,
-                        versionDate: new Date(version.versionDate).toLocaleDateString()
+                        versionDate: (new Date(version.versionDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
                     }
                 })
 
@@ -67,7 +68,7 @@ export default class EconsentVersionsController extends BreadCrumbManager {
                     tpApproval: "-",
                     hcpApproval: "-",
                     tpWithdraw: "-",
-                    versionDateAsString: DateTimeService.convertStringToLocaleDate(econsentVersion.versionDate)
+                    versionDateAsString: (new Date(econsentVersion.versionDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
                 };
                 if (econsentVersion.actions) {
 

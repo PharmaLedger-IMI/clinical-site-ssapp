@@ -40,7 +40,7 @@ export default class NotificationsListController extends BreadCrumbManager {
         let fetchedNotifications = await this.notificationService.getNotifications();
         let notifications = fetchedNotifications.filter(notification => notification.type === this.notificationType);
         notifications.forEach(notification => {
-            notification.toShowDate = (new Date(notification.date)).toLocaleString();
+            notification.toShowDate = momentService(notification.date).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
         });
         notifications.sort((a, b) => b.date - a.date);
         this.model.notificationsListEmpty = notifications.length === 0;

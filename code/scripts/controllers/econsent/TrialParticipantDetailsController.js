@@ -160,49 +160,49 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                 tpObjectToAssign = {
                                     actionNeeded: "No action required",
                                     status: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
-                                    endOfTreatmentDate: currentDate.toLocaleDateString()
+                                    endOfTreatmentDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
                                 }
                             break;
                             case Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT:
                                 tpObjectToAssign = {
                                     actionNeeded: "No action required",
                                     status: Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT,
-                                    inTreatmentDate: currentDate.toLocaleDateString()
+                                    inTreatmentDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
                                 }
                                 break;
                             case Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED:
                                 tpObjectToAssign = {
                                     actionNeeded: "No action required",
                                     status: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
-                                    completedDate: currentDate.toLocaleDateString()
+                                    completedDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
                                 }
                             break;
                             case Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED:
                                 tpObjectToAssign = {
                                     actionNeeded: "No action required",
                                     status: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
-                                    discontinuedDate: currentDate.toLocaleDateString()
+                                    discontinuedDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
                                 }
                             break;
                             case Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED: 
                                 tpObjectToAssign = {
                                     actionNeeded: "No action required",
                                     status: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
-                                    screenFailedDate: currentDate.toLocaleDateString()
+                                    screenFailedDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
                                 }
                             break;
                             case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN:
                                 tpObjectToAssign = {
                                     actionNeeded: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
                                     status: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
-                                    screenFailedDate: currentDate.toLocaleDateString()
+                                    screenFailedDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
                                 }
                             break;
                             case Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE:
                                 tpObjectToAssign = {
                                     actionNeeded: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
                                     status: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
-                                    screenFailedDate: currentDate.toLocaleDateString()
+                                    screenFailedDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
                                 }
                                 break;
                         }

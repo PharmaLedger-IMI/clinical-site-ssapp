@@ -1,5 +1,6 @@
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
+const Constants = commonServices.Constants;
 import DeviceAssignationService from "../../services/DeviceAssignationService.js";
 
 const HealthDataService = commonServices.HealthDataService;
@@ -48,7 +49,7 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
                         title: observation.code.text,
                         value: observation.valueQuantity.value,
                         unit: observation.valueQuantity.unit,
-                        date: date[0],
+                        date: (new Date(date[0])).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
                         time: time[0]
                     }
                 });
