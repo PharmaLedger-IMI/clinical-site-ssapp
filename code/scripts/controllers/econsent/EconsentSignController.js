@@ -91,8 +91,14 @@ export default class EconsentSignController extends BreadCrumbManager {
 
             let message = {
                 name: ConsentStatusMapper.consentStatuses.signed.name,
-                status: Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED,
-                actionNeeded: 'HCP SIGNED -no action required',
+            }
+
+            if(this.model.econsent.type === 'Optional') {
+                message.status = this.model.trialParticipant.status;
+                message.actionNeeded = this.model.trialParticipant.actionNeeded;
+            } else {
+                message.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
+                message.actionNeeded = 'HCP SIGNED -no action required';
             }
 
             const {path, version} = this.model.consentPathAndVersion;
@@ -128,9 +134,16 @@ export default class EconsentSignController extends BreadCrumbManager {
             };
             let message = {
                 name: ConsentStatusMapper.consentStatuses.decline.name,
-                status: this.model.ecoVersion > 1 ? Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED:Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
-                actionNeeded: 'HCP DECLINED -no action required',
             }
+
+            if(this.model.econsent.type === 'Optional') {
+                message.status = this.model.trialParticipant.status;
+                message.actionNeeded = this.model.trialParticipant.actionNeeded;
+            } else {
+                message.status = this.model.ecoVersion > 1 ? Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED:Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED;
+                message.actionNeeded = 'HCP DECLINED -no action required';
+            }
+
             this.updateEconsentWithDetails(message);
             this.sendMessageToSponsor(Constants.MESSAGES.SPONSOR.DECLINE_ECONSENT, Constants.MESSAGES.HCO.COMMUNICATION.SPONSOR.DECLINE_ECONSENT);
 

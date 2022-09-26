@@ -324,18 +324,21 @@ export default class TrialParticipantController extends BreadCrumbManager {
                     if (tpVersions && tpVersions.length > 0) {
                         tpVersion = tpVersions[tpVersions.length - 1];
                         if (tpVersion && tpVersion.actionNeeded) {
-                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.TO_BE_SIGNED) {
+                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.TO_BE_SIGNED || (tpVersion.consentType === "Optional"
+                                && tpVersion.name === ConsentStatusMapper.consentStatuses.signed.name) ) {
                                 econsent.toBeSignedByHCO = true;
                                 econsent.tsSignedDate = tpVersion.toShowDate;
                             }
 
-                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.WITHDRAWN) {
+                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.WITHDRAWN || (tpVersion.consentType === "Optional"
+                                && tpVersion.name === ConsentStatusMapper.consentStatuses.withdraw.name)) {
 
                                 econsent.tsWithdrawDate = tpVersion.toShowDate;
                                 econsent.withdrawn = true;
                                 econsent.toBeContactedByHCO = true;
                             }
-                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.DECLINED || tpVersion.actionNeeded === Constants.ECO_STATUSES.DECLINED_OPTIONAL) {
+                            if (tpVersion.actionNeeded === Constants.ECO_STATUSES.DECLINED || (tpVersion.consentType === "Optional"
+                                && tpVersion.name === ConsentStatusMapper.consentStatuses.decline.name)) {
                                 econsent.tsDeclined = true;
                             }
                         }
