@@ -2,10 +2,10 @@ import HCOService from "../../services/HCOService.js";
 
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
-const DateTimeService = commonServices.DateTimeService;
+// const DateTimeService = commonServices.DateTimeService;
 const ConsentStatusMapper = commonServices.ConsentStatusMapper;
 const Constants = commonServices.Constants;
-const momentService  = commonServices.momentService;
+// const momentService  = commonServices.momentService;
 const BaseRepository = commonServices.BaseRepository;
 const DataSourceFactory = commonServices.getDataSourceFactory();
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
@@ -203,7 +203,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
                         visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
                         if (visit.hasProposedDate) {
-                            visit.toShowDate = momentService(visit.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                            visit.toShowDate = (new Date(visit.proposedDate)).toLocaleString();
                         }
 
                         if (!visit.accepted && !visit.declined && !visit.rescheduled) {
@@ -305,7 +305,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     model.isExtended = event.detail.isExtended;
                     model.proposedDate = date.getTime();
                     this.model.proposedDate = date.getTime();
-                    this.model.toShowDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                    this.model.toShowDate = (new Date(model.proposedDate)).toLocaleString();
                     model.toShowDate = this.model.toShowDate;
                     model.hasProposedDate = true;
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
@@ -342,7 +342,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     model.confirmed = false;
                     model.accepted = false;
                     this.model.proposedDate = date.getTime();
-                    this.model.toShowDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                    this.model.toShowDate = (new Date(model.proposedDate)).toLocaleString();
                     model.hcoRescheduled = true;
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT);
                     this.model.message = {
@@ -402,11 +402,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     const response = event.detail;
                     if (response) {
                         model.confirmed = true;
-                        model.confirmedDate = momentService(model.proposedDate).format(Constants.DATE_UTILS.FORMATS.DateTimeFormatPattern);
+                        model.confirmedDate = (new Date(model.proposedDate)).toLocaleString();
                         model.hcoRescheduled = false;
                         this.model.proposedDate = model.proposedDate;
-                        this.model.toShowDate = DateTimeService.convertStringToLocaleDateTimeString(model.proposedDate);
-
+                        this.model.toShowDate = (new Date(model.proposedDate)).toLocaleString();
                         if(this.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_CONFIRMED || this.tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED) {
                             this.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED;
                         }

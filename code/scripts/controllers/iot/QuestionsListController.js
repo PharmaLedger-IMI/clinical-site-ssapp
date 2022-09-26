@@ -86,7 +86,12 @@ export default class QuestionsListController extends BreadCrumbManager {
                     this.questionnaire.schedule.frequencyType = response.frequencyType.value;
 
                     this.model.frequencyIsSet = true;
-                    this.model.schedule = this.questionnaire.schedule;
+                    const { startDate, endDate } = this.questionnaire.schedule;
+                    this.model.schedule = {
+                        startDate: (new Date(startDate)).toLocaleDateString(),
+                        endDate: (new Date(endDate)).toLocaleDateString(),
+                        frequencyType: this.questionnaire.schedule.frequencyType
+                    }
 
                     this.QuestionnaireService.updateQuestionnaire(this.questionnaire, (err, data) => {
                         if (err) {
@@ -340,7 +345,12 @@ export default class QuestionsListController extends BreadCrumbManager {
                 generateDataSource("prem",this.questionnaire.prem);
                 this.model.frequencyIsSet = this.questionnaire.schedule.frequencyType !== "";
                 if(this.model.frequencyIsSet){
-                    this.model.schedule = this.questionnaire.schedule;
+                    const { startDate, endDate } = this.questionnaire.schedule;
+                    this.model.schedule = {
+                        startDate: (new Date(startDate)).toLocaleDateString(),
+                        endDate: (new Date(endDate)).toLocaleDateString(),
+                        frequencyType: this.questionnaire.schedule.frequencyType
+                    }
                 }
 
                 this.model.pageIsInitialized = true;
