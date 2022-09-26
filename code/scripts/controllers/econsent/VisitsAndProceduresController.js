@@ -367,11 +367,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     sendMessageToPatient(visit, operation) {
         this.CommunicationService.sendMessage(this.tp.did, {
             operation: operation,
-            ssi: visit.trialSSI,
             useCaseSpecifics: {
                 tpDid: this.tp.did,
-                trialSSI: visit.trialSSI,
-
                 visit: {
                     confirmed: visit.confirmed,
                     confirmedDate: visit.confirmedDate,

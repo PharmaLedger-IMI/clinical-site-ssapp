@@ -154,10 +154,8 @@ export default class ProceduresViewController extends BreadCrumbManager {
 
         this.CommunicationService.sendMessage(this.tp.did, {
             operation: operation,
-            ssi: visit.trialSSI,
             useCaseSpecifics: {
                 tpDid: this.tp.did,
-                trialSSI: visit.trialSSI,
                 visit: {
                     ...visit,
                 },

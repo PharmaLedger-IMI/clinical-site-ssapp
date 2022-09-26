@@ -4,9 +4,10 @@
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
             <h5 class="generic-title">Visit: {{@visit.name}}</h5>
-            <div class="complete-procedures">
-                <input type="checkbox" checked="@makeAllCompleted" value="@makeAllCompleted">
-                <h6>Mark all completed</h6>
+
+            <div class="form-check complete-procedures">
+                <input type="checkbox" class="form-check-input" checked="@makeAllCompleted" value="@makeAllCompleted" id="makeAllCompleted">
+                <label class="form-check-label" for="makeAllCompleted">Mark all completed</label>
             </div>
         </div>
 
