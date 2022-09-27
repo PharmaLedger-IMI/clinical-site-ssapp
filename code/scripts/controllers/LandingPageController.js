@@ -352,6 +352,11 @@ export default class LandingPageController extends WebcController {
     }
 
     async _healthData(data) {
+        //health data update in existing dsu;
+        if(typeof data.sReadSSI === "undefined"){
+            console.log("Health data was updated");
+            return;
+        }
         healthDataService.mountObservation(data.sReadSSI, (err, healthData) => {
             if (err) {
                 console.log(err);
