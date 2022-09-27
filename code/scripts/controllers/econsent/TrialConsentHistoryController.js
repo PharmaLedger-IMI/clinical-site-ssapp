@@ -43,7 +43,7 @@ export default class TrialConsentHistoryController extends BreadCrumbManager {
                 let consentVersion = consent.versions.map(version => {
                     version.consentName = consent.name;
                     version.consentType = consent.type;
-                    version.versionDate = (new Date(version.versionDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK);
+                    version.versionDate = (new Date(version.versionDate)).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE);
                     version.consentUid = consent.uid;
                     version.isEmpty = false;
                     return version;

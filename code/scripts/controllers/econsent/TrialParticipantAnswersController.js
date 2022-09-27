@@ -4,7 +4,7 @@ const commonServices = require("common-services");
 const {ResponsesService} = commonServices;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
 const DataSourceFactory = commonServices.getDataSourceFactory();
-
+const Constants = commonServices.Constants;
 
 let getInitModel = () => {
     return {
@@ -67,11 +67,7 @@ export default class TrialParticipantAnswersController extends BreadCrumbManager
                 response.questionResponses.forEach(answer => {
                     if(answer.patientDID === this.model.patientDID){
                         const datetime = answer.responseDate;
-                        const date = new Date(datetime);
-                        const options = {
-                            year: 'numeric', month: 'numeric', day: 'numeric',
-                        };
-                        const formattedDate = date.toLocaleDateString('en', options);
+                        const formattedDate = (new Date(datetime)).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE);
 
                         this.filterAnswers(answer, formattedDate);
                     }

@@ -49,7 +49,7 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
                         title: observation.code.text,
                         value: observation.valueQuantity.value,
                         unit: observation.valueQuantity.unit,
-                        date: (new Date(date[0])).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
+                        date: (new Date(date[0])).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE),
                         time: time[0]
                     }
                 });

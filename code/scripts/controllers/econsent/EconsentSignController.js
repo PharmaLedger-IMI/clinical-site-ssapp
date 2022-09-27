@@ -47,7 +47,7 @@ export default class EconsentSignController extends BreadCrumbManager {
         }
         this.model.econsent = {
             ...econsent,
-            versionDateAsString: (new Date(econsent.versions[0].versionDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
+            versionDateAsString: (new Date(econsent.versions[0].versionDate)).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE)
         };
         let currentVersion = '';
         if (this.model.ecoVersion) {
@@ -86,7 +86,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             const currentDate = new Date();
             this.model.econsent.hcoSign = {
                 date: currentDate.toISOString(),
-                toShowDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
+                toShowDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE),
             };
 
             let message = {
@@ -105,7 +105,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             const digitalSignatureOptions = {
                 path: path,
                 version: version,
-                signatureDate: `Digital Signature ${currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)}`,
+                signatureDate: `Digital Signature ${currentDate.toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE)}`,
                 signatureAuthor: "HCP Signature",
                 isBottomSide: true
             };
@@ -130,7 +130,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             const currentDate = new Date();
             this.model.econsent.hcoSign = {
                 date: currentDate.toISOString(),
-                toShowDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
+                toShowDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE)
             };
             let message = {
                 name: ConsentStatusMapper.consentStatuses.decline.name,
@@ -174,7 +174,7 @@ export default class EconsentSignController extends BreadCrumbManager {
             type: 'hco',
             status: message.status,
             actionNeeded: message.actionNeeded,
-            toShowDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
+            toShowDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE),
         });
 
         this.model.econsent.versions[currentVersionIndex] = currentVersion;
@@ -207,9 +207,9 @@ export default class EconsentSignController extends BreadCrumbManager {
         const tpDSU = this.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
 
         if (message.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
-            statusUpdateDetails.enrolledDate = currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK);
+            statusUpdateDetails.enrolledDate = currentDate.toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE);
         } else {
-            statusUpdateDetails.discontinuedDate = currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK);
+            statusUpdateDetails.discontinuedDate = currentDate.toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE);
         }
 
         Object.assign(tpDSU, statusUpdateDetails);
@@ -263,7 +263,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 action: {
                     name: 'sign',
                     date: DateTimeService.getCurrentDateAsISOString(),
-                    toShowDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK),
+                    toShowDate: currentDate.toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE),
                 },
             },
             shortDescription: shortMessage,

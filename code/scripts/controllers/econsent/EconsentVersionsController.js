@@ -41,7 +41,7 @@ export default class EconsentVersionsController extends BreadCrumbManager {
                     version.actions[index] = {
                         ...version.actions[index],
                         version: version.version,
-                        versionDate: (new Date(version.versionDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
+                        versionDate: (new Date(version.versionDate)).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE)
                     }
                 })
 
@@ -68,7 +68,7 @@ export default class EconsentVersionsController extends BreadCrumbManager {
                     tpApproval: "-",
                     hcpApproval: "-",
                     tpWithdraw: "-",
-                    versionDateAsString: (new Date(econsentVersion.versionDate)).toLocaleDateString(Constants.DATE_UTILS.FORMATS.EN_UK)
+                    versionDateAsString: (new Date(econsentVersion.versionDate)).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE)
                 };
                 if (econsentVersion.actions) {
 
