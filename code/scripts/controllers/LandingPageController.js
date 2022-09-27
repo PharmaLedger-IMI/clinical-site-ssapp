@@ -470,15 +470,15 @@ export default class LandingPageController extends WebcController {
             actionNeeded: actionNeeded
         });
 
+        const sites = this.hcoDSU.volatile.site;
+        const site = sites.find(site => site.trialSReadSSI === tpDSU.trialSReadSSI);
+
         if(econsent.type === "Optional") {
             econsent.versions[currentVersionIndex] = currentVersion;
             return this.HCOService.updateHCOSubEntity(econsent, "ifcs/" + tpRecord.pk, (err) => {
                 if (err) {
                     return console.log(err);
                 }
-
-                const sites = this.hcoDSU.volatile.site;
-                const site = sites.find(site => site.trialSReadSSI === tpDSU.trialSReadSSI);
 
                 this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
                     ssi: tpRecord.pk,
@@ -506,9 +506,6 @@ export default class LandingPageController extends WebcController {
                     }
 
                     this.hcoDSU = await this.HCOService.getOrCreateAsync();
-
-                    const sites = this.hcoDSU.volatile.site;
-                    const site = sites.find(site => site.trialSReadSSI === tpDSU.trialSReadSSI);
 
                     this.CommunicationService.sendMessage(tpRecord.did, {
                         status: status,
