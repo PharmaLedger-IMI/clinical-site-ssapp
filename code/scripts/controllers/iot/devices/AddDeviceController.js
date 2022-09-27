@@ -20,7 +20,7 @@ export default class AddDeviceController extends BreadCrumbManager {
             }
         );
 
-
+        this.model.message = {};
         this.deviceServices = new DeviceServices();
         let hcoService = new HCOService();
         let hcoDSUPromise = hcoService.getOrCreateAsync();
@@ -56,6 +56,16 @@ export default class AddDeviceController extends BreadCrumbManager {
                 this.model.trials = allTrials;
 
                 this.model.onChange('form', this.checkFormValidity.bind(this));
+                this.model.onChange('form.deviceId', () => {
+                    if (this.allDevicesIds.includes(this.model.form.deviceId.value.trim())) {
+                        this.model.message.content = `This device ID is already in use. Please use a different one!`
+                        this.model.message.type = 'error'
+                    }
+                    else {
+                        this.model.message.content = ""
+                        this.model.message.type = ""
+                    }
+                });
             });
 
         });
