@@ -411,60 +411,49 @@ export default class LandingPageController extends WebcController {
 
         let actionNeeded = 'No action required';
         let status = Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
-        let tpSigned = false;
         let statusUpdateDetails = {};
         let currentDate = new Date();
         switch (message.useCaseSpecifics.action.name) {
             case ConsentStatusMapper.consentStatuses.withdraw.name: {
-                if(econsent.type === "Optional") {
-                    status = tpDSU.status;
-                    actionNeeded = tpDSU.actionNeeded;
-                } else {
+                if(econsent.type === "Mandatory") {
                     actionNeeded = 'TP Withdrawn';
                     status = Constants.TRIAL_PARTICIPANT_STATUS.TP_WITHDRAWN;
                 }
 
-                await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' withdraw', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
+                await this._saveNotification(message,`Trial participant ${message.useCaseSpecifics.tpDid} withdraw from ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 statusUpdateDetails = {
                     actionNeeded,
                     status,
-                    tpSigned,
                     withdrewDate: currentDate.toLocaleDateString()
                 }
                 break;
             }
             case ConsentStatusMapper.consentStatuses.decline.name: {
-                if(econsent.type === "Optional") {
-                    status = tpDSU.status;
-                    actionNeeded = tpDSU.actionNeeded;
-                } else {
+                if(econsent.type === "Mandatory") {
                     actionNeeded = 'TP Declined';
                     status = currentVersionIndex > 0? Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED : Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED;
+
                 }
-                await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' declined', 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
+
+                await this._saveNotification(message,`Trial participant ${message.useCaseSpecifics.tpDid} declined ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
                 statusUpdateDetails = {
                     actionNeeded,
                     status,
-                    tpSigned,
                     discontinuedDate: currentDate.toLocaleDateString()
                 }
                 break;
             }
             case ConsentStatusMapper.consentStatuses.signed.name: {
-                if(econsent.type === 'Optional') {
-                    status = tpDSU.status;
-                    actionNeeded = tpDSU.actionNeeded;
-                } else {
+                if(econsent.type === 'Mandatory') {
                     actionNeeded = 'Acknowledgement required';
                     if(tpDSU.status === Constants.TRIAL_PARTICIPANT_STATUS.PLANNED) {
                         status =  Constants.TRIAL_PARTICIPANT_STATUS.SCREENED;
                     }
                 }
-                tpSigned = true;
-                await this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+
+                await this._saveNotification(message, `Trial participant ${message.useCaseSpecifics.tpDid} signed ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
 
                 statusUpdateDetails = {
-                    tpSigned,
                     actionNeeded,
                     status,
                     screenedDate: currentDate.toLocaleDateString()
@@ -480,6 +469,23 @@ export default class LandingPageController extends WebcController {
             type: 'tp',
             actionNeeded: actionNeeded
         });
+
+        if(econsent.type === "Optional") {
+            econsent.versions[currentVersionIndex] = currentVersion;
+            return this.HCOService.updateHCOSubEntity(econsent, "ifcs/" + tpRecord.pk, (err) => {
+                if (err) {
+                    return console.log(err);
+                }
+
+                const sites = this.hcoDSU.volatile.site;
+                const site = sites.find(site => site.trialSReadSSI === tpDSU.trialSReadSSI);
+
+                this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
+                    ssi: tpRecord.pk,
+                    consentsKeySSIs: [econsent.uid]
+                }, "Consent Changed");
+            })
+        }
 
         Object.assign(tpDSU, statusUpdateDetails);
         Object.assign(tpRecord, statusUpdateDetails);
