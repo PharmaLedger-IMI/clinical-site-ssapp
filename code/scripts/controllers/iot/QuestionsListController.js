@@ -1,4 +1,5 @@
 import HCOService from '../../services/HCOService.js';
+import {QUESTION_ACTIONS} from "../../utils/utils.js";
 
 const commonServices = require("common-services");
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
@@ -8,7 +9,6 @@ const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
 const Constants = commonServices.Constants;
 const {getDidServiceInstance} = commonServices.DidService;
-import { QUESTION_ACTIONS } from "../../utils/utils.js";
 
 let getInitModel = () => {
     return {
@@ -97,6 +97,9 @@ export default class QuestionsListController extends BreadCrumbManager {
                         if (err) {
                             console.log(err);
                         }
+                        if(this.questionnaire.prom.length || this.questionnaire.prem.length) {
+                            this.updateTpsQuestionnaire();
+                        }
                         console.log("Frequency has been set");
                         console.log(data);
                     });
@@ -174,6 +177,7 @@ export default class QuestionsListController extends BreadCrumbManager {
 
                     this.model.message = message;
 
+                    this.updateTpsQuestionnaire();
                     window.WebCardinal.loader.hidden = true;
                     questionnaireDatasource.updateRecords();
                 });
@@ -192,6 +196,20 @@ export default class QuestionsListController extends BreadCrumbManager {
         }
    }
 
+    updateTpsQuestionnaire() {
+        window.WebCardinal.loader.hidden = false;
+        this.TrialParticipantRepository.findAll((err, tps) => {
+            if (err) {
+                return console.log(err);
+            }
+            let trialTps = tps.filter(tp => tp.trialId === this.model.selected_trial.id && tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED);
+            trialTps.forEach(participant => {
+                this.sendMessageToPatient(participant.did, Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE_UPDATE, null, "");
+                console.log("Questionnaire sent to: " + participant.name)
+            });
+            window.WebCardinal.loader.hidden = true;
+        })
+    }
 
     _attachHandlerPromQuestions() {
         this.onTagEvent('view:prom', 'click', (model, target, event) => {
@@ -316,6 +334,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                                 if (err) {
                                     console.log(err);
                                 }
+                                this.updateTpsQuestionnaire();
                                 this.model[this.model.currentTable].questionsDataSource.updateRecords();
                             });
                         },
