@@ -23,6 +23,7 @@ export default class QuestionsListController extends BreadCrumbManager {
     constructor(...props) {
         super(...props);
 
+        this.statuses = [Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED, Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT];
         const prevState = this.getState() || {};
         this.model = this.getState();
         this.model = {
@@ -202,8 +203,7 @@ export default class QuestionsListController extends BreadCrumbManager {
             if (err) {
                 return console.log(err);
             }
-            let statuses = [Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED, Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT];
-            let trialTps = tps.filter(tp => tp.trialId === this.model.selected_trial.id && statuses.includes(tp.status));
+            let trialTps = tps.filter(tp => tp.trialId === this.model.selected_trial.id && this.statuses.includes(tp.status));
             trialTps.forEach(participant => {
                 this.sendMessageToPatient(participant.did, Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE_UPDATE, null, "");
                 console.log("Questionnaire sent to: " + participant.name)
@@ -277,7 +277,7 @@ export default class QuestionsListController extends BreadCrumbManager {
                 if (err) {
                     return console.log(err);
                 }
-                let trialTps = tps.filter(tp => tp.trialId === this.model.selected_trial.id && tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED);
+                let trialTps = tps.filter(tp => tp.trialId === this.model.selected_trial.id && this.statuses.includes(tp.status));
                 trialTps.forEach(participant => {
                     this.sendMessageToPatient(participant.did, Constants.MESSAGES.HCO.CLINICAL_SITE_QUESTIONNAIRE, data.sReadSSI, "");
                     console.log("Questionnaire sent to: " + participant.name)
