@@ -331,6 +331,12 @@ export default class LandingPageController extends WebcController {
                         tpIfcs.forEach(econsent => {
                             this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.SEND_REFRESH_CONSENTS_TO_PATIENT,
                                 econsent.keySSI, null);
+
+                            let visits = this.hcoDSU.volatile.visit[0].visits.filter(v => v.consentId === econsent.trialConsentId);
+                            let lastVisit = visits[visits.length-1];
+                            if(econsent.type === 'Mandatory' && econsent.trialConsentVersion === lastVisit.updatedAtConsentVersion) {
+                                this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.REFRESH_VISITS, null, null)
+                            }
                         });
 
                         const consentsKeySSIs = tpIfcs.map(econsent => econsent.keySSI);
