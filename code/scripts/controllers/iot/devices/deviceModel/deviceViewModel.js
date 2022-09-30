@@ -119,21 +119,21 @@ export function  prepareDeviceData(trial_list, formData) {
         }],
         status: formData.status.value,
         // deviceType: formData.deviceType.value,
-        manufacturer: formData.manufacturer.value,
-        deviceId: formData.deviceId.value,
+        manufacturer: formData.manufacturer.value.trim(),
+        deviceId: formData.deviceId.value.trim(),
         device: [
             {
-                name:  formData.deviceName.value,
+                name:  formData.deviceName.value.trim(),
                 type: "manufacturer-name"
             }
         ],
-        deviceName: formData.deviceName.value,
-        modelNumber: formData.modelNumber.value,
-        brand: formData.brand.value,
+        deviceName: formData.deviceName.value.trim(),
+        modelNumber: formData.modelNumber.value.trim(),
+        brand: formData.brand.value.trim(),
         trialUid: selected_trial.ssi,
         trialName: selected_trial.name,
         trialID: formData.trial.value,
-        sk: formData.deviceId.value,
+        sk: formData.deviceId.value.trim(),
         isAssigned: false
     };
 }

@@ -7,6 +7,7 @@
     <div class="form-row">
         <div class="form-group">
             <label class="col-form-label required" for="@form.deviceId.name">{{@form.deviceId.label}}</label>
+            <webc-template template="alert" data-view-model="@" class="w-100"></webc-template>
             <input class="form-control" data-view-model="@form.deviceId" id="@form.deviceId.name" value="@form.deviceId.value" />
         </div>
         <div class="form-group">

@@ -58,12 +58,12 @@ export default class AddDeviceController extends BreadCrumbManager {
                 this.model.onChange('form', this.checkFormValidity.bind(this));
                 this.model.onChange('form.deviceId', () => {
                     if (this.allDevicesIds.includes(this.model.form.deviceId.value.trim())) {
-                        this.model.message.content = `This device ID is already in use. Please use a different one!`
-                        this.model.message.type = 'error'
+                        this.model.formIsInvalid = true;
+                        this.model.message.content = `This device ID is already in use`
+                        this.model.message.type = 'error';
                     }
                     else {
-                        this.model.message.content = ""
-                        this.model.message.type = ""
+                        this.model.message.type = "hidden";
                     }
                 });
             });
@@ -77,7 +77,7 @@ export default class AddDeviceController extends BreadCrumbManager {
     checkFormValidity(){
         const requiredInputs = Object.keys(this.model.form).filter((key)=>this.model.form[key].required).map(key=>this.model.form[key].value)
         let validationConstraints = [
-            this.allDevicesIds.indexOf(this.model.form.deviceId.value) === -1,
+            this.allDevicesIds.indexOf(this.model.form.deviceId.value.trim()) === -1,
             ...requiredInputs.map(input => this.isInputFilled(input))
         ]
         this.model.formIsInvalid = typeof (validationConstraints.find(val => val !== true)) !== 'undefined';
