@@ -680,6 +680,7 @@ export default class LandingPageController extends WebcController {
 
         if(visit.rescheduled || visit.declined) {
             tpDSU.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED;
+            tpDSU.visits[objIndex].confirmed = false;
         }
 
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
