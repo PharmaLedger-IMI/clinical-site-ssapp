@@ -76,11 +76,13 @@ export default class ViewPromPremGraphsController extends BreadCrumbManager  {
             if (err) {
                 return console.log(err);
             }
-            let searchedTrialResponses = responses.find(response => response.trialUid === this.state.trialUid);
+            let searchedTrialResponses = responses.filter(response => response.trialUid === this.state.trialUid);
             this.model.pageIsInitialized = true;
             if(searchedTrialResponses) {
-                searchedTrialResponses.questionResponses.forEach(answer => {
-                    this.filterAnswers(answer);
+                searchedTrialResponses.forEach(response => {
+                    response.questionResponses.forEach(answer => {
+                        this.filterAnswers(answer);
+                    })
                 })
                 console.log(this.model.questionnaire);
 
