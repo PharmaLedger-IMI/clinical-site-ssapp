@@ -151,13 +151,14 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     sendMessageToPatient(visit, operation) {
-
+        const { uuid, ...visitDetails } = visit;
         this.CommunicationService.sendMessage(this.tp.did, {
             operation: operation,
             useCaseSpecifics: {
                 tpDid: this.tp.did,
                 visit: {
-                    ...visit,
+                    ...visitDetails,
+                    uid: uuid
                 },
             },
             shortDescription: Constants.MESSAGES.HCO.COMMUNICATION.TYPE.UPDATE_VISIT,
