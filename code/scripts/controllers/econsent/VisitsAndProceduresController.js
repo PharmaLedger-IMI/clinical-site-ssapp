@@ -96,6 +96,50 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         console.log('this.model.visits', this.model.visits)
     }
 
+    async prepareVisitsStatus() {
+        let hcoDSU = await this.HCOService.getOrCreateAsync();
+        let tp  = hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
+        let visits;
+        if(tp.hasOwnProperty('visits')) {
+            visits = tp.visits;
+        }
+        if(visits !==undefined ) {
+            visits.forEach(visit => {
+                if(visit.hasOwnProperty('confirmed') && visit.confirmed === true) {
+                    let procedures = visit.procedures;
+                    let confirmedCounter = 0;
+                    let missedCounter = 0;
+                    procedures.forEach(procedure => {
+                        if(procedure.hasOwnProperty('status')) {
+                            if(procedure.status === 'Completed') {
+                                confirmedCounter++;
+                            }
+                            if(procedure.status === 'Missed') {
+                                missedCounter++;
+                            }
+                        }
+                    })
+                    if(missedCounter > 0 ) {
+                        return visit.status = "missed";
+                    }
+                    if(procedures.length === confirmedCounter) {
+                        return visit.status = "all-confirmed";
+                    }
+                    if(confirmedCounter > 0 ) {
+                        return visit.status = "partial-confirmed";
+                    }
+                }
+            });
+
+            this.model.visits.forEach(visit => {
+                let wantedVisit = visits.find(item => item.id === visit.id);
+                if(wantedVisit !== undefined && wantedVisit.hasOwnProperty('status')) {
+                    return visit.status = wantedVisit.status;
+                }
+            })
+        }
+    }
+
     prepareDateForVisits(receivedVisits) {
         if (receivedVisits.length > 0) {
 
@@ -158,6 +202,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.extractDataVisit();
         await this.matchTpVisits();
         this.prepareDateForVisits(this.model.visits);
+        await this.prepareVisitsStatus(this.model.visits);
     }
 
     extractDataVisit() {

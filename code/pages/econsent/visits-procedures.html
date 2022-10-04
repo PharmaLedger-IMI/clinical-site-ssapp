@@ -15,13 +15,14 @@
                     <h4 class="alert-heading">No visits yet!</h4>
                 </div>
 
-                <div class="common-datatable visits-procedures dt-9-col" slot="true" data-if="@siteHasVisits">
+                <div class="common-datatable visits-procedures dt-10-col" slot="true" data-if="@siteHasVisits">
 
                     <webc-datatable datasource="@visitsDataSource">
 
+                        <div slot="header">Status</div>
                         <div slot="header">Visits</div>
-                        <div slot="header">Week Number</div>
-                        <div slot="header">Week Day Number</div>
+                        <div slot="header">Week No.</div>
+                        <div slot="header">Week Day No.</div>
                         <div slot="header">+Days</div>
                         <div slot="header">-Days</div>
                         <div slot="header">Proposed date</div>
@@ -29,6 +30,20 @@
                         <div slot="header">Planned Date</div>
                         <div slot="header">Actions</div>
 
+
+                        <div class="cell">
+                            <webc-switch condition="@status">
+                                <span slot="partial-confirmed" class="badge badge-primary">
+                                    <i class="fa fa-check-circle fa-2x"></i>
+                                </span>
+                                <span slot="all-confirmed" class="badge badge-success">
+                                    <i class="fa fa-circle-o-notch fa-2x"></i>
+                                </span>
+                                <span slot="missed" class="badge badge-danger">
+                                    <i class="fa fa-times-circle fa-2x"></i>
+                                </span>
+                            </webc-switch>
+                        </div>
 
                         <div class="cell">{{@name}}</div>
                         <div class="cell">{{@week}}</div>

@@ -334,8 +334,17 @@ export default class LandingPageController extends WebcController {
 
                             let visits = this.hcoDSU.volatile.visit[0].visits.filter(v => v.consentId === econsent.trialConsentId);
                             let lastVisit = visits[visits.length-1];
+
                             if(econsent.type === 'Mandatory' && econsent.trialConsentVersion === lastVisit.updatedAtConsentVersion) {
-                                this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.REFRESH_VISITS, null, null)
+                                let tpDsu = this.hcoDSU.volatile.tps.find(tpDsu => tpDsu.pk === tp.pk);
+                                tpDsu.visits = [];
+                                this.HCOService.updateHCOSubEntity(tpDsu, "tps", async (err) => {
+                                    if (err) {
+                                        return console.log(err);
+                                    }
+                                })
+
+                                this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.REFRESH_VISITS, null, null);
                             }
                         });
 
