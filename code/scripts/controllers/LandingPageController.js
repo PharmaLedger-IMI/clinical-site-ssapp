@@ -663,7 +663,8 @@ export default class LandingPageController extends WebcController {
                     uid: visit.uuid,
                     id: visit.id,
                     proposedDate: visit.proposedDate,
-                    suggestedInterval: visit.suggestedInterval
+                    suggestedInterval: visit.suggestedInterval,
+                    isExtended: visit.isExtended
                 },
             },
             shortDescription: operation
