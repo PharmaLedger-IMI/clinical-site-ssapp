@@ -8,8 +8,8 @@ let getInitModel = () => {
             type: "number",
             min: "0",
             required: true,
-            placeholder: 'Please insert the trial subject number...',
-            value: '1000' + Math.ceil(Math.random() * 100000),
+            placeholder: 'Insert the TS number...',
+            value: "",
         },
         isAddTsNumberDisabled: false
     };
@@ -37,11 +37,13 @@ export default class AddTrialParticipantNumber extends WebcController {
     }
 
     _changeNumberHandler() {
+        this.model.tsNumberExists = false;
         if (this.model.number.value.trim() === "" || this.model.number.value === "0") {
             return this.model.isAddTSNumberDisabled = true;
         }
         this.tsNumber = `${this.model.trialId}-${this.model.siteId}-${this.model.number.value}`;
         this.model.isAddTSNumberDisabled = this.existingTSNumbers.includes(this.tsNumber)
+        this.model.tsNumberExists = this.model.isAddTSNumberDisabled;
     }
 
     _attachHandlerSubmit() {
