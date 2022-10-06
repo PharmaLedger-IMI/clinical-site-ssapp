@@ -55,6 +55,9 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         this.HCOService = new HCOService();
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         await this._initTrialParticipant(this.model.trialUid);
+        let statuses = [Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED, Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED, Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
+            Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT];
+        this.model.isBtnDisabled = statuses.includes(this.model.trialParticipant.status);
     }
 
     _initHandlers() {
