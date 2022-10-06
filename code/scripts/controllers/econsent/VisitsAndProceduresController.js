@@ -119,16 +119,19 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                             }
                         }
                     })
-                    if(missedCounter > 0 ) {
+                    if(confirmedCounter === 0 && missedCounter === 0) {
+                        return visit.status = 'N/A';
+                    }
+                    if(procedures.length === missedCounter || (confirmedCounter === 0 && missedCounter > 0)) {
                         return visit.status = "missed";
                     }
                     if(procedures.length === confirmedCounter) {
                         return visit.status = "all-confirmed";
                     }
-                    if(confirmedCounter > 0 ) {
+                    if(confirmedCounter > 0 && missedCounter >= 0) {
                         return visit.status = "partial-confirmed";
                     }
-                }
+                } else visit.status = 'N/A';
             });
 
             this.model.visits.forEach(visit => {
