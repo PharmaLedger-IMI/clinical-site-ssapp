@@ -281,8 +281,12 @@ export default class LandingPageController extends WebcController {
             }
 
             let counter = 0;
+            let availableStatuses = [Constants.TRIAL_PARTICIPANT_STATUS.SCREENED, Constants.TRIAL_PARTICIPANT_STATUS.PLANNED, Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT,
+                Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED, Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN, Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED];
 
             tps = tps.filter(tp => tp.trialId === site.trialId);
+
+            tps = tps.filter(tp => availableStatuses.includes(tp.status));
 
             let nrOfTps = tps.length;
 
@@ -336,15 +340,19 @@ export default class LandingPageController extends WebcController {
                             let lastVisit = visits[visits.length-1];
 
                             if(econsent.type === 'Mandatory' && econsent.trialConsentVersion === lastVisit.updatedAtConsentVersion) {
-                                let tpDsu = this.hcoDSU.volatile.tps.find(tpDsu => tpDsu.pk === tp.pk);
-                                tpDsu.visits = [];
-                                this.HCOService.updateHCOSubEntity(tpDsu, "tps", async (err) => {
-                                    if (err) {
-                                        return console.log(err);
-                                    }
-                                })
+                                let tpDsu = this.hcoDSU.volatile.tps.find(tpDsu => tpDsu.did === tp.did);
+                                if (tpDsu.hasOwnProperty('visits')) {
+                                    tpDsu.visits = [];
+                                    this.HCOService.updateHCOSubEntity(tpDsu, "tps", async (err) => {
+                                        if (err) {
+                                            return console.log(err);
+                                        }
+                                    })
+                                }
 
-                                this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.REFRESH_VISITS, null, null);
+                                if (tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.PLANNED) {
+                                    this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.REFRESH_VISITS, null, null);
+                                }
                             }
                         });
 
