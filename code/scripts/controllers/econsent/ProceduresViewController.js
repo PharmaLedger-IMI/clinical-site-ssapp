@@ -136,7 +136,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
                 await this.TrialParticipantRepository.updateAsync(this.tp.pk, trialSubject);
             }
 
-            await this.prepareVisitsStatus();
+            await this.checkProceduresStatus();
 
             this.updateTrialParticipant(this.tp.visits[index]);
             this.navigateToPageTag('econsent-visits-procedures', {
@@ -149,7 +149,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
         })
     }
 
-    async prepareVisitsStatus() {
+    async checkProceduresStatus() {
         let hcoDSU = await this.HCOService.getOrCreateAsync();
         let tp = hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
         let visits;
