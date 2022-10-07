@@ -121,23 +121,22 @@ export default class ProceduresViewController extends BreadCrumbManager {
 
             if(this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
                 this.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
-                await this.CommunicationService.sendMessage(this.tp.did, {
-                    status: this.tp.status,
-                    operation: Constants.MESSAGES.HCO.UPDATE_STATUS
-                });
+                this.sendStatusToPatient(this.tp.did, Constants.MESSAGES.HCO.UPDATE_STATUS, this.tp.status, 'Update tp status');
                 await this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
                     ssi: this.tp.pk,
                 }, 'Participant status changed')
+
+                const tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.tp.did}`, 'ascending', 30);
+                let trialSubject;
+                if (tps.length > 0) {
+                    trialSubject = tps[0];
+                    trialSubject.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
+                }
+
+                await this.TrialParticipantRepository.updateAsync(this.tp.pk, trialSubject);
             }
 
-            const tps = await this.TrialParticipantRepository.filterAsync(`did == ${this.tp.did}`, 'ascending', 30)
-            let trialSubject;
-            if (tps.length > 0) {
-                trialSubject = tps[0];
-                trialSubject.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
-            }
-
-            await this.TrialParticipantRepository.updateAsync(this.tp.pk, trialSubject);
+            await this.prepareVisitsStatus();
 
             this.updateTrialParticipant(this.tp.visits[index]);
             this.navigateToPageTag('econsent-visits-procedures', {
@@ -148,6 +147,60 @@ export default class ProceduresViewController extends BreadCrumbManager {
                 breadcrumb: this.model.toObject('breadcrumb')
             });
         })
+    }
+
+    async prepareVisitsStatus() {
+        let hcoDSU = await this.HCOService.getOrCreateAsync();
+        let tp = hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
+        let visits;
+        if (tp.hasOwnProperty('visits')) {
+            visits = tp.visits;
+        }
+        if (visits !== undefined) {
+            let completedVisitsCounter = 0;
+            visits.forEach(visit => {
+                if (visit.hasOwnProperty('confirmed') && visit.confirmed === true) {
+                    let procedures = visit.procedures;
+                    let confirmedCounter = 0;
+                    procedures.forEach(procedure => {
+                        if (procedure.hasOwnProperty('status')) {
+                            if (procedure.status === 'Completed') {
+                                confirmedCounter++;
+                            }
+                        }
+                    })
+                    if (procedures.length === confirmedCounter) {
+                        completedVisitsCounter++;
+                    }
+                }
+            });
+
+            if (this.tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED) {
+                if (completedVisitsCounter === visits.length) {
+                    this.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED;
+                    this.HCOService.updateHCOSubEntity(this.tp, "tps", async (err) => {
+                        if (err) {
+                            return console.log(err);
+                        }
+                        this.TrialParticipantRepository.filter(`did == ${this.tp.did}`, 'ascending', 30, (err, tps) => {
+                            if (tps && tps.length > 0) {
+                                tps[0].status = Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED;
+                                this.TrialParticipantRepository.update(tps[0].pk, tps[0], async (err, trialParticipant) => {
+                                    if (err) {
+                                        return console.log(err);
+                                    }
+                                    this.sendStatusToPatient(this.tp.did, Constants.MESSAGES.HCO.UPDATE_STATUS, this.tp.status, 'Update tp status');
+                                    await this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
+                                        ssi: this.tp.pk,
+                                        consentSSI: null
+                                    }, 'Participant status changed');
+                                });
+                            }
+                        });
+                    });
+                }
+            }
+        }
     }
 
     sendMessageToPatient(visit, operation) {
@@ -171,6 +224,14 @@ export default class ProceduresViewController extends BreadCrumbManager {
             operation: operation,
             ...data,
             shortDescription: shortDescription,
+        });
+    }
+
+    sendStatusToPatient(tpDid, operation, status, shortMessage) {
+        this.CommunicationService.sendMessage(tpDid, {
+            operation: operation,
+            status: status,
+            shortDescription: shortMessage,
         });
     }
 
