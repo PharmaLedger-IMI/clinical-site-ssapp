@@ -19,7 +19,8 @@ export default class TrialParticipantHealthDataController extends BreadCrumbMana
             const device = assignedDevices.find(assignedDevice => assignedDevice.deviceId === this.model.deviceId);
             console.log("************* Health Identifier *************")
             console.log(device.healthDataIdentifiers);
-            if (!device.healthDataIdentifiers) {
+
+            if (!device.healthDataIdentifiers || device.healthDataIdentifiers.length === 0) {
                 this.model.hasHealthData = false;
                 this.model.dataLoaded = true;
                 return;

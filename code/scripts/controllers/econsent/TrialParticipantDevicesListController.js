@@ -179,6 +179,7 @@ export default class TrialParticipantDevicesListController extends BreadCrumbMan
                 trial: model.trial,
                 uid: model.uid,
                 assignationDate:model.assignationDate,
+                healthDataIdentifiers:model.healthDataIdentifiers,
                 assignationCompleteDate : Date.now(),
                 isStillAssigned:false,
             }

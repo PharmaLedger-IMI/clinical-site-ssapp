@@ -92,7 +92,8 @@ export default class TrialParticipantDevicesController extends BreadCrumbManager
             patientDID: this.model.participantDID,
             assignationDate:Date.now(),
             clinicalSiteDID: this.model.clinicalSiteDID,
-            trialParticipantNumber: this.model.trialParticipantNumber
+            trialParticipantNumber: this.model.trialParticipantNumber,
+            healthDataIdentifiers:[]
         };
     }
 
