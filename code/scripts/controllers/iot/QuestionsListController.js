@@ -8,6 +8,8 @@ const DataSourceFactory = commonServices.getDataSourceFactory();
 const CommunicationService = commonServices.CommunicationService;
 const BaseRepository = commonServices.BaseRepository;
 const Constants = commonServices.Constants;
+const momentService = commonServices.momentService;
+const DATE_FORMATS = commonServices.Constants.DATE_UTILS.FORMATS;
 const {getDidServiceInstance} = commonServices.DidService;
 
 let getInitModel = () => {
@@ -89,8 +91,8 @@ export default class QuestionsListController extends BreadCrumbManager {
                     this.model.frequencyIsSet = true;
                     const { startDate, endDate } = this.questionnaire.schedule;
                     this.model.schedule = {
-                        startDate: (new Date(startDate)).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE),
-                        endDate: (new Date(endDate)).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE),
+                        startDate: momentService(startDate).format(DATE_FORMATS.DDMMYYYY),
+                        endDate: momentService(endDate).format(DATE_FORMATS.DDMMYYYY),
                         frequencyType: this.questionnaire.schedule.frequencyType
                     }
 
@@ -367,8 +369,8 @@ export default class QuestionsListController extends BreadCrumbManager {
                 if(this.model.frequencyIsSet){
                     const { startDate, endDate } = this.questionnaire.schedule;
                     this.model.schedule = {
-                        startDate: (new Date(startDate)).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE),
-                        endDate: (new Date(endDate)).toLocaleDateString(Constants.DATE_UTILS.DATE_LOCALE),
+                        startDate: momentService(startDate).format(DATE_FORMATS.DDMMYYYY),
+                        endDate: momentService(endDate).format(DATE_FORMATS.DDMMYYYY),
                         frequencyType: this.questionnaire.schedule.frequencyType
                     }
                 }
