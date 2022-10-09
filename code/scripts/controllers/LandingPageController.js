@@ -90,11 +90,31 @@ export default class LandingPageController extends WebcController {
     }
 
     _attachMessageHandlers() {
+
+        const loader = window.WebCardinal.loader;
+        const onConfirmRefresh = function (event) {
+            event.preventDefault();
+            return event.returnValue = "Are you sure you want to leave?";
+        }
+
+        const blockUI = () =>{
+            loader.hidden = false;
+            loader.setAttribute("data-value","Updating wallet. Please wait...")
+            window.addEventListener("beforeunload", onConfirmRefresh, { capture: true });
+        }
+
+        const unBlockUI = ()=>{
+            loader.removeAttribute("data-value");
+            loader.hidden = true;
+            window.removeEventListener("beforeunload", onConfirmRefresh, { capture: true });
+        }
+
         MessageHandlerService.init(async (data) => {
             data = JSON.parse(data);
-
+            blockUI();
             await this.handleIotMessages(data);
             await this.handleEcoMessages(data);
+            unBlockUI();
 
         })
     }
@@ -138,7 +158,6 @@ export default class LandingPageController extends WebcController {
         if (typeof senderIdentity === "undefined") {
             throw new Error("Sender identity is undefined. Did you forgot to add it?")
         }
-        window.WebCardinal.loader.hidden = false;
 
         switch (data.operation) {
 
@@ -228,7 +247,6 @@ export default class LandingPageController extends WebcController {
             }
 
         }
-        window.WebCardinal.loader.hidden = true;
         await this._updateHcoDSU();
     }
 
@@ -271,7 +289,7 @@ export default class LandingPageController extends WebcController {
         //refresh hcoDSU
         this.hcoDSU = await this.HCOService.getOrCreateAsync();
         const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.uid) === data.ssi);
-        let loader = window.WebCardinal.loader
+        let loader = window.WebCardinal.loader;
         loader.hidden = false;
         let promisesArr = [];
 
