@@ -65,10 +65,10 @@ export default class ProceduresViewController extends BreadCrumbManager {
             this.tp.visits = this.model.visits;
             this.updateTrialParticipant();
         } else {
-            let visitTp = this.tp.visits.filter(v => v.uuid === this.model.visit.uuid)[0];
+            let visitTp = this.tp.visits.find(v => v.uuid === this.model.visit.uuid);
 
             if (visitTp) {
-                this.model.procedures = visitTp.procedures;
+                this.model.procedures = visitTp.procedures.filter(procedure => procedure.checked);
             } else {
                 this.tp.visits.push(this.model.visit);
                 this.updateTrialParticipant();
@@ -94,13 +94,17 @@ export default class ProceduresViewController extends BreadCrumbManager {
                         label: 'Missed',
                         value: 'Missed',
                     },
+                    {
+                        label: 'N/A',
+                        value: 'N/A',
+                    }
                 ],
                 value: '',
             }
             if (makeCompleted !== undefined) {
                 procedure.statusList.value = 'Completed';
             } else {
-                let index = this.initialProcedures.findIndex(prc => prc.id === procedure.id);
+                let index = this.initialProcedures.findIndex(prc => prc.uuid === procedure.uuid);
                 this.initialProcedures[index].status = procedure.status;
             }
         });
@@ -112,7 +116,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
 
             this.model.procedures.forEach(procedure => {
                 this.initialProcedures.forEach(item => {
-                    if(item.id===procedure.id && procedure.statusList.value !== '') {
+                    if(item.uuid===procedure.uuid && procedure.statusList.value !== '') {
                         item.status = procedure.statusList.value;
                     }
                 })
@@ -160,16 +164,10 @@ export default class ProceduresViewController extends BreadCrumbManager {
             let completedVisitsCounter = 0;
             visits.forEach(visit => {
                 if (visit.hasOwnProperty('confirmed') && visit.confirmed === true) {
-                    let procedures = visit.procedures;
-                    let confirmedCounter = 0;
-                    procedures.forEach(procedure => {
-                        if (procedure.hasOwnProperty('status')) {
-                            if (procedure.status === 'Completed') {
-                                confirmedCounter++;
-                            }
-                        }
-                    })
-                    if (procedures.length === confirmedCounter) {
+                    let allProcedures = visit.procedures.filter(procedure => procedure.checked && procedure.status !== "N/A");
+                    let completedProcedures = allProcedures.filter(procedure => procedure.hasOwnProperty('status') && procedure.status === "Completed");
+
+                    if(allProcedures.length === completedProcedures.length){
                         completedVisitsCounter++;
                     }
                 }
@@ -185,7 +183,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
                         this.TrialParticipantRepository.filter(`did == ${this.tp.did}`, 'ascending', 30, (err, tps) => {
                             if (tps && tps.length > 0) {
                                 tps[0].status = Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED;
-                                this.TrialParticipantRepository.update(tps[0].pk, tps[0], async (err, trialParticipant) => {
+                                this.TrialParticipantRepository.update(tps[0].pk, tps[0], async (err) => {
                                     if (err) {
                                         return console.log(err);
                                     }

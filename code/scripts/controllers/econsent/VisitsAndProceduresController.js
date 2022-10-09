@@ -1,4 +1,5 @@
 import HCOService from "../../services/HCOService.js";
+import {uuidv4} from "../../utils/utils.js";
 
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
@@ -85,10 +86,10 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         }
 
         this.model.visits.forEach(visit => {
-            visit.procedures = visit.procedures.map((procedure, index) => {
+            visit.procedures = visit.procedures.filter(procedure => procedure.checked).map((procedure, index) => {
                 return {
                     ...procedure,
-                    id: index
+                    id: uuidv4()
                 }
             })
         })
@@ -103,7 +104,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         if(tp.hasOwnProperty('visits')) {
             visits = tp.visits;
         }
-        if(visits !==undefined ) {
+        if(visits !== undefined ) {
             visits.forEach(visit => {
                 if(visit.hasOwnProperty('confirmed') && visit.confirmed === true) {
                     let procedures = visit.procedures;
@@ -112,20 +113,21 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     procedures.forEach(procedure => {
                         if(procedure.hasOwnProperty('status')) {
                             if(procedure.status === 'Completed') {
-                                confirmedCounter++;
+                                confirmedCounter ++;
                             }
                             if(procedure.status === 'Missed') {
-                                missedCounter++;
+                                missedCounter ++;
                             }
                         }
                     })
                     if(confirmedCounter === 0 && missedCounter === 0) {
                         return visit.status = 'N/A';
                     }
-                    if(procedures.length === missedCounter || (confirmedCounter === 0 && missedCounter > 0)) {
+                    let applicableProcedures = procedures.filter(procedure=>procedure.status!=="N/A")
+                    if(applicableProcedures.length === missedCounter || (confirmedCounter === 0 && missedCounter > 0)) {
                         return visit.status = "missed";
                     }
-                    if(procedures.length === confirmedCounter) {
+                    if(applicableProcedures.length === confirmedCounter) {
                         return visit.status = "all-confirmed";
                     }
                     if(confirmedCounter > 0 && missedCounter >= 0) {
@@ -139,6 +141,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 if(wantedVisit !== undefined && wantedVisit.hasOwnProperty('status')) {
                     return visit.status = wantedVisit.status;
                 }
+            })
+        }
+        else{
+            this.model.visits.forEach(visit=>{
+                visit.status = "N/A";
             })
         }
     }
@@ -357,7 +364,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     model.hasProposedDate = true;
                     await this.updateTrialParticipantVisit(model, Constants.MESSAGES.HCO.COMMUNICATION.TYPE.SCHEDULE_VISIT);
                     this.model.message = {
-                        content: `${model.name} have been scheduled. Wait for confirmation.`,
+                        content: `Visit '${model.name}' have been scheduled. Wait for confirmation.`,
                         type: 'success'
                     }
                 },
