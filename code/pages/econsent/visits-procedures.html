@@ -1,5 +1,5 @@
 <webc-container controller="econsent/VisitsAndProceduresController">
-    <div class="container main-container common-2-rows-grid">
+    <div class="container main-container stepper-3-rows-grid">
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
             <h5 class="generic-title">Visits & Procedures</h5>
@@ -21,8 +21,8 @@
 
                         <div slot="header">Status</div>
                         <div slot="header">Visits</div>
-                        <div slot="header">Week No.</div>
-                        <div slot="header">Week Day No.</div>
+                        <div slot="header">Week</div>
+                        <div slot="header">Day</div>
                         <div slot="header">+Days</div>
                         <div slot="header">-Days</div>
                         <div slot="header">Proposed date</div>
@@ -110,5 +110,27 @@
             </div>
         </main>
 
+        <div class="d-flex flex-row justify-content-around align-items-center">
+            <div>
+                <span class="badge badge-warning partial-confirmed">
+                    <i class="fa fa-circle-o-notch fa-2x"></i>
+                </span>
+                <span>Procedures were partial completed</span>
+            </div>
+
+            <div>
+            <span class="badge badge-success">
+                <i class="fa fa-circle-o-notch fa-2x"></i>
+            </span>
+                <span>Procedures were all completed</span>
+            </div>
+
+            <div>
+            <span class="badge badge-danger">
+                <i class="fa fa-circle-o-notch fa-2x"></i>
+            </span>
+                <span>Procedures were all missed</span>
+            </div>
+        </div>
     </div>
 </webc-container>
