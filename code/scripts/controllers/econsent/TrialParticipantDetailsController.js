@@ -49,15 +49,48 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         this._initHandlers();
     }
 
+    getDataForStatusesDiagram() {
+        let statuses = Object.keys(Constants.PROGRESS_BAR_STATUSES).map((status,index) => {
+            return {
+                statusName: Constants.PROGRESS_BAR_STATUSES[status],
+                index: index+1,
+                isActive: false,
+                isNegativeStatus: false,
+                alreadyCompleted: false
+            }
+        })
+
+        let negativeStatuses = [Constants.PROGRESS_BAR_STATUSES.SCREEN_FAILED, Constants.PROGRESS_BAR_STATUSES.WITHDRAWN, Constants.PROGRESS_BAR_STATUSES.DISCONTINUED];
+        statuses.forEach(status => {
+            if(negativeStatuses.includes(status.statusName)) {
+                status.isNegativeStatus = true;
+            }
+        });
+
+        let index = statuses.findIndex(status => status.statusName === this.model.trialParticipant.status);
+        if( index > -1) {
+            statuses[index].isActive = true;
+            if(statuses[index].isNegativeStatus !== true) {
+                for(let i = 0; i< index; i++) {
+                    statuses[i].alreadyCompleted = true;
+                }
+            }
+        }
+
+        this.model.statuses = statuses;
+
+    }
+
     async _initServices() {
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
-        this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
         await this._initTrialParticipant(this.model.trialUid);
         let statuses = [Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED, Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED, Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
             Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT];
         this.model.isBtnDisabled = statuses.includes(this.model.trialParticipant.status);
+        this.getDataForStatusesDiagram();
     }
 
     _initHandlers() {
@@ -65,7 +98,8 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
     }
 
     async _initTrialParticipant(keySSI) {
-        let trialParticipant = this.model.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
+        let trialParticipant = this.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
         let nonObfuscatedTps = await this.TrialParticipantRepository.filterAsync(`did == ${trialParticipant.did}`);
         if (nonObfuscatedTps.length > 0) {
             trialParticipant.name = nonObfuscatedTps[0].name;
@@ -111,7 +145,8 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
     async _getUserActionsFromEconsents(keySSI, tpDid) {
         // TODO: re-check this logic.
         let userActions = [];
-        this.model.hcoDSU.volatile.ifcs
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.hcoDSU.volatile.ifcs
             .forEach(econsent => {
                 if (econsent.versions === undefined) {
                     return userActions;
@@ -151,8 +186,8 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                 async (event) => {
                     console.log("Status outcome");
                     console.log(event.detail);
-                    if (this.model.hcoDSU.volatile.tps) {
-                        const tp = this.model.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
+                    if (this.hcoDSU.volatile.tps) {
+                        const tp = this.hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
                         if (tp === undefined) {
                             return console.error('Cannot find tp.');
                         }
@@ -222,7 +257,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                             return console.log(err);
                                         }
                                         console.log(trialParticipant);
-                                        const sites = this.model.toObject("hcoDSU.volatile.site");
+                                        const sites = this.hcoDSU.volatile.site;
                                         const site = sites.find(site => site.trialSReadSSI === tp.trialSReadSSI);
                                         this.sendMessageToPatient(tp, Constants.MESSAGES.HCO.UPDATE_STATUS, null, null, tp.status);
                                         this.sendMessageToSponsor(site.sponsorDid, Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
@@ -234,6 +269,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                             });
                         });
 
+                        await this._initServices();
                         // this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                     }
                 },

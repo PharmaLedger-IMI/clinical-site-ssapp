@@ -60,3 +60,72 @@ h2.main-title {
 .recruitment-state {
     margin: 0 auto;
 }
+
+
+.stepper-container {
+    display: flex;
+    padding: 2rem 5%;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.step-element {
+    border: 3px solid #008798;
+    display: inline-block;
+    background: #f7f7f7;
+    text-align: center;
+    font-weight: bold;
+    padding: 0.5rem 0.75rem;
+    border-radius: 50px;
+    position: relative;
+    color: black;
+}
+
+.status-name{
+    position: absolute;
+    top: 50px;
+    right: -15px;
+    color: black;
+}
+
+.status-name p {
+    font-weight: 600;
+}
+
+.step-element[data-active] {
+    background: #008798;
+}
+
+.step-element[data-already-completed] {
+    background: #008798;
+}
+
+.step-element .fa-icon {
+    color: black;
+}
+
+.step-element[data-active]::after {
+    content: "\f063";
+    font-family: 'FontAwesome';
+    color: #008798;
+    position: absolute;
+    bottom: 40px;
+    left: 10px;
+}
+
+.step-element[data-negative] {
+    background: #ff5f5f;
+}
+
+.step-break-line {
+    height: 3px;
+    background: #008798;
+    width: 50%;
+}
+
+.step-break-line:last-child {
+    display: none;
+    visibility: hidden;
+}
