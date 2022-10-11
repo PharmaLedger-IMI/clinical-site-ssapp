@@ -98,7 +98,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 message.actionNeeded = this.model.trialParticipant.actionNeeded;
             } else {
                 message.status = Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED;
-                message.actionNeeded = 'HCP SIGNED -no action required';
+                message.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.HCP_SIGNED;
             }
 
             const {path, version} = this.model.consentPathAndVersion;

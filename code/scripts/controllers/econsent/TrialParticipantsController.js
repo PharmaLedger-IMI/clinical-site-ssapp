@@ -224,6 +224,13 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         notificationColor: notificationColor
                     }
                 }
+
+                tpActions = actions[tp.did].filter(action => action.econsent.type === "Mandatory");
+                let optionalConsentActions = actions[tp.did].filter(action => action.econsent.type === "Optional");
+                if(optionalConsentActions.length > 0 && optionalConsentActions[optionalConsentActions.length - 1].action.type === 'tp') {
+                    tpActions.push(optionalConsentActions[optionalConsentActions.length - 1]);
+                }
+
                 let lastIndexAction = tpActions.length-1;
                 let foundEconsentAction = false;
 
@@ -240,10 +247,16 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                         case ConsentStatusMapper.consentStatuses.signed.name: {
                             switch (lastAction.action.type) {
                                 case 'hco': {
-                                    actionNeeded = 'Set TP Number';
-                                    notificationColor = 'success';
-                                    foundEconsentAction = true;
-
+                                    if(tp.number !== undefined && tp.actionNeeded === Constants.TP_ACTIONNEEDED_NOTIFICATIONS.HCP_SIGNED) {
+                                        tp.actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER;
+                                        notificationColor = 'success';
+                                        foundEconsentAction = true;
+                                        break;
+                                    } else {
+                                        actionNeeded = 'Set TS Number';
+                                        notificationColor = 'success';
+                                        foundEconsentAction = true;
+                                    }
                                     break;
                                 }
                                 case 'tp': {
@@ -259,27 +272,33 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                     lastIndexAction--;
                 }
 
-                switch(tp.actionNeeded) {
-                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER: {
-                        actionNeeded = 'Schedule Visit';
-                        notificationColor = 'success';
-                        break;
+                const verifyActionNeeded = () => {
+                    switch (tp.actionNeeded) {
+                        case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.SET_TP_NUMBER: {
+                            actionNeeded = 'Schedule Visit';
+                            notificationColor = 'success';
+                            break;
+                        }
+                        case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED: {
+                            actionNeeded = 'Review Visit';
+                            notificationColor = 'warning';
+                            break;
+                        }
+                        case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED: {
+                            actionNeeded = 'No action required';
+                            notificationColor = 'primary';
+                            break;
+                        }
+                        case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_WITHDRAWN: {
+                            actionNeeded = 'Contact TP';
+                            notificationColor = 'danger';
+                            break;
+                        }
                     }
-                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_VISIT_RESCHEDULED: {
-                        actionNeeded = 'Review Visit';
-                        notificationColor = 'warning';
-                        break;
-                    }
-                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.VISIT_CONFIRMED: {
-                        actionNeeded = 'No action required';
-                        notificationColor = 'primary';
-                        break;
-                    }
-                    case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_WITHDRAWN: {
-                        actionNeeded = 'Contact TP';
-                        notificationColor = 'danger';
-                        break;
-                    }
+                }
+
+                if(optionalConsentActions.length > 0 && optionalConsentActions[optionalConsentActions.length - 1].action.type !== 'tp' || optionalConsentActions.length === 0) {
+                    verifyActionNeeded();
                 }
 
                 return {
