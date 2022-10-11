@@ -140,9 +140,9 @@ export default class ProceduresViewController extends BreadCrumbManager {
                 await this.TrialParticipantRepository.updateAsync(this.tp.pk, trialSubject);
             }
 
+            this.updateTrialParticipant(this.tp.visits[index]);
             await this.checkProceduresStatus();
 
-            this.updateTrialParticipant(this.tp.visits[index]);
             this.navigateToPageTag('econsent-visits-procedures', {
                 trialUid: this.model.trialUid,
                 tpUid: this.model.tpUid,
@@ -173,23 +173,24 @@ export default class ProceduresViewController extends BreadCrumbManager {
                 }
             });
 
-            if (this.tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED) {
+            if (tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED) {
                 if (completedVisitsCounter === visits.length) {
-                    this.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED;
-                    this.HCOService.updateHCOSubEntity(this.tp, "tps", async (err) => {
+                    tp.status = Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED;
+                    this.HCOService.updateHCOSubEntity(tp, "tps", async (err) => {
                         if (err) {
                             return console.log(err);
                         }
-                        this.TrialParticipantRepository.filter(`did == ${this.tp.did}`, 'ascending', 30, (err, tps) => {
+
+                        this.TrialParticipantRepository.filter(`did == ${tp.did}`, 'ascending', 30, (err, tps) => {
                             if (tps && tps.length > 0) {
                                 tps[0].status = Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED;
                                 this.TrialParticipantRepository.update(tps[0].pk, tps[0], async (err) => {
                                     if (err) {
                                         return console.log(err);
                                     }
-                                    this.sendStatusToPatient(this.tp.did, Constants.MESSAGES.HCO.UPDATE_STATUS, this.tp.status, 'Update tp status');
+                                    this.sendStatusToPatient(tp.did, Constants.MESSAGES.HCO.UPDATE_STATUS, tp.status, 'Update tp status');
                                     await this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
-                                        ssi: this.tp.pk,
+                                        ssi: tp.pk,
                                         consentSSI: null
                                     }, 'Participant status changed');
                                 });
