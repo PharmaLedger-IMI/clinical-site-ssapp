@@ -71,22 +71,39 @@ h2.main-title {
     margin-bottom: 20px;
 }
 
+.stepper-element-wrapper {
+    display:flex;
+    width: 100%;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.stepper-element-wrapper .step-break-line {
+    order: 1;
+}
+
+.stepper-element-wrapper .flex-column {
+    order:2;
+}
+
 .step-element {
-    border: 3px solid #008798;
+    border: 3px solid var(--gray);
     display: inline-block;
-    background: #f7f7f7;
+    background: #C8C8C8;
     text-align: center;
     font-weight: bold;
-    padding: 0.5rem 0.75rem;
-    border-radius: 50px;
+    padding: 0.75rem 1rem;
+    border-radius: 50%;
     position: relative;
     color: black;
 }
 
 .status-name{
     position: absolute;
-    top: 50px;
-    right: -15px;
+    top: 60px;
+    right: 0;
+    left: 0;
+    white-space: nowrap;
     color: black;
 }
 
@@ -94,38 +111,67 @@ h2.main-title {
     font-weight: 600;
 }
 
-.step-element[data-active] {
-    background: #008798;
+.flex-column[data-active] .step-element,
+.flex-column[data-already-completed] .step-element {
+    background: var(--green);
+    border-color: var(--green);
 }
 
-.step-element[data-already-completed] {
-    background: #008798;
+.flex-column[data-already-completed][data-negative] .step-element {
+    background: var(--red);
+    border-color: var(--red);
 }
 
 .step-element .fa-icon {
     color: black;
 }
 
-.step-element[data-active]::after {
+.flex-column[data-active] .step-element::after {
     content: "\f063";
     font-family: 'FontAwesome';
-    color: #008798;
+    color: var(--green);
     position: absolute;
-    bottom: 40px;
-    left: 10px;
+    bottom: 50px;
+    right: 17px;
 }
 
-.step-element[data-negative] {
-    background: #ff5f5f;
+.flex-column[data-current-status] .step-element::after {
+    content: "\f063";
+    font-family: 'FontAwesome';
+    color: var(--red);
+    position: absolute;
+    bottom: 50px;
+    right: 17px;
+}
+
+.flex-column[data-current-status] .step-element{
+    background: var(--red);
+    border-color: var(--red);
 }
 
 .step-break-line {
     height: 3px;
-    background: #008798;
-    width: 50%;
+    background: #C8C8C8;
+    width: 100%;
 }
 
-.step-break-line:last-child {
+.stepper-element-wrapper:first-child .step-break-line {
     display: none;
     visibility: hidden;
+}
+
+.flex-column[data-active] ~ .step-break-line{
+    background: var(--green);
+}
+
+.flex-column[data-already-completed] ~ .step-break-line {
+    background: var(--green);
+}
+
+.flex-column[data-already-completed][data-negative] ~ .step-break-line {
+    background: var(--red);
+}
+
+.flex-column[data-current-status] ~ .step-break-line{
+    background: var(--red);
 }

@@ -7,20 +7,25 @@
             <h5 class="generic-title">{{@trialParticipant.name}} {{@trialParticipant.lastName}}</h5>
 
             <div class="stepper-container" data-for="@statuses">
-                <div class="flex-column position-relative">
-                    <div data-if="@alreadyCompleted">
-                        <div class="step-element" slot="true" data-active='@isActive' data-negative="@isNegativeStatus" data-already-completed="@alreadyCompleted">
-                            <i class="fa fa-check fa-icon" aria-hidden="true"></i>
+                <div class="stepper-element-wrapper">
+                    <div class="flex-column position-relative" data-active='@isActive' data-negative="@isNegativeStatus" data-already-completed="@alreadyCompleted" data-current-status="@isCurrentStatus">
+                        <div data-if="@alreadyCompleted">
+                            <div class="step-element" slot="true" >
+                                <i class="fa fa-check fa-icon" aria-hidden="true"></i>
+                            </div>
+                            <div class="step-element" slot="false">{{@index}}</div>
                         </div>
-                        <div class="step-element" slot="false" data-active='@isActive' data-negative="@isNegativeStatus" data-already-completed="@alreadyCompleted">{{@index}}</div>
+                        <div class="status-name d-flex justify-content-center"><p>{{@statusName}}</p></div>
                     </div>
-                    <div class="status-name d-flex justify-content-center"><p>{{@statusName}}</p></div>
+
+                    <div class="step-break-line"></div>
                 </div>
-                <div class="step-break-line"></div>
             </div>
 
             <div class="d-flex flex-row">
-                <label class="subtitle">{{@lastAction}}</label>
+                <div class="d-flex align-items-center">
+                    <label class="subtitle">{{@lastAction}}</label>
+                </div>
                 <div class="button-group-wrapper ml-auto">
                     <button data-tag="change-status-popup" disabled="@isBtnDisabled">Edit TS Status</button>
                 </div>

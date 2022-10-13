@@ -294,6 +294,16 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                             notificationColor = 'danger';
                             break;
                         }
+                        case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN: {
+                            actionNeeded = 'No action required';
+                            notificationColor = 'primary';
+                            break;
+                        }
+                        case Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE: {
+                            actionNeeded = 'No action required';
+                            notificationColor = 'primary';
+                            break;
+                        }
                     }
                 }
 
@@ -481,6 +491,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         tp.screenFailedDate ="N/A"
         tp.withdrewDate = "N/A";
         tp.trialId = this.model.trial.id;
+        tp.statusHistory = [Constants.TRIAL_PARTICIPANT_STATUS.PLANNED];
         tp.trialSReadSSI = await this.HCOService.getTrialSReadSSIAsync(this.model.trialUid);
         let trialParticipant = await this.TrialParticipantRepository.createAsync(tp);
         const anonymizedTp  = await this.HCOService.addTrialParticipantAsync(tp);

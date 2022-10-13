@@ -214,6 +214,8 @@ export default class EconsentSignController extends BreadCrumbManager {
 
         Object.assign(tpDSU, statusUpdateDetails);
         Object.assign(this.model.trialParticipant, statusUpdateDetails);
+        tpDSU['statusHistory'].push(statusUpdateDetails.status);
+        this.model.trialParticipant['statusHistory'].push(statusUpdateDetails.status);
 
 
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, response) => {

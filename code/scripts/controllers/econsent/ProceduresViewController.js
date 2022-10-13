@@ -125,6 +125,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
 
             if(this.tp.status === Constants.TRIAL_PARTICIPANT_STATUS.ENROLLED) {
                 this.tp.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
+                this.tp['statusHistory'].push(Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT);
                 this.sendStatusToPatient(this.tp.did, Constants.MESSAGES.HCO.UPDATE_STATUS, this.tp.status, 'Update tp status');
                 await this._sendMessageToSponsor(Constants.MESSAGES.SPONSOR.TP_CONSENT_UPDATE, {
                     ssi: this.tp.pk,
@@ -135,6 +136,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
                 if (tps.length > 0) {
                     trialSubject = tps[0];
                     trialSubject.status = Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT;
+                    trialSubject['statusHistory'].push(Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT);
                 }
 
                 await this.TrialParticipantRepository.updateAsync(this.tp.pk, trialSubject);
@@ -176,6 +178,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
             if (tp.status !== Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED) {
                 if (completedVisitsCounter === visits.length) {
                     tp.status = Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED;
+                    tp['statusHistory'].push(Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED);
                     this.HCOService.updateHCOSubEntity(tp, "tps", async (err) => {
                         if (err) {
                             return console.log(err);
@@ -184,6 +187,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
                         this.TrialParticipantRepository.filter(`did == ${tp.did}`, 'ascending', 30, (err, tps) => {
                             if (tps && tps.length > 0) {
                                 tps[0].status = Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED;
+                                tps[0]['statusHistory'].push(Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED);
                                 this.TrialParticipantRepository.update(tps[0].pk, tps[0], async (err) => {
                                     if (err) {
                                         return console.log(err);

@@ -531,6 +531,8 @@ export default class LandingPageController extends WebcController {
 
         Object.assign(tpDSU, statusUpdateDetails);
         Object.assign(tpRecord, statusUpdateDetails);
+        tpDSU['statusHistory'].push(statusUpdateDetails.status);
+        tpRecord['statusHistory'].push(statusUpdateDetails.status);
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err) => {
             if (err) {
                 return console.log(err);

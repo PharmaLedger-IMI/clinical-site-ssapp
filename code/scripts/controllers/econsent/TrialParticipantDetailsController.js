@@ -56,25 +56,30 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                 index: index+1,
                 isActive: false,
                 isNegativeStatus: false,
-                alreadyCompleted: false
+                alreadyCompleted: false,
+                isCurrentStatus: false
             }
         })
+
+        let tp = this.model.trialParticipant;
+        let statusHistory = tp.statusHistory;
+        let currentStatus = tp.statusHistory[tp.statusHistory.length - 1];
 
         let negativeStatuses = [Constants.PROGRESS_BAR_STATUSES.SCREEN_FAILED, Constants.PROGRESS_BAR_STATUSES.WITHDRAWN, Constants.PROGRESS_BAR_STATUSES.DISCONTINUED];
         statuses.forEach(status => {
             if(negativeStatuses.includes(status.statusName)) {
                 status.isNegativeStatus = true;
             }
+            if(statusHistory.includes(status.statusName)) {
+                status.alreadyCompleted = true;
+            }
         });
 
-        let index = statuses.findIndex(status => status.statusName === this.model.trialParticipant.status);
+        let index = statuses.findIndex(status => status.statusName === currentStatus);
         if( index > -1) {
-            statuses[index].isActive = true;
-            if(statuses[index].isNegativeStatus !== true) {
-                for(let i = 0; i< index; i++) {
-                    statuses[i].alreadyCompleted = true;
-                }
-            }
+            if(statuses[index].isNegativeStatus === true) {
+                statuses[index].isCurrentStatus = true;
+            } else statuses[index].isActive = true;
         }
 
         this.model.statuses = statuses;
@@ -245,6 +250,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                                 break;
                         }
                         Object.assign(tp, tpObjectToAssign);
+                        tp['statusHistory'].push(tpObjectToAssign.status);
                         this.HCOService.updateHCOSubEntity(tp, "tps", async (err, response) => {
                             if (err) {
                                 return console.log(err);
@@ -252,6 +258,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                             this.TrialParticipantRepository.filter(`did == ${tp.did}`, 'ascending', 30, (err, tps) => {
                                 if (tps && tps.length > 0) {
                                     Object.assign(tps[0], tpObjectToAssign);
+                                    tps[0]['statusHistory'].push(tpObjectToAssign.status);
                                     this.TrialParticipantRepository.update(tps[0].pk, tps[0], (err, trialParticipant) => {
                                         if (err) {
                                             return console.log(err);
