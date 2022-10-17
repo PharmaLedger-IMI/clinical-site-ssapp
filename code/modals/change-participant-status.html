@@ -6,7 +6,7 @@
   <div class="d-flex flex-column justify-content-between">
     <div style="margin: 10px">
       <select class="form-control" data-for="@statuses.selectOptions" required="required" value="@statuses.value">
-        <option value="@value">{{@label}}</option>
+        <option value="@value" disabled="@isDisabled">{{@label}}</option>
       </select>
       <div data-if="@statuses.invalidValue" class="d-flex flex-row">
         <i class="red-invalid fas fa-times mr-2"></i>

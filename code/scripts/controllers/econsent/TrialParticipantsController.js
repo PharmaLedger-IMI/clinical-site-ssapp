@@ -304,6 +304,11 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                             notificationColor = 'primary';
                             break;
                         }
+                        case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_DECLINED: {
+                            actionNeeded = Constants.TP_ACTIONNEEDED_NOTIFICATIONS.TP_DECLINED;
+                            notificationColor = 'danger';
+                            break;
+                        }
                     }
                 }
 

@@ -65,7 +65,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
         let tp = this.model.trialParticipant;
         let statusHistory = tp.statusHistory;
-        let currentStatus = tp.statusHistory[tp.statusHistory.length - 1];
+        this.currentStatus = tp.statusHistory[tp.statusHistory.length - 1];
 
         let negativeStatuses = [Constants.PROGRESS_BAR_STATUSES.SCREEN_FAILED, Constants.PROGRESS_BAR_STATUSES.WITHDRAWN, Constants.PROGRESS_BAR_STATUSES.DISCONTINUED];
         statuses.forEach(status => {
@@ -82,7 +82,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
         let precedentStatus = statusHistory[statusHistory.length - 2];
         let newPosition = statuses.findIndex(item => item.statusName === precedentStatus);
-        let index = statuses.findIndex(status => status.statusName === currentStatus);
+        let index = statuses.findIndex(status => status.statusName === this.currentStatus);
         if( index > -1) {
             if(statuses[index].isNegativeStatus === true) {
                 statuses[index].isCurrentStatus = true;
@@ -104,10 +104,10 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
 
             } else statuses[index].isActive = true;
         }
-        let completedStatusIndex = statuses.findIndex(status => status.statusName === Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED);
-        statuses.splice(completedStatusIndex+1);
-        if(negativeStatuses.includes(currentStatus)) {
-            let newCurrentStatusIndex = statuses.findIndex(status => status.statusName === currentStatus);
+        let endOfTreatmentStatusIndex = statuses.findIndex(status => status.statusName === Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT);
+        statuses.splice(endOfTreatmentStatusIndex+1);
+        if(negativeStatuses.includes(this.currentStatus)) {
+            let newCurrentStatusIndex = statuses.findIndex(status => status.statusName === this.currentStatus);
             for(let i = newCurrentStatusIndex+1; i < statuses.length; i++ ) {
                 statuses[i].isDisabled = true;
             }
@@ -320,7 +320,8 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                     controller: 'modals/ChangeParticipantStatusController',
                     disableExpanding: false,
                     disableBackdropClosing: true,
-                    title: 'Edit Participant Status'
+                    title: 'Edit Participant Status',
+                    currentStatus: this.currentStatus
                 });
         });
     }

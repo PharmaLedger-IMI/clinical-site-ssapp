@@ -47,11 +47,33 @@ export default class ChangeParticipantStatusController extends WebcController {
   constructor(...props) {
     super(...props);
 
+    if (props[0].currentStatus) {
+      let conditionalStatuses = [Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT, Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED];
+      let currentStatus = props[0].currentStatus;
+      this.statusOptions.forEach((status, i) => {
+        if (conditionalStatuses.includes(status.value) || status.value === currentStatus) {
+          this.statusOptions[i]['isDisabled'] = true;
+        } else this.statusOptions[i]['isDisabled'] = false;
+      })
+      switch (currentStatus) {
+        case Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED:
+          let endOfTreatmentIndex = this.statusOptions.findIndex(status => status.value === Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT);
+          this.statusOptions[endOfTreatmentIndex]['isDisabled'] = false;
+          break;
+        case Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT:
+          let completedIndex = this.statusOptions.findIndex(status => status.value === Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED);
+          this.statusOptions[completedIndex]['isDisabled'] = false;
+          break;
+      }
+    }
+
+    let firstAvailableStatus = this.statusOptions.find(status => status.isDisabled === false);
+
     this.model = {
       statuses: {
         ...this.statusesTemplate,
         selectOptions: this.statusOptions,
-        value: this.statusOptions[0].value,
+        value: firstAvailableStatus !== undefined ? firstAvailableStatus.value : '',
       }
     };
 
