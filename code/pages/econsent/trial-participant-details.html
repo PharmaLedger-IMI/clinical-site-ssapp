@@ -7,13 +7,20 @@
             <h5 class="generic-title">{{@trialParticipant.name}} {{@trialParticipant.lastName}}</h5>
 
             <div class="stepper-container" data-for="@statuses">
-                <div class="stepper-element-wrapper">
-                    <div class="flex-column position-relative" data-active='@isActive' data-negative="@isNegativeStatus" data-already-completed="@alreadyCompleted" data-current-status="@isCurrentStatus">
+                <div class="stepper-element-wrapper" data-invisible="@invisible" data-disabled='@isDisabled'>
+                    <div class="flex-column position-relative"  data-active='@isActive' data-negative="@isNegativeStatus" data-already-completed="@alreadyCompleted" data-current-status="@isCurrentStatus">
                         <div data-if="@alreadyCompleted">
                             <div class="step-element" slot="true" >
                                 <i class="fa fa-check fa-icon" aria-hidden="true"></i>
                             </div>
-                            <div class="step-element" slot="false">{{@index}}</div>
+                            <div class="step-element" slot="false" data-if="@isNegativeStatus">
+                                <div slot="true">
+                                    <i class="fa fa-times fa-icon" aria-hidden="true"></i>
+                                </div>
+                                <div slot="false" class="fa-icon">
+                                    {{@index}}
+                                </div>
+                            </div>
                         </div>
                         <div class="status-name d-flex justify-content-center"><p>{{@statusName}}</p></div>
                     </div>

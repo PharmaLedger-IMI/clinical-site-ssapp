@@ -57,7 +57,9 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                 isActive: false,
                 isNegativeStatus: false,
                 alreadyCompleted: false,
-                isCurrentStatus: false
+                isCurrentStatus: false,
+                invisible: false,
+                isDisabled: false,
             }
         })
 
@@ -69,17 +71,46 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         statuses.forEach(status => {
             if(negativeStatuses.includes(status.statusName)) {
                 status.isNegativeStatus = true;
+                status.invisible = true;
             }
             if(statusHistory.includes(status.statusName)) {
-                status.alreadyCompleted = true;
+                if(status.isNegativeStatus !== true) {
+                    status.alreadyCompleted = true;
+                }
             }
         });
 
+        let precedentStatus = statusHistory[statusHistory.length - 2];
+        let newPosition = statuses.findIndex(item => item.statusName === precedentStatus);
         let index = statuses.findIndex(status => status.statusName === currentStatus);
         if( index > -1) {
             if(statuses[index].isNegativeStatus === true) {
                 statuses[index].isCurrentStatus = true;
+                statuses[index].invisible = false;
+                switch(statuses[index].statusName) {
+                    case Constants.PROGRESS_BAR_STATUSES.SCREEN_FAILED:
+                        let screenFailedStatusPosition = statuses.findIndex(item => item.statusName === Constants.PROGRESS_BAR_STATUSES.SCREEN_FAILED);
+                        statuses.splice(newPosition+1, 0, statuses[screenFailedStatusPosition]);
+                        break;
+                    case Constants.PROGRESS_BAR_STATUSES.DISCONTINUED:
+                        let discontinuedStatusPosition = statuses.findIndex(item => item.statusName === Constants.PROGRESS_BAR_STATUSES.DISCONTINUED);
+                        statuses.splice(newPosition+1, 0, statuses[discontinuedStatusPosition]);
+                        break;
+                    case Constants.PROGRESS_BAR_STATUSES.WITHDRAWN:
+                        let withdrawnStatusPosition = statuses.findIndex(item => item.statusName === Constants.PROGRESS_BAR_STATUSES.WITHDRAWN);
+                        statuses.splice(newPosition+1, 0, statuses[withdrawnStatusPosition]);
+                        break;
+                }
+
             } else statuses[index].isActive = true;
+        }
+        let completedStatusIndex = statuses.findIndex(status => status.statusName === Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED);
+        statuses.splice(completedStatusIndex+1);
+        if(negativeStatuses.includes(currentStatus)) {
+            let newCurrentStatusIndex = statuses.findIndex(status => status.statusName === currentStatus);
+            for(let i = newCurrentStatusIndex+1; i < statuses.length; i++ ) {
+                statuses[i].isDisabled = true;
+            }
         }
 
         this.model.statuses = statuses;
@@ -87,6 +118,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
     }
 
     async _initServices() {
+        window.WebCardinal.loader.hidden = false;
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
@@ -96,6 +128,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
             Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT];
         this.model.isBtnDisabled = statuses.includes(this.model.trialParticipant.status);
         this.getDataForStatusesDiagram();
+        window.WebCardinal.loader.hidden = true;
     }
 
     _initHandlers() {

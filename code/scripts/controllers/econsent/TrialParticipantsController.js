@@ -294,12 +294,12 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                             notificationColor = 'danger';
                             break;
                         }
-                        case Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN: {
+                        case Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE: {
                             actionNeeded = 'No action required';
                             notificationColor = 'primary';
                             break;
                         }
-                        case Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE: {
+                        case Constants.TP_ACTIONNEEDED_NOTIFICATIONS.NO_ACTION_REQUIRED: {
                             actionNeeded = 'No action required';
                             notificationColor = 'primary';
                             break;

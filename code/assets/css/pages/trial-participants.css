@@ -123,7 +123,7 @@ h2.main-title {
 }
 
 .step-element .fa-icon {
-    color: black;
+    color: var(--white);
 }
 
 .flex-column[data-active] .step-element::after {
@@ -174,4 +174,12 @@ h2.main-title {
 
 .flex-column[data-current-status] ~ .step-break-line{
     background: var(--red);
+}
+
+.stepper-element-wrapper[data-invisible] {
+    display: none;
+}
+
+.stepper-element-wrapper[data-disabled] {
+    opacity: 0.4;
 }

@@ -140,7 +140,7 @@ export default class EconsentSignController extends BreadCrumbManager {
                 message.status = this.model.trialParticipant.status;
                 message.actionNeeded = this.model.trialParticipant.actionNeeded;
             } else {
-                message.status = this.model.ecoVersion > 1 ? Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED:Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED;
+                message.status = this.model.ecoVersion > 1 ? Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED : Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED;
                 message.actionNeeded = 'HCP DECLINED -no action required';
             }
 
