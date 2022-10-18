@@ -430,7 +430,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     name: visit.name,
                     consentSSI: visit.consentSSI,
                     date: visit.date,
-                    uid: visit.uuid,
+                    uuid: visit.uuid,
                     id: visit.id,
                     proposedDate: visit.proposedDate,
                     suggestedInterval: visit.suggestedInterval,

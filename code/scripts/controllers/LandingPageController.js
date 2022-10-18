@@ -676,7 +676,7 @@ export default class LandingPageController extends WebcController {
                     confirmedDate: visit.confirmedDate,
                     procedures: visit.procedures,
                     name: visit.name,
-                    uid: visit.uuid,
+                    uuid: visit.uuid,
                     id: visit.id,
                     proposedDate: visit.proposedDate,
                     suggestedInterval: visit.suggestedInterval,
@@ -691,7 +691,7 @@ export default class LandingPageController extends WebcController {
 
         this.hcoDSU = await this.HCOService.getOrCreateAsync();
         const tpDSU = this.hcoDSU.volatile.tps.find(tp => tp.did === message.useCaseSpecifics.tpDid);
-        let objIndex = tpDSU?.visits?.findIndex((visit => visit.uuid === message.useCaseSpecifics.visit.id));
+        let objIndex = tpDSU?.visits?.findIndex((visit => visit.uuid === message.useCaseSpecifics.visit.uuid));
 
         tpDSU.visits[objIndex].accepted = message.useCaseSpecifics.visit.accepted;
         tpDSU.visits[objIndex].declined = message.useCaseSpecifics.visit.declined;
