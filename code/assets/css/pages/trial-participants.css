@@ -69,6 +69,7 @@ h2.main-title {
     align-items: center;
     width: 100%;
     margin-bottom: 20px;
+    margin-left: -170px;
 }
 
 .stepper-element-wrapper {
@@ -173,7 +174,7 @@ h2.main-title {
 }
 
 .flex-column[data-current-status] ~ .step-break-line{
-    background: var(--red);
+    background: linear-gradient(90deg, rgba(40,167,69,1) 0%, rgba(249,0,0,1) 100%);
 }
 
 .stepper-element-wrapper[data-invisible] {

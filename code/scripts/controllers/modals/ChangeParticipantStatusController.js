@@ -6,10 +6,6 @@ const Constants = commonServices.Constants;
 export default class ChangeParticipantStatusController extends WebcController {
   statusOptions = [
     {
-      value: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
-      label: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
-    },
-    {
       value: Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT,
       label: Constants.TRIAL_PARTICIPANT_STATUS.IN_TREATMENT,
     },
@@ -18,20 +14,24 @@ export default class ChangeParticipantStatusController extends WebcController {
       label: Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED,
     },
     {
-      value: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
-      label: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
+      value: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.END_OF_TREATMENT,
     },
     {
       value: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
       label: Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED,
     },
     {
-      value: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
-      label: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
+      value: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED,
     },
     {
       value: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
       label: Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN,
+    },
+    {
+      value: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
+      label: Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
     },
   ];
 

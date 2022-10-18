@@ -6,6 +6,15 @@
             <breadcrumb-navigator></breadcrumb-navigator>
             <h5 class="generic-title">{{@trialParticipant.name}} {{@trialParticipant.lastName}}</h5>
 
+            <div class="d-flex flex-row">
+                <div class="d-flex align-items-center">
+                    <label class="subtitle">{{@lastAction}}</label>
+                </div>
+                <div class="button-group-wrapper ml-auto">
+                    <button data-tag="change-status-popup" disabled="@isBtnDisabled">Edit TS Status</button>
+                </div>
+            </div>
+
             <div class="stepper-container" data-for="@statuses">
                 <div class="stepper-element-wrapper" data-invisible="@invisible" data-disabled='@isDisabled'>
                     <div class="flex-column position-relative"  data-active='@isActive' data-negative="@isNegativeStatus" data-already-completed="@alreadyCompleted" data-current-status="@isCurrentStatus">
@@ -29,14 +38,6 @@
                 </div>
             </div>
 
-            <div class="d-flex flex-row">
-                <div class="d-flex align-items-center">
-                    <label class="subtitle">{{@lastAction}}</label>
-                </div>
-                <div class="button-group-wrapper ml-auto">
-                    <button data-tag="change-status-popup" disabled="@isBtnDisabled">Edit TS Status</button>
-                </div>
-            </div>
         </div>
 
         <main>
