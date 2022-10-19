@@ -129,7 +129,7 @@ export default class LandingPageController extends WebcController {
                     this.hcoDSU = await this.HCOService.getOrCreateAsync();
                     const patientDID = qs.questionResponses[0].patientDID;
                     const tp = this.hcoDSU.volatile.tps.find(tp => tp.did === patientDID);
-                    const trialUid = this.HCOService.getAnchorId(tp.trialSReadSSI);
+                    const trialUid = await this.HCOService.getAnchorIdAsync(tp.trialSReadSSI);
                     let patientName;
                     const tps = await this.TrialParticipantRepository.filterAsync(`did == ${patientDID}`, 'ascending', 30)
                     if (tps.length > 0) {
@@ -225,7 +225,7 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.NEW_HEALTHDATA: {
-                this._healthData(data);
+                await this.handleHealthData(data);
                 break;
             }
             case Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_RESPONSE: {
@@ -240,11 +240,11 @@ export default class LandingPageController extends WebcController {
                 await this._updateEconsentWithDetails(data);
                 break;
             }
-            case Constants.MESSAGES.PATIENT.SEND_TRIAL_CONSENT_DSU_TO_HCO: {
-                this.HCOService.mountTC(data.ssi, (err, data) => {
-                })
-                break;
-            }
+            // case Constants.MESSAGES.PATIENT.SEND_TRIAL_CONSENT_DSU_TO_HCO: {
+            //     this.HCOService.mountTC(data.ssi, (err, data) => {
+            //     })
+            //     break;
+            // }
 
         }
         await this._updateHcoDSU();
@@ -288,7 +288,7 @@ export default class LandingPageController extends WebcController {
     async sendRefreshConsentsToTrialParticipants(data) {
         //refresh hcoDSU
         this.hcoDSU = await this.HCOService.getOrCreateAsync();
-        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.uid) === data.ssi);
+        const site = await this.HCOService.findTrialSite(this.hcoDSU.volatile.site, data.ssi);
         let loader = window.WebCardinal.loader;
         loader.hidden = false;
         let promisesArr = [];
@@ -392,37 +392,35 @@ export default class LandingPageController extends WebcController {
         this.hcoDSU = await this.HCOService.getOrCreateAsync();
     }
 
-    async _healthData(data) {
+    async handleHealthData(data) {
         //health data update in existing dsu;
         if(typeof data.sReadSSI === "undefined"){
             console.log("Health data was updated");
             return;
         }
-        healthDataService.mountObservation(data.sReadSSI, (err, healthData) => {
-            if (err) {
-                console.log(err);
-            }
-
-            this.DeviceAssignationService.getAssignedDevices((err, devices) => {
+        return new Promise((resolve, reject) => {
+            healthDataService.mountObservation(data.sReadSSI, (err, healthData) => {
                 if (err) {
-                    return console.log(err);
+                    return reject(err);
                 }
-                let assignedDevice = devices.find(device => device.deviceId === data.deviceId);
 
-                assignedDevice.healthDataIdentifiers.push(healthData.uid);
-                this.DeviceAssignationService.updateAssignedDevice(assignedDevice, (err) => {
+                this.DeviceAssignationService.getAssignedDevices((err, devices) => {
                     if (err) {
-                        console.log(err);
+                         return reject(err)
                     }
-                })
+
+                    let assignedDevice = devices.find(device => device.deviceId === data.deviceId);
+                    assignedDevice.healthDataIdentifiers.push(healthData.uid);
+                    this.DeviceAssignationService.updateAssignedDevice(assignedDevice, (err) => {
+                        if (err) {
+                            return reject(err)
+                        }
+                        resolve();
+                    })
+                });
             });
-            if(healthData){
-                console.log("We have successfully retrived data");
-            }
-            else {
-                console.log("Your data is not available");
-            }
-        });
+        })
+
     }
 
     async _updateEconsentWithDetails(message) {
@@ -639,6 +637,7 @@ export default class LandingPageController extends WebcController {
                         visitToBeAdded.minus = minus[0]?.value;
 
                     item.procedures.forEach((procedure) => {
+                        //TODO how is this not breaking the code?? trialSSI seems not defined
                         const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.HCOService.getAnchorId(trialSSI));
                         procedure.consent.consentSSI = site.consents.find((consent => consent.name === procedure.consent.name)).keySSI;
                     });

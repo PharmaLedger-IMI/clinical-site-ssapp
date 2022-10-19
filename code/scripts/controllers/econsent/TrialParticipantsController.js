@@ -150,7 +150,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     async _initTrial(trialUid) {
         this.model.trial = this.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
         const sites = this.hcoDSU.volatile.site;
-        const site = sites.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
+        const site = await this.HCOService.findTrialSite(sites, trialUid);
         this.site = site;
         this.model.siteHasConsents = site.consents.length > 0;
 
@@ -428,9 +428,9 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         });
     }
 
-    extractConsentInfos(tpPk) {
+    async extractConsentInfos(tpPk) {
         let ifcs = this.hcoDSU.volatile.ifcs;
-        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
+        const site = await this.HCOService.findTrialSite(this.hcoDSU.volatile.site, this.model.trialUid);
         let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
         this.trialConsents = ifcs.filter(icf => {
             return siteConsentsKeySSis.indexOf(icf.genesisUid) > -1 && icf.tpUid === tpPk
@@ -442,10 +442,10 @@ export default class TrialParticipantsController extends BreadCrumbManager {
     }
 
     _attachHandlerVisits() {
-        this.onTagEvent('tp:visits', 'click', (model, target, event) => {
+        this.onTagEvent('tp:visits', 'click', async (model, target, event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.extractConsentInfos(model.pk);
+            await this.extractConsentInfos(model.pk);
             this.navigateToPageTag('econsent-visits-procedures', {
                 trialUid: this.model.trialUid,
                 tpUid: model.uid,
@@ -524,7 +524,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
         );
 
         await this.initializeData();
-        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
+        const site = await this.HCOService.findTrialSite(this.hcoDSU.volatile.site, this.model.trial.uid);
 
         //TODO use enums
         if (site.status.stage === "Created") {
@@ -555,7 +555,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
             const consentsKeySSIs = trialConsents.map((econsent, index)=> econsent.keySSI);
         
-            const sponsorPromise =  this._sendMessageToSponsor(
+            this._sendMessageToSponsor(
                 Constants.MESSAGES.SPONSOR.TP_ADDED,
                 {
                     ssi: anonymizedTp.sReadSSI,
@@ -565,7 +565,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
                 "A new trial participant was added"
             );
 
-            await Promise.all([...consentsPromises, sponsorPromise]);
+            await Promise.all([...consentsPromises]);
             window.WebCardinal.loader.hidden = true;
         });
     }
@@ -597,7 +597,7 @@ export default class TrialParticipantsController extends BreadCrumbManager {
 
 
     async sendMessageToPatient(operation, tp, trialSSI, shortMessage) {
-        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trial.uid)
+        const site = await this.HCOService.findTrialSite(this.hcoDSU.volatile.site, this.model.trial.uid);
         const siteSReadSSI = await this.HCOService.getSiteSReadSSIAsync();
         this.CommunicationService.sendMessage(tp.publicDid, {
             operation: operation,

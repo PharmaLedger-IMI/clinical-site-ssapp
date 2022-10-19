@@ -25,14 +25,14 @@ export default class ConsentPreviewController extends BreadCrumbManager {
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
-        this.HCOService.getOrCreateAsync().then((hcoDsu) => {
+        this.HCOService.getOrCreateAsync().then(async (hcoDsu) => {
             this.model.hcoDSU = hcoDsu;
-            this.initSiteConsentModel(this.model.trialUid, hcoDsu.volatile.site);
+            const site = await this.HCOService.findTrialSite(hcoDsu.volatile.site, this.model.trialUid);
+            this.initSiteConsentModel(site);
         });
     }
 
-    initSiteConsentModel(trialUid, siteList) {
-        const site = siteList.find(site=>this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid);
+    initSiteConsentModel(site) {
         let consent = site.consents.find(consent => consent.uid === this.model.consentUid);
         let version = consent.versions.find(version => version.version === this.model.versionId);
 

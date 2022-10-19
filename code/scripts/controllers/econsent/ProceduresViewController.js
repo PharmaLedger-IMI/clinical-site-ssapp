@@ -220,7 +220,7 @@ export default class ProceduresViewController extends BreadCrumbManager {
     }
 
     async _sendMessageToSponsor(operation, data, shortDescription) {
-        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid)
+        const site = await this.HCOService.findTrialSite(this.hcoDSU.volatile.site, this.model.trialUid);
         await this.CommunicationService.sendMessage(site.sponsorDid, {
             operation: operation,
             ...data,

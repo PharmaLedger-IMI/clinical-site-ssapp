@@ -27,11 +27,11 @@ export default class TrialConsentHistoryController extends BreadCrumbManager {
 
     initServices(trialUid) {
         this.HCOService = new HCOService();
-        this.HCOService.getOrCreateAsync().then((hcoDSU) => {
+        this.HCOService.getOrCreateAsync().then(async(hcoDSU) => {
             this.model.hcoDSU = hcoDSU;
             this.model.trial = this.model.hcoDSU.volatile.trial.find(trial => trial.uid === trialUid);
             const sites = this.model.toObject("hcoDSU.volatile.site");
-            const site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
+            const site = await this.HCOService.findTrialSite(sites, trialUid);
             this.model.site = site;
             const consents = this.model.site.consents;
             let dataSourceVersions = [];

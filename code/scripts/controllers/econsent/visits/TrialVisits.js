@@ -24,7 +24,8 @@ export default class TrialVisits extends BreadCrumbManager {
 
         const {trialId, trialUid, consentId, consentVersion} = this.model;
         const sites = this.model.toObject("hcoDSU.volatile.site");
-        const site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid);
+
+        const site = await this.HCOService.findTrialSite(sites, trialUid);
         const selectedVisit = site.visits.visits.find(v => v.trialId === trialId && v.consentId === consentId && v.consentVersion === consentVersion);
 
         this.createVisitsViewModel(selectedVisit.visits || []);

@@ -136,7 +136,7 @@ export default class HCOService extends DSUService {
 
     cloneIFCs = async (siteSSI, tpUid, callback) => {
         await this.storageService.beginBatchAsync();
-        const siteUID = this.getAnchorId(siteSSI);
+        const siteUID = await this.getAnchorIdAsync(siteSSI);
         if (this.ssi == null) {
             let err = this.PATH + ' was not initialized yet.';
             return this.cancelBatchOnError(err,callback);
@@ -310,6 +310,23 @@ export default class HCOService extends DSUService {
         return this.asyncMyFunction(this.getTrialSReadSSI, [...arguments]);
     }
 
+
+    async findTrialSite(sites, trialIdentifier) {
+
+        if(!sites || !trialIdentifier){
+            throw new Error(`sitesList && trialIdentifier are mandatory`);
+        }
+
+        let site;
+        for (let i = 0; i < sites.length; i++) {
+            site = sites[i];
+            const siteTrialUid = await this.getAnchorIdAsync(site.trialSReadSSI);
+            if (trialIdentifier === siteTrialUid) {
+                break;
+            }
+        }
+        return site;
+    }
 }
 
 

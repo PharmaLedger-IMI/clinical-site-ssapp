@@ -1,6 +1,4 @@
 import HCOService from "../../services/HCOService.js";
-import {uuidv4} from "../../utils/utils.js";
-
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const ConsentStatusMapper = commonServices.ConsentStatusMapper;
@@ -86,12 +84,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         }
 
         this.model.visits.forEach(visit => {
-            visit.procedures = visit.procedures.filter(procedure => procedure.checked).map((procedure, index) => {
-                return {
-                    ...procedure,
-                    id: uuidv4()
-                }
-            })
+            visit.procedures = visit.procedures.filter(procedure => procedure.checked);
         })
 
         console.log('this.model.visits', this.model.visits)
@@ -494,7 +487,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     async initSiteAndConsents() {
-        this.site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.state.trialUid);
+        this.site = await this.HCOService.findTrialSite(this.hcoDSU.volatile.site, this.state.trialUid);
         let ifcs = this.hcoDSU.volatile.ifcs;
         let siteConsentsKeySSis = this.site.consents.map(consent => consent.uid);
         this.trialConsents = ifcs.filter(icf => {

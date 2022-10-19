@@ -46,7 +46,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
         this.model.hcoDSU = await this.HCOService.getOrCreateAsync();
         await this._initConsents(this.model.trialUid);
         const sites = this.model.toObject("hcoDSU.volatile.site");
-        this.model.site = sites.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.model.trialUid);
+        this.model.site = await this.HCOService.findTrialSite(sites, this.model.trialUid);
         this.model.hasTpNumber = this.model.tp.number !== undefined;
         let statuses = [Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED, Constants.TRIAL_PARTICIPANT_STATUS.WITHDRAWN, Constants.TRIAL_PARTICIPANT_STATUS.UNAVAILABLE,
             Constants.TRIAL_PARTICIPANT_STATUS.COMPLETED];
@@ -66,7 +66,7 @@ export default class TrialParticipantController extends BreadCrumbManager {
     async _initConsents(trialUid) {
         await this._initTrialParticipant();
         let ifcs = this.model.hcoDSU.volatile.ifcs;
-        const site = this.model.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === trialUid)
+        const site = await this.HCOService.findTrialSite(this.model.hcoDSU.volatile.site, trialUid);
 
         let siteConsentsKeySSis = site.consents.map(consent => consent.uid);
         let trialConsents = ifcs.filter(icf => {
