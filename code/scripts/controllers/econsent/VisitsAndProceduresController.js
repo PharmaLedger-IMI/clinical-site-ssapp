@@ -137,7 +137,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             });
 
             this.model.visits.forEach(visit => {
-                let wantedVisit = visits.find(item => item.id === visit.id);
+                let wantedVisit = visits.find(item => item.uuid === visit.uuid);
                 if(wantedVisit !== undefined && wantedVisit.hasOwnProperty('status')) {
                     return visit.status = wantedVisit.status;
                 }
