@@ -247,6 +247,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         visit.proposedDate = visitTp.proposedDate;
                         visit.confirmedDate = visitTp.confirmedDate;
                         visit.isExtended = visitTp.isExtended;
+                        visit.hcoRescheduled = visitTp.hcoRescheduled;
 
                         visit.hasProposedDate = typeof visit.proposedDate !== "undefined";
                         if (visit.hasProposedDate) {
@@ -286,6 +287,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
     async updateTrialParticipantVisit(visit, operation) {
         window.WebCardinal.loader.hidden = false;
+        let hcoDSU = await this.HCOService.getOrCreateAsync();
+        this.tp  = hcoDSU.volatile.tps.find(tp => tp.uid === this.model.tpUid);
 
         if(!this.tp.visits){
             this.tp.visits = [];
@@ -293,7 +296,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
         this.model.visits.forEach(visit=>{
             if (!this.tp.visits.some(tpVisit => tpVisit.uuid === visit.uuid)) {
-                this.tp.visits.push(JSON.parse(JSON.stringify(visit)));
+                const { status, ...visitDetails } = JSON.parse(JSON.stringify(visit));
+                this.tp.visits.push(visitDetails);
             }
         })
 
@@ -328,6 +332,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.visitsDataSource.updateTable(currentConsentVisits);
             this.prepareDateForVisits(currentConsentVisits);
             await this.matchTpVisits(currentConsentVisits);
+            await this.prepareVisitsStatus(currentConsentVisits);
             this.sendMessageToPatient(visit, operation);
             window.WebCardinal.loader.hidden = true;
         })
