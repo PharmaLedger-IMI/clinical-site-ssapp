@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="./assets/css/pages/general_modal.css">
-<h2 slot="header" class="alert-title">Set Procedure Date</h2>
+<h2 slot="header" class="alert-title">Set Visit Date</h2>
 
 <div class="maxw">
     <div class="top">
@@ -14,8 +14,8 @@
             </div>
 
             <div class="form-group">
-                <label for="procedure-date">{{@procedureDate.label}}</label>
-                <input type="datetime-local" class="form-control" id="procedure-date" data-view-model="@procedureDate">
+                <label for="visit-date">{{@visitDate.label}}</label>
+                <input type="datetime-local" class="form-control" id="visit-date" data-view-model="@visitDate">
                 <div data-if="@haveSuggestedInterval" class="invalid-feedback">
                     <p>
                         {{@datesInformation}}

@@ -349,11 +349,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     attachHandlerSetDate() {
-        this.onTagClick("procedure:setDate", (model) => {
+        this.onTagClick("visit:setDate", (model) => {
             this.showModalFromTemplate(
-                "set-procedure-date",
+                "set-visit-date",
                 async (event) => {
-                    let date = new Date(event.detail.procedureDate);
+                    let date = new Date(event.detail.visitDate);
                     model.isExtended = event.detail.isExtended;
                     model.proposedDate = date.getTime();
                     this.model.proposedDate = date.getTime();
@@ -370,7 +370,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     const response = event.detail;
                 },
                 {
-                    controller: "modals/SetProcedureDateController",
+                    controller: "modals/SetVisitDateController",
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     suggestedInterval: model.suggestedInterval,
@@ -384,11 +384,11 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     attachHandlerEditDate() {
-        this.onTagClick("procedure:editDate", (model) => {
+        this.onTagClick("visit:editDate", (model) => {
             this.showModalFromTemplate(
-                "set-procedure-date",
+                "set-visit-date",
                 async (event) => {
-                    let date = new Date(event.detail.procedureDate);
+                    let date = new Date(event.detail.visitDate);
                     model.isExtended = event.detail.isExtended;
                     model.proposedDate = date.getTime();
                     model.confirmed = false;
@@ -406,7 +406,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                     const response = event.detail;
                 },
                 {
-                    controller: "modals/SetProcedureDateController",
+                    controller: "modals/SetVisitDateController",
                     disableExpanding: false,
                     disableBackdropClosing: true,
                     confirmedDate: model.confirmedDate,
