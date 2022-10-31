@@ -7,6 +7,9 @@ const Constants = commonServices.Constants;
 const PDFService = commonServices.PDFService;
 const BaseRepository = commonServices.BaseRepository;
 const BreadCrumbManager = commonServices.getBreadCrumbManager();
+const JWTService = commonServices.JWTService;
+const FileDownloaderService = commonServices.FileDownloaderService;
+const openDSU = require("opendsu");
 
 export default class EconsentSignController extends BreadCrumbManager {
     constructor(...props) {
@@ -29,10 +32,12 @@ export default class EconsentSignController extends BreadCrumbManager {
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.TrialParticipantRepository = BaseRepository.getInstance(BaseRepository.identities.HCO.TRIAL_PARTICIPANTS);
         this.HCOService = new HCOService();
+        this.JWTService = new JWTService();
+        this.fileDownloaderService = new FileDownloaderService(this.DSUStorage);
         this.hcoDSU = await this.HCOService.getOrCreateAsync();
         await this.initSite(this.model.trialUid);
         await this.initTrialParticipant();
-        this.initConsent();
+        await this.initConsent();
     }
 
     initHandlers() {
@@ -40,7 +45,8 @@ export default class EconsentSignController extends BreadCrumbManager {
         this.attachHandlerEconsentDecline();
     }
 
-    initConsent() {
+    async initConsent() {
+        this.hcoDSU = await this.HCOService.getOrCreateAsync();
         let econsent = this.hcoDSU.volatile.ifcs.find(ifc => ifc.uid === this.model.econsentUid && ifc.tpUid === this.model.trialParticipant.pk);
         if (econsent === undefined) {
             return console.log('Error while loading econsent.');
@@ -57,8 +63,24 @@ export default class EconsentSignController extends BreadCrumbManager {
             this.model.ecoVersion = currentVersion.version;
         }
 
+        let verifyCredentialStatus;
+        if(currentVersion.vcForIFC !== undefined) {
+            let verifyResult = await this.JWTService.verifyCredential(currentVersion.vcForIFC);
+            verifyCredentialStatus = verifyResult.verifyCredentialStatus;
+        }
+
         let econsentFilePath = this.getEconsentFilePath(econsent, currentVersion);
-        this.displayConsentFile(econsentFilePath, currentVersion.attachment);
+        const buffer = await this.fileDownloaderService.prepareDownloadFromDsu(econsentFilePath, currentVersion.attachment);
+        const crypto = openDSU.loadApi('crypto');
+        const checkSum = crypto.sha256(buffer);
+
+        if(verifyCredentialStatus === undefined || checkSum === verifyCredentialStatus.vc.credentialSubject.checkSum) {
+            this.model.tpSignatureIsVerified = true;
+            this.displayConsentFile(econsentFilePath, currentVersion.attachment);
+        } else {
+            this.model.tpSignatureIsVerified = false;
+        }
+        this.model.isLoading = false;
     }
 
     displayConsentFile(consentFilePath, version) {
@@ -244,6 +266,8 @@ export default class EconsentSignController extends BreadCrumbManager {
     getInitModel() {
         return {
             econsent: {},
+            tpSignatureIsVerified: false,
+            isLoading: true,
             controlsShouldBeVisible: true,
             ...this.getState(),
             documentWasNotRead: true,

@@ -6,17 +6,34 @@
             <h5 class="generic-title">Trial E-Consent</h5>
         </div>
 
-        <main id="pdf-wrapper">
-            <div id="canvas-wrapper">
-                <div id="canvas-parent">
+<!--        <main id="pdf-wrapper">-->
+<!--            <div id="canvas-wrapper">-->
+<!--                <div id="canvas-parent">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </main>-->
+
+        <main data-if="@isLoading">
+            <div slot="false" data-if="@tpSignatureIsVerified">
+                <div class="alert alert-danger d-flex justify-content-center" role="alert" slot="false">
+                    <p>
+                        Could not verify the authenticity of the signed inform consent!
+                    </p>
+                </div>
+                <div id="pdf-wrapper" slot="true">
+                    <div id="canvas-wrapper">
+                        <div id="canvas-parent">
+                        </div>
+                    </div>
+
+                    <div class="button-group-wrapper d-flex" data-if="@controlsShouldBeVisible">
+                        <button data-tag="econsent:sign" disabled="@documentWasNotRead">Sign</button>
+                        <button data-tag="econsent:decline" disabled="@documentWasNotRead">Decline</button>
+                    </div>
                 </div>
             </div>
+            <webc-spinner slot="true"></webc-spinner>
         </main>
-
-        <div class="button-group-wrapper d-flex" data-if="@controlsShouldBeVisible">
-            <button data-tag="econsent:sign" disabled="@documentWasNotRead">Sign</button>
-            <button data-tag="econsent:decline" disabled="@documentWasNotRead">Decline</button>
-        </div>
 
     </div>
 </webc-container>
