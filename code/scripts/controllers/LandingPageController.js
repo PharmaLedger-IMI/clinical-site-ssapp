@@ -192,11 +192,6 @@ export default class LandingPageController extends WebcController {
 
                 break;
             }
-            case Constants.MESSAGES.HCO.UPDATE_BASE_PROCEDURES: {
-                await this._saveNotification(data, 'New procedure was added ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
-                await this._saveVisit(data.ssi);
-                break;
-            }
             case Constants.MESSAGES.HCO.ADD_SITE: {
                 await this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 const mountSiteAndUpdateEntity = new Promise((resolve => {
@@ -605,64 +600,6 @@ export default class LandingPageController extends WebcController {
         }
 
         return await this.notificationService.insertNotification(notification);
-    }
-
-    async _saveVisit(message) {
-        this.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this.hcoDSU.volatile.visit.forEach(visit => {
-            // TODO: Refactor this structure in sponsor ssapp
-            if (visit.visits && visit.visits.visits) {
-                visit.visits.visits.forEach(item => {
-
-                    let visitToBeAdded = {
-                        name: item.name,
-                        procedures: item.procedures,
-                        uuid: item.uuid,
-                        visitWindow: item.visitWindow,
-                        trialSSI: message,
-                    };
-
-                    let weaksFrom = item.weeks?.filter(weak => weak.type === 'weekFrom' || weak.type === 'week');
-                    if (weaksFrom)
-                        visitToBeAdded.weakFrom = weaksFrom[0]?.value;
-                    let weaksTo = item.weeks?.filter(weak => weak.type === 'weekTo');
-                    if (weaksTo)
-                        visitToBeAdded.weakTo = weaksTo[0]?.value;
-
-                    let plus = item.visitWindow?.filter(weak => weak.type === 'windowFrom');
-                    if (plus)
-                        visitToBeAdded.plus = plus[0]?.value;
-                    let minus = item.visitWindow?.filter(weak => weak.type === 'windowTo');
-                    if (plus)
-                        visitToBeAdded.minus = minus[0]?.value;
-
-                    item.procedures.forEach((procedure) => {
-                        //TODO how is this not breaking the code?? trialSSI seems not defined
-                        const site = this.hcoDSU.volatile.site.find(site => this.HCOService.getAnchorId(site.trialSReadSSI) === this.HCOService.getAnchorId(trialSSI));
-                        procedure.consent.consentSSI = site.consents.find((consent => consent.name === procedure.consent.name)).keySSI;
-                    });
-
-                    this.VisitsAndProceduresRepository.findBy(visitToBeAdded.uuid, (err, existingVisit) => {
-                        if (err || !existingVisit) {
-
-                            this.VisitsAndProceduresRepository.create(visitToBeAdded.uuid, visitToBeAdded, (err, visitCreated) => {
-                                if (err) {
-                                    return console.error(err);
-                                }
-                            })
-                        } else if (existingVisit) {
-                            visitToBeAdded.procedures.push(existingVisit.procedures);
-
-                            this.VisitsAndProceduresRepository.update(visitToBeAdded.uuid, visitToBeAdded, (err, visitCreated) => {
-                                if (err) {
-                                    return console.error(err);
-                                }
-                            });
-                        }
-                    });
-                });
-            }
-        });
     }
 
     sendVisitToPatient(trialParticipantDid, visit, operation) {
