@@ -2,6 +2,7 @@ import TrialParticipantRepository from '../repositories/TrialParticipantReposito
 import HCOService from "../services/HCOService.js";
 import DeviceAssignationService from "../services/DeviceAssignationService.js";
 import {getNotificationsService} from "../services/NotificationsService.js";
+import {getHelperService} from "../services/HelperService.js";
 
 const {WebcController} = WebCardinal.controllers;
 const commonServices = require("common-services");
@@ -43,6 +44,7 @@ export default class LandingPageController extends WebcController {
         this.initServices();
 
         this.notificationService = getNotificationsService();
+        this.helperService = getHelperService();
         this.notificationService.onNotification(this.getNumberOfNotifications.bind(this));
         this.getNumberOfNotifications();
     }
@@ -225,6 +227,7 @@ export default class LandingPageController extends WebcController {
             }
             case Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_RESPONSE: {
                 await this._updateVisit(data);
+                this.helperService.notifySubscribers();
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_TRIAl_CONSENT: {
@@ -235,12 +238,6 @@ export default class LandingPageController extends WebcController {
                 await this._updateEconsentWithDetails(data);
                 break;
             }
-            // case Constants.MESSAGES.PATIENT.SEND_TRIAL_CONSENT_DSU_TO_HCO: {
-            //     this.HCOService.mountTC(data.ssi, (err, data) => {
-            //     })
-            //     break;
-            // }
-
         }
         await this._updateHcoDSU();
     }

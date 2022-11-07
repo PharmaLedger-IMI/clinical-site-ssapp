@@ -1,4 +1,5 @@
 import HCOService from "../../services/HCOService.js";
+import {getHelperService} from "../../services/HelperService.js";
 const commonServices = require("common-services");
 const CommunicationService = commonServices.CommunicationService;
 const ConsentStatusMapper = commonServices.ConsentStatusMapper;
@@ -14,6 +15,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
 
         this.model = this.getInitModel();
         this.state = this.getState();
+        this.helperService = getHelperService();
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
@@ -25,6 +27,23 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.dataSourceInitialized = this.model.visits.length ? true : false;
             this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'));
         });
+        this.helperService.subscribe(() => {
+            let boundedInitServices = this.initServices.bind(this);
+            boundedInitServices().then(async () => {
+                window.WebCardinal.loader.hidden = false;
+                let visits = this.model.visits;
+                this.model.visitsDataSource.updateTable(visits);
+                this.prepareDateForVisits(visits);
+                await this.matchTpVisits(visits);
+                await this.prepareVisitsStatus(visits);
+                window.WebCardinal.loader.hidden = true;
+            }
+        )});
+
+    }
+
+    onDisconnectedCallback(){
+        this.helperService.unsubscribe();
     }
 
     initHandlers() {
@@ -382,6 +401,8 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     async updateTrialParticipantRepository(pk, tp) {
         await this.TrialParticipantRepository.updateAsync(pk, tp);
     }
+
+    randomFc
 
     attachHandlerEditDate() {
         this.onTagClick("visit:editDate", (model) => {
