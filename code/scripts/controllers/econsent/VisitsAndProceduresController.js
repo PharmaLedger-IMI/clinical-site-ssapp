@@ -39,7 +39,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                 window.WebCardinal.loader.hidden = true;
             }
         )});
-
+        this.initHandlers();
     }
 
     onDisconnectedCallback(){
@@ -60,7 +60,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         this.CommunicationService = CommunicationService.getCommunicationServiceInstance();
         this.HCOService = new HCOService();
         this.hcoDSU = await this.HCOService.getOrCreateAsync();
-        this.initHandlers();
         await this.initSiteAndConsents();
         await this.initVisits();
     }
