@@ -403,8 +403,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
         await this.TrialParticipantRepository.updateAsync(pk, tp);
     }
 
-    randomFc
-
     attachHandlerEditDate() {
         this.onTagClick("visit:editDate", (model) => {
             this.showModalFromTemplate(
