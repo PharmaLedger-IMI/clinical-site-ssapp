@@ -422,9 +422,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
                         type: 'success'
                     }
                 },
-                (event) => {
-                    const response = event.detail;
-                },
+                () => {},
                 {
                     controller: "modals/SetVisitDateController",
                     disableExpanding: false,
