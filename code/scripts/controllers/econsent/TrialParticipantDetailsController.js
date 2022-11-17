@@ -67,7 +67,7 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
         let statusHistory = tp.statusHistory;
         this.currentStatus = tp.statusHistory[tp.statusHistory.length - 1];
 
-        let negativeStatuses = [Constants.PROGRESS_BAR_STATUSES.SCREEN_FAILED, Constants.PROGRESS_BAR_STATUSES.WITHDRAWN, Constants.PROGRESS_BAR_STATUSES.DISCONTINUED];
+        let negativeStatuses = [Constants.PROGRESS_BAR_STATUSES.UNAVAILABLE,Constants.PROGRESS_BAR_STATUSES.SCREEN_FAILED, Constants.PROGRESS_BAR_STATUSES.WITHDRAWN, Constants.PROGRESS_BAR_STATUSES.DISCONTINUED];
         statuses.forEach(status => {
             if(negativeStatuses.includes(status.statusName)) {
                 status.isNegativeStatus = true;
@@ -87,19 +87,9 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
             if(statuses[index].isNegativeStatus === true) {
                 statuses[index].isCurrentStatus = true;
                 statuses[index].invisible = false;
-                switch(statuses[index].statusName) {
-                    case Constants.PROGRESS_BAR_STATUSES.SCREEN_FAILED:
-                        let screenFailedStatusPosition = statuses.findIndex(item => item.statusName === Constants.PROGRESS_BAR_STATUSES.SCREEN_FAILED);
-                        statuses.splice(newPosition+1, 0, statuses[screenFailedStatusPosition]);
-                        break;
-                    case Constants.PROGRESS_BAR_STATUSES.DISCONTINUED:
-                        let discontinuedStatusPosition = statuses.findIndex(item => item.statusName === Constants.PROGRESS_BAR_STATUSES.DISCONTINUED);
-                        statuses.splice(newPosition+1, 0, statuses[discontinuedStatusPosition]);
-                        break;
-                    case Constants.PROGRESS_BAR_STATUSES.WITHDRAWN:
-                        let withdrawnStatusPosition = statuses.findIndex(item => item.statusName === Constants.PROGRESS_BAR_STATUSES.WITHDRAWN);
-                        statuses.splice(newPosition+1, 0, statuses[withdrawnStatusPosition]);
-                        break;
+
+                if(negativeStatuses.includes(statuses[index].statusName)){
+                    statuses.splice(newPosition+1, 0, statuses[index]);
                 }
 
             } else statuses[index].isActive = true;
@@ -310,12 +300,9 @@ export default class TrialParticipantDetailsController extends BreadCrumbManager
                         });
 
                         await this._initServices();
-                        // this._saveNotification(message, 'Trial participant ' + message.useCaseSpecifics.tpDid + ' signed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
                     }
                 },
-                (event) => {
-                    const response = event.detail;
-                },
+                () => {},
                 {
                     controller: 'modals/ChangeParticipantStatusController',
                     disableExpanding: false,
