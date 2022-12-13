@@ -160,42 +160,72 @@ export default class LandingPageController extends WebcController {
         if (typeof senderIdentity === "undefined") {
             throw new Error("Sender identity is undefined. Did you forgot to add it?")
         }
-
         switch (data.operation) {
 
             case Constants.MESSAGES.PATIENT.TP_CONTACT_DATA: {
-                await this._saveNotification(data, data.shortDescription, 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this._saveNotification(data, data.shortDescription, '', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 await this.updateTpContactData(data);
                 break;
             }
 
             case Constants.MESSAGES.PATIENT.TP_IS_UNAVAILABLE:{
-                await this._saveNotification(data, 'TP is unavailable', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this._saveNotification(data, 'TP is unavailable', '', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 await this.markTpAsUnavailable(data);
                 break;
             }
 
             case Constants.MESSAGES.HCO.ADD_CONSENT_VERSION: {
-                await this._saveNotification(data, 'New econsent version was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                const site = await this.HCOService.findTrialSite(this.hcoDSU.volatile.site, data.ssi);
+                const consents = site.consents;
+                const consent = consents.find(x => x.uid === data.econsentUid);
+                if (consent) {
+                    const action = {
+                        url: 'econsent-trial-consent-history',
+                        data: {
+                            breadcrumb: this.model.toObject('breadcrumb'),
+                            trialUid: data.trialUid,
+                            consentUid: data.econsentUid,
+                            siteUid: data.ssi,
+                            trialConsentId: consent.trialConsentId
+                        }
+                    }
+                    await this._saveNotification(data, 'New econsent version was added', 'view consent version', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES, action);
+                }
                 this.HCOService.refreshSite(async ()=> {
                     await this.sendRefreshConsentsToTrialParticipants(data);
                 });
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_CONSENT: {
-                await this._saveNotification(data, 'New econsent  was added', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                const action = {
+                    url: 'econsent-trial-consents',
+                    data: {
+                        breadcrumb: this.model.toObject('breadcrumb'),
+                        trialUid: data.trialUid,
+                        consentUid: data.econsentUid,
+                        siteUid: data.ssi
+                    }
+                }
                 this.HCOService.refreshSite(async ()=>{
                     await this.sendRefreshConsentsToTrialParticipants(data);
                 })
+                await this._saveNotification(data, 'New econsent  was added', 'view consent', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES, action);
                 break;
             }
             case Constants.MESSAGES.HCO.SITE_STATUS_CHANGED: {
-                await this._saveNotification(data, 'The status of site was changed', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                await this._saveNotification(data, 'The status of site was changed', '', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
 
                 break;
             }
             case Constants.MESSAGES.HCO.ADD_SITE: {
-                await this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
+                 const action = {
+                    url: 'econsent-trial-management',
+                    data: {
+                        breadcrumb: this.model.toObject('breadcrumb'),
+                    }
+                }
+            
+                await this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES, action);
                 const mountSiteAndUpdateEntity = new Promise((resolve => {
                     this.HCOService.mountSite(data.ssi, (err, site) => {
                         if (err) {
@@ -222,16 +252,13 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.NEW_HEALTHDATA: {
+                // TODO:  generate notification, trial updates, I CANNOT TEST THIS AND CANNOT FIND WHERE THE MESSAGE IS SEND FROM
                 await this.handleHealthData(data);
                 break;
             }
             case Constants.MESSAGES.HCO.COMMUNICATION.TYPE.VISIT_RESPONSE: {
                 await this._updateVisit(data);
                 this.subscriberService.notifySubscribers("visits-update");
-                break;
-            }
-            case Constants.MESSAGES.HCO.ADD_TRIAl_CONSENT: {
-                await this._saveNotification(data, 'New consent was added to trial  ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES);
                 break;
             }
             case Constants.MESSAGES.HCO.UPDATE_ECONSENT: {
@@ -452,7 +479,19 @@ export default class LandingPageController extends WebcController {
                     status = Constants.TRIAL_PARTICIPANT_STATUS.TP_WITHDRAWN;
                 }
 
-                await this._saveNotification(message,`Trial participant ${message.useCaseSpecifics.tpDid} withdraw from ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
+                const action = {
+                    url: 'econsent-trial-participant',
+                    data: {
+                        breadcrumb: this.model.toObject('breadcrumb'),
+                        trialUid: message.useCaseSpecifics.trialSSI,
+                        tpUid: tpDSU.uid,
+                        tpDid: message.useCaseSpecifics.tpDid,
+                        tpPk: tpRecord.pk,
+                        econsentUid: econsent.uid
+                    }
+                }
+
+                await this._saveNotification(message,`Trial participant ${message.useCaseSpecifics.tpDid} withdraw from ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view participant', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS, action);
                 statusUpdateDetails = {
                     actionNeeded,
                     status,
@@ -464,10 +503,21 @@ export default class LandingPageController extends WebcController {
                 if(econsent.type === "Mandatory") {
                     actionNeeded = 'TP Declined';
                     status = currentVersionIndex > 0? Constants.TRIAL_PARTICIPANT_STATUS.DISCONTINUED : Constants.TRIAL_PARTICIPANT_STATUS.SCREEN_FAILED;
-
                 }
 
-                await this._saveNotification(message,`Trial participant ${message.useCaseSpecifics.tpDid} declined ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view trial participants', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS);
+                const action = {
+                    url: 'econsent-trial-participant',
+                    data: {
+                        breadcrumb: this.model.toObject('breadcrumb'),
+                        trialUid: message.useCaseSpecifics.trialSSI,
+                        tpUid: tpDSU.uid,
+                        tpDid: message.useCaseSpecifics.tpDid,
+                        tpPk: tpRecord.pk,
+                        econsentUid: econsent.uid
+                    }
+                }
+
+                await this._saveNotification(message,`Trial participant ${message.useCaseSpecifics.tpDid} declined ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view participant', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS, action);
                 statusUpdateDetails = {
                     actionNeeded,
                     status,
@@ -483,7 +533,19 @@ export default class LandingPageController extends WebcController {
                     }
                 }
 
-                await this._saveNotification(message, `Trial participant ${message.useCaseSpecifics.tpDid} signed ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES);
+                const action = {
+                    url: 'econsent-trial-participant',
+                    data: {
+                        breadcrumb: this.model.toObject('breadcrumb'),
+                        trialUid: message.useCaseSpecifics.trialSSI,
+                        tpUid: tpDSU.uid,
+                        tpDid: message.useCaseSpecifics.tpDid,
+                        tpPk: tpRecord.pk,
+                        econsentUid: econsent.uid
+                    }
+                }
+
+                await this._saveNotification(message, `Trial participant ${message.useCaseSpecifics.tpDid} signed ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view participant', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES, action);
 
                 statusUpdateDetails = {
                     actionNeeded,
@@ -579,7 +641,7 @@ export default class LandingPageController extends WebcController {
         });
     }
 
-    async _saveNotification(message, name, recommendedAction, notificationInfo) {
+    async _saveNotification(message, name, recommendedAction, notificationInfo, action = null) {
 
         console.log('notification message:', message)
 
@@ -593,7 +655,8 @@ export default class LandingPageController extends WebcController {
             name: name,
             type: notificationInfo.notificationTitle,
             tagPage: notificationInfo.tagPage,
-            state: notificationInfo.state
+            state: notificationInfo.state,
+            action: action
         }
 
         return await this.notificationService.insertNotification(notification);
@@ -650,11 +713,25 @@ export default class LandingPageController extends WebcController {
             tpDSU.visits[objIndex].confirmed = false;
         }
 
+        const trial = this.hcoDSU.volatile.trial.find(trial => tpDSU.trialId === trial.id);
+
+        const action = {
+            url: 'econsent-visits-procedures',
+            data: {
+                breadcrumb: this.model.toObject('breadcrumb'),
+                trialUid: trial.uid,
+                tpUid: tpDSU.uid,
+                trialId: tpDSU.trialId,
+                pk: tpDSU.pk,
+            }
+        }
+
         this.HCOService.updateHCOSubEntity(tpDSU, "tps", async (err, data) => {
             this.hcoDSU = await this.HCOService.getOrCreateAsync();
             let notification = message;
             notification.tpUid = data.uid;
-            await this._saveNotification(notification, message.shortDescription, 'view visits', Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS);
+
+            await this._saveNotification(notification, message.shortDescription, 'view visits', Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS, action);
         });
 
     }

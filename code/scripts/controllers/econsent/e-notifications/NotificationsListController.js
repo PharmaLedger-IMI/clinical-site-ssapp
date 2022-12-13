@@ -55,7 +55,17 @@ export default class NotificationsListController extends BreadCrumbManager {
 
     attachActionsHandlers() {
         this.onTagClick('navigation:goToAction', async (model) => {
-            await this.markNotificationHandler(model);
+            if (!model.read) {
+                await this.markNotificationHandler(model);
+            }
+
+            if (model.action) {
+                this.navigateToPageTag(model.action.url, {
+                    ...model.action.data,
+                    breadcrumb: this.model.toObject('breadcrumb'),
+                });
+                return;
+            }
 
             if (model.recommendedAction === 'view trial') {
                 this.navigateToPageTag('econsent-trial-participants', {
