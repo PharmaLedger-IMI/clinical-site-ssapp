@@ -10,14 +10,9 @@
 
 
             <div class="form-group">
-                <label for="patientDID">{{@did.label}}</label>
+                <label>{{@did.label}}</label>
                 <div class="input-group" is-invalid="@didDoesNotExist">
-                    <input id="patientDID" class="form-control" value="@did.value" placeholder="@did.placeholder"/>
-                    <div class="input-group-append">
-                        <button class="btn btn-outline-secondary share-did-btn" type="button">
-                            <i class="fa fa-qrcode"></i>
-                        </button>
-                    </div>
+                    <did-input id="patientDID" class="form-control" data-view-model="@did"></did-input>
                 </div>
                 <div data-if="@didDoesNotExist">
                     <div class="invalid-feedback d-block">
@@ -29,7 +24,7 @@
             </div>
 
             <div class="form-group">
-                <label for="patientDID">{{@anonymizedDID.label}}</label>
+                <label for="anonymizedDID">{{@anonymizedDID.label}}</label>
                 <div class="input-group">
                     <input id="anonymizedDID" readonly class="form-control" value="@anonymizedDID.value" placeholder="@anonymizedDID.placeholder"/>
                     <div class="input-group-append">
