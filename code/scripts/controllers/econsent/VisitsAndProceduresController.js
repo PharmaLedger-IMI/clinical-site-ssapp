@@ -27,13 +27,13 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             this.model.dataSourceInitialized = this.model.visits.length ? true : false;
             this.model.visitsDataSource = DataSourceFactory.createDataSource(5, 10, this.model.toObject('visits'));
         });
-        this.subscriberService.subscribe("visits-update",this.onVisitsUpdate);
+        this.boundedOnVisitsUpdate = this.onVisitsUpdate.bind(this);
+        this.subscriberService.subscribe("visits-update",this.boundedOnVisitsUpdate);
         this.initHandlers();
     }
 
     onVisitsUpdate(){
-        let boundedInitServices = this.initServices.bind(this);
-        boundedInitServices().then(async () => {
+        this.initServices().then(async () => {
             window.WebCardinal.loader.hidden = false;
             let visits = this.model.visits;
             this.model.visitsDataSource.updateTable(visits);
@@ -45,7 +45,7 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
     }
 
     onDisconnectedCallback(){
-        this.subscriberService.unsubscribe("visits-update",this.onVisitsUpdate);
+        this.subscriberService.unsubscribe("visits-update",this.boundedOnVisitsUpdate);
     }
 
     initHandlers() {

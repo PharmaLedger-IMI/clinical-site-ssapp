@@ -1,10 +1,8 @@
 const commonServices = require('common-services');
-const DSUService = commonServices.DSUService;
 
-class SubscriberService  extends DSUService {
+class SubscriberService{
 
     constructor() {
-        super();
         this.subscribers = {};
     }
 
