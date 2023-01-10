@@ -16,7 +16,7 @@ export default class NotificationsListController extends BreadCrumbManager {
 
         this.model.breadcrumb = this.setBreadCrumb(
             {
-                label: "Notifications list",
+                label: this.notificationType,
                 tag: "econsent-notifications-list"
             }
         );

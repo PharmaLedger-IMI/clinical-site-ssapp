@@ -189,7 +189,7 @@ export default class LandingPageController extends WebcController {
                             trialConsentId: consent.trialConsentId
                         }
                     }
-                    await this._saveNotification(data, 'New econsent version was added', 'view consent version', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES, action);
+                    await this._saveNotification(data, 'New econsent version was added', 'View consent version', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES, action);
                 }
                 this.HCOService.refreshSite(async ()=> {
                     await this.sendRefreshConsentsToTrialParticipants(data);
@@ -209,7 +209,7 @@ export default class LandingPageController extends WebcController {
                 this.HCOService.refreshSite(async ()=>{
                     await this.sendRefreshConsentsToTrialParticipants(data);
                 })
-                await this._saveNotification(data, 'New econsent  was added', 'view consent', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES, action);
+                await this._saveNotification(data, 'New econsent was added', 'View consent', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES, action);
                 break;
             }
             case Constants.MESSAGES.HCO.SITE_STATUS_CHANGED: {
@@ -225,7 +225,7 @@ export default class LandingPageController extends WebcController {
                     }
                 }
             
-                await this._saveNotification(data, 'Your site was added to the trial ', 'view trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES, action);
+                await this._saveNotification(data, 'Your site was added to the trial ', 'View trial', Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES, action);
                 const mountSiteAndUpdateEntity = new Promise((resolve => {
                     this.HCOService.mountSite(data.ssi, (err, site) => {
                         if (err) {
@@ -252,7 +252,6 @@ export default class LandingPageController extends WebcController {
                 break;
             }
             case Constants.MESSAGES.HCO.NEW_HEALTHDATA: {
-                // TODO:  generate notification, trial updates, I CANNOT TEST THIS AND CANNOT FIND WHERE THE MESSAGE IS SEND FROM
                 await this.handleHealthData(data);
                 break;
             }
@@ -412,6 +411,18 @@ export default class LandingPageController extends WebcController {
     }
 
     async handleHealthData(data) {
+        const action = {
+            url: 'econsent-trial-participant-health-data',
+            data: {
+                breadcrumb: this.model.toObject('breadcrumb'),
+                deviceId: data.deviceId,
+                trialParticipantNumber:data.trialParticipantNumber
+            }
+        }
+
+        const notificationTitle = typeof data.sReadSSI === "undefined" ? "Updated Health Data" : "New Health Data";
+        await this._saveNotification(data,`${notificationTitle} from device "${data.deviceId}" for patient number "${data.trialParticipantNumber}"`, 'View Health Data', Constants.HCO_NOTIFICATIONS_TYPE.PATIENT_HEALTH_DATA, action);
+
         //health data update in existing dsu;
         if(typeof data.sReadSSI === "undefined"){
             console.log("Health data was updated");
@@ -491,7 +502,13 @@ export default class LandingPageController extends WebcController {
                     }
                 }
 
-                await this._saveNotification(message,`Trial participant ${message.useCaseSpecifics.tpDid} withdraw from ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view participant', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS, action);
+                let patientName;
+                const tps = await this.TrialParticipantRepository.filterAsync(`did == ${message.useCaseSpecifics.tpDid}`, 'ascending', 30)
+                if (tps.length > 0) {
+                    patientName = tps[0].name;
+                }
+
+                await this._saveNotification(message,`Trial participant ${patientName} withdraw from ${econsent.name} (${econsent.type.toLowerCase()}) consent.`, 'View participant', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS, action);
                 statusUpdateDetails = {
                     actionNeeded,
                     status,
@@ -517,7 +534,13 @@ export default class LandingPageController extends WebcController {
                     }
                 }
 
-                await this._saveNotification(message,`Trial participant ${message.useCaseSpecifics.tpDid} declined ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view participant', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS, action);
+                let patientName;
+                const tps = await this.TrialParticipantRepository.filterAsync(`did == ${message.useCaseSpecifics.tpDid}`, 'ascending', 30)
+                if (tps.length > 0) {
+                    patientName = tps[0].name;
+                }
+
+                await this._saveNotification(message,`Trial participant ${patientName} declined ${econsent.name} (${econsent.type.toLowerCase()}) consent.`, 'View participant', Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS, action);
                 statusUpdateDetails = {
                     actionNeeded,
                     status,
@@ -545,7 +568,12 @@ export default class LandingPageController extends WebcController {
                     }
                 }
 
-                await this._saveNotification(message, `Trial participant ${message.useCaseSpecifics.tpDid} signed ${econsent.trialConsentName} (${econsent.type.toLowerCase()})consent.`, 'view participant', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES, action);
+                let patientName;
+                const tps = await this.TrialParticipantRepository.filterAsync(`did == ${message.useCaseSpecifics.tpDid}`, 'ascending', 30)
+                if (tps.length > 0) {
+                    patientName = tps[0].name;
+                }
+                await this._saveNotification(message, `Trial participant ${patientName} signed ${econsent.name} (${econsent.type.toLowerCase()}) consent.`, 'View participant', Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES, action);
 
                 statusUpdateDetails = {
                     actionNeeded,
@@ -731,7 +759,7 @@ export default class LandingPageController extends WebcController {
             let notification = message;
             notification.tpUid = data.uid;
 
-            await this._saveNotification(notification, message.shortDescription, 'view visits', Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS, action);
+            await this._saveNotification(notification, `${message.shortDescription} ${tpDSU.subjectName} <${tpDSU.number}>`, 'View visits', Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS, action);
         });
 
     }

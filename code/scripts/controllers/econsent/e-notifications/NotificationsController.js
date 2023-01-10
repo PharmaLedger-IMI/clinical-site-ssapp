@@ -36,45 +36,25 @@ export default class NotificationsController extends BreadCrumbManager {
                 return console.log(err);
             }
 
-            this.model.notifications = data;
+            let notifications = data;
 
-            let trialUpdates = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_UPDATES.notificationTitle);
-            this.model.unreadTrialUpdates = trialUpdates.filter((x) => !x.read).length > 0 ? trialUpdates.filter((x) => !x.read).length : null;
+            let notificationsMap = {};
+            Object.keys(Constants.HCO_NOTIFICATIONS_TYPE).forEach(notificationType => {
+                notificationsMap[Constants.HCO_NOTIFICATIONS_TYPE[notificationType].notificationTitle] = [];
+            })
 
-            let withdraws = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.WITHDRAWS.notificationTitle);
-            this.model.unreadWithdraws = withdraws.filter((x) => !x.read).length > 0 ? withdraws.filter((x) => !x.read).length : null;
-
-            let consentUpdates = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.CONSENT_UPDATES.notificationTitle);
-            this.model.unreadConsentUpdates = consentUpdates.filter((x) => !x.read).length > 0 ? consentUpdates.filter((x) => !x.read).length : null;
-
-            let milestones = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.MILESTONES_REMINDERS.notificationTitle);
-            this.model.unreadMilestones = milestones.filter((x) => !x.read).length > 0 ? milestones.filter((x) => !x.read).length : null;
-
-            let questions = this.model.notifications.filter(not => not.type === Constants.HCO_NOTIFICATIONS_TYPE.TRIAL_SUBJECT_QUESTIONNAIRE_RESPONSES.notificationTitle);
-            this.model.unreadQuestionnaireResponses = questions.filter((x) => !x.read).length > 0 ? questions.filter((x) => !x.read).length : null;
-
-            this.model.notificationsArr = [
-                {
-                    notificationType: 'Trial Updates',
-                    unreadNotifications: this.model.toObject('unreadTrialUpdates')
-                },
-                {
-                    notificationType: 'Withdraws',
-                    unreadNotifications: this.model.toObject('unreadWithdraws')
-                },
-                {
-                    notificationType: 'Consent Updates',
-                    unreadNotifications: this.model.toObject('unreadConsentUpdates')
-                },
-                {
-                    notificationType: 'Milestones Reminders',
-                    unreadNotifications: this.model.toObject('unreadMilestones')
-                },
-                {
-                    notificationType: 'Patient questionnaire response',
-                    unreadNotifications: this.model.toObject('unreadQuestionnaireResponses')
+            notifications.forEach((notification)=>{
+                if(notificationsMap[notification.type]){
+                    notificationsMap[notification.type].push(notification);
                 }
-            ]
+            })
+
+            this.model.notifications = Object.keys(notificationsMap).map(key=>{
+                return {
+                    notificationType:key,
+                    unreadNotifications:notificationsMap[key].filter((x) => !x.read).length > 0 ? notificationsMap[key].filter((x) => !x.read).length : null
+                }
+            })
         });
     }
 

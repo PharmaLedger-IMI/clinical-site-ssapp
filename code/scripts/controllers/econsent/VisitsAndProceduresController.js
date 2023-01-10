@@ -107,7 +107,6 @@ export default class VisitsAndProceduresController extends BreadCrumbManager {
             visit.procedures = visit.procedures.filter(procedure => procedure.checked);
         })
 
-        console.log('this.model.visits', this.model.visits)
     }
 
     async prepareVisitsStatus() {

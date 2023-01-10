@@ -3,7 +3,22 @@
     <div class="container main-container">
         <div class="container flex-container">
             <breadcrumb-navigator></breadcrumb-navigator>
-            <h5 class="generic-title">Trial Participant Health Data</h5>
+            <h5 class="generic-title">Health Data</h5>
+            <div class="d-flex">
+                <div class="mb-2">
+                    <span class="badge badge-success">
+                        Device ID
+                        <span class="badge badge-light assigned-tp-device">{{@deviceId}}</span>
+                    </span>
+                </div>
+                <div class="ml-2">
+                    <span class="badge badge-info">
+                        TP Number
+                        <span class="badge badge-light tp-number-badge">{{@trialParticipantNumber}}</span>
+                    </span>
+                </div>
+            </div>
+
         </div>
 
         <div data-if="@hasHealthData" class="flex-container" >
